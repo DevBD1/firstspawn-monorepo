@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { Locale } from "../../lib/i18n-config";
 import PixelButton from "../pixel/PixelButton";
 import { 
@@ -9,7 +12,8 @@ import {
     Twitter, 
     Github, 
     Youtube, 
-    MessageCircle 
+    MessageCircle,
+    ChevronDown
 } from "lucide-react";
 
 interface FooterProps {
@@ -75,6 +79,46 @@ export default function Footer({ lang, dictionary }: FooterProps) {
         { platform: 'Twitter', href: '#', icon: Twitter },
         { platform: 'GitHub', href: '#', icon: Github },
     ];
+    
+    const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+    const toggleSection = (section: string) => {
+        setOpenSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
+
+    const FooterSection = ({ 
+        id, 
+        title, 
+        children 
+    }: { 
+        id: string; 
+        title: string; 
+        children: React.ReactNode 
+    }) => (
+        <div className="border-b border-gray-800 md:border-none pb-4 md:pb-0">
+            <button 
+                onClick={() => toggleSection(id)}
+                className="w-full flex items-center justify-between py-2 md:py-0 md:cursor-default"
+            >
+                <h3 className="pixel-font text-xs text-white uppercase">{title}</h3>
+                <ChevronDown 
+                    size={16} 
+                    className={`text-gray-500 transition-transform duration-200 md:hidden ${openSections[id] ? 'rotate-180' : ''}`} 
+                />
+            </button>
+            <div className={`
+                ${openSections[id] ? 'block' : 'hidden'} 
+                md:block mt-4 md:mt-6 transition-all duration-200
+            `}>
+                <ul className="space-y-3 font-sans text-xl">
+                    {children}
+                </ul>
+            </div>
+        </div>
+    );
 
     return (
         <footer className="bg-footer-bg border-t-8 border-footer-border relative overflow-hidden">
@@ -86,7 +130,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
                 
                 {/* Top Section: CTA & Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 border-b-4 border-gray-800 pb-12">
+                <div className="hidden md:grid md:grid-cols-2 gap-8 mb-16 border-b-4 border-gray-800 pb-12">
                    <div>
                      <h2 className="pixel-font text-xl md:text-2xl text-white mb-4 leading-relaxed">
                        {dictionary.footer.cta.title} <br/><span className="text-accent-cyan">{dictionary.footer.cta.titleHighlight}</span>
@@ -101,7 +145,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                    </div>
                    
                    <div className="flex flex-col justify-center items-start md:items-end space-y-4">
-                      <div className="bg-[#1a1a1a] p-4 border-2 border-gray-700 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] w-full max-w-sm">
+                      <div className="bg-[#1a1a1a] p-4 border-2 border-gray-700 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] w-full max-w-sm hidden md:block">
                         <div className="flex items-center space-x-3 mb-2">
                            <ShieldCheck className="text-success" />
                            <span className="pixel-font text-xs text-success">{dictionary.footer.stats.title}</span>
@@ -125,7 +169,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                 </div>
 
                 {/* Main Links Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
                   
                   <div className="col-span-2 lg:col-span-2">
                      <div className="flex items-center mb-6">
@@ -152,35 +196,26 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                      </div>
                   </div>
 
-                  <div>
-                    <h3 className="pixel-font text-xs text-white mb-6 uppercase">{dictionary.footer.columns.platform.title}</h3>
-                    <ul className="space-y-3 font-sans text-xl">
+                  <FooterSection id="platform" title={dictionary.footer.columns.platform.title}>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.about}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.trust}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.badges}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.api}</a></li>
-                    </ul>
-                  </div>
+                  </FooterSection>
 
-                  <div>
-                    <h3 className="pixel-font text-xs text-white mb-6 uppercase">{dictionary.footer.columns.resources.title}</h3>
-                    <ul className="space-y-3 font-sans text-xl">
+                  <FooterSection id="resources" title={dictionary.footer.columns.resources.title}>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.help}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.api}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.community}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.partners}</a></li>
-                    </ul>
-                  </div>
+                  </FooterSection>
 
-                  <div>
-                    <h3 className="pixel-font text-xs text-white mb-6 uppercase">{dictionary.footer.columns.legal.title}</h3>
-                    <ul className="space-y-3 font-sans text-xl">
+                  <FooterSection id="legal" title={dictionary.footer.columns.legal.title}>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.terms}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.privacy}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.cookie}</a></li>
                       <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.acceptable}</a></li>
-                    </ul>
-                  </div>
+                  </FooterSection>
 
                 </div>
 
