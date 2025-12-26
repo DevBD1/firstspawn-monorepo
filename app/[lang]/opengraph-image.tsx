@@ -13,7 +13,7 @@ export const contentType = 'image/png';
  
 export default async function Image() {
   const pressStart2P = await fetch(
-    new URL('https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8wC8HsKJxtQRhT8E5kQLX.woff', import.meta.url)
+    'https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8wC8HsKJxtQRhT8E5kQLX.woff'
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
@@ -67,8 +67,7 @@ export default async function Image() {
             zIndex: 10,
             padding: '40px',
             border: '1px solid rgba(255,255,255,0.1)',
-            background: 'rgba(5,5,5,0.8)',
-            backdropFilter: 'blur(4px)',
+            background: 'rgba(5,5,5,0.9)',
             borderRadius: '16px',
             boxShadow: '0 0 40px rgba(0,0,0,0.5)',
           }}
