@@ -66,21 +66,20 @@ export default async function Image() {
             flexDirection: 'column',
             alignItems: 'center',
             zIndex: 10,
-            padding: '40px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            background: 'rgba(5,5,5,0.9)',
-            borderRadius: '16px',
-            boxShadow: '0 0 40px rgba(0,0,0,0.5)',
+            padding: '48px',
+            border: '3px solid #333',
+            background: '#050505',
+            boxShadow: '8px 8px 0 rgba(0,0,0,0.5)',
           }}
         >
           {/* Label */}
           <div
             style={{
-              fontSize: 12,
+              fontSize: 14,
               letterSpacing: '2px',
               color: '#22d3ee',
               textTransform: 'uppercase',
-              marginBottom: 10,
+              marginBottom: 12,
               fontWeight: 600,
             }}
           >
@@ -90,11 +89,11 @@ export default async function Image() {
           {/* Title */}
           <div
             style={{
-              fontSize: 50,
+              fontSize: 56,
               fontWeight: 900,
               color: 'white',
               lineHeight: 1,
-              marginBottom: 20,
+              marginBottom: 24,
               letterSpacing: '-2px',
               textShadow: '0 0 20px rgba(255,255,255,0.2)',
             }}
@@ -105,15 +104,15 @@ export default async function Image() {
           {/* Subtitle / Description */}
           <div
             style={{
-              fontSize: 18,
+              fontSize: 20,
               color: '#a1a1aa',
               textAlign: 'center',
-              maxWidth: 700,
+              maxWidth: 800,
               fontWeight: 400,
               lineHeight: 1.5,
             }}
           >
-            The infrastructure for reliable voxel multiplayer. Verified uptime, no pay-to-win placements.
+            The only reliable infrastructure for Minecraft & Hytale servers. We systematically prevent fake votes and bots, ensuring you discover servers based on technical performance and genuine community love.
           </div>
 
           {/* Status Bar */}
@@ -121,34 +120,41 @@ export default async function Image() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              marginTop: 40,
-              gap: 20,
-              padding: '12px 24px',
+              marginTop: 48,
+              gap: 24,
+              padding: '14px 28px',
               background: 'rgba(34, 211, 238, 0.1)',
-              border: '1px solid rgba(34, 211, 238, 0.2)',
-              borderRadius: '999px',
+              border: '2px solid rgba(34, 211, 238, 0.2)',
+              backgroundColor: 'rgba(34, 211, 238, 0.05)',
             }}
           >
             <div
                 style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
+                    gap: 10,
                 }}
             >
-                <div style={{ width: 8, height: 8, background: '#4ade80', borderRadius: '50%', boxShadow: '0 0 8px #4ade80' }} />
-                <span style={{ color: '#4ade80', fontSize: 14, fontWeight: 700 }}>SYSTEMS ONLINE</span>
+                <div style={{ width: 10, height: 10, background: '#4ade80', borderRadius: '50%', boxShadow: '0 0 8px #4ade80' }} />
+                <span style={{ color: '#4ade80', fontSize: 16, fontWeight: 700 }}>SYSTEMS ONLINE</span>
             </div>
-            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
-            <div style={{ color: '#94a3b8', fontSize: 14 }}>100% FAKE VOTES BLOCKED</div>
+            <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ color: '#94a3b8', fontSize: 16 }}>100% COMMUNITY</div>
           </div>
         </div>
-
-        {/* Decorative Corners */}
-        <div style={{ position: 'absolute', top: 40, left: 40, width: 20, height: 2, background: '#333' }} />
-        <div style={{ position: 'absolute', top: 40, left: 40, width: 2, height: 20, background: '#333' }} />
-        <div style={{ position: 'absolute', bottom: 40, right: 40, width: 20, height: 2, background: '#333' }} />
-        <div style={{ position: 'absolute', bottom: 40, right: 40, width: 2, height: 20, background: '#333' }} />
+ 
+        {/* Pixel Corners */}
+        <div style={{ position: 'absolute', top: 38, left: 38, width: 12, height: 4, background: '#22d3ee' }} />
+        <div style={{ position: 'absolute', top: 38, left: 38, width: 4, height: 12, background: '#22d3ee' }} />
+        
+        <div style={{ position: 'absolute', bottom: 38, right: 38, width: 12, height: 4, background: '#22d3ee' }} />
+        <div style={{ position: 'absolute', bottom: 38, right: 38, width: 4, height: 12, background: '#22d3ee' }} />
+ 
+        <div style={{ position: 'absolute', top: 38, right: 38, width: 12, height: 4, background: '#22d3ee' }} />
+        <div style={{ position: 'absolute', top: 38, right: 38, width: 4, height: 12, background: '#22d3ee' }} />
+ 
+        <div style={{ position: 'absolute', bottom: 38, left: 38, width: 12, height: 4, background: '#22d3ee' }} />
+        <div style={{ position: 'absolute', bottom: 38, left: 38, width: 4, height: 12, background: '#22d3ee' }} />
       </div>
     ),
     {
