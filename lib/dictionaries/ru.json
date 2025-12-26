@@ -1,0 +1,20 @@
+{
+    "common": {
+        "brand": "FIRSTSPAWN",
+        "tagline": "Узел подтвержденных открытий"
+    },
+    "nav": {
+        "discover": "Найти",
+        "myLoot": "Мой лут",
+        "console": "Консоль"
+    },
+    "footer": {
+        "copyright": "© 2025 FIRSTSPAWN. Все права защищены.",
+        "api": "API",
+        "legal": "Юридическая информация",
+        "trustBadge": "Знак доверия"
+    },
+    "home": {
+        "welcome": "Добро пожаловать в FIRSTSPAWN"
+    }
+}

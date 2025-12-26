@@ -1,0 +1,20 @@
+{
+    "common": {
+        "brand": "FIRSTSPAWN",
+        "tagline": "Nodo de Descubrimiento Verificado"
+    },
+    "nav": {
+        "discover": "Descubrir",
+        "myLoot": "Mi Botín",
+        "console": "Consola"
+    },
+    "footer": {
+        "copyright": "© 2025 FIRSTSPAWN. Todos los derechos reservados.",
+        "api": "API",
+        "legal": "Legal",
+        "trustBadge": "Distintivo de Confianza"
+    },
+    "home": {
+        "welcome": "Bienvenido a FIRSTSPAWN"
+    }
+}

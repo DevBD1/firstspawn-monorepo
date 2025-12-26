@@ -1,0 +1,20 @@
+{
+    "common": {
+        "brand": "FIRSTSPAWN",
+        "tagline": "Verified Discovery Node"
+    },
+    "nav": {
+        "discover": "DISCOVER",
+        "myLoot": "MY LOOT",
+        "console": "CONSOLE"
+    },
+    "footer": {
+        "copyright": "© 2024 FIRSTSPAWN VERIFIED DISCOVERY PROTOCOL",
+        "api": "API",
+        "legal": "LEGAL",
+        "trustBadge": "TRUST BADGE"
+    },
+    "home": {
+        "welcome": "Ready to build something amazing."
+    }
+}

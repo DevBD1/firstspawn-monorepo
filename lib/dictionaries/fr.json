@@ -1,0 +1,20 @@
+{
+    "common": {
+        "brand": "FIRSTSPAWN",
+        "tagline": "Nœud de Découverte Vérifié"
+    },
+    "nav": {
+        "discover": "Découvrir",
+        "myLoot": "Mon Butin",
+        "console": "Console"
+    },
+    "footer": {
+        "copyright": "© 2025 FIRSTSPAWN. Tous droits réservés.",
+        "api": "API",
+        "legal": "Légal",
+        "trustBadge": "Badge de Confiance"
+    },
+    "home": {
+        "welcome": "Bienvenue sur FIRSTSPAWN"
+    }
+}

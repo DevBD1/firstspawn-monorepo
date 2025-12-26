@@ -1,0 +1,20 @@
+{
+    "common": {
+        "brand": "FIRSTSPAWN",
+        "tagline": "Onaylanmış Keşif Düğümü"
+    },
+    "nav": {
+        "discover": "KEŞFET",
+        "myLoot": "GANİMETİM",
+        "console": "KONSOL"
+    },
+    "footer": {
+        "copyright": "© 2024 FIRSTSPAWN ONAYLANMIŞ KEŞİF PROTOKOLÜ",
+        "api": "API",
+        "legal": "YASAL",
+        "trustBadge": "GÜVEN ROZETİ"
+    },
+    "home": {
+        "welcome": "Harika bir şeyler inşa etmeye hazırız."
+    }
+}

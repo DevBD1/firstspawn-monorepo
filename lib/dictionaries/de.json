@@ -1,0 +1,20 @@
+{
+    "common": {
+        "brand": "FIRSTSPAWN",
+        "tagline": "Verifizierter Entdeckungsserver"
+    },
+    "nav": {
+        "discover": "ENTDECKEN",
+        "myLoot": "MEINE BEUTE",
+        "console": "KONSOLE"
+    },
+    "footer": {
+        "copyright": "© 2024 FIRSTSPAWN VERIFIZIERTES ENTDECKUNGSPROTOKOLL",
+        "api": "API",
+        "legal": "RECHTLICHES",
+        "trustBadge": "TRUST BADGE"
+    },
+    "home": {
+        "welcome": "Bereit, etwas Erstaunliches aufzubauen."
+    }
+}
