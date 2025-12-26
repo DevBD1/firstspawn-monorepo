@@ -12,9 +12,7 @@ export const size = {
 export const contentType = 'image/png';
  
 export default async function Image() {
-  const pressStart2P = await fetch(
-    'https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8wC8HsKJxtQRhT8E5kQLX.woff'
-  ).then((res) => res.arrayBuffer());
+
 
   return new ImageResponse(
     (
@@ -27,7 +25,6 @@ export default async function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#050505',
-          fontFamily: '"Press Start 2P"',
           position: 'relative',
         }}
       >
@@ -152,14 +149,6 @@ export default async function Image() {
     ),
     {
       ...size,
-      fonts: [
-        {
-          name: 'Press Start 2P',
-          data: pressStart2P,
-          style: 'normal',
-          weight: 400,
-        },
-      ],
     }
   );
 }
