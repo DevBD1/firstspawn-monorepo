@@ -22,6 +22,11 @@ function getLocale(request: NextRequest): string | undefined {
 export function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
+    // Ignore admin panel
+    if (pathname.startsWith('/admin')) {
+        return NextResponse.next();
+    }
+
     // Check if there is any supported locale in the pathname
     const pathnameIsMissingLocale = i18n.locales.every(
         (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`

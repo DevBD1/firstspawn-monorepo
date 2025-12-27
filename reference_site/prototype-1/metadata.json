@@ -1,7 +1,0 @@
-{
-  "name": "FirstSpawn - GREAT",
-  "description": "The elite, verified discovery platform for Minecraft and Hytale servers. No bots, no fake votes, just pure performance data and community trust.",
-  "requestFramePermissions": [
-    "geolocation"
-  ]
-}
