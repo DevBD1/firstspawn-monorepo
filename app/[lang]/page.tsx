@@ -1,5 +1,6 @@
 import { getDictionary } from "../../lib/get-dictionary";
 import type { Locale } from "../../lib/i18n-config";
+import LandingPage from "../../components/landing/LandingPage";
 
 export default async function Home({
     params,
@@ -10,11 +11,8 @@ export default async function Home({
     const dict = await getDictionary(lang);
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-24 font-retro">
-            <main className="text-center">
-                <h1 className="text-4xl font-bold pixel-font">{dict.common.brand}</h1>
-                <p className="mt-4 text-zinc-400 text-xl font-medium">{dict.home.welcome}</p>
-            </main>
-        </div>
+        <main className="w-full">
+            <LandingPage lang={lang} dictionary={dict} />
+        </main>
     );
 }
