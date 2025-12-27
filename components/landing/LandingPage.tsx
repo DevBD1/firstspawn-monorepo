@@ -26,8 +26,17 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     const [showCaptcha, setShowCaptcha] = useState(false);
     const [isSubscribed, setIsSubscribed] = useState(false);
+    const [confirmEmailSent, setConfirmEmailSent] = useState(false);
+    const [email, setEmail] = useState('');
+    const [statusMessage, setStatusMessage] = useState('');
 
     useEffect(() => {
+        // Check for confirmation param
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('confirmed') === 'true') {
+            setIsSubscribed(true);
+        }
+
         // Initialize retro click/jump sound
         audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3'); 
         audioRef.current.volume = 0.4;
@@ -54,9 +63,22 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
         setShowCaptcha(true);
     };
 
-    const handleVerifySuccess = () => {
-        setIsSubscribed(true);
+    const handleVerifySuccess = async () => {
+        // Trigger server action
         setShowCaptcha(false);
+        setStatusMessage('INITIATING LINK...');
+        
+        // Dynamic import to avoid server-only module issues in client component if strict
+        const { subscribeToNewsletter } = await import('@/app/actions/newsletter');
+        const result = await subscribeToNewsletter(email);
+
+        if (result.success) {
+            setConfirmEmailSent(true);
+            setStatusMessage('');
+        } else {
+            setStatusMessage(result.message || 'ERROR. TRY AGAIN.');
+            setTimeout(() => setStatusMessage(''), 3000);
+        }
     };
 
     const handleStart = () => {
@@ -145,11 +167,18 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                              <div className="bg-[#4ADE80]/10 border-2 border-[#4ADE80] p-4 text-[#4ADE80] font-pixel text-center animate-pulse">
                                  SUBSCRIPTION VERIFIED. WELCOME, TRAVELER.
                              </div>
+                        ) : confirmEmailSent ? (
+                            <div className="bg-[#2EBCDA]/10 border-2 border-[#2EBCDA] p-4 text-[#2EBCDA] font-pixel text-center">
+                                <span className="animate-pulse">CONFIRMATION LINK SENT.</span> <br/> 
+                                <span className="text-xs font-sans opacity-70">CHECK YOUR INBOX TO INITIALIZE CONNECTION.</span>
+                            </div>
                         ) : (
-                            <form className="flex flex-col sm:flex-row gap-0" onSubmit={handleSubscribe}>
+                            <form className="flex flex-col sm:flex-row gap-0 items-stretch" onSubmit={handleSubscribe}>
                                 <input 
                                     type="email" 
                                     placeholder="Enter your email" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="flex-grow bg-[#0B131A] border-2 border-r-0 border-[#2EBCDA]/20 text-white placeholder:text-gray-700 px-4 py-3 font-mono text-sm focus:outline-none focus:border-[#4ADE80] transition-colors"
                                     required
                                 />
@@ -161,6 +190,9 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                                     SCRIBE
                                 </PixelButton>
                             </form>
+                        )}
+                        {statusMessage && (
+                            <div className="text-xs text-red-400 font-mono mt-2 uppercase">{statusMessage}</div>
                         )}
                     </div>
                 </div>
