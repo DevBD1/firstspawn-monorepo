@@ -24,19 +24,30 @@ export async function GET(request: NextRequest) {
     const decoded = jwt.verify(token, JWT_SECRET) as { email: string };
     const email = decoded.email;
 
-    // 2. Add to Resend Audience
-    // 'aud_...' is optional if you have a specific audience, otherwise it adds to default
-    // We'll use the default contact creation which goes to the default audience
-    const { error } = await resend.contacts.create({
-      email: email,
-      unsubscribed: false,
-    });
+    // 2. Add to Resend
+    // 'audienceId' is optional in newer Resend SDKs (contacts are global).
+    // If you have a legacy audience or specific segment, set RESEND_AUDIENCE_ID.
+    const audienceId = process.env.RESEND_AUDIENCE_ID;
+
+    const payload: any = {
+        email: email,
+        unsubscribed: false,
+    };
+    
+    if (audienceId) {
+        payload.audienceId = audienceId;
+    }
+
+    const { data, error } = await resend.contacts.create(payload);
 
     if (error) {
-        console.error("Resend Contact Error", error);
-        // Even if it fails (e.g. already exists), we typically want to show success to the user
-        // But logging it is good
+        console.error("Resend Contact Error:", JSON.stringify(error, null, 2));
+        // We log it but might still want to redirect to success or show error? 
+        // For now, if it fails, we show error json to help debugging since user is stuck.
+        return NextResponse.json({ error: 'Failed to add contact', details: error }, { status: 500 });
     }
+
+    console.log("Resend Contact Created:", JSON.stringify(data, null, 2));
 
     // 3. Redirect to success page
     return NextResponse.redirect(`${APP_URL}?confirmed=true`);
