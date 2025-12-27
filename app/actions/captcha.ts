@@ -4,7 +4,11 @@ import { GoogleGenAI } from "@google/genai";
 
 const getClient = () => {
   const apiKey = process.env.GOOGLE_API_KEY || process.env.API_KEY || process.env.GEMINI_API_KEY;
+  
+  // Debug logging
   if (!apiKey) {
+    console.log("Debug - Available Env Vars:", Object.keys(process.env).filter(key => !key.startsWith('npm_')));
+    console.log("Debug - GEMINI_API_KEY present:", !!process.env.GEMINI_API_KEY);
     console.error("API_KEY is missing in server environment");
     return null;
   }
