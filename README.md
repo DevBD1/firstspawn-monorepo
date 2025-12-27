@@ -14,6 +14,21 @@ FirstSpawn is a verified discovery node for voxel-based multiplayer communities.
 - Real-time Uptime: Verified server availability tracking.
 - Advanced Filters: Pure discovery powered by active bot filters.
 
+## Development Roadmap (v0.1-alpha)
+
+- SEO Optimization
+  - robots.ts
+  - sitemap.ts
+- Cookies Consent
+- Email Subscription (with confirmation)
+- Market Research System
+  - Questionnaire: "Are you a killer, achiever, socializer, or explorer?"
+  - Server Hosting Plans
+  - Game Preference: Minecraft vs Hytale
+- Countdown to Hytale Launch (Jan 13, 2026)
+- Navbar
+- Footer
+
 ## Learn More
 
 This project is built with Next.js and uses TypeScript for type safety. It implements a multi-language system to support global discovery.
