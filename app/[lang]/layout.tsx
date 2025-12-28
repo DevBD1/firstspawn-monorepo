@@ -4,6 +4,7 @@ import "../globals.css";
 import { i18n, type Locale } from "../../lib/i18n-config";
 import { getDictionary } from "../../lib/get-dictionary";
 import Navbar from "../../components/layout/Navbar";
+import { Suspense } from "react";
 import Footer from "../../components/layout/Footer";
 import CookieConsent from "../../components/layout/CookieConsent";
 import { PostHogProvider } from "../../components/providers/PostHogProvider";
@@ -121,7 +122,9 @@ export default async function RootLayout({
                 </main>
                 <Footer lang={lang} dictionary={dictionary} />
                 <CookieConsent dictionary={dictionary} />
-                <PostHogPageView />
+                <Suspense fallback={null}>
+                    <PostHogPageView />
+                </Suspense>
             </body>
             </PostHogProvider>
         </html>
