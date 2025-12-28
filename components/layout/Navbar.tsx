@@ -34,24 +34,24 @@ export default function Navbar({ lang, dictionary }: NavbarProps) {
             <PixelButton
                 href={`/${lang}/discover`}
                 variant="secondary"
-                className={isMobile ? "w-full py-4 text-xs" : ""}
-                onClick={() => setIsOpen(false)}
+                className={`${isMobile ? "w-full py-4 text-xs" : ""} cursor-not-allowed opacity-60`}
+                disabled
             >
                 {dictionary.nav.discover}
             </PixelButton>
             <PixelButton
                 href={`/${lang}/loot`}
                 variant="secondary"
-                className={isMobile ? "w-full py-4 text-xs" : ""}
-                onClick={() => setIsOpen(false)}
+                className={`${isMobile ? "w-full py-4 text-xs" : ""} cursor-not-allowed opacity-60`}
+                disabled
             >
                 {dictionary.nav.myLoot}
             </PixelButton>
             <PixelButton
                 href={`/${lang}/console`}
                 variant="success"
-                className={isMobile ? "w-full py-4 text-xs" : ""}
-                onClick={() => setIsOpen(false)}
+                className={`${isMobile ? "w-full py-4 text-xs" : ""} cursor-not-allowed opacity-60`}
+                disabled
             >
                 {dictionary.nav.console}
             </PixelButton>

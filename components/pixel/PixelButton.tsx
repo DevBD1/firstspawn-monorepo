@@ -9,6 +9,7 @@ interface PixelButtonProps {
     onClick?: () => void;
     href?: string;
     type?: "button" | "submit" | "reset";
+    disabled?: boolean;
 }
 
 const PixelButton: React.FC<PixelButtonProps> = ({
@@ -19,6 +20,7 @@ const PixelButton: React.FC<PixelButtonProps> = ({
     href,
     onClick,
     type = "button",
+    disabled = false,
     ...props
 }) => {
     const variantStyles = {
@@ -45,7 +47,7 @@ const PixelButton: React.FC<PixelButtonProps> = ({
         ${className}
     `;
 
-    if (href) {
+    if (href && !disabled) {
         return (
             <Link href={href} className={combinedStyles} onClick={onClick}>
                 {children}
@@ -58,6 +60,7 @@ const PixelButton: React.FC<PixelButtonProps> = ({
             type={type}
             className={combinedStyles}
             onClick={onClick}
+            disabled={disabled}
             {...props}
         >
             {children}
