@@ -15,6 +15,7 @@ import {
     MessageCircle,
     ChevronDown
 } from "lucide-react";
+import { EXTERNAL_LINKS, SOCIAL_LINKS as SOCIAL_DATA } from "../../lib/links";
 
 interface FooterProps {
     lang: Locale;
@@ -74,10 +75,12 @@ interface FooterProps {
 }
 
 export default function Footer({ lang, dictionary }: FooterProps) {
-    const SOCIAL_LINKS = [
-        { platform: 'Discord', href: '#', icon: MessageCircle },
-        { platform: 'Twitter', href: '#', icon: Twitter },
-        { platform: 'GitHub', href: '#', icon: Github },
+    const SOCIAL_LINKS_LIST = [
+        { platform: 'Discord', href: SOCIAL_DATA.discord, icon: MessageCircle },
+        { platform: 'Twitter', href: SOCIAL_DATA.twitter, icon: Twitter },
+        { platform: 'GitHub', href: SOCIAL_DATA.github, icon: Github },
+        { platform: 'YouTube', href: SOCIAL_DATA.youtube, icon: Youtube },
+        { platform: 'Twitch', href: SOCIAL_DATA.twitch, icon: Twitch },
     ];
     
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -101,9 +104,9 @@ export default function Footer({ lang, dictionary }: FooterProps) {
         <div className="border-b border-gray-800 md:border-none pb-4 md:pb-0">
             <button 
                 onClick={() => toggleSection(id)}
-                className="w-full flex items-center justify-between py-2 md:py-0 md:cursor-default"
+                className="w-full flex items-center justify-between md:justify-start gap-2 py-2 md:py-0 md:cursor-default group"
             >
-                <h3 className="pixel-font text-xs text-white uppercase">{title}</h3>
+                <h3 className="pixel-font text-xs text-white uppercase group-hover:text-accent-cyan transition-colors">{title}</h3>
                 <ChevronDown 
                     size={16} 
                     className={`text-gray-500 transition-transform duration-200 md:hidden ${openSections[id] ? 'rotate-180' : ''}`} 
@@ -113,7 +116,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                 ${openSections[id] ? 'block' : 'hidden'} 
                 md:block mt-4 md:mt-6 transition-all duration-200
             `}>
-                <ul className="space-y-3 font-sans text-xl">
+                <ul className="space-y-3 font-sans text-xl text-left">
                     {children}
                 </ul>
             </div>
@@ -139,8 +142,10 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                        {dictionary.footer.cta.subtitle}
                      </p>
                      <div className="flex flex-wrap gap-4">
-                       <PixelButton>{dictionary.footer.cta.getStarted}</PixelButton>
-                       <PixelButton variant="outline">{dictionary.footer.cta.owners}</PixelButton>
+                       <PixelButton disabled className="cursor-not-allowed opacity-60">
+                         {dictionary.footer.cta.getStarted}
+                       </PixelButton> 
+                       <PixelButton variant="outline" disabled className="cursor-not-allowed opacity-60">{dictionary.footer.cta.owners}</PixelButton>
                      </div>
                    </div>
                    
@@ -173,14 +178,18 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                   
                   <div className="col-span-2 lg:col-span-2">
                      <div className="flex items-center mb-6">
-                        <div className="w-8 h-8 bg-fs-diamond border-2 border-black mr-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"></div>
+                        <img 
+                           src="/favicon.ico" 
+                           alt="FirstSpawn Logo"
+                           className="w-8 h-8 mr-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 border-black"
+                        />
                         <span className="pixel-font text-white">{dictionary.footer.brand.name}</span>
                      </div>
                      <p className="font-sans text-lg text-gray-500 mb-6 max-w-xs">
                        {dictionary.footer.brand.description}
                      </p>
                      <div className="flex space-x-4">
-                        {SOCIAL_LINKS.map(link => {
+                        {SOCIAL_LINKS_LIST.map(link => {
                           const Icon = link.icon;
                           return (
                             <a 
@@ -197,24 +206,24 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                   </div>
 
                   <FooterSection id="platform" title={dictionary.footer.columns.platform.title}>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.about}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.trust}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.badges}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.platform.api}</a></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.platform.about}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.platform.trust}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.platform.badges}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.platform.api}</span></li>
                   </FooterSection>
 
                   <FooterSection id="resources" title={dictionary.footer.columns.resources.title}>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.help}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.api}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.community}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.resources.partners}</a></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.resources.help}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.resources.api}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.resources.community}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.resources.partners}</span></li>
                   </FooterSection>
 
                   <FooterSection id="legal" title={dictionary.footer.columns.legal.title}>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.terms}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.privacy}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.cookie}</a></li>
-                      <li><a href="#" className="text-gray-500 hover:text-accent-cyan transition-colors">{dictionary.footer.columns.legal.acceptable}</a></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.legal.terms}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.legal.privacy}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.legal.cookie}</span></li>
+                      <li><span className="text-gray-600 cursor-not-allowed">{dictionary.footer.columns.legal.acceptable}</span></li>
                   </FooterSection>
 
                 </div>
@@ -231,10 +240,15 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                         <Database size={16} />
                         <span>{dictionary.footer.bottom.version}</span>
                       </div>
-                      <div className="flex items-center space-x-2 text-red-500">
+                      <a 
+                        href={EXTERNAL_LINKS.founder}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-red-500 hover:scale-110 transition-transform cursor-pointer"
+                      >
                          <Heart size={16} fill="currentColor" />
                          <span>{dictionary.footer.bottom.crafted}</span>
-                      </div>
+                      </a>
                    </div>
                 </div>
              </div>
