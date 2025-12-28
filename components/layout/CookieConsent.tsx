@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import posthog from "posthog-js";
 import PixelButton from "../pixel/PixelButton";
 import { Cookie } from "lucide-react";
 
@@ -29,11 +30,13 @@ export default function CookieConsent({ dictionary }: CookieConsentProps) {
 
     const handleAccept = () => {
         localStorage.setItem("cookie_consent", "true");
+        posthog.capture('cookie_consent_accepted');
         setIsVisible(false);
     };
 
     const handleDecline = () => {
         localStorage.setItem("cookie_consent", "false");
+        posthog.capture('cookie_consent_declined');
         setIsVisible(false);
     };
 

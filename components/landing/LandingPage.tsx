@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import posthog from 'posthog-js';
 import PixelHero from './PixelHero';
 import PixelButton from '../pixel/PixelButton';
 import NewsletterCaptcha from '../captcha/NewsletterCaptcha';
@@ -60,6 +61,10 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
 
     const handleSubscribe = (e: React.FormEvent) => {
         e.preventDefault();
+        posthog.capture('newsletter_form_submitted', {
+            email_domain: email.split('@')[1] || 'unknown',
+            language: lang,
+        });
         setShowCaptcha(true);
     };
 
@@ -83,7 +88,12 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
 
     const handleStart = () => {
         if (appState !== AppState.IDLE) return;
-        
+
+        // Track intro started event
+        posthog.capture('intro_started', {
+            language: lang,
+        });
+
         // Play sound
         if (audioRef.current) {
             audioRef.current.currentTime = 0;
@@ -144,11 +154,16 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                                 <div className="text-[10px] md:text-xs text-[#ADCDE2]/60 font-retro uppercase tracking-widest">SECS</div>
                             </div>
                         </div>
-                        <a 
-                            href="https://hytale.com/countdown" 
-                            target="_blank" 
+                        <a
+                            href="https://hytale.com/countdown"
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-[10px] text-[#2EBCDA]/50 hover:text-[#4ADE80] font-mono uppercase mt-4 block transition-colors"
+                            onClick={() => posthog.capture('external_link_clicked', {
+                                link_url: 'https://hytale.com/countdown',
+                                link_text: 'hytale.com/countdown',
+                                link_location: 'countdown_source',
+                            })}
                         >
                             {dictionary.common.source || "Source"}: hytale.com/countdown
                         </a>

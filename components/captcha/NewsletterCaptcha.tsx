@@ -7,6 +7,7 @@ import { verifyHumanityWithWit } from '@/app/actions/captcha';
 import { CaptchaState } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import posthog from 'posthog-js';
 
 interface NewsletterCaptchaProps {
   isOpen: boolean;
@@ -63,6 +64,9 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
   useEffect(() => {
     if (isOpen) {
         resetCaptcha();
+        posthog.capture('captcha_opened', {
+            captcha_type: 'screw_alignment',
+        });
     }
   }, [isOpen, resetCaptcha]);
 
@@ -73,7 +77,12 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
 
   const handleVerify = async () => {
     if (captchaState !== CaptchaState.IDLE) return;
-    
+
+    posthog.capture('captcha_verification_attempted', {
+        captcha_type: 'screw_alignment',
+        attempt_number: attempts + 1,
+    });
+
     setCaptchaState(CaptchaState.VERIFYING);
     setStatusMessage("ANALYZING...");
 
@@ -89,10 +98,20 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
 
     setStatusMessage(message);
     setCaptchaState(isSuccess ? CaptchaState.SUCCESS : CaptchaState.FAILURE);
-    
+
     if (!isSuccess) {
         setAttempts(p => p + 1);
+        posthog.capture('captcha_verification_failed', {
+            captcha_type: 'screw_alignment',
+            delta_degrees: delta,
+            attempt_number: attempts + 1,
+        });
     } else {
+        posthog.capture('captcha_verification_succeeded', {
+            captcha_type: 'screw_alignment',
+            delta_degrees: delta,
+            total_attempts: attempts + 1,
+        });
         setTimeout(() => {
             onVerify();
         }, 1500);
@@ -169,9 +188,15 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
 
                         {/* Action Buttons */}
                         <div className="flex gap-4 pt-4 border-t-2 border-[#2EBCDA]/20">
-                            <PixelButton 
-                                variant="secondary" 
-                                onClick={resetCaptcha}
+                            <PixelButton
+                                variant="secondary"
+                                onClick={() => {
+                                    posthog.capture('captcha_reset', {
+                                        captcha_type: 'screw_alignment',
+                                        attempts_before_reset: attempts,
+                                    });
+                                    resetCaptcha();
+                                }}
                                 disabled={captchaState === CaptchaState.VERIFYING}
                                 className="flex items-center gap-2 !px-4"
                                 title="Reset Puzzle"

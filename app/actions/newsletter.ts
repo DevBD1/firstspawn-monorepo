@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { ConfirmationEmail } from '@/components/emails/ConfirmationEmail';
 import { render } from '@react-email/render';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -46,13 +47,44 @@ export async function subscribeToNewsletter(email: string) {
 
     if (error) {
       console.error('Resend Error:', error);
+      const posthog = getPostHogClient();
+      posthog.capture({
+        distinctId: email,
+        event: 'newsletter_subscription_failed',
+        properties: {
+          email_domain: email.split('@')[1] || 'unknown',
+          error_type: 'email_send_failed',
+          error_message: error.message || 'Unknown error',
+        },
+      });
       return { success: false, message: 'Failed to send confirmation email' };
     }
+
+    // Track successful subscription initiation
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: email,
+      event: 'newsletter_subscription_completed',
+      properties: {
+        email_domain: email.split('@')[1] || 'unknown',
+        subscription_stage: 'confirmation_email_sent',
+      },
+    });
 
     return { success: true, message: 'Confirmation email sent' };
 
   } catch (error) {
     console.error('Subscription Error:', error);
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: email,
+      event: 'newsletter_subscription_failed',
+      properties: {
+        email_domain: email.split('@')[1] || 'unknown',
+        error_type: 'unexpected_error',
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+      },
+    });
     return { success: false, message: 'An unexpected error occurred' };
   }
 }

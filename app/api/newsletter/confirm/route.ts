@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { Resend } from 'resend';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -48,6 +49,27 @@ export async function GET(request: NextRequest) {
     }
 
     console.log("Resend Contact Created:", JSON.stringify(data, null, 2));
+
+    // Track email confirmation and identify user
+    const posthog = getPostHogClient();
+    posthog.capture({
+      distinctId: email,
+      event: 'newsletter_email_confirmed',
+      properties: {
+        email_domain: email.split('@')[1] || 'unknown',
+        subscription_stage: 'email_confirmed',
+      },
+    });
+
+    // Identify the user with their email as the distinct ID
+    posthog.identify({
+      distinctId: email,
+      properties: {
+        email: email,
+        newsletter_subscriber: true,
+        subscription_confirmed_at: new Date().toISOString(),
+      },
+    });
 
     // 3. Redirect to success page
     return NextResponse.redirect(`${APP_URL}?confirmed=true`);

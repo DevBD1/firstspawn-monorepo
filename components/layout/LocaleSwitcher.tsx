@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import posthog from "posthog-js";
 import { type Locale } from "../../lib/i18n-config";
 
 interface LocaleSwitcherProps {
@@ -37,6 +38,10 @@ export default function LocaleSwitcher({
     };
 
     const handleLocaleChange = (locale: string) => {
+        posthog.capture('locale_changed', {
+            previous_locale: currentLocale,
+            new_locale: locale,
+        });
         router.push(redirectedPathName(locale));
         setIsOpen(false);
     };
