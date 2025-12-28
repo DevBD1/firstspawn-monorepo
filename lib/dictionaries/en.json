@@ -1,7 +1,13 @@
 {
     "common": {
         "brand": "FIRSTSPAWN",
-        "tagline": "Verified Discovery Node"
+        "site_title": "FirstSpawn - Verified Discovery Node",
+        "tagline": "Verified Discovery Node",
+        "source": "Source",
+        "join_newsletter_title": "JOIN THE EXPEDITION",
+        "join_newsletter_desc": "No spam — just launch news, previews, and early access opportunities for FirstSpawn.com.",
+        "scribe": "SCRIBE",
+        "enter_email": "Enter your email"
     },
     "nav": {
         "discover": "DISCOVER",

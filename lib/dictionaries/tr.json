@@ -1,7 +1,13 @@
 {
     "common": {
         "brand": "FIRSTSPAWN",
-        "tagline": "Onaylanmış Keşif Düğümü"
+        "site_title": "FirstSpawn - Onaylanmış Keşif Düğümü",
+        "tagline": "Onaylanmış Keşif Düğümü",
+        "source": "Kaynak",
+        "join_newsletter_title": "ARAMIZA KATIL",
+        "join_newsletter_desc": "Spam yok — sadece FirstSpawn.com için proje haberleri, ön izlemeler ve erken erişim fırsatları.",
+        "scribe": "KAYITLA",
+        "enter_email": "E-posta adresinizi girin"
     },
     "nav": {
         "discover": "KEŞFET",
