@@ -72,5 +72,20 @@
     },
     "home": {
         "welcome": "Ready to build something amazing."
+    },
+    "landing": {
+        "click_to_start": "CLICK TO START",
+        "system_ready": "SYSTEM READY",
+        "launch_protocol": "HYTALE LAUNCH PROTOCOL",
+        "countdown": {
+            "days": "DAYS",
+            "hours": "HOURS",
+            "minutes": "MINS",
+            "seconds": "SECS"
+        },
+        "source": "SOURCE: HYTALE.COM/COUNTDOWN",
+        "join_alpha": "JOIN THE ALPHA // SECURE YOUR SPOT",
+        "subscription_verified": "SUBSCRIPTION VERIFIED",
+        "check_inbox": "CHECK YOUR INBOX"
     }
 }

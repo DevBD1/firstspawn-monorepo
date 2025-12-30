@@ -127,7 +127,7 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                     - Contains the background for the start scene
                     - The Click Trigger
                 */}
-                <div className="w-[50%] h-full relative flex items-center justify-center shrink-0">
+                        <div className="w-[50%] h-full relative flex items-center justify-center shrink-0">
                     
                      {/* Background Layers for Screen 1 */}
                      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0B0B15] via-[#1A1025] to-[#2D1B4E]">
@@ -161,9 +161,11 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                                     transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3 }}
                                     className="text-[#4ADE80] text-3xl md:text-5xl tracking-widest uppercase pixel-font mb-4 drop-shadow-[0_4px_0_rgba(0,0,0,1)]"
                                 >
-                                    CLICK TO START
+                                    {dictionary.landing?.click_to_start || "CLICK TO START"}
                                 </motion.h2>
-                                <p className="text-[#ADCDE2]/60 text-xs md:text-sm font-mono tracking-[0.5em] animate-pulse">SYSTEM READY</p>
+                                <p className="text-[#ADCDE2]/60 text-xs md:text-sm font-mono tracking-[0.5em] animate-pulse">
+                                    {dictionary.landing?.system_ready || "SYSTEM READY"}
+                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -198,28 +200,36 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                         {/* Countdown */}
                         <div className="mb-10 p-6 bg-[#0F161C] border border-[#1A2633] w-full max-w-2xl mx-auto relative shadow-inner">
                             <div className="text-[#2EBCDA] text-[10px] md:text-xs font-mono mb-4 tracking-widest uppercase opacity-80">
-                                HYTALE LAUNCH PROTOCOL
+                                {dictionary.landing?.launch_protocol || "HYTALE LAUNCH PROTOCOL"}
                             </div>
                              <div className="grid grid-cols-4 gap-2 md:gap-8 text-center">
                                 <div className="flex flex-col items-center">
                                     <div className="text-3xl md:text-5xl font-bold text-[#E5E7EB] pixel-font">{timeLeft.days}</div>
-                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">DAYS</div>
+                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">
+                                        {dictionary.landing?.countdown?.days || "DAYS"}
+                                    </div>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className="text-3xl md:text-5xl font-bold text-[#E5E7EB] pixel-font">{timeLeft.hours}</div>
-                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">HOURS</div>
+                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">
+                                        {dictionary.landing?.countdown?.hours || "HOURS"}
+                                    </div>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className="text-3xl md:text-5xl font-bold text-[#E5E7EB] pixel-font">{timeLeft.minutes}</div>
-                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">MINS</div>
+                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">
+                                        {dictionary.landing?.countdown?.minutes || "MINS"}
+                                    </div>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className="text-3xl md:text-5xl font-bold text-[#E5E7EB] pixel-font">{timeLeft.seconds}</div>
-                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">SECS</div>
+                                    <div className="text-[9px] text-[#4B5563] font-mono mt-2 uppercase tracking-wider">
+                                        {dictionary.landing?.countdown?.seconds || "SECS"}
+                                    </div>
                                 </div>
                             </div>
                             <div className="mt-4 text-[8px] text-[#2EBCDA]/40 font-mono text-right hover:text-[#2EBCDA]/60 transition-colors cursor-help">
-                                SOURCE: HYTALE.COM/COUNTDOWN
+                                {dictionary.landing?.source || "SOURCE: HYTALE.COM/COUNTDOWN"}
                             </div>
                         </div>
 
@@ -227,20 +237,20 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                             {/* Descriptive Headline */}
                             <div>
                                 <h3 className="text-white font-pixel text-xl md:text-2xl mb-2 tracking-wide">
-                                    JOIN THE EXPEDITION
+                                    {dictionary.landing?.join_alpha || dictionary.common.join_newsletter_title || "JOIN THE EXPEDITION"}
                                 </h3>
                                 <p className="text-[#6D8A99] text-[10px] md:text-xs font-mono leading-relaxed">
-                                    No spam - just launch news, previews, and early access opportunities for FirstSpawn.com.
+                                    {dictionary.common.join_newsletter_desc || "No spam - just launch news, previews, and early access opportunities for FirstSpawn.com."}
                                 </p>
                             </div>
 
                             {isSubscribed ? (
                                 <div className="p-4 bg-[#4ADE80]/10 border border-[#4ADE80]/30 text-[#4ADE80] font-pixel text-center animate-pulse">
-                                    SUBSCRIPTION VERIFIED
+                                    {dictionary.landing?.subscription_verified || "SUBSCRIPTION VERIFIED"}
                                 </div>
                             ) : confirmEmailSent ? (
                                 <div className="p-4 bg-[#2EBCDA]/10 border border-[#2EBCDA]/30 text-[#2EBCDA] font-pixel text-center">
-                                    CHECK YOUR INBOX
+                                    {dictionary.landing?.check_inbox || "CHECK YOUR INBOX"}
                                 </div>
                             ) : (
                                 <form className="flex flex-col sm:flex-row gap-0 items-stretch border border-[#2EBCDA]/20 hover:border-[#2EBCDA]/40 transition-colors group" onSubmit={handleSubscribe}>

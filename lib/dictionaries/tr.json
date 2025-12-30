@@ -1,76 +1,91 @@
 {
-    "common": {
-        "brand": "FIRSTSPAWN",
-        "site_title": "FirstSpawn - Onaylanmış Keşif Düğümü",
-        "tagline": "Onaylanmış Keşif Düğümü",
-        "source": "Kaynak",
-        "join_newsletter_title": "ARAMIZA KATIL",
-        "join_newsletter_desc": "Spam yok — sadece FirstSpawn.com için proje haberleri, ön izlemeler ve erken erişim fırsatları.",
-        "scribe": "KAYITLA",
-        "enter_email": "E-posta adresinizi girin"
-    },
-    "nav": {
-        "discover": "KEŞFET",
-        "myLoot": "GANİMETİM",
-        "console": "KONSOL"
-    },
-    "footer": {
-        "cta": {
-            "title": "Ready to find your",
-            "titleHighlight": "Forever Server?",
-            "subtitle": "Stop wasting time on pay-to-win billboards. Discover communities backed by verified uptime and real player retention.",
-            "getStarted": "Get Started",
-            "owners": "For Server Owners"
-        },
-        "stats": {
-            "title": "SYSTEM VERIFIED",
-            "fakeVotes": "Fake Votes Blocked",
-            "fakeVotesValue": "100%",
-            "uptime": "Uptime Verified",
-            "uptimeValue": "Real-time",
-            "filters": "Bot Filters",
-            "filtersValue": "Active"
-        },
-        "brand": {
-            "name": "FIRSTSPAWN",
-            "description": "The infrastructure for reliable voxel multiplayer discovery. We prioritize performance data over paid placements."
-        },
-        "columns": {
-            "platform": {
-                "title": "Platform",
-                "about": "About FirstSpawn",
-                "trust": "Trust & Verification",
-                "badges": "Server Badges",
-                "api": "API Status"
+    "common":  {
+                   "brand":  "FIRSTSPAWN",
+                   "site_title":  "FirstSpawn - Onaylanmış Keşif Düğümü",
+                   "tagline":  "Onaylanmış Keşif Düğümü",
+                   "source":  "Kaynak",
+                   "join_newsletter_title":  "ARAMIZA KATIL",
+                   "join_newsletter_desc":  "Spam yok — sadece FirstSpawn.com için proje haberleri, ön izlemeler ve erken erişim fırsatları.",
+                   "scribe":  "KAYITLA",
+                   "enter_email":  "E-posta adresinizi girin"
+               },
+    "nav":  {
+                "discover":  "KEŞFET",
+                "myLoot":  "GANİMETİM",
+                "console":  "KONSOL"
             },
-            "resources": {
-                "title": "Resources",
-                "help": "Help Center",
-                "api": "Developer API",
-                "community": "Community Guidelines",
-                "partners": "Partner Program"
-            },
-            "legal": {
-                "title": "Legal",
-                "terms": "Terms of Service",
-                "privacy": "Privacy Policy",
-                "cookie": "Cookie Policy",
-                "acceptable": "Acceptable Use"
-            }
-        },
-        "bottom": {
-            "copyright": "© {year} FirstSpawn. Hypixel Studios veya Mojang ile bağlantısı yoktur.",
-            "systemsNormal": "Sistemler Normal",
-            "version": "v0.1.0",
-            "crafted": "Özenle hazırlanmıştır."
-        }
-    },
-    "cookie_consent": {
-        "message": "Web sitemizde size en iyi piksel deneyimini sunmak için çerezleri kullanıyoruz.",
-        "accept": "KABUL ET",
-        "decline": "REDDET"
-    },
-    "home": {
-        "welcome": "Harika bir şeyler inşa etmeye hazırız."
-    }
+    "footer":  {
+                   "cta":  {
+                               "title":  "Ready to find your",
+                               "titleHighlight":  "Forever Server?",
+                               "subtitle":  "Stop wasting time on pay-to-win billboards. Discover communities backed by verified uptime and real player retention.",
+                               "getStarted":  "Get Started",
+                               "owners":  "For Server Owners"
+                           },
+                   "stats":  {
+                                 "title":  "SYSTEM VERIFIED",
+                                 "fakeVotes":  "Fake Votes Blocked",
+                                 "fakeVotesValue":  "100%",
+                                 "uptime":  "Uptime Verified",
+                                 "uptimeValue":  "Real-time",
+                                 "filters":  "Bot Filters",
+                                 "filtersValue":  "Active"
+                             },
+                   "brand":  {
+                                 "name":  "FIRSTSPAWN",
+                                 "description":  "The infrastructure for reliable voxel multiplayer discovery. We prioritize performance data over paid placements."
+                             },
+                   "columns":  {
+                                   "platform":  {
+                                                    "title":  "Platform",
+                                                    "about":  "About FirstSpawn",
+                                                    "trust":  "Trust \u0026 Verification",
+                                                    "badges":  "Server Badges",
+                                                    "api":  "API Status"
+                                                },
+                                   "resources":  {
+                                                     "title":  "Resources",
+                                                     "help":  "Help Center",
+                                                     "api":  "Developer API",
+                                                     "community":  "Community Guidelines",
+                                                     "partners":  "Partner Program"
+                                                 },
+                                   "legal":  {
+                                                 "title":  "Legal",
+                                                 "terms":  "Terms of Service",
+                                                 "privacy":  "Privacy Policy",
+                                                 "cookie":  "Cookie Policy",
+                                                 "acceptable":  "Acceptable Use"
+                                             }
+                               },
+                   "bottom":  {
+                                  "copyright":  "© {year} FirstSpawn. Hypixel Studios veya Mojang ile bağlantısı yoktur.",
+                                  "systemsNormal":  "Sistemler Normal",
+                                  "version":  "v0.1.0",
+                                  "crafted":  "Özenle hazırlanmıştır."
+                              }
+               },
+    "cookie_consent":  {
+                           "message":  "Web sitemizde size en iyi piksel deneyimini sunmak için çerezleri kullanıyoruz.",
+                           "accept":  "KABUL ET",
+                           "decline":  "REDDET"
+                       },
+    "home":  {
+                 "welcome":  "Harika bir şeyler inşa etmeye hazırız."
+             },
+    "landing":  {
+                    "subscription_verified":  "SUBSCRIPTION VERIFIED",
+                    "launch_protocol":  "HYTALE LAUNCH PROTOCOL",
+                    "join_alpha":  "JOIN THE ALPHA // SECURE YOUR SPOT",
+                    "system_ready":  "SYSTEM READY",
+                    "source":  "SOURCE: HYTALE.COM/COUNTDOWN",
+                    "click_to_start":  "CLICK TO START",
+                    "check_inbox":  "CHECK YOUR INBOX",
+                    "countdown":  {
+                                      "hours":  "HOURS",
+                                      "days":  "DAYS",
+                                      "minutes":  "MINS",
+                                      "seconds":  "SECS"
+                                  }
+                }
 }
