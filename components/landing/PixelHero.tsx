@@ -11,7 +11,7 @@ const PixelHero: React.FC<PixelHeroProps> = ({ isWalking }) => {
         <div className="relative w-24 h-24 md:w-36 md:h-36">
             <motion.div
                 animate={isWalking ? { y: [0, -4, 0] } : { y: 0 }}
-                transition={{ repeat: Infinity, duration: 0.3, ease: "linear" }}
+                transition={isWalking ? { repeat: Infinity, duration: 0.3, ease: "linear" } : { duration: 0.2 }}
                 className="w-full h-full"
             >
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-xl">
