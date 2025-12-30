@@ -1,0 +1,9 @@
+# FirstSpawn
+
+> FirstSpawn (First Spawn) is the premier Verified Infrastructure Node and discovery platform for Hytale, the upcoming block-game RPG. We provide secure, localized, and verified news, community tools, and server discovery services for the Hytale ecosystem.
+
+## Core Resources
+
+- [Home](https://firstspawn.com) - The main gateway to the FirstSpawn network and discovery node.
+- [Newsletter](https://firstspawn.com/newsletter) - Official updates, community digests, and secure subscription management.
+- [About](https://firstspawn.com/about) - Information about the FirstSpawn project, its mission as a Verified Node, and the team.

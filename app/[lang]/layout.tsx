@@ -115,6 +115,23 @@ export default async function RootLayout({
           antialiased min-h-screen flex flex-col
         `}
             >
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            '@context': 'https://schema.org',
+                            '@type': 'WebSite',
+                            name: dictionary.common.brand,
+                            url: process.env.NEXT_PUBLIC_SITE_URL || 'https://firstspawn.com',
+                            description: dictionary.common.tagline,
+                            potentialAction: {
+                                '@type': 'SearchAction',
+                                target: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://firstspawn.com'}/search?q={search_term_string}`,
+                                'query-input': 'required name=search_term_string',
+                            },
+                        }),
+                    }}
+                />
                 <div className="crt-overlay" />
                 <Navbar lang={lang} dictionary={dictionary} />
                 <main className="flex-grow">
