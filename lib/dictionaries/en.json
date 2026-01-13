@@ -74,17 +74,19 @@
         "welcome": "Ready to build something amazing."
     },
     "landing": {
-        "click_to_start": "CLICK TO START",
-        "system_ready": "SYSTEM READY",
-        "launch_protocol": "HYTALE LAUNCH PROTOCOL",
-        "countdown": {
-            "days": "DAYS",
-            "hours": "HOURS",
-            "minutes": "MINS",
-            "seconds": "SECS"
-        },
-        "source": "SOURCE: HYTALE.COM/COUNTDOWN",
-        "join_alpha": "JOIN THE ALPHA // SECURE YOUR SPOT",
+        "under_construction": "UNDER CONSTRUCTION",
+        "building_title": "BUILDING THE ULTIMATE DISCOVERY ECOSYSTEM",
+        "status": "STATUS",
+        "active": "ACTIVE",
+        "building_desc": "More than just a server list — FirstSpawn is a social network for Minecraft & Hytale players. Sync your cross-platform identity, leave reviews backed by verified playtime, solve puzzles to win prizes, form Guilds, and earn reputation badges.",
+        "progress": "PROGRESS",
+        "feature_servers": "MINECRAFT & HYTALE",
+        "feature_verified": "VERIFIED PLAYTIME",
+        "feature_uptime": "GUILDS & BADGES",
+        "feature_anticheat": "WIN PRIZES",
+        "notify_title": "BE FIRST TO SPAWN",
+        "notify_desc": "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!",
+        "notify_btn": "NOTIFY ME",
         "subscription_verified": "SUBSCRIPTION VERIFIED",
         "check_inbox": "CHECK YOUR INBOX"
     }
