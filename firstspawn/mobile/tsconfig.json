@@ -1,0 +1,10 @@
+{
+  "extends": "@firstspawn/typescript-config/react-native.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

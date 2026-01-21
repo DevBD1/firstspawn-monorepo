@@ -1,0 +1,22 @@
+{
+  "name": "@firstspawn/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@firstspawn/typescript-config": "*",
+    "@types/node": "^20",
+    "eslint": "^9",
+    "tsx": "^4.19.0",
+    "typescript": "^5"
+  }
+}

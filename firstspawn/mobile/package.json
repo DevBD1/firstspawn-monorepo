@@ -1,0 +1,21 @@
+{
+  "name": "@firstspawn/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Run: npx expo start' && exit 0",
+    "build": "echo 'Mobile build - configure Expo/EAS Build'",
+    "lint": "eslint .",
+    "clean": "rm -rf node_modules .expo"
+  },
+  "dependencies": {
+    "@firstspawn/ui": "*"
+  },
+  "devDependencies": {
+    "@firstspawn/typescript-config": "*",
+    "@types/node": "^20",
+    "eslint": "^9",
+    "typescript": "^5"
+  }
+}
