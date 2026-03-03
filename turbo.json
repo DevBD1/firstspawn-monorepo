@@ -5,6 +5,13 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": [
+        "RESEND_API_KEY",
+        "JWT_SECRET",
+        "RESEND_AUDIENCE_ID",
+        "GEMINI_API_KEY",
+        "OPENAI_API_KEY"
+      ],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
