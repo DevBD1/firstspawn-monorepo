@@ -1,87 +1,108 @@
 # FirstSpawn
 
-**The Ultimate Discovery Ecosystem for Minecraft and Hytale.**
+FirstSpawn is a discovery ecosystem for Minecraft and Hytale: server listing, social trust, identity sync, guilds, reviews, and retention loops (daily puzzles, badges, progression).
 
-## 🌍 Vision
+## Vision
 
-FirstSpawn is more than just a server list; it is a comprehensive social network designed to connect players with active and upcoming voxel-based communities. We bridge the gap between discovery and engagement by allowing users to sync their cross-platform identities (Discord, Steam, Epic) and leave reviews backed by **verified playtime**.
+FirstSpawn is not just a server directory. It is a social network for game-server communities, where discovery and credibility are tied to verified activity and reputation.
 
-Whether you are solving daily puzzles to win real in-game prizes, forming Guilds with friends, or earning reputation badges to boost your credibility, FirstSpawn turns the mundane task of server discovery into a genuine adventure.
+## Monorepo
 
-## 🚀 Core Features
+This repository is an npm workspace + Turborepo monorepo.
 
-- **Verified Discovery:** Explore active and upcoming game servers with rich filtering options.
-- **Social Trust:** Leave comments and reviews signed with verified playtime (via our custom mod integration).
-- **Identity Sync:** Connect your digital ecosystem—Minecraft, Hytale, Discord, Steam, Epic Games, and more.
-- **Play & Earn:** Participate in daily puzzles and minigames to win prizes directly on game servers.
-- **Server Management:** Hosts can register servers, manage listings, and grind for server badges (including premium tiers).
-- **Reputation System:** Users earn badges to establish credibility within the network.
-- **Guilds:** Create or join Guilds (clans) to socialize and compete together.
-- **Global Reach:** Fully localized interface supporting English, Turkish, German, Russian, Spanish, and French.
-
-## 🛠️ Tech Stack
-
-Built with cutting-edge web technologies for performance, scalability, and developer experience:
-
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-- **UI Components:** [Framer Motion](https://www.framer.com/motion/) & [Lucide React](https://lucide.dev/)
-- **Analytics:** [PostHog](https://posthog.com/)
-- **Email:** [Resend](https://resend.com/) & [React Email](https://react.email/)
-- **Internationalization:** Native Next.js i18n with `negotiator` and `@formatjs/intl-localematcher`.
-- **Validation:** [Zod](https://zod.dev/)
-
-## 📂 Project Structure
-
-A quick look at the top-level directory structure:
-
-```
-firstspawn-web/
-├── app/              # Next.js App Router pages and layouts
-│   ├── [lang]/       # Localized routes
-│   ├── actions/      # Server Actions
-│   └── api/          # API Routes
-├── assets/           # Static assets (fonts, images)
-├── components/       # Reusable React components
-├── lib/              # Utilities, dictionaries, and configurations
-└── public/           # Public static files
+```txt
+firstspawn-monorepo/
+├── firstspawn/
+│   ├── web/          # Next.js frontend (@firstspawn/web)
+│   ├── api/          # Backend service workspace (planned/evolving)
+│   └── mobile/       # Mobile app workspace
+├── packages/
+│   ├── ui/           # Shared UI package
+│   ├── config/       # Shared config
+│   └── typescript-config/
+├── turbo.json
+└── package.json
 ```
 
-## 🏁 Getting Started
+## Architecture Decisions (Q1 2026)
 
-To run the development server locally:
+### 1) Does Turborepo support Python libraries?
 
-1.  **Install dependencies:**
+Yes. Turborepo is language-agnostic task orchestration. It can run Python tasks (lint/test/build/jobs) as long as each workspace exposes scripts/commands.
 
-    ```bash
-    npm install
-    # or
-    yarn install
-    # or
-    pnpm install
-    ```
+Practical setup:
+- Keep frontend workspaces in npm workspaces.
+- Add Python service directories (for example `firstspawn/api-py`, `firstspawn/data`).
+- Run Python tools via project scripts (`uv`, `poetry`, or `pip`) and let Turbo cache outputs.
 
-2.  **Run the development server:**
+### 2) Frontend choice when UI/UX is critical
 
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    ```
+Recommendation: keep frontend on `Next.js + React + TypeScript`.
 
-3.  Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Reason:
+- Strongest ecosystem for polished UI/UX, animation, accessibility, design systems, and performance tooling.
+- Better component-level control than Python-first UI frameworks for a consumer-grade social product.
 
-## 🗺️ Roadmap (v0.1-alpha)
+### 3) Is PostgreSQL + Django ORM enough?
 
-- [ ] **SEO Optimization**: Implementation of `robots.ts` and `sitemap.ts`.
-- [ ] **User Engagement**: Cookie consent and Newsletter subscription with confirmation.
-- [ ] **Market Research**: "Killer, Achiever, Socializer, Explorer" questionnaire system.
-- [ ] **Hytale Countdown**: Tracking the launch date (Jan 13, 2026).
-- [ ] **UI Polish**: Finalizing Navbar and Footer designs.
+Yes for MVP and early scale, with these defaults:
+- PostgreSQL as source of truth.
+- Django ORM for transactional data and admin velocity.
+- Add Redis for caching/queues.
+- Add Postgres extensions (`pg_trgm`, optional `pgvector`) for search/relevance when needed.
+
+This stack is enough to ship discovery, accounts, reviews, favorites, guild basics, and moderation workflows.
+
+### 4) How to position data science in this product?
+
+Use a dedicated Python data layer, separate from request-response web paths:
+- Event pipeline for product telemetry.
+- Batch/near-real-time feature jobs (retention, trust score, recommendation signals).
+- Experimentation and model training (notebooks -> production jobs).
+- Scheduled orchestration with Prefect/Airflow.
+
+Keep model inference behind APIs/workers and do not block critical web requests on heavy DS tasks.
+
+### 5) If not Python frontend, TS over JS?
+
+Yes. TypeScript is the right default for this codebase:
+- safer refactors across monorepo packages,
+- better API contracts,
+- lower UI regression risk in a fast-moving product.
+
+## Recommended Stack Split
+
+- Frontend: Next.js 16 + React + TypeScript + Tailwind.
+- Backend: Django (+ Django REST Framework or FastAPI for service boundaries where needed).
+- Database: PostgreSQL (+ Redis).
+- Data science and data engineering: Python (Pandas/Polars, scikit-learn, orchestration via Prefect/Airflow).
+- Analytics: PostHog.
+
+## Local Development
+
+Install deps:
+
+```bash
+npm install
+```
+
+Run all `dev` tasks in monorepo:
+
+```bash
+npm run dev
+```
+
+Run only web:
+
+```bash
+npm run dev -- --filter=@firstspawn/web
+```
+
+## Deployment
+
+- Vercel project `firstspawn` is configured to deploy only from `firstspawn/web`.
+- Production branch is `main`.
 
 ---
 
-*FirstSpawn - Turning Server Discovery into an Adventure.*
+FirstSpawn: turning server discovery into an adventure.
