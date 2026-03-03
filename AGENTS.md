@@ -16,8 +16,9 @@ FirstSpawn is a discovery and trust platform for game servers, starting with Hyt
 ```
 firstspawn-monorepo/
 ├── firstspawn/
-│   ├── web/              # Next.js 16 web app (production-ready)
-│   ├── api/              # TypeScript placeholder (will be Python)
+│   ├── web/              # Next.js 16 web app (beta)
+│   ├── api/              # TypeScript placeholder (migration path to api-py)
+│   ├── api-py/           # FastAPI production API scaffold
 │   └── mobile/           # Expo/React Native scaffold (needs init)
 ├── packages/
 │   ├── ui/               # Shared UI components (no build step)
@@ -27,13 +28,15 @@ firstspawn-monorepo/
 │   ├── 01-product-and-strategy.md
 │   ├── 02-architecture-and-stack.md
 │   ├── 03-execution-and-ops.md
-│   └── 04-agentic-ecosystem-implementation-guide.md
+│   ├── 04-agentic-ecosystem-implementation-guide.md
+│   ├── 05-api-v1-contract.md
+│   └── 06-data-model-v1.md
 └── implementations/      # Reserved for future implementations
 ```
 
 ## Technology Stack
 
-### Frontend (Production)
+### Frontend (Beta)
 - **Framework:** Next.js 16 with App Router
 - **Language:** TypeScript 5
 - **Styling:** Tailwind CSS v4 + Framer Motion
@@ -43,7 +46,8 @@ firstspawn-monorepo/
 
 ### Planned Backend
 - **Language:** Python
-- **Framework:** Django + DRF or FastAPI
+- **Framework:** FastAPI
+- **ORM/Migrations:** SQLAlchemy 2.x + Alembic
 - **Database:** PostgreSQL (source of truth)
 - **Cache/Queue:** Redis
 - **Search:** PostgreSQL FTS (MVP), Elasticsearch (future scale)
@@ -85,6 +89,7 @@ npm run clean
 - Always merge target locale into English base (see `mergeDictionaries()` function)
 - Dictionary files are JSON, located in `firstspawn/web/lib/dictionaries/`
 - Supported locales: `en`, `tr`, `de`, `ru`, `es`, `fr`
+- MVP launch locales: `en`, `tr`, `de`
 - Locale route param is `lang` (not `locale`)
 - Default locale is `en`
 
@@ -121,8 +126,9 @@ npm run clean
 ### AI-Powered Captcha
 - Located in `firstspawn/web/app/actions/captcha.ts`
 - Uses Gemini 2.0 Flash with OpenAI fallback
-- Generates retro-futuristic access messages
-- Requires `GEMINI_API_KEY` or `OPENAI_API_KEY` env vars
+- Generates retro-futuristic access messages when providers are available
+- Must degrade gracefully when AI keys/credits/providers are unavailable (no hard failure)
+- Requires `GEMINI_API_KEY` or `OPENAI_API_KEY` for AI-enhanced messaging
 
 ### Newsletter System
 - Server action: `firstspawn/web/app/actions/newsletter.ts`
@@ -214,15 +220,20 @@ NODE_ENV                      # development | production
 ## Workspace Notes
 
 ### @firstspawn/web
-- **Status:** Production-ready
+- **Status:** Beta (L2 maturity)
 - **Port:** 3000
 - **Deployment:** Vercel (configured to deploy only this app)
 - **Runtime:** Node.js >= 18
 
 ### @firstspawn/api
 - **Status:** TypeScript placeholder
-- **Note:** Production API will be Python (planned in `firstspawn/api-py`)
+- **Note:** Production API is moving to Python in-monorepo (`firstspawn/api-py`)
 - Current workspace is for prototyping only
+
+### `firstspawn/api-py`
+- **Status:** Scaffold started
+- **Framework:** FastAPI + SQLAlchemy + Alembic
+- **Purpose:** Production API implementation aligned to `docs/05-api-v1-contract.md` and `docs/06-data-model-v1.md`
 
 ### @firstspawn/mobile
 - **Status:** Scaffold only, requires initialization
@@ -281,7 +292,8 @@ NODE_ENV                      # development | production
 ### Environment
 - Never commit `.env` files
 - Use `.env.local` for local development
-- All secrets must be server-side only (no `NEXT_PUBLIC_` prefix)
+- All secrets must be server-side only
+- Only publish-safe values may use the `NEXT_PUBLIC_` prefix
 
 ## Deployment
 
@@ -303,8 +315,28 @@ Active documentation lives in `docs/`:
 - `02-architecture-and-stack.md` - Tech decisions, security, deployment
 - `03-execution-and-ops.md` - Roadmap, quality gates, workflow
 - `04-agentic-ecosystem-implementation-guide.md` - Autonomous agents
+- `05-api-v1-contract.md` - API v1 contract and endpoint standards
+- `06-data-model-v1.md` - PostgreSQL v1 schema baseline
 
 Legacy docs archived in `archive/markdown-legacy-2026-03-03/`
+
+### Session Handover Logs (`implementations/`)
+
+For each substantial work session, create or update a handover log in:
+- `implementations/handover-YYYY-MM-DD.md`
+
+Format rules:
+1. Use the title: `# Handover - YYYY-MM-DD`
+2. Include sections in this order:
+   - `## Session Summary`
+   - `## Validation Performed`
+   - `## What is next?`
+3. In `Session Summary`, list:
+   - what changed (files/features/docs),
+   - important decisions/assumptions,
+   - any known risks or incomplete items.
+4. Keep `What is next?` short and actionable (1-3 numbered items).
+5. If a same-day handover already exists, append a new timestamped subsection instead of creating a second file.
 
 ## Common Tasks
 

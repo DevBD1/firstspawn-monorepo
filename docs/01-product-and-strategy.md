@@ -27,7 +27,7 @@ The core thesis:
 Search or filter -> open server -> join or favorite -> return to discover more.
 
 ### Trust Loop
-Playtime tracked by plugin -> verified review -> higher confidence for other users -> better ranking quality.
+Playtime tracked by plugin -> verified trust signals -> higher confidence for other users -> better ranking quality.
 
 ### Retention Loop
 Daily return behavior (puzzles/events/badges) -> social engagement (guilds/reviews/favorites) -> stronger identity and stickiness.
@@ -35,27 +35,33 @@ Daily return behavior (puzzles/events/badges) -> social engagement (guilds/revie
 ### Owner Loop
 Claim/register server -> verify plugin -> improve listing -> gain reviews/favorites -> convert to premium owner tools.
 
-## 4. MVP Scope (Cleaned)
+## 4. MVP Scope (Locked For Implementation Start)
 
 ### In Scope
 - Server listing and detail pages.
 - User auth and profiles.
 - Favorites.
-- Reviews (verified and unverified).
+- Search and filtering with PostgreSQL-first strategy.
 - Plugin-based verification and heartbeat/playtime sync.
 - Basic reputation and moderation foundations.
-- Search and filtering with PostgreSQL-first strategy.
+- Agentic program rollout in MVP:
+  - Tier 0 for analysis and recommendation,
+  - Tier 1 for draft outputs (tickets/content/proposals),
+  - tightly guarded Tier 2 pilots for low-risk action classes with rollback.
+- Launch locales: English (`en`), Turkish (`tr`), German (`de`).
 
 ### Out Of Scope For MVP
+- Reviews (verified and unverified) as a public feature.
 - Full badge marketplace economy.
 - Full guild social stack.
 - Daily puzzle economy and prize pools at full depth.
 - Advanced recommendation models in production.
+- Any R3 high-risk autonomous action classes.
 
 ## 5. Positioning And Differentiation
 
 Primary differentiators:
-- Verified playtime-backed reviews.
+- Verified playtime-backed trust signals (reviews in next phase).
 - Identity graph and trust-aware social profiles.
 - Discovery + social + gamification in one product surface.
 
@@ -87,7 +93,14 @@ Autonomy rollout:
 - Tier 1: draft actions and PR/ticket outputs.
 - Tier 2: guardrailed low-risk execution with rollback.
 
-## 8. Success Metrics
+## 8. External Dependency Resilience
+
+Policy:
+- Product must degrade gracefully when third-party AI services are unavailable, rate-limited, or out of credits.
+- Missing keys or provider outages must never block core app availability or deployment.
+- AI-enhanced UX (for example witty captcha copy) is optional and should be disabled/fallback when providers fail.
+
+## 9. Success Metrics
 
 ### North-Star
 - Sustainable growth of active trusted community participation.
@@ -103,7 +116,7 @@ Autonomy rollout:
 - Session depth and return frequency.
 
 ### Trust And Safety
-- Verified review ratio.
+- Verified telemetry coverage ratio (heartbeat/playtime integrity).
 - Fraud detection precision.
 - Moderation quality and false-positive rate.
 

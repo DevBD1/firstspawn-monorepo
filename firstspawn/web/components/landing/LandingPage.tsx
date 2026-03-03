@@ -177,7 +177,7 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
 
     const handleVerifySuccess = async () => {
         setShowCaptcha(false);
-        setStatusMessage('INITIATING LINK...');
+        setStatusMessage('VERIFYING...');
         
         const { subscribeToNewsletter } = await import('@/app/actions/newsletter');
         const result = await subscribeToNewsletter(email);

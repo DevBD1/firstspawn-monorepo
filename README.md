@@ -12,6 +12,10 @@ This directory is the single source of truth for project documentation after con
    - Delivery roadmap, implementation priorities, quality gates, and team workflow standards.
 4. `docs/04-agentic-ecosystem-implementation-guide.md`
    - Decision-complete guide for agent runtime, policies, data contracts, rollout, and runbooks.
+5. `docs/05-api-v1-contract.md`
+   - Explicit API v1 contract, endpoint catalog, auth modes, and response/error standards.
+6. `docs/06-data-model-v1.md`
+   - Explicit PostgreSQL schema baseline for MVP domains and agentic audit trails.
 
 ## Archive
 

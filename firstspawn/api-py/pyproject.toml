@@ -1,0 +1,40 @@
+[project]
+name = "firstspawn-api"
+version = "0.1.0"
+description = "FirstSpawn API (FastAPI)"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.118.0,<1.0.0",
+  "uvicorn[standard]>=0.37.0,<1.0.0",
+  "pydantic-settings>=2.11.0,<3.0.0",
+  "sqlalchemy>=2.0.43,<3.0.0",
+  "alembic>=1.16.0,<2.0.0",
+  "psycopg[binary]>=3.2.10,<4.0.0",
+  "redis>=6.4.0,<7.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4.0,<9.0.0",
+  "httpx>=0.28.0,<1.0.0",
+  "ruff>=0.13.0,<1.0.0",
+  "mypy>=1.18.0,<2.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
