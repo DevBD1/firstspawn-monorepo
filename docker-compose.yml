@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: firstspawn-postgres
+    environment:
+      POSTGRES_USER: firstspawn
+      POSTGRES_PASSWORD: firstspawn
+      POSTGRES_DB: firstspawn
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U firstspawn -d firstspawn"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - firstspawn-network
+
+  # Redis Cache/Queue
+  redis:
+    image: redis:7-alpine
+    container_name: firstspawn-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - firstspawn-network
+
+  # FastAPI Application
+  api:
+    build:
+      context: ./src/api
+      dockerfile: Dockerfile
+    container_name: firstspawn-api
+    environment:
+      API_ENV: development
+      API_DATABASE_URL: postgresql+psycopg://firstspawn:firstspawn@postgres:5432/firstspawn
+      API_REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src/api:/app:cached
+      - /app/__pycache__
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - firstspawn-network
+
+  # Next.js Web App (optional - can also run locally)
+  # web:
+  #   build:
+  #     context: ./src/web
+  #     dockerfile: Dockerfile
+  #   container_name: firstspawn-web
+  #   environment:
+  #     NEXT_PUBLIC_SITE_URL: http://localhost:3000
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - firstspawn-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  firstspawn-network:
+    driver: bridge
