@@ -473,12 +473,21 @@ GitHub Actions runs on every PR and push to `main`/`develop`:
 5. **security**: npm audit for vulnerabilities
 6. **test**: Test placeholder (continues on failure)
 
-**Required checks** (configure in GitHub branch protection):
+**Required status checks** (enforced via branch protection):
+
+The following checks must pass before merging to `main`:
 
 - Lint & Format Check
 - Type Check
 - Build
 - Python Lint & Format
+
+**Branch protection settings:**
+
+- Require branches to be up-to-date before merging
+- 1 approving review required
+- Stale reviews dismissed on new commits
+- Force pushes and branch deletion blocked
 
 ### Dependency Management
 
