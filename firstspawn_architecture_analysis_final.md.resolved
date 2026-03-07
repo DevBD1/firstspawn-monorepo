@@ -1,0 +1,302 @@
+# FirstSpawn — Final Architecture Analysis
+## Deep Review of [README.md](file:///Users/burak/Repository/Projects/DevBD1/firstspawn-monorepo/README.md) + `docs/01–06` + [architecture_analysis.md.resolved](file:///Users/burak/Repository/Projects/DevBD1/firstspawn-monorepo/architecture_analysis.md.resolved)
+
+> **Approach:** This document builds on and extends the prior [architecture_analysis.md.resolved](file:///Users/burak/Repository/Projects/DevBD1/firstspawn-monorepo/architecture_analysis.md.resolved). Confirmed issues are carried forward with added depth. New issues that were missed are added separately. Every finding is paired with a concrete recommendation or question to resolve it.
+
+---
+
+## Part 1 — Confirmed Issues from Previous Analysis (with depth additions)
+
+### 1.1 `playtime_events` & `server_heartbeats` — Data Bloat 🚨
+
+**Confirmed.** The schema (`06`) defines no partitioning, no TTL, and no archival policy. A server with 500 concurrent players generates thousands of `playtime_events` per hour.
+
+**Added depth:**
+- The `payload jsonb` column will compound TOAST bloat, making VACUUM slower.
+- The `idx_server_heartbeats_server_occurred` index will grow unboundedly — eventually causing Seq Scan fallback at scale.
+
+**Recommendation:** Add native PostgreSQL range partitioning by month on `occurred_at` at the Alembic migration level. Define a retention window (e.g., 90 days hot, cold-archive everything older) in the ops runbook.
+
+---
+
+### 1.2 Idempotency via DB Unique Index on High-Throughput Tables 🚨
+
+**Confirmed.** Both `server_heartbeats` and `playtime_events` use partial unique indexes on `(plugin_key_id, idempotency_key)`. At `600 req/min` per plugin key (per `05`), this is a serious write-hot-spot risk.
+
+**Added depth:**
+- These partial indexes will trigger index page splits under high concurrency, causing lock waits on the telemetry ingest path — the exact path that generates trust signals.
+- Missing: a TTL or cleanup mechanism for `idempotency_key` values after the 5-minute replay window expires, meaning the index grows perpetually even after the key is irrelevant.
+
+**Recommendation:** Move idempotency enforcement to Redis (`SET NX EX 300`). Drop the partial unique index. The DB remains append-only for persistence; Redis gates duplicates.
+
+---
+
+### 1.3 Search Ranking — FTS Without Trust Score 🚨
+
+**Confirmed.** The `servers` table has no `reputation_score` column. FTS ranks by text relevance only.
+
+**Added depth:** The entire product thesis (§1, `01`) is *relevance-driven, not pay-to-win*. A PostgreSQL FTS result ranked purely by `ts_rank` is not trust-aware — it is text-match-aware. A freshly listed server with a well-crafted description will outrank a year-old verified server with thousands of playtime hours.
+
+**Recommendation:** Add a denormalized `reputation_score numeric null` column to `servers`, updated asynchronously by a background data job. Include it in the FTS ranking expression as a weight multiplier.
+
+---
+
+### 1.4 Server Claiming — No Challenge/Response Protocol 🚨
+
+**Confirmed.** The data model has `owner_user_id uuid null fk -> users.id` on `servers`, but the API contract (`05`) defines no endpoint for ownership verification. The product loop (`01`) says "Owner claims/registers server" but the mechanism is absent from both the contract and the schema.
+
+**Added depth:** This is not a minor gap — it is the **critical trust bootstrap moment**. If claiming is unauthenticated or trivially spoofable, the entire trust model is compromised from day zero. Common approaches:
+1. **MOTD token challenge** — request a random token be placed in the server's Message of the Day.
+2. **Plugin handshake** — plugin key activation implicitly proves server control (better for this architecture).
+3. **DNS TXT record** — for servers with custom domains.
+
+**Question for alignment:** Is plugin key activation the implicit claim mechanism? If so, what is the workflow for servers that haven't installed the plugin yet? Can you list/view unverified servers?
+
+---
+
+### 1.5 Agent-to-API Auth — No M2M Standard Defined 🔍
+
+**Confirmed.** The `05` API contract defines User Auth (Bearer JWT) and Plugin Auth (HMAC), but the Agentic Control Plane endpoints (`GET /api/v1/agents/runs`, `POST /api/v1/agents/proposals/{id}/approve`, etc.) have no specified authentication mode.
+
+**Added depth:** The `agent-worker` running inside a container will call these endpoints. Without an explicit M2M auth standard, implementations will drift — some services will use hardcoded secrets, others will reuse a user JWT, creating an auditing blind spot for autonomous actions.
+
+**Recommendation:** Explicitly define a third auth mode — `Service Account Token` (e.g., a long-lived `X-Internal-Token` issued per service, scoped to specific action classes). Add it to `05`.
+
+---
+
+### 1.6 Kill Switch Implemented as Env Var — Latency Risk ⚙️
+
+**Confirmed.** `AGENT_AUTONOMY_ENABLED=false` (§9, `04`) requires a redeployment cycle to flip. In an incident scenario, this is unacceptably slow.
+
+**Recommendation:** Store all autonomy flags in a Redis key or a lightweight `system_config` DB table. The agent runtime checks this on every task start. Flipping a Redis key is sub-second; a redeployment is minutes.
+
+---
+
+### 1.7 Testing Deadlock — Quality Gate vs. Reality ⚙️
+
+**Confirmed.** `03` enforces automated tests as a Hard Quality Gate, but [AGENTS.md](file:///Users/burak/Repository/Projects/DevBD1/firstspawn-monorepo/AGENTS.md) explicitly states testing is not yet implemented.
+
+**Added depth:** This is not just an inconsistency — it creates a real incentive problem. If gate enforcement is lax (which it will be until harnesses exist), the gate becomes theater. If it's strict, every PR is blocked.
+
+**Recommendation:** Add an explicit `Phase 0` task: "Establish test harnesses as a prerequisite before any Phase 1 implementation milestone is started." Vitest for web/packages, pytest for api-py. The gate should read "tests required **if harness exists**" until that milestone is complete, then harden.
+
+---
+
+## Part 2 — New Issues Not in Previous Analysis
+
+### 2.1 The `firstspawn/api` JavaScript Scaffold — Zombie Workspace 🚨
+
+**Finding:** The actual repo has `firstspawn/api` (JS/TS placeholder, L0 scaffold) AND `firstspawn/api-py` (FastAPI, the real production API). The workspace maturity table (`02`) is clear: `@firstspawn/api` is `L0` and "to be replaced." However:
+- `package.json` likely still has both in workspaces, meaning `npm install` and `turbo` will include dead code in every developer's build graph.
+- There's no documented migration cutover plan or deletion timeline.
+- Agents or new contributors may waste time in `firstspawn/api` thinking it's the real API.
+
+**Recommendation:** Either delete `firstspawn/api` immediately and remove it from `package.json` workspaces, or add a visible `DEPRECATED.md` at its root and annotate `02` with a target deletion sprint.
+
+---
+
+### 2.2 `firstspawn/agents` and `firstspawn/data` — Planned but Absent 🚨
+
+**Finding:** Doc `04` defines a detailed agent runtime architecture and lists `firstspawn/agents` and `firstspawn/data` as workspaces to add. The actual repo has **neither**. Doc `02` also lists them as "Planned additions."
+
+**The gap:** `04` (§18) has an "Immediate Implementation Checklist" that includes creating these workspaces. `03` (§6) also lists this under "Immediate Next Actions." This is documented intent, but it's drifted — the existence of `04-agentic-ecosystem-implementation-guide.md` gives a false sense of completeness. The ecosystem doesn't exist at all yet.
+
+**Recommendation:** Add a workspace maturity entry for `firstspawn/agents` and `firstspawn/data` in `02` with `L0 Scaffold` as starting state. Add a tracked Phase 0 milestone in `03` to scaffold them.
+
+---
+
+### 2.3 Event Taxonomy Defined in `04` But Not in `06` 🔍
+
+**Finding:** Doc `04` (§6.4) defines a "Required event families" taxonomy (Acquisition, Discovery, Identity, Social, Engagement, Monetization, Support) and minimum required fields for every event. However, `06` (the data model) has **no corresponding events table or schema**. Events presumably flow somewhere — but where?
+
+**The ambiguity:** Are events stored in the app DB? Are they sent to a data warehouse? Are they logged to stdout and ingested by a pipeline? This is completely undocumented. Agents and data jobs depend on this event stream to function.
+
+**Recommendation:** Add a section to `06` (or a new `07-event-schema.md`) that documents:
+- Where events land (DB table vs. Kafka/queue vs. structured log)
+- The concrete schema (beyond just the minimum fields)
+- Which system is the source of truth for each event family
+
+---
+
+### 2.4 `max_blast_radius` Stored as `text` in `action_proposals` 🔍
+
+**Finding:** `06` defines `max_blast_radius text null` in `action_proposals`. Doc `04` (§8.2) says R2 actions must have "blast radius <= 10 percent of targeted segment or <= 5,000 users." Storing blast radius as free-text makes policy engine enforcement impossible.
+
+**The hole:** If the policy engine checks `max_blast_radius` to decide whether to allow an R2 action, a `text` field cannot be compared numerically. The engine would need to parse the string, introducing ambiguity and potential bypass.
+
+**Recommendation:** Change `max_blast_radius` to a structured `jsonb` field with explicit keys (e.g., `{"type": "percent", "value": 8.5}` or `{"type": "absolute", "value": 3200}`). The policy engine can then evaluate deterministically.
+
+---
+
+### 2.5 `human_approver` Stored as `text` in `decision_logs` 🔍
+
+**Finding:** `decision_logs.human_approver` is `text null`. This means the audit trail for human approvals is not referentially linked to the `users` table.
+
+**The problem:** You cannot join decision logs to the user table to answer "which human accounts approved agent actions" — critical for SOC-2-class audit trails and for the incident runbooks defined in `04` (§15).
+
+**Recommendation:** Change `human_approver` from `text null` to `uuid null fk -> users.id`. If approvals can come from external systems (e.g., a Slack webhook), add a companion `human_approver_source text null` column.
+
+---
+
+### 2.6 `plugin_keys.expires_at` — No Rotation Policy Defined 🔍
+
+**Finding:** `plugin_keys` has `expires_at timestamptz null`. The `null` case is undocumented — does a null `expires_at` mean "never expires" or "expiry not set yet"? There is no key rotation policy in `05` or `06`.
+
+**The security risk:** Plugin keys with HMAC access to telemetry ingestion are long-lived credentials. If a key is compromised (e.g., a server admin pastes it in a public config file), the attack surface is unlimited without an expiry or rotation mechanism.
+
+**Recommendation:** Make `expires_at` non-nullable with a default maximum (e.g., 1 year). Define a key rotation flow in `05` — add `POST /api/v1/plugin/keys/{key_id}/rotate`. Document that null = never-expires is explicitly disallowed.
+
+---
+
+### 2.7 The `reports.target_id` Column — UUID Without FK 🔍
+
+**Finding:** The `reports` table (`06`) has `target_id uuid not null` with no foreign key constraint. `target_type` can be `server`, `user`, or `content`. A polymorphic reference without FK is intentional (you can't have a single FK to three tables), but there's no documented validation policy.
+
+**The holes:**
+1. You can insert a report targeting a non-existent UUID — no integrity check.
+2. If a reported entity is hard-deleted, the report orphans silently.
+3. `content` is listed as a target type, but there is no `content` table in V1.
+
+**Recommendation:** Document in `06` that `target_id` referential integrity is enforced at the application layer. Clarify what `content` targets in V1 (is it a future placeholder?). Add a soft-delete guard: if a soft-deleted entity is targeted, flag the report for review rather than silently orphaning it.
+
+---
+
+### 2.8 No Cursor-Based Pagination — Only Offset 🔍
+
+**Finding:** `05` defines pagination as `page` + `page_size` offset-based only. The initial sort example is `-created_at`.
+
+**The scaling problem:** Offset pagination is stateful-window pagination: `SELECT ... OFFSET 200 LIMIT 20` means PostgreSQL scans and discards 200 rows. On the servers list with thousands of entries and real-time updates (servers going online/offline), offset pagination also produces **duplicate and missing entries** as rows shift between page loads.
+
+**Recommendation:** Add cursor-based pagination as the canonical API mode for list endpoints with time-ordered data. Offset pagination can remain for backward compat or simple admin views. Add `meta.next_cursor` and `meta.prev_cursor` to the response envelope spec.
+
+---
+
+### 2.9 `GET /api/v1/servers/{server_id}/status` — Synchronous or Cached? 🔍
+
+**Finding:** `05` lists `GET /api/v1/servers/{server_id}/status` as an endpoint. The `servers` table has `last_seen_online_at`. It's unclear whether this endpoint:
+1. Returns the cached `last_seen_online_at` value (stale but fast)
+2. Triggers an active ping to the Minecraft/Hytale server in real-time (fresh but slow and potentially dangerous)
+
+A real-time ping introduces a server-side SSRF vector (an attacker could register any IP and the API would ping it on demand) and unbounded latency.
+
+**Recommendation:** Explicitly state in `05` and `02` that `/status` returns cached telemetry only. Active pinging, if needed, should be a background job (the heartbeat mechanism is already designed for this). Add SSRF mitigation to the security baseline in `02`.
+
+---
+
+### 2.10 The Monorepo's Turborepo Pipeline — No Python Integration 🔍
+
+**Finding:** `02` says "Turborepo remains the orchestration layer for both JavaScript and Python tasks." But Turborepo is a JS-native tool. `firstspawn/api-py` is a Python FastAPI project.
+
+**The gap:** There is no documented mechanism for how Python tasks (pytest, alembic, uvicorn dev server) integrate into the Turborepo pipeline. Running `npm run dev` almost certainly does not start `uvicorn`. A developer onboarding to this monorepo has no clear path to running the full stack locally.
+
+**Recommendation:** Either document a `Makefile` / `Procfile` / `docker-compose` pattern that starts both the JS and Python services, or define explicit Turborepo tasks for Python (using shell scripts). Add this to `03` under "Development Workflow."
+
+---
+
+### 2.11 The `descriptions` Column Is `not null` — Blocks Fast Listing 🔍
+
+**Finding:** `servers.description text not null`. Server owners must provide a description at registration time.
+
+**The UX tension:** This creates friction in the Owner Loop. If the product intends to let owners claim/register a server and gradually improve their listing, forcing a non-null description upfront is a barrier. It also means seeded/bootstrapped servers (if you pre-populate the listing from public server lists) cannot be imported without a synthetic description.
+
+**Recommendation:** Either change to `text null` with a UI-level "empty" state design, or document the explicit product decision that requiring a description at registration is intentional (i.e., quality bar from day one).
+
+---
+
+### 2.12 Long-Term Memory — No Schema or Storage Backend Defined 🔍
+
+**Finding:** Doc `04` (§10.2) defines "Long-term memory: decision outcomes and postmortems, successful and failed strategy patterns, guardrail exceptions." The data model (`06`) defines `agent_runs`, `action_proposals`, and `decision_logs` — but these are **audit tables**, not a **memory store**.
+
+**The gap:** There is no `agent_memory` table, no vector database mention, no embedding strategy, and no retrieval mechanism for long-term agent memory. The Prompt Registry (§10.3) is mentioned but not modeled in `06`.
+
+**Recommendation:** Add `agent_memory` and `prompt_registry` tables to `06`, or document in `04` that long-term memory is out of scope for V1 and agents operate statelessly with only the audit log as reference.
+
+---
+
+## Part 3 — Structural & Cross-Cutting Gaps
+
+### 3.1 No `CHANGELOG.md` or ADR (Architecture Decision Record) Practice
+
+`05` and `06` both require "changelog entry in the implementation PR," but there's no `CHANGELOG.md` and no `/docs/decisions/` ADR folder either. The governance cadence in `04` (§16) also references policy tuning and promotion decisions, all of which should be traceable.
+
+**Recommendation:** Add an `ADR` template and folder (e.g., `docs/decisions/001-fastapi-over-django.md`) and a root `CHANGELOG.md`. This is especially important for the agentic ecosystem where "why" decisions are auditable.
+
+---
+
+### 3.2 Locale in `users.locale` — No Validation Constraint
+
+`users.locale text not null default 'en'`. Accepted locales for MVP are `en`, `tr`, `de` (per `01`). But the column accepts any text — nothing enforces the ISO locale list. An agent or a direct API call could set `locale = 'zh'` and silently break localization rendering.
+
+**Recommendation:** Add a `CHECK (locale IN ('en', 'tr', 'de'))` constraint (easily expanded with an Alembic migration when new locales are added) or enforce this in the Pydantic model and document the canonical locale list in `06`.
+
+---
+
+### 3.3 No Secrets Management Baseline
+
+`02` mentions `.env` leak prevention in the security gate, but there's no secrets management baseline documented. How are production secrets (DB passwords, Redis creds, plugin key secrets, AI provider keys) rotated, stored, and accessed? `AGENTS.md` mentions `dotenv` for local dev, but production needs a real strategy (AWS Secrets Manager, Doppler, Vault, etc.).
+
+**Recommendation:** Add a §5.5 "Secrets Management" subsection to `02` with the chosen production strategy, even if MVP uses the simplest option (e.g., environment variables injected by the managed container runtime).
+
+---
+
+### 3.4 No API Deprecation Policy
+
+`05` says "breaking changes require `/api/v2`" but doesn't define:
+- How long v1 is supported once v2 exists.
+- Whether plugins (third-party code!) are notified of deprecation.
+- What "breaking" means precisely (removed field vs. changed type vs. changed behavior).
+
+For a platform where game server plugins embed the API contract, this is a real operational risk — a broken plugin update can take a server down.
+
+**Recommendation:** Add a deprecation policy section to `05`: minimum N-month support window for prior versions, sunset notification via email and a `/api/v1/deprecation-notices` endpoint.
+
+---
+
+## Part 4 — Summary Table
+
+| # | Category | Severity | Status |
+|---|---|---|---|
+| 1.1 | Data bloat — no partitioning/retention | 🚨 Critical | Confirmed |
+| 1.2 | Idempotency via DB index on hot-write tables | 🚨 Critical | Confirmed |
+| 1.3 | FTS search ranking — no trust score | 🚨 Critical | Confirmed |
+| 1.4 | Server claiming — no challenge protocol | 🚨 Critical | Confirmed |
+| 1.5 | Agent M2M auth undefined | 🔍 High | Confirmed |
+| 1.6 | Kill switch requires redeployment | ⚙️ High | Confirmed |
+| 1.7 | Testing gate vs. zero harness | ⚙️ Medium | Confirmed |
+| 2.1 | `firstspawn/api` zombie workspace | 🚨 High | **New** |
+| 2.2 | `agents`/`data` workspaces missing | 🚨 High | **New** |
+| 2.3 | Event taxonomy underpinned by no schema | 🔍 High | **New** |
+| 2.4 | `max_blast_radius` stored as `text` | 🔍 High | **New** |
+| 2.5 | `human_approver` not FK'd to users | 🔍 Medium | **New** |
+| 2.6 | Plugin key expiry/rotation undefined | 🔍 High | **New** |
+| 2.7 | `reports.target_id` no FK integrity | 🔍 Medium | **New** |
+| 2.8 | Offset pagination only — no cursors | 🔍 Medium | **New** |
+| 2.9 | `/status` endpoint — SSRF risk if live ping | 🚨 High | **New** |
+| 2.10 | Python not integrated into Turborepo | ⚙️ Medium | **New** |
+| 2.11 | `description not null` blocks fast listing | ⚙️ Low | **New** |
+| 2.12 | Long-term agent memory has no schema | 🔍 Medium | **New** |
+| 3.1 | No CHANGELOG/ADR practice | ⚙️ Low | **New** |
+| 3.2 | `locale` column — no CHECK constraint | 🔍 Low | **New** |
+| 3.3 | No secrets management baseline | 🔍 Medium | **New** |
+| 3.4 | No API deprecation policy | 🔍 Medium | **New** |
+
+---
+
+## Part 5 — 14 Discussion Questions for Alignment
+
+These are the concrete decisions we need to lock before Phase 1 implementation:
+
+1. **Server Claiming:** Is plugin key activation the implicit ownership claim? What is the UX for servers not yet running the plugin?
+2. **Partitioning:** Implement PostgreSQL monthly range partitioning on `playtime_events` and `server_heartbeats` in the v1 Alembic migrations now, or defer?
+3. **Idempotency Backend:** Drop the DB partial unique indexes on telemetry tables and move to Redis `SET NX EX` for replay-window enforcement?
+4. **Reputation Score Column:** Add `reputation_score numeric null` to `servers` table in v1 data model (fed async), so search ranking is trust-aware from day one?
+5. **M2M Auth:** Define a Service Account token spec (e.g., `X-Internal-Token`) for agent-to-API calls and add it to `05-api-v1-contract.md`?
+6. **Kill Switches:** Move autonomy flags from env vars to Redis or a `system_config` table for instant propagation?
+7. **Testing Harness:** Establish pytest (api-py) + Vitest (web/packages) as a Phase 0 milestone before any Phase 1 feature work starts?
+8. **Zombie Workspace:** Delete `firstspawn/api` from the monorepo and `package.json`, or annotate and keep for reference?
+9. **Event Storage:** Where do product events (Acquisition, Discovery, etc.) land — app DB table, external warehouse, structured logs? Define the schema now.
+10. **`max_blast_radius` Type:** Change to `jsonb` with a structured format for numeric policy evaluation?
+11. **Plugin Key Rotation:** Add `POST /api/v1/plugin/keys/{key_id}/rotate` and make `expires_at` non-nullable with a default maximum?
+12. **`/status` Endpoint:** Confirm it returns cached telemetry only (never live pinging). Add SSRF mitigation to the security baseline?
+13. **Cursor Pagination:** Add `next_cursor`/`prev_cursor` to the API response envelope for list endpoints as V1, or leave offset-only for MVP?
+14. **Long-Term Agent Memory:** Scope it out of V1 explicitly, or define a minimal schema now (`agent_memory`, `prompt_registry` tables)?
