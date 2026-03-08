@@ -1,7 +1,7 @@
 # Project Handover
 
 **Repository:** firstspawn-monorepo  
-**Last Updated:** 2026-03-07
+**Last Updated:** 2026-03-08
 
 This document consolidates all substantial work sessions for the FirstSpawn project.
 
@@ -344,6 +344,36 @@ alembic current  # Should show 001_initial_schema
 
 **Current revision:** `001_initial_schema` (head)  
 **Status:** Created, not yet executed (requires running PostgreSQL)
+
+---
+
+## Session 3: Fix Vercel Deployment Configuration (2026-03-08)
+
+### Summary
+
+Created `vercel.json` to fix the deployment configuration after the repository restructure from `firstspawn/` to `src/`.
+
+### Problem
+
+Vercel was still looking for `firstspawn/web` as the root directory, but the repository was restructured to use `src/web` instead.
+
+### Solution
+
+Created `/vercel.json` at the repository root with:
+
+```json
+{
+  "rootDirectory": "src/web"
+}
+```
+
+This tells Vercel to use `src/web` as the root directory for deployment, resolving the path mismatch.
+
+### Files Changed
+
+**New files (1):**
+
+- `vercel.json`
 
 ---
 
