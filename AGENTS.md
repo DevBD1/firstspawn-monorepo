@@ -305,6 +305,16 @@ NODE_ENV                      # development | production
 - Prefer interfaces over type aliases for object shapes
 - Use explicit return types on exported functions
 
+### Python
+
+- Use `from __future__ import annotations` at the top of all model files
+- Add forward imports in `if TYPE_CHECKING:` blocks to avoid circular dependencies
+- All code must pass `ruff check .` with zero errors
+- Ruff configuration in `src/api/pyproject.toml`:
+  - Line length: 100
+  - Enabled rules: E, F, I, B, UP
+- Run `ruff check . --fix` before committing Python changes
+
 ### Components
 
 - Use "use client" directive for client components

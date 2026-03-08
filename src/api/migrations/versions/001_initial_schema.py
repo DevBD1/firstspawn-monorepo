@@ -13,7 +13,7 @@ TODO: Future improvements to consider:
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
@@ -21,9 +21,9 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = "001_initial_schema"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -359,8 +359,13 @@ def upgrade() -> None:
         "idx_server_heartbeats_server_occurred", "server_heartbeats", ["server_id", "occurred_at"]
     )
     # TODO: Add partial unique index for idempotency
-    # op.create_index("idx_server_heartbeats_idempotency", "server_heartbeats", ["plugin_key_id", "idempotency_key"],
-    #                 unique=True, postgresql_where=sa.text("idempotency_key IS NOT NULL"))
+    # op.create_index(
+    #     "idx_server_heartbeats_idempotency",
+    #     "server_heartbeats",
+    #     ["plugin_key_id", "idempotency_key"],
+    #     unique=True,
+    #     postgresql_where=sa.text("idempotency_key IS NOT NULL"),
+    # )
 
     op.create_table(
         "playtime_events",
@@ -415,8 +420,13 @@ def upgrade() -> None:
         "idx_playtime_events_external_player", "playtime_events", ["external_player_id"]
     )
     # TODO: Add partial unique index for idempotency
-    # op.create_index("idx_playtime_events_idempotency", "playtime_events", ["plugin_key_id", "idempotency_key"],
-    #                 unique=True, postgresql_where=sa.text("idempotency_key IS NOT NULL"))
+    # op.create_index(
+    #     "idx_playtime_events_idempotency",
+    #     "playtime_events",
+    #     ["plugin_key_id", "idempotency_key"],
+    #     unique=True,
+    #     postgresql_where=sa.text("idempotency_key IS NOT NULL"),
+    # )
 
     # ============================================
     # Moderation Tables

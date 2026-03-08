@@ -1,7 +1,7 @@
 # Project Handover
 
 **Repository:** firstspawn-monorepo  
-**Last Updated:** 2026-03-07
+**Last Updated:** 2026-03-08
 
 This document consolidates all substantial work sessions for the FirstSpawn
 project.
@@ -359,6 +359,89 @@ alembic current  # Should show 001_initial_schema
 
 ---
 
+## Session 3: Fix Vercel Deployment Configuration (2026-03-08)
+
+### Summary
+
+Fixed Vercel deployment configuration after the repository restructure from `firstspawn/` to `src/`.
+
+### Problem
+
+Vercel was still looking for `firstspawn/web` as the root directory, but the repository was restructured to use `src/web` instead.
+
+### Initial Attempt (Failed)
+
+Initially tried creating `vercel.json` with `rootDirectory` property:
+
+```json
+{
+  "rootDirectory": "src/web"
+}
+```
+
+**This failed** because `rootDirectory` is NOT a valid property in `vercel.json` schema.
+
+### Correct Solution
+
+The root directory must be configured in the **Vercel Dashboard**:
+
+1. Go to Project Settings → General
+2. Set **Root Directory** to: `src/web`
+3. Save changes
+
+This is the only valid way to configure the deployment root directory for Vercel projects.
+
+### Files Changed
+
+No code changes required - configuration is done via Vercel Dashboard only.
+
+### PR Updates
+
+Updated PR #9 with improved title and description:
+
+- Title: `fix(deploy): configure Vercel root directory after monorepo restructure (Vibe Kanban)`
+- Added detailed explanation of the problem, correct configuration approach, and context from Session 2 restructure
+
+---
+
+## Session 4: Ruff Linter Fixes (2026-03-08)
+
+### Summary
+
+Fixed all Python linting errors reported by Ruff across the API codebase.
+
+### Issues Fixed
+
+**F821 - Undefined name errors (forward references):**
+
+- `src/api/app/models/moderation.py`: Added missing `from __future__ import annotations` and `TYPE_CHECKING` import for `User` model
+- `src/api/app/models/plugin.py`: Added missing `from __future__ import annotations` and `TYPE_CHECKING` import for `Server` model
+
+**E501 - Line too long:**
+
+- `src/api/migrations/versions/001_initial_schema.py`: Split long TODO comment lines for idempotency indexes
+
+### Changes Made
+
+**Files modified:**
+
+```
+src/api/app/models/moderation.py
+src/api/app/models/plugin.py
+src/api/migrations/versions/001_initial_schema.py
+```
+
+**Technical details:**
+
+1. Added `from __future__ import annotations` to enable postponed evaluation of annotations (PEP 563)
+2. Added `from typing import TYPE_CHECKING` imports
+3. Added `if TYPE_CHECKING:` blocks with forward imports for `User` and `Server` models
+4. Kept relationship type annotations with forward references for SQLAlchemy compatibility
+5. Reformatted long comment lines in migration file to stay within 100 character limit
+
+### Validation Performed
+
+- `ruff check .` → All checks passed (0 errors)
 ## Session 3: Repository Hygiene Implementation (2026-03-07)
 
 ### Summary

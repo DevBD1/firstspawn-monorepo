@@ -16,12 +16,11 @@ from sqlalchemy import (
     Text,
     func,
 )
-
-from app.models.types import CIText
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import AuditMixin, Base
+from app.models.types import CIText
 
 if TYPE_CHECKING:
     from app.models.user import User
