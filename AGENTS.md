@@ -37,8 +37,9 @@ firstspawn-monorepo/
 │   ├── 03-execution-and-ops.md
 │   ├── 04-agentic-ecosystem-implementation-guide.md
 │   ├── 05-api-v1-contract.md
-│   └── 06-data-model-v1.md
-└── implementations/      # Reserved for future implementations
+│   ├── 06-data-model-v1.md
+│   ├── plans/            # Planning documents (specs, proposals, RFCs)
+│   └── implementations/  # Session handover logs
 ```
 
 ## Technology Stack
@@ -373,7 +374,7 @@ NODE_ENV                      # development | production
 
 ## Documentation
 
-Active documentation lives in `docs/`:
+Active documentation lives in `docs/plans/`:
 
 - `01-product-and-strategy.md` - Vision, users, loops, monetization
 - `02-architecture-and-stack.md` - Tech decisions, security, deployment
@@ -382,13 +383,17 @@ Active documentation lives in `docs/`:
 - `05-api-v1-contract.md` - API v1 contract and endpoint standards
 - `06-data-model-v1.md` - PostgreSQL v1 schema baseline
 
-Legacy docs archived in `archive/markdown-legacy-2026-03-03/`
+### Planning Documents (`docs/plans/`)
 
-### Session Handover Logs (`implementations/`)
+Store planning documents (specs, proposals, RFCs, and design notes) in:
+
+- `docs/plans/<topic-or-date>.md`
+
+### Session Handover Logs (`docs/implementations/`)
 
 For each substantial work session, create or update a handover log in:
 
-- `implementations/handover-YYYY-MM-DD.md`
+- `docs/implementations/YYYY-MM-DD-title.md`
 
 Format rules:
 
@@ -404,6 +409,10 @@ Format rules:
 4. Keep `What is next?` short and actionable (1-3 numbered items).
 5. If a same-day handover already exists, append a new timestamped subsection
    instead of creating a second file.
+
+> **Source of truth for all static file paths is `AGENTS.md`.**
+> `HANDOVER.md` contains historical session logs; paths listed there may be
+> outdated. Always consult `AGENTS.md` for current directory layout.
 
 ## Common Tasks
 
