@@ -375,6 +375,13 @@ This tells Vercel to use `src/web` as the root directory for deployment, resolvi
 
 - `vercel.json`
 
+### PR Updates
+
+Updated PR #9 with improved title and description:
+
+- Title: `fix(deploy): add vercel.json to fix deployment root directory after monorepo restructure (Vibe Kanban)`
+- Added detailed explanation of the problem, context from Session 2 restructure, and verification checklist
+
 ---
 
 ## What is Next?
