@@ -1,0 +1,35 @@
+# Code Owners
+# Lines starting with # are comments
+# Each line is a file pattern followed by one or more owners
+# Owners will be requested for review when someone opens a PR that modifies files matching the pattern
+# The last matching pattern takes precedence
+
+# Global fallback - if no other pattern matches
+* @firstspawn/maintainers
+
+# Web app
+/src/web/ @firstspawn/web-team
+/src/web/app/ @firstspawn/web-team
+/src/web/components/ @firstspawn/web-team
+
+# API
+/src/api/ @firstspawn/api-team
+/src/api/app/models/ @firstspawn/api-team
+/src/api/migrations/ @firstspawn/api-team
+
+# Infrastructure and DevOps
+/infrastructure/ @firstspawn/devops
+/docker-compose.yml @firstspawn/devops
+/.github/workflows/ @firstspawn/devops
+
+# Documentation
+/docs/ @firstspawn/docs-team
+*.md @firstspawn/docs-team
+
+# Package configurations
+/packages/ @firstspawn/platform-team
+
+# CI/CD
+/.github/ @firstspawn/platform-team
+/turbo.json @firstspawn/platform-team
+/package.json @firstspawn/platform-team

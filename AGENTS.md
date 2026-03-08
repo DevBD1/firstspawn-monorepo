@@ -1,16 +1,20 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository.
+This file provides guidance to AI agents when working with code in this
+repository.
 
 ## Project Overview
 
-FirstSpawn is a discovery and trust platform for game servers, starting with Hytale and expanding to Minecraft. It's a monorepo using npm workspaces + Turborepo with a pixel-retro design aesthetic.
+FirstSpawn is a discovery and trust platform for game servers, starting with
+Hytale and expanding to Minecraft. It's a monorepo using npm workspaces +
+Turborepo with a pixel-retro design aesthetic.
 
 **Core Thesis:**
 
 - Discovery should be relevance-driven, not pay-to-win
 - Trust should be earned through verified activity and reputation
-- Retention should come from meaningful loops (favorites, reviews, guilds, daily participation)
+- Retention should come from meaningful loops (favorites, reviews, guilds, daily
+  participation)
 
 ## Monorepo Structure
 
@@ -81,8 +85,20 @@ npm run build
 # Lint all
 npm run lint
 
+# Fix lint issues
+npm run lint:fix
+
 # Format code
 npm run format
+
+# Check formatting without modifying files
+npm run format:check
+
+# Type check all packages
+npm run typecheck
+
+# Run full CI pipeline locally
+npm run ci
 
 # Clean all build artifacts
 npm run clean
@@ -92,8 +108,10 @@ npm run clean
 
 ### i18n System
 
-- Translations use a **custom deep-merge fallback system** in `src/web/lib/get-dictionary.ts`
-- Always merge target locale into English base (see `mergeDictionaries()` function)
+- Translations use a **custom deep-merge fallback system** in
+  `src/web/lib/get-dictionary.ts`
+- Always merge target locale into English base (see `mergeDictionaries()`
+  function)
 - Dictionary files are JSON, located in `src/web/lib/dictionaries/`
 - Supported locales: `en`, `tr`, `de`, `ru`, `es`, `fr`
 - MVP launch locales: `en`, `tr`, `de`
@@ -139,7 +157,8 @@ npm run clean
 - Located in `src/web/app/actions/captcha.ts`
 - Uses Gemini 2.0 Flash with OpenAI fallback
 - Generates retro-futuristic access messages when providers are available
-- Must degrade gracefully when AI keys/credits/providers are unavailable (no hard failure)
+- Must degrade gracefully when AI keys/credits/providers are unavailable (no
+  hard failure)
 - Requires `GEMINI_API_KEY` or `OPENAI_API_KEY` for AI-enhanced messaging
 
 ### Newsletter System
@@ -255,7 +274,8 @@ NODE_ENV                      # development | production
 
 - **Status:** Scaffold started
 - **Framework:** FastAPI + SQLAlchemy + Alembic
-- **Purpose:** Production API implementation aligned to `docs/05-api-v1-contract.md` and `docs/06-data-model-v1.md`
+- **Purpose:** Production API implementation aligned to
+  `docs/05-api-v1-contract.md` and `docs/06-data-model-v1.md`
 
 ### @firstspawn/mobile
 
@@ -372,7 +392,8 @@ Format rules:
    - important decisions/assumptions,
    - any known risks or incomplete items.
 4. Keep `What is next?` short and actionable (1-3 numbered items).
-5. If a same-day handover already exists, append a new timestamped subsection instead of creating a second file.
+5. If a same-day handover already exists, append a new timestamped subsection
+   instead of creating a second file.
 
 ## Common Tasks
 
@@ -407,3 +428,103 @@ Format rules:
 3. Use Zod for input validation
 4. Return typed response objects
 5. Add error handling with logging
+
+## Repository Hygiene
+
+The repository maintains high code quality through automated tooling and CI/CD.
+
+### Editor Configuration
+
+- `.editorconfig` enforces consistent formatting:
+  - UTF-8 encoding, LF line endings
+  - 2 spaces for JS/TS/JSON/YAML, 4 spaces for Python
+  - Max 100 character line length
+  - Always insert final newline
+
+### Pre-commit Hooks (Husky)
+
+Husky runs automatically on every commit via the `prepare` script:
+
+- **pre-commit**: Runs `lint-staged` to format and lint staged files
+- **prepare-commit-msg**: Auto-prepends issue numbers from branch names
+
+### Linting and Formatting
+
+**TypeScript/JavaScript:**
+
+- Prettier: Code formatting (configured in `prettier.config.mjs`)
+- ESLint: Linting with Next.js configs
+- Run manually: `npm run format`, `npm run lint`
+
+**Python:**
+
+- Ruff: Fast Python linting and formatting
+- MyPy: Static type checking
+- Run manually: `ruff check .`, `ruff format .`, `mypy app/`
+
+### CI/CD Pipeline
+
+GitHub Actions runs on every PR and push to `main`/`develop`:
+
+1. **lint-and-format**: Prettier check + ESLint
+2. **typecheck**: TypeScript type checking
+3. **build**: Build all packages
+4. **python-lint**: Ruff + MyPy for Python
+5. **security**: npm audit for vulnerabilities
+6. **test**: Test placeholder (continues on failure)
+
+**Required status checks** (enforced via branch protection):
+
+The following checks must pass before merging to `main`:
+
+- Lint & Format Check
+- Type Check
+- Build
+- Python Lint & Format
+
+**Branch protection settings:**
+
+- Require branches to be up-to-date before merging
+- 1 approving review required
+- Stale reviews dismissed on new commits
+- Force pushes and branch deletion blocked
+
+### Dependency Management
+
+See `docs/DEPENDENCY_POLICY.md` for complete policy.
+
+**Quick rules:**
+
+- Commit `package-lock.json` always
+- Patch updates: Weekly (automated)
+- Minor updates: Bi-weekly (manual review)
+- Major updates: Quarterly (planned)
+- Security updates: Immediate response required
+
+**Tools:**
+
+- Dependabot: Automated PRs for updates
+- `npm audit`: Security scanning in CI
+
+### Housekeeping Automation
+
+**Stale Issue/PR Management:**
+
+- Issues: Stale after 60 days, close after 7 more
+- PRs: Stale after 30 days, close after 14 more
+- Exempt labels: `keep-open`, `critical`, `roadmap`, `wip`
+
+**Stale Branch Cleanup:**
+
+- Weekly scan for branches >90 days old
+- Skips branches with open PRs
+- Currently in dry-run mode (manual enable required)
+
+### PR Requirements
+
+All PRs should:
+
+- Fill out the PR template completely
+- Pass all CI checks
+- Request review from CODEOWNERS
+- Follow conventional commit format

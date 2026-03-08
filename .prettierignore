@@ -1,0 +1,59 @@
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Package manager
+.pnp.*
+.yarn/*
+.pnpm-debug.log*
+
+# Environment
+.env*
+
+# Testing
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Turborepo
+.turbo/
+
+# Expo
+.expo/
+
+# Database migrations (auto-generated, keep formatting)
+src/api/migrations/versions/*.py
+
+# Lockfiles (keep as-is)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+uv.lock
+
+# Archive
+archive/

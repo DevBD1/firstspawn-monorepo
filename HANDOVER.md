@@ -3,7 +3,8 @@
 **Repository:** firstspawn-monorepo  
 **Last Updated:** 2026-03-07
 
-This document consolidates all substantial work sessions for the FirstSpawn project.
+This document consolidates all substantial work sessions for the FirstSpawn
+project.
 
 ---
 
@@ -11,7 +12,8 @@ This document consolidates all substantial work sessions for the FirstSpawn proj
 
 ### Summary
 
-Completed documentation consolidation, resilience implementation for newsletter/captcha systems, and Python API scaffold setup.
+Completed documentation consolidation, resilience implementation for
+newsletter/captcha systems, and Python API scaffold setup.
 
 ### 1. Documentation Consolidation and Scope Lock
 
@@ -19,7 +21,8 @@ Completed documentation consolidation, resilience implementation for newsletter/
 - Removed stale `new-docs` references
 - Locked MVP scope to `auth + discovery` (reviews deferred)
 - Set MVP launch locales to `en`, `tr`, `de`
-- Added resilience policy for optional third-party services (AI/email should degrade, not fail app)
+- Added resilience policy for optional third-party services (AI/email should
+  degrade, not fail app)
 
 **Updated docs:**
 
@@ -36,10 +39,12 @@ Completed documentation consolidation, resilience implementation for newsletter/
 
 ### 2. Newsletter + Captcha Resilience Implementation
 
-- Replaced `NEXT_PUBLIC_APP_URL` usage with canonical `NEXT_PUBLIC_SITE_URL` and request-origin fallback
+- Replaced `NEXT_PUBLIC_APP_URL` usage with canonical `NEXT_PUBLIC_SITE_URL` and
+  request-origin fallback
 - Removed build-time provider crash risk by lazily creating `Resend` clients
 - Added safe telemetry capture wrappers so PostHog failures do not break flow
-- Updated newsletter confirm route to degrade gracefully if Resend contact sync fails
+- Updated newsletter confirm route to degrade gracefully if Resend contact sync
+  fails
 - Added provider timeout/fallback logic in captcha AI response generation
 
 **Changed files:**
@@ -86,19 +91,23 @@ Completed documentation consolidation, resilience implementation for newsletter/
 
 ### Summary
 
-Implemented complete database schema per `docs/06-data-model-v1.md`, including SQLAlchemy models, Alembic migrations, infrastructure setup, and repository restructure.
+Implemented complete database schema per `docs/06-data-model-v1.md`, including
+SQLAlchemy models, Alembic migrations, infrastructure setup, and repository
+restructure.
 
 ### 1. Repository Restructure
 
 Restructured monorepo for cleaner organization and better naming conventions:
 
 - **Renamed `firstspawn/` → `src/`** - Aligns with standard monorepo conventions
-- **Renamed `api-py/` → `api/`** - Consolidated naming (removed redundant "-py" suffix)
+- **Renamed `api-py/` → `api/`** - Consolidated naming (removed redundant "-py"
+  suffix)
 - **Deleted old TypeScript `api/` placeholder** - No longer needed
 - **Updated all path references** in `AGENTS.md` (28 occurrences)
 - **Updated `package.json` workspaces** from `"firstspawn/*"` to `"src/*"`
 
-**Rationale:** The `firstspawn/` prefix was redundant in a repo already named `firstspawn-monorepo`. The `src/` structure is standard for monorepos.
+**Rationale:** The `firstspawn/` prefix was redundant in a repo already named
+`firstspawn-monorepo`. The `src/` structure is standard for monorepos.
 
 ### 2. Infrastructure Setup
 
@@ -142,12 +151,15 @@ Implemented complete V1 schema from `docs/06-data-model-v1.md`:
 
 **Key design decisions:**
 
-1. **Enums as TEXT + CHECK constraints** - More flexible than native PostgreSQL ENUMs
-2. **Custom CIText type** - SQLAlchemy UserDefinedType for case-insensitive fields (email, username, slugs)
+1. **Enums as TEXT + CHECK constraints** - More flexible than native PostgreSQL
+   ENUMs
+2. **Custom CIText type** - SQLAlchemy UserDefinedType for case-insensitive
+   fields (email, username, slugs)
 3. **Audit columns on all tables** - `created_at`, `updated_at` via AuditMixin
 4. **UUID primary keys** - Using `gen_random_uuid()` (requires uuid-ossp)
 5. **Soft delete support** - `deleted_at` column where applicable (servers)
-6. **Foreign key cascades** - Appropriate ON DELETE behavior for each relationship
+6. **Foreign key cascades** - Appropriate ON DELETE behavior for each
+   relationship
 
 **Indexes created:**
 
@@ -347,33 +359,318 @@ alembic current  # Should show 001_initial_schema
 
 ---
 
+## Session 3: Repository Hygiene Implementation (2026-03-07)
+
+### Summary
+
+Implemented comprehensive repository hygiene and maintenance guardrails to keep
+the repo clean, predictable, and cheap-to-maintain. This includes editor
+configuration, formatting/linting consistency, CI/CD pipeline, and housekeeping
+automation.
+
+### 1. Editor Configuration
+
+**Added `.editorconfig`:**
+
+- Consistent encoding (UTF-8), line endings (LF), and indentation
+- Language-specific rules (Python: 4 spaces, JS/TS: 2 spaces)
+- Markdown trailing whitespace preservation
+- Max line length: 100 characters
+
+### 2. Code Formatting & Linting
+
+**Prettier Configuration (`prettier.config.mjs`):**
+
+- Consistent formatting for TS/TSX, JSON, YAML, Markdown, Python
+- 100 character line width, semicolons, double quotes
+- Override rules for specific file types
+
+**`.prettierignore`:**
+
+- Build outputs, dependencies, lockfiles
+- Auto-generated files (migrations)
+- Archive directory
+
+**Updated `package.json` scripts:**
+
+```json
+{
+  "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+  "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+  "ci": "npm run format:check && npm run lint && npm run typecheck && npm run build"
+}
+```
+
+**Added devDependencies:**
+
+- `husky`: ^9.1.7 (git hooks)
+- `lint-staged`: ^15.4.3 (staged file linting)
+
+### 3. Git Hooks (Husky)
+
+**`.husky/pre-commit`:**
+
+- Runs `lint-staged` on staged files
+- Basic secret detection (warns on API_KEY, SECRET, etc.)
+
+**`.husky/prepare-commit-msg`:**
+
+- Auto-prepends issue numbers from branch names (e.g., `feature/123-xyz` →
+  `[123] message`)
+
+**`.lintstagedrc.json`:**
+
+- Formats and lints staged files by type
+- TS/TSX: Prettier → ESLint
+- Python: Ruff format → Ruff check
+
+### 4. CI/CD Pipeline
+
+**`.github/workflows/ci.yml`:**
+
+- **Jobs:** lint-and-format, typecheck, build, python-lint, security, test
+- **Fail-fast:** Lint/format checks run first
+- **Caching:** npm and pip caching for speed
+- **Concurrency:** Cancels redundant runs
+- **Security:** npm audit with lockfile validation
+- **Python checks:** Ruff lint/format + MyPy type checking
+
+**Workflow features:**
+
+- Node.js 20, Python 3.11
+- Dummy build-time env vars
+- Continues on test failures (placeholder)
+- Separate job for Python in `src/api/`
+
+### 5. Repository Housekeeping
+
+**Pull Request Template (`.github/pull_request_template.md`):**
+
+- Description, type of change, testing checklist
+- Environment details, contribution guidelines
+- Checklist for code quality
+
+**CODEOWNERS (`.github/CODEOWNERS`):**
+
+- Global fallback: `@firstspawn/maintainers`
+- Per-path ownership (web, api, infrastructure, docs)
+- Auto-review assignment
+
+**Stale Automation:**
+
+`.github/workflows/stale.yml`:
+
+- Issues: Stale after 60 days, close after 7 more
+- PRs: Stale after 30 days, close after 14 more
+- Exempt labels: `keep-open`, `bug`, `critical`, `roadmap`, `wip`, `blocked`
+
+`.github/workflows/stale-branches.yml`:
+
+- Weekly scan for branches >90 days old
+- Skips branches with open PRs
+- Currently in dry-run mode
+
+**Label Configuration (`.github/labels.yml`):**
+
+- Priority (critical, high, medium, low)
+- Type (bug, feature, docs, refactor, test, chore, security)
+- Status (blocked, wip, needs-review, needs-testing, stale)
+- Component (api, web, mobile, ui, infra, database, docs)
+- Special (good-first-issue, help-wanted, dependencies)
+
+### 6. Documentation
+
+**Enhanced README.md:**
+
+- Quick start with prerequisites
+- Installation and local development
+- Environment variables setup
+- Available scripts reference
+- Project structure overview
+- Testing placeholder (not yet implemented)
+- Release process and versioning
+- Contributing guidelines with commit conventions
+- Technology stack summary
+
+**Dependency Policy (`docs/DEPENDENCY_POLICY.md`):**
+
+- Update cadence: Weekly (patch), Bi-weekly (minor), Quarterly (major)
+- Version constraints for npm and Python
+- Lockfile rules and security scanning
+- Adding new dependencies process
+- Emergency update procedures
+
+### 7. AGENTS.md Updates
+
+Added new section **"Repository Hygiene"**:
+
+- `.editorconfig` conventions
+- Prettier and ESLint workflow
+- Husky pre-commit hooks
+- CI pipeline structure
+- Dependency management with Dependabot
+
+Updated **Build and Development Commands**:
+
+- Added `format:check`, `typecheck`, `ci`, `prepare` scripts
+
+### Files Changed
+
+**New files (17):**
+
+```
+.editorconfig
+.prettierignore
+prettier.config.mjs
+.lintstagedrc.json
+.husky/pre-commit
+.husky/prepare-commit-msg
+.github/workflows/ci.yml
+.github/workflows/stale.yml
+.github/workflows/stale-branches.yml
+.github/pull_request_template.md
+.github/CODEOWNERS
+.github/labels.yml
+docs/DEPENDENCY_POLICY.md
+```
+
+**Modified files (2):**
+
+```
+package.json (added scripts and dependencies)
+README.md (comprehensive rewrite)
+AGENTS.md (added hygiene section)
+```
+
+### Validation Performed
+
+1. ✅ `.editorconfig` syntax validated
+2. ✅ `prettier.config.mjs` exports valid config
+3. ✅ `.lintstagedrc.json` is valid JSON
+4. ✅ CI workflow YAML syntax validated
+5. ✅ All GitHub workflow files syntax checked
+6. ✅ `package.json` scripts are valid
+
+**Note:** `npm install` required to install new dependencies (husky,
+lint-staged)
+
+---
+
+## Session 4: GitHub Repository Configuration (2026-03-08)
+
+### Summary
+
+Completed GitHub repository configuration by applying labels and enabling branch
+protection with required CI checks.
+
+### 1. GitHub Labels Applied
+
+Created 28 labels from `.github/labels.yml`:
+
+**Priority (4):**
+
+- `priority/critical`, `priority/high`, `priority/medium`, `priority/low`
+
+**Type (7):**
+
+- `type/bug`, `type/feature`, `type/docs`, `type/refactor`, `type/test`,
+  `type/chore`, `type/security`
+
+**Status (6):**
+
+- `status/blocked`, `status/wip`, `status/needs-review`, `status/needs-testing`,
+  `status/stale`, `status/keep-open`
+
+**Component (7):**
+
+- `component/api`, `component/web`, `component/mobile`, `component/ui`,
+  `component/infra`, `component/database`, `component/docs`
+
+**Automation (2):**
+
+- `automation`, `dependencies`
+
+**Special (4):**
+
+- `good-first-issue`, `help-wanted`, `question`, `duplicate`, `invalid`,
+  `wontfix`
+
+### 2. Branch Protection Enabled
+
+**Protected branch:** `main`
+
+**Required status checks:**
+
+- ✅ Lint & Format Check
+- ✅ Type Check
+- ✅ Build
+- ✅ Python Lint & Format
+
+**Pull request requirements:**
+
+- 1 approving review required
+- Stale reviews dismissed on new commits
+- Up-to-date branch required before merging
+
+**Protection settings:**
+
+- Force pushes: disabled
+- Branch deletion: disabled
+- Admin enforcement: disabled (allows admins to bypass if needed)
+
+**Note:** `develop` branch does not exist yet. Create and protect it when needed
+using the same settings.
+
+### 3. Supporting Files
+
+**Created `.github/branch-protection.json`:**
+
+- Backup of branch protection configuration
+- Can be reused for `develop` branch or other repos
+
+### Validation Performed
+
+1. ✅ All 28 labels created successfully (existing default labels preserved)
+2. ✅ Branch protection API call successful
+3. ✅ Protection settings verified via GitHub API
+4. ✅ Required status checks configured correctly
+
+---
+
 ## What is Next?
 
 ### Immediate (Next Session):
 
-1. Start infrastructure: `docker-compose up -d postgres redis`
-2. Execute migration: `cd src/api && alembic upgrade head`
-3. Verify schema: Connect to PostgreSQL and verify tables created
+1. **Run `npm install`** to install new dependencies
+2. **Initialize Husky:** `npx husky install` (or let `prepare` script handle it)
+3. **Test pre-commit hooks:** Make a test commit to verify hooks work
+4. **Start infrastructure:** `docker-compose up -d postgres redis`
+5. **Execute migration:** `cd src/api && alembic upgrade head`
 
 ### Short-term:
 
-4. Implement auth endpoints from `docs/05-api-v1-contract.md`
-5. Add CI workflow for lint/build/test gates
-6. Integration tests for database operations
+6. **Implement auth endpoints** from `docs/05-api-v1-contract.md`
+7. **Integration tests** for database operations
+8. **Stale branch cleanup:** Review and enable actual deletion (currently
+   dry-run)
 
 ### Medium-term:
 
-7. Implement discovery endpoints (servers, tags, favorites)
-8. Plugin verification and telemetry endpoints
-9. Agentic runtime audit integration
+11. Implement discovery endpoints (servers, tags, favorites)
+12. Plugin verification and telemetry endpoints
+13. Agentic runtime audit integration
+14. Add Renovate for automated dependency updates
+15. Set up Snyk for additional security scanning
 
 ---
 
 ## Notes
 
-- **Naming convention:** All new environment variables use `API_*` prefix
-- **Backward compatibility:** Config supports both old and new env var names during transition
-- **Type safety:** SQLAlchemy 2.0 with full type annotations
-- **Documentation:** All tables have comments, migration includes TODOs for future work
-- **Security:** Password hashes use Text (bcrypt/Argon2), secret_hash for plugin keys
-- **Monorepo structure:** `src/` pattern is standard for monorepos, eliminates redundant prefix
+- **Pre-commit hooks:** Will auto-format and lint on every commit
+- **CI pipeline:** Runs on every PR and push to main/develop
+- **Lockfile:** Must commit `package-lock.json` after `npm install`
+- **Husky:** Hooks are installed automatically via `prepare` script
+- **Stale automation:** Requires write permissions (configured in workflows)
+- **CODEOWNERS:** Update with actual team names when organization is ready
+- **PR #8:** Updated with comprehensive title and description documenting all
+  changes

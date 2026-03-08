@@ -1,0 +1,61 @@
+name: Stale Branch Cleanup
+
+on:
+  schedule:
+    # Run every Sunday at 00:00 UTC
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Delete stale branches
+        run: |
+          echo "Checking for stale branches..."
+
+          # Get current date in seconds
+          CURRENT_DATE=$(date +%s)
+
+          # Find branches older than 90 days (excluding main, develop, and protected branches)
+          git branch -r --format='%(refname:short) %(committerdate:unix)' | \
+          grep -v "HEAD\|main\|develop\|release/" | \
+          while read branch date; do
+            # Calculate age in days
+            AGE_DAYS=$(( (CURRENT_DATE - date) / 86400 ))
+            
+            if [ $AGE_DAYS -gt 90 ]; then
+              BRANCH_NAME=${branch#origin/}
+              echo "Branch $BRANCH_NAME is ${AGE_DAYS} days old"
+              
+              # Check if there's an open PR for this branch
+              PR_COUNT=$(gh pr list --head "$BRANCH_NAME" --state open --json number | jq length)
+              
+              if [ "$PR_COUNT" -eq 0 ]; then
+                echo "  -> No open PR, marking for deletion"
+                # Uncomment to actually delete:
+                # git push origin --delete "$BRANCH_NAME"
+                echo "  -> Would delete: $BRANCH_NAME (dry run)"
+              else
+                echo "  -> Has open PR, skipping"
+              fi
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report summary
+        run: |
+          echo "## Stale Branch Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches older than 90 days are candidates for deletion" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches with open PRs are preserved" >> $GITHUB_STEP_SUMMARY
+          echo "- Currently in dry-run mode (no actual deletions)" >> $GITHUB_STEP_SUMMARY

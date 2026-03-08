@@ -1,0 +1,137 @@
+# GitHub Labels Configuration
+# Apply these labels using: gh label create -f < name > < color > < description >
+# Or use the GitHub CLI script in scripts/setup-labels.sh
+
+# Priority
+- name: priority/critical
+  color: b60205
+  description: Critical - needs immediate attention
+
+- name: priority/high
+  color: d93f0b
+  description: High priority
+
+- name: priority/medium
+  color: fbca04
+  description: Medium priority
+
+- name: priority/low
+  color: 0e8a16
+  description: Low priority
+
+# Type
+- name: type/bug
+  color: d73a4a
+  description: Something isn't working
+
+- name: type/feature
+  color: a2eeef
+  description: New feature or request
+
+- name: type/docs
+  color: 0075ca
+  description: Documentation only changes
+
+- name: type/refactor
+  color: c5def5
+  description: Code refactoring
+
+- name: type/test
+  color: d4c5f9
+  description: Adding or updating tests
+
+- name: type/chore
+  color: fef2c0
+  description: Maintenance tasks
+
+- name: type/security
+  color: e11d21
+  description: Security related
+
+# Status
+- name: status/blocked
+  color: b60205
+  description: Blocked by another issue or dependency
+
+- name: status/wip
+  color: ffffff
+  description: Work in progress
+
+- name: status/needs-review
+  color: 5319e7
+  description: Needs code review
+
+- name: status/needs-testing
+  color: f9d0c4
+  description: Needs manual testing
+
+- name: status/stale
+  color: ffffff
+  description: Marked as stale due to inactivity
+
+- name: status/keep-open
+  color: 0e8a16
+  description: Keep open despite staleness
+
+# Component
+- name: component/api
+  color: 1d76db
+  description: Related to the API
+
+- name: component/web
+  color: 0052cc
+  description: Related to the web app
+
+- name: component/mobile
+  color: 006b75
+  description: Related to the mobile app
+
+- name: component/ui
+  color: 84b6eb
+  description: Related to UI components
+
+- name: component/infra
+  color: bfdadc
+  description: Infrastructure or DevOps
+
+- name: component/database
+  color: c2e0c6
+  description: Database related
+
+- name: component/docs
+  color: c5def5
+  description: Documentation
+
+# Automation
+- name: automation
+  color: d4c5f9
+  description: Automated process or bot
+
+- name: dependencies
+  color: 0366d6
+  description: Pull requests that update a dependency file
+
+# Special
+- name: good-first-issue
+  color: 7057ff
+  description: Good for newcomers
+
+- name: help-wanted
+  color: 008672
+  description: Extra attention is needed
+
+- name: question
+  color: d876e3
+  description: Further information is requested
+
+- name: duplicate
+  color: cfd3d7
+  description: This issue or pull request already exists
+
+- name: invalid
+  color: e4e669
+  description: This doesn't seem right
+
+- name: wontfix
+  color: ffffff
+  description: This won't be worked on
