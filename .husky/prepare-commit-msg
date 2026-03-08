@@ -1,0 +1,17 @@
+. "$(dirname "$0")/_/husky.sh"
+
+echo "📝 Preparing commit message..."
+
+# Get the branch name
+BRANCH_NAME=$(git symbolic-ref --short HEAD)
+BRANCH_NAME="${BRANCH_NAME##*/}"
+
+# Extract issue number from branch name (e.g., feature/123-description -> 123)
+ISSUE_NUMBER=$(echo "$BRANCH_NAME" | grep -oE '^[0-9]+' || true)
+
+# If we have an issue number and the commit message doesn't already reference it
+if [ -n "$ISSUE_NUMBER" ] && ! grep -qE "^\[$ISSUE_NUMBER\]|^$ISSUE_NUMBER:|#$ISSUE_NUMBER" "$1"; then
+  # Prepend issue reference to commit message
+  sed -i.bak -e "1s/^/[$ISSUE_NUMBER] /" "$1"
+  rm -f "$1.bak"
+fi
