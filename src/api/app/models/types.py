@@ -1,6 +1,5 @@
 """Custom PostgreSQL types for SQLAlchemy."""
 
-from sqlalchemy import Text
 from sqlalchemy.dialects.postgresql.base import ischema_names
 from sqlalchemy.types import UserDefinedType
 

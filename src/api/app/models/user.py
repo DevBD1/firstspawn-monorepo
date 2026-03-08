@@ -5,12 +5,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Index, String, Text
-
-from app.models.types import CIText
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import AuditMixin, Base
+from app.models.types import CIText
 
 if TYPE_CHECKING:
     from app.models.server import Server

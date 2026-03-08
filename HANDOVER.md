@@ -392,6 +392,47 @@ Updated PR #9 with improved title and description:
 
 ---
 
+## Session 4: Ruff Linter Fixes (2026-03-08)
+
+### Summary
+
+Fixed all Python linting errors reported by Ruff across the API codebase.
+
+### Issues Fixed
+
+**F821 - Undefined name errors (forward references):**
+
+- `src/api/app/models/moderation.py`: Added missing `from __future__ import annotations` and `TYPE_CHECKING` import for `User` model
+- `src/api/app/models/plugin.py`: Added missing `from __future__ import annotations` and `TYPE_CHECKING` import for `Server` model
+
+**E501 - Line too long:**
+
+- `src/api/migrations/versions/001_initial_schema.py`: Split long TODO comment lines for idempotency indexes
+
+### Changes Made
+
+**Files modified:**
+
+```
+src/api/app/models/moderation.py
+src/api/app/models/plugin.py
+src/api/migrations/versions/001_initial_schema.py
+```
+
+**Technical details:**
+
+1. Added `from __future__ import annotations` to enable postponed evaluation of annotations (PEP 563)
+2. Added `from typing import TYPE_CHECKING` imports
+3. Added `if TYPE_CHECKING:` blocks with forward imports for `User` and `Server` models
+4. Kept relationship type annotations with forward references for SQLAlchemy compatibility
+5. Reformatted long comment lines in migration file to stay within 100 character limit
+
+### Validation Performed
+
+- `ruff check .` → All checks passed (0 errors)
+
+---
+
 ## What is Next?
 
 ### Immediate (Next Session):

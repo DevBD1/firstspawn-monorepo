@@ -1,7 +1,10 @@
 """Plugin verification and telemetry models."""
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     ForeignKey,
@@ -14,6 +17,9 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import AuditMixin, Base
+
+if TYPE_CHECKING:
+    from app.models.server import Server
 
 
 class PluginKey(Base, AuditMixin):
@@ -52,12 +58,12 @@ class PluginKey(Base, AuditMixin):
     )
 
     # Relationships
-    server: Mapped["Server"] = relationship("Server", back_populates="plugin_keys")
-    heartbeats: Mapped[list["ServerHeartbeat"]] = relationship(
+    server: Mapped[Server] = relationship("Server", back_populates="plugin_keys")
+    heartbeats: Mapped[list[ServerHeartbeat]] = relationship(
         back_populates="plugin_key",
         cascade="all, delete-orphan",
     )
-    playtime_events: Mapped[list["PlaytimeEvent"]] = relationship(
+    playtime_events: Mapped[list[PlaytimeEvent]] = relationship(
         back_populates="plugin_key",
         cascade="all, delete-orphan",
     )
@@ -105,8 +111,8 @@ class ServerHeartbeat(Base, AuditMixin):
     )
 
     # Relationships
-    plugin_key: Mapped["PluginKey"] = relationship(back_populates="heartbeats")
-    server: Mapped["Server"] = relationship(back_populates="heartbeats")
+    plugin_key: Mapped[PluginKey] = relationship(back_populates="heartbeats")
+    server: Mapped[Server] = relationship(back_populates="heartbeats")
 
     __table_args__ = (
         Index("idx_server_heartbeats_server_occurred", "server_id", "occurred_at"),
@@ -160,8 +166,8 @@ class PlaytimeEvent(Base, AuditMixin):
     )
 
     # Relationships
-    plugin_key: Mapped["PluginKey"] = relationship(back_populates="playtime_events")
-    server: Mapped["Server"] = relationship(back_populates="playtime_events")
+    plugin_key: Mapped[PluginKey] = relationship(back_populates="playtime_events")
+    server: Mapped[Server] = relationship(back_populates="playtime_events")
 
     __table_args__ = (
         Index("idx_playtime_events_server_occurred", "server_id", "occurred_at"),

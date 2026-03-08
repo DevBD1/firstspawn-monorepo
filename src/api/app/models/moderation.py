@@ -1,13 +1,19 @@
 """Moderation models: reports and actions."""
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import AuditMixin, Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class Report(Base, AuditMixin):
@@ -54,11 +60,11 @@ class Report(Base, AuditMixin):
     )
 
     # Relationships
-    reporter: Mapped["User | None"] = relationship(
+    reporter: Mapped[User | None] = relationship(
         foreign_keys=[reporter_user_id],
         back_populates="reports_submitted",
     )
-    resolved_by: Mapped["User | None"] = relationship(
+    resolved_by: Mapped[User | None] = relationship(
         foreign_keys=[resolved_by_user_id],
         back_populates="reports_resolved",
     )
