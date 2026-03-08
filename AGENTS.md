@@ -32,14 +32,16 @@ firstspawn-monorepo/
 │   ├── typescript-config/# Shared TS configs (base, nextjs, react-library, react-native)
 │   └── config/           # Shared ESLint config
 ├── docs/                 # Product documentation
-│   ├── 01-product-and-strategy.md
-│   ├── 02-architecture-and-stack.md
-│   ├── 03-execution-and-ops.md
-│   ├── 04-agentic-ecosystem-implementation-guide.md
-│   ├── 05-api-v1-contract.md
-│   ├── 06-data-model-v1.md
 │   ├── plans/            # Planning documents (specs, proposals, RFCs)
+│       ├── 01-product-and-strategy.md
+│       ├── 02-architecture-and-stack.md
+│       ├── 03-execution-and-ops.md
+│       ├── 04-agentic-ecosystem-implementation-guide.md
+│       ├── 05-api-v1-contract.md
+│       └── 06-data-model-v1.md
 │   └── implementations/  # Session handover logs
+│       └── YYYY-MM-DD-title.md
+└── turbo.json            # Turbo configuration
 ```
 
 ## Technology Stack
@@ -53,13 +55,13 @@ firstspawn-monorepo/
 - **Icons:** Lucide React
 - **Fonts:** Press Start 2P (pixel), VT323 (retro), Geist Sans/Mono
 
-### Planned Backend
+### Backend (API)
 
-- **Language:** Python
-- **Framework:** FastAPI
+- **Language:** Python 3.11+
+- **Framework:** FastAPI (in progress — scaffold + DB schema implemented)
 - **ORM/Migrations:** SQLAlchemy 2.x + Alembic
-- **Database:** PostgreSQL (source of truth)
-- **Cache/Queue:** Redis
+- **Database:** PostgreSQL 16 (source of truth)
+- **Cache/Queue:** Redis 7
 - **Search:** PostgreSQL FTS (MVP), Elasticsearch (future scale)
 
 ### Shared Packages
@@ -268,15 +270,12 @@ NODE_ENV                      # development | production
 
 ### @firstspawn/api
 
-- **Status:** FastAPI production API (Python)
+- **Status:** Scaffold + V1 DB schema done; auth endpoints not yet implemented
 - **Port:** 8000
 - **Framework:** FastAPI + SQLAlchemy 2.x + Alembic
-- **Note:** Previously named `api-py`, now consolidated to `api`
-
-- **Status:** Scaffold started
-- **Framework:** FastAPI + SQLAlchemy + Alembic
 - **Purpose:** Production API implementation aligned to
-  `docs/05-api-v1-contract.md` and `docs/06-data-model-v1.md`
+  `docs/plans/05-api-v1-contract.md` and `docs/plans/06-data-model-v1.md`
+- **Note:** Previously named `api-py`, now consolidated to `api`
 
 ### @firstspawn/mobile
 
@@ -353,7 +352,7 @@ NODE_ENV                      # development | production
 ### Environment
 
 - Never commit `.env` files
-- Use `.env.local` for local development
+- Copy `.env.example` to `.env` for local development
 - All secrets must be server-side only
 - Only publish-safe values may use the `NEXT_PUBLIC_` prefix
 

@@ -22,17 +22,17 @@ Turborepo.
 
 Comprehensive documentation is available in the `docs/` directory:
 
-1. **[Product & Strategy](docs/01-product-and-strategy.md)** - Vision, audience,
-   monetization
-2. **[Architecture & Stack](docs/02-architecture-and-stack.md)** - Tech
+1. **[Product & Strategy](docs/plans/01-product-and-strategy.md)** - Vision,
+   audience, monetization
+2. **[Architecture & Stack](docs/plans/02-architecture-and-stack.md)** - Tech
    decisions, security, deployment
-3. **[Execution & Operations](docs/03-execution-and-ops.md)** - Roadmap, quality
-   gates, workflow
-4. **[Agentic Ecosystem Guide](docs/04-agentic-ecosystem-implementation-guide.md)** -
+3. **[Execution & Operations](docs/plans/03-execution-and-ops.md)** - Roadmap,
+   quality gates, workflow
+4. **[Agentic Ecosystem Guide](docs/plans/04-agentic-ecosystem-implementation-guide.md)** -
    Autonomous agents
-5. **[API v1 Contract](docs/05-api-v1-contract.md)** - API endpoints, auth,
+5. **[API v1 Contract](docs/plans/05-api-v1-contract.md)** - API endpoints, auth,
    standards
-6. **[Data Model v1](docs/06-data-model-v1.md)** - PostgreSQL schema baseline
+6. **[Data Model v1](docs/plans/06-data-model-v1.md)** - PostgreSQL schema baseline
 
 ## Quick Start
 
@@ -148,7 +148,9 @@ firstspawn-monorepo/
 │   ├── typescript-config/# Shared TS configs
 │   └── config/           # Shared ESLint config
 ├── docs/                 # Product documentation
-└── implementations/      # Handover logs
+│   ├── DEPENDENCY_POLICY.md
+│   ├── plans/            # Planning documents
+│   └── implementations/  # Handover logs
 ```
 
 ## Testing
@@ -257,7 +259,7 @@ When reporting bugs, please include:
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS v4 + Framer Motion
 - **UI**: React 19, Lucide React icons
-- **i18n**: Custom deep-merge system (EN, TR, DE supported)
+- **i18n**: Custom deep-merge system (EN, TR, DE, RU, ES, FR supported; MVP launch: EN, TR, DE)
 
 ### Backend (API)
 
