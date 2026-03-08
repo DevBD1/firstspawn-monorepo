@@ -351,15 +351,15 @@ alembic current  # Should show 001_initial_schema
 
 ### Summary
 
-Created `vercel.json` to fix the deployment configuration after the repository restructure from `firstspawn/` to `src/`.
+Fixed Vercel deployment configuration after the repository restructure from `firstspawn/` to `src/`.
 
 ### Problem
 
 Vercel was still looking for `firstspawn/web` as the root directory, but the repository was restructured to use `src/web` instead.
 
-### Solution
+### Initial Attempt (Failed)
 
-Created `/vercel.json` at the repository root with:
+Initially tried creating `vercel.json` with `rootDirectory` property:
 
 ```json
 {
@@ -367,20 +367,28 @@ Created `/vercel.json` at the repository root with:
 }
 ```
 
-This tells Vercel to use `src/web` as the root directory for deployment, resolving the path mismatch.
+**This failed** because `rootDirectory` is NOT a valid property in `vercel.json` schema.
+
+### Correct Solution
+
+The root directory must be configured in the **Vercel Dashboard**:
+
+1. Go to Project Settings → General
+2. Set **Root Directory** to: `src/web`
+3. Save changes
+
+This is the only valid way to configure the deployment root directory for Vercel projects.
 
 ### Files Changed
 
-**New files (1):**
-
-- `vercel.json`
+No code changes required - configuration is done via Vercel Dashboard only.
 
 ### PR Updates
 
 Updated PR #9 with improved title and description:
 
-- Title: `fix(deploy): add vercel.json to fix deployment root directory after monorepo restructure (Vibe Kanban)`
-- Added detailed explanation of the problem, context from Session 2 restructure, and verification checklist
+- Title: `fix(deploy): configure Vercel root directory after monorepo restructure (Vibe Kanban)`
+- Added detailed explanation of the problem, correct configuration approach, and context from Session 2 restructure
 
 ---
 
