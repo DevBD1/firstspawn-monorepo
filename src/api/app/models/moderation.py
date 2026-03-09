@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Index, String, Text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -70,6 +70,14 @@ class Report(Base, AuditMixin):
     )
 
     __table_args__ = (
+        CheckConstraint(
+            "target_type IN ('server', 'user', 'content', 'review')",
+            name="chk_reports_target_type",
+        ),
+        CheckConstraint(
+            "status IN ('open', 'triaged', 'resolved', 'dismissed')",
+            name="chk_reports_status",
+        ),
         Index("idx_reports_target", "target_type", "target_id"),
         Index("idx_reports_status_created", "status", "created_at"),
         {"comment": "User reports for moderation"},

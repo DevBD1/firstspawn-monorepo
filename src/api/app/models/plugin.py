@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    CheckConstraint,
     ForeignKey,
     Index,
     Integer,
@@ -68,7 +69,13 @@ class PluginKey(Base, AuditMixin):
         cascade="all, delete-orphan",
     )
 
-    __table_args__ = ({"comment": "Plugin API keys for server authentication"},)
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('active', 'revoked')",
+            name="chk_plugin_keys_status",
+        ),
+        {"comment": "Plugin API keys for server authentication"},
+    )
 
 
 class ServerHeartbeat(Base, AuditMixin):
@@ -116,8 +123,13 @@ class ServerHeartbeat(Base, AuditMixin):
 
     __table_args__ = (
         Index("idx_server_heartbeats_server_occurred", "server_id", "occurred_at"),
-        # TODO: Add partial unique index for idempotency
-        # unique partial (plugin_key_id, idempotency_key) where idempotency_key is not null
+        Index(
+            "idx_server_heartbeats_idempotency",
+            "plugin_key_id",
+            "idempotency_key",
+            unique=True,
+            postgresql_where="idempotency_key IS NOT NULL",
+        ),
         {"comment": "Server heartbeat telemetry events"},
     )
 
@@ -170,9 +182,18 @@ class PlaytimeEvent(Base, AuditMixin):
     server: Mapped[Server] = relationship(back_populates="playtime_events")
 
     __table_args__ = (
+        CheckConstraint(
+            "event_type IN ('join', 'leave', 'session')",
+            name="chk_playtime_events_type",
+        ),
         Index("idx_playtime_events_server_occurred", "server_id", "occurred_at"),
         Index("idx_playtime_events_external_player", "external_player_id"),
-        # TODO: Add partial unique index for idempotency
-        # unique partial (plugin_key_id, idempotency_key) where idempotency_key is not null
+        Index(
+            "idx_playtime_events_idempotency",
+            "plugin_key_id",
+            "idempotency_key",
+            unique=True,
+            postgresql_where="idempotency_key IS NOT NULL",
+        ),
         {"comment": "Player playtime events"},
     )

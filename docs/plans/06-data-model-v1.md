@@ -1,4 +1,4 @@
-# Data Model V1
+# Data Model V1 + V2
 
 ## 1. Purpose
 
@@ -219,8 +219,9 @@ Indexes:
 ## 8. Search Baseline
 
 - MVP search uses PostgreSQL FTS over `servers.name`, `servers.description`, and tag names.
-- Add generated `tsvector` column and GIN index in migration sequence.
-- Elasticsearch remains future optimization, not part of v1 required schema.
+- `search_vector` tsvector column + GIN index implemented in migration `002_schema_v2`.
+- Auto-update trigger fires on INSERT/UPDATE of `name` or `description`.
+- Elasticsearch remains future optimization, not part of v1/v2 required schema.
 
 ## 9. Migration Rules
 
@@ -231,10 +232,76 @@ Indexes:
   - backfill plan,
   - rollback note in PR.
 
-## 10. Future Phase Tables (Not In V1)
+## 10. V2 Tables
 
-Planned for next phase:
-- `reviews`
-- `review_votes`
-- `review_moderation_actions`
-- reputation materialization tables derived from reviews + telemetry
+### `server_platforms`
+- `server_id uuid not null fk -> servers.id` (PK part 1)
+- `platform text not null` (PK part 2: `java`, `bedrock`, `pocket`)
+- `created_at timestamptz not null default now()`
+
+### `user_game_accounts`
+- `id uuid pk`
+- `user_id uuid not null fk -> users.id`
+- `platform text not null` (`mojang`, `hytale`)
+- `platform_user_id text not null`
+- `platform_username text null`
+- `verified_at timestamptz null`
+- `token_expires_at timestamptz null`
+- audit columns
+
+Constraints:
+- unique `(platform, platform_user_id)`
+
+### `reviews`
+- `id uuid pk`
+- `server_id uuid not null fk -> servers.id`
+- `author_user_id uuid not null fk -> users.id`
+- `rating smallint not null` (CHECK 1–5)
+- `title text null`
+- `body text not null`
+- `is_verified boolean not null default false`
+- `verified_playtime_seconds int null`
+- `status text not null default 'published'` (`published`, `hidden`, `removed`)
+- `helpful_count int not null default 0`
+- `unhelpful_count int not null default 0`
+- `edited_at timestamptz null`
+- `deleted_at timestamptz null`
+- audit columns
+
+Constraints:
+- unique `(server_id, author_user_id)`
+
+### `review_votes`
+- `id uuid pk`
+- `review_id uuid not null fk -> reviews.id`
+- `user_id uuid not null fk -> users.id`
+- `is_helpful boolean not null`
+- `created_at timestamptz not null default now()`
+
+Constraints:
+- unique `(review_id, user_id)`
+
+### `review_moderation_actions`
+- `id uuid pk`
+- `review_id uuid not null fk -> reviews.id`
+- `moderator_user_id uuid not null fk -> users.id`
+- `action text not null` (`hide`, `remove`, `restore`, `flag`)
+- `reason text null`
+- audit columns
+
+### `server_reputation_snapshots`
+- `id uuid pk`
+- `server_id uuid not null fk -> servers.id`
+- `snapshot_date date not null`
+- `avg_rating numeric(3,2) null`
+- `review_count int not null default 0`
+- `verified_review_count int not null default 0`
+- `favorite_count int not null default 0`
+- `heartbeat_uptime_pct numeric(5,2) null`
+- `avg_online_players numeric(10,2) null`
+- `total_playtime_seconds bigint not null default 0`
+- `trust_score numeric(5,3) null`
+- `created_at timestamptz not null default now()`
+
+Constraints:
+- unique `(server_id, snapshot_date)`

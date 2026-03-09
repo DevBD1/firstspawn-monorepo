@@ -1,10 +1,12 @@
 """User-related models: users, sessions, OAuth identities."""
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Index, String, Text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import INET, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +14,9 @@ from app.models.base import AuditMixin, Base
 from app.models.types import CIText
 
 if TYPE_CHECKING:
+    from app.models.game_account import UserGameAccount
+    from app.models.moderation import Report
+    from app.models.review import Review
     from app.models.server import Server
 
 
@@ -54,20 +59,42 @@ class User(Base, AuditMixin):
     )
 
     # Relationships
-    sessions: Mapped[list["UserSession"]] = relationship(
+    sessions: Mapped[list[UserSession]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    oauth_identities: Mapped[list["UserOAuthIdentity"]] = relationship(
+    oauth_identities: Mapped[list[UserOAuthIdentity]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    servers: Mapped[list["Server"]] = relationship(
+    servers: Mapped[list[Server]] = relationship(
         back_populates="owner",
+    )
+    reports_submitted: Mapped[list[Report]] = relationship(
+        foreign_keys="[Report.reporter_user_id]",
+        back_populates="reporter",
+    )
+    reports_resolved: Mapped[list[Report]] = relationship(
+        foreign_keys="[Report.resolved_by_user_id]",
+        back_populates="resolved_by",
+    )
+    reviews: Mapped[list[Review]] = relationship(
+        back_populates="author",
+    )
+    game_accounts: Mapped[list[UserGameAccount]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     __table_args__ = (
-        # Named constraints for clarity
+        CheckConstraint(
+            "status IN ('active', 'suspended', 'deleted')",
+            name="chk_users_status",
+        ),
+        CheckConstraint(
+            "locale IN ('en', 'tr', 'de', 'ru', 'es', 'fr')",
+            name="chk_users_locale",
+        ),
         {"comment": "User accounts with authentication"},
     )
 
@@ -106,7 +133,7 @@ class UserSession(Base, AuditMixin):
     )
 
     # Relationships
-    user: Mapped["User"] = relationship(back_populates="sessions")
+    user: Mapped[User] = relationship(back_populates="sessions")
 
     __table_args__ = (
         Index("idx_user_sessions_user_id", "user_id"),
@@ -116,7 +143,7 @@ class UserSession(Base, AuditMixin):
 
 
 class UserOAuthIdentity(Base, AuditMixin):
-    """OAuth provider linkage for users."""
+    """OAuth provider linkage for users (social login: Google, Discord, GitHub)."""
 
     __tablename__ = "user_oauth_identities"
 
@@ -143,9 +170,13 @@ class UserOAuthIdentity(Base, AuditMixin):
     )
 
     # Relationships
-    user: Mapped["User"] = relationship(back_populates="oauth_identities")
+    user: Mapped[User] = relationship(back_populates="oauth_identities")
 
     __table_args__ = (
-        # Unique constraint: one OAuth identity per provider per user
+        UniqueConstraint(
+            "provider",
+            "provider_user_id",
+            name="uq_oauth_identity",
+        ),
         {"comment": "OAuth provider identities linked to users"},
     )
