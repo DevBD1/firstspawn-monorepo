@@ -1,7 +1,7 @@
 # Project Handover
 
 **Repository:** firstspawn-monorepo
-**Last Updated:** 2026-03-08
+**Last Updated:** 2026-03-09
 
 > Source of truth for directory layout and conventions is **`AGENTS.md`**.
 > This file records what was done, by whom (session), and what is next.
@@ -86,13 +86,36 @@
 
 ---
 
+### Session 7 — Database V2 Schema + Environment Consolidation (2026-03-09)
+
+**What changed:**
+- Fixed V1 model gaps: added missing relationships on `User` and `Server`, CHECK constraints on all enum-like columns, partial unique indexes for idempotency, FTS tsvector + GIN index + auto-update trigger on `servers`
+- Created 6 new tables (4 new model files): `reviews`, `review_votes`, `review_moderation_actions`, `server_reputation_snapshots`, `user_game_accounts`, `server_platforms`
+- Created migration `002_schema_v2_fixes_and_reviews.py` with full forward + backward support
+- **Executed both migrations** on local PostgreSQL — 20 tables live
+- Created root `.env.example` (single source of truth); consolidated from 3 per-service files to 1
+- Fixed `config.py` default DB URL to match `docker-compose.yml` credentials (`firstspawn:firstspawn`)
+- Updated `docs/plans/06-data-model-v1.md` with V2 table definitions
+- Updated `.gitignore` to track `.env.example` files
+
+**Key decisions:**
+- `user_game_accounts` (Mojang/Hytale OAuth2) kept separate from `user_oauth_identities` (social login) — game identity ≠ auth method
+- `server_platforms` junction table for Minecraft editions (Java/Bedrock/Pocket) — not an array column, for queryability
+- `reviews` are 1-per-user-per-server with `is_verified` flag backed by playtime data
+- `server_reputation_snapshots` is daily-materialized (not a view) for ranked discovery performance
+- Single root `.env.example` for local dev; per-host env vars in production dashboards (Netlify, VPS)
+
+**Validation:** 21 model exports ✅, `ruff check .` → 0 errors ✅, both migrations executed ✅
+
+---
+
 ## Current State
 
 | Area | Status |
 |---|---|
-| Web app (`src/web`) | Beta — deployed on Vercel |
-| API (`src/api`) | Scaffold + V1 DB schema done; auth endpoints not yet implemented |
-| DB migration | `001_initial_schema` created, **not yet executed** (needs running Postgres) |
+| Web app (`src/web`) | Beta — deployed on Netlify |
+| API (`src/api`) | Scaffold + V2 DB schema done; auth endpoints not yet implemented |
+| DB migrations | `001_initial_schema` + `002_schema_v2` **executed** — 20 tables live |
 | CI pipeline | Active on `main` + PRs |
 | Pre-commit hooks | Configured via Husky / lint-staged |
 | Testing | Not implemented (placeholder only) |
@@ -101,26 +124,27 @@
 
 ## Known Limitations
 
-- Partial unique indexes for idempotency (`idx_server_heartbeats_idempotency`, `idx_playtime_events_idempotency`) — TODO in migration
-- PostgreSQL FTS not yet added (tsvector + GIN index on `servers`)
 - All tables in `public` schema — future: split into `auth`, `discovery`, `plugin`, `agent`
 - Redis not yet integrated into API code
+- Hytale OAuth2 API not yet public — `user_game_accounts` table ready but integration gated
+- Reputation snapshot computation job not yet implemented (table exists, no background worker)
 
 ---
 
 ## What is Next?
 
 ### Immediate:
-1. Start infrastructure: `docker-compose up -d postgres redis`
-2. Execute migration: `cd src/api && alembic upgrade head`
-3. Implement auth endpoints per `docs/plans/05-api-v1-contract.md`
+1. Implement auth endpoints per `docs/plans/05-api-v1-contract.md` (register, login, refresh, logout, me)
+2. Pydantic request/response schemas for API contract
 
 ### Short-term:
-4. Integration tests for DB operations
-5. Enable stale-branch deletion (currently dry-run)
+3. Discovery endpoints (servers, tags, search via FTS, favorites)
+4. Plugin verification + telemetry ingestion endpoints
+5. Integration tests for DB operations
 
 ### Medium-term:
-6. Discovery endpoints (servers, tags, favorites)
-7. Plugin verification + telemetry endpoints
-8. Agentic runtime audit integration
-9. Add Renovate / Snyk for dependency/security automation
+6. Review CRUD endpoints
+7. Reputation snapshot background job
+8. Mojang OAuth2 game account linking
+9. Agentic runtime audit integration
+10. Add Renovate / Snyk for dependency/security automation
