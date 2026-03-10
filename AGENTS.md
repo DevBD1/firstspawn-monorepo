@@ -53,7 +53,7 @@ firstspawn-monorepo/
 - **Styling:** Tailwind CSS v4 + Framer Motion
 - **UI Library:** React 19
 - **Icons:** Lucide React
-- **Fonts:** Press Start 2P (pixel), VT323 (retro), Geist Sans/Mono
+- **Fonts:** Press Start 2P (display), VT323 (UI), JetBrains Mono (body)
 
 ### Backend (API)
 
@@ -130,8 +130,9 @@ npm run clean
   - `.pixel-border-dark` - Dark pixel-style border
   - `.pixel-shadow` - Pixel shadow effect
   - `.crt-overlay` - CRT scanline effect
-  - `.pixel-font` - Press Start 2P font
-  - `.font-retro` - VT323 monospace font
+  - `.font-display` - Press Start 2P font
+  - `.font-ui` - VT323 UI font
+  - `.font-body` - JetBrains Mono body font
 
 ### Tailwind v4 Configuration
 
@@ -332,9 +333,17 @@ NODE_ENV                      # development | production
 ### Styling
 
 - Use CSS variables from `globals.css` for colors
+- Centralize typography in `src/web/app/globals.css` via root font tokens:
+  - `--font-family-display` (pixel headings)
+  - `--font-family-ui` (readable UI/forms)
+  - `--font-family-body` (site-wide body default)
 - Prefer `fs-diamond` (cyan-400) for primary accents
-- Use `.pixel-font` for headings, `.font-retro` for body text
+- Use `.font-display` for large display headings and primary CTA buttons
+- Prefer `.font-ui` (VT323) for form inputs, helper/error text, and legal links
+- Keep long-form/content text on body defaults (`--font-family-body`, JetBrains Mono) unless intentionally styled
 - Maintain pixel-retro aesthetic with utility classes
+- Keep internal/technical implementation labels out of end-user UI copy (for example avoid terms like
+  "SECURE NODE", "JWT SESSION", "TRUST LAYER V1" in public-facing auth screens)
 
 ## Security Considerations
 

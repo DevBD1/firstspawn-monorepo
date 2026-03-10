@@ -106,7 +106,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                 onClick={() => toggleSection(id)}
                 className="w-full flex items-center justify-between md:justify-start gap-2 py-2 md:py-0 md:cursor-default group"
             >
-                <h3 className="pixel-font text-xs text-white uppercase group-hover:text-accent-cyan transition-colors">{title}</h3>
+                <h3 className="font-display text-xs text-white uppercase group-hover:text-accent-cyan transition-colors">{title}</h3>
                 <ChevronDown 
                     size={16} 
                     className={`text-gray-500 transition-transform duration-200 md:hidden ${openSections[id] ? 'rotate-180' : ''}`} 
@@ -116,7 +116,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                 ${openSections[id] ? 'block' : 'hidden'} 
                 md:block mt-4 md:mt-6 transition-all duration-200
             `}>
-                <ul className="space-y-3 font-sans text-xl text-left">
+                <ul className="space-y-3 font-ui text-xl text-left">
                     {children}
                 </ul>
             </div>
@@ -135,10 +135,10 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                 {/* Top Section: CTA & Stats */}
                 <div className="hidden md:grid md:grid-cols-2 gap-8 mb-16 border-b-4 border-gray-800 pb-12">
                    <div>
-                     <h2 className="pixel-font text-xl md:text-2xl text-white mb-4 leading-relaxed">
+                     <h2 className="font-display text-xl md:text-2xl text-white mb-4 leading-relaxed">
                        {dictionary.footer.cta.title} <br/><span className="text-accent-cyan">{dictionary.footer.cta.titleHighlight}</span>
                      </h2>
-                     <p className="font-sans text-xl text-gray-400 max-w-md mb-6">
+                     <p className="font-ui text-xl text-gray-400 max-w-md mb-6">
                        {dictionary.footer.cta.subtitle}
                      </p>
                      <div className="flex flex-wrap gap-4">
@@ -153,9 +153,9 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                       <div className="bg-[#1a1a1a] p-4 border-2 border-gray-700 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] w-full max-w-sm hidden md:block">
                         <div className="flex items-center space-x-3 mb-2">
                            <ShieldCheck className="text-success" />
-                           <span className="pixel-font text-xs text-success">{dictionary.footer.stats.title}</span>
+                           <span className="font-display text-xs text-success">{dictionary.footer.stats.title}</span>
                         </div>
-                        <div className="space-y-2 font-sans text-lg text-gray-300">
+                        <div className="space-y-2 font-ui text-lg text-gray-300">
                            <div className="flex justify-between">
                              <span>{dictionary.footer.stats.fakeVotes}</span>
                              <span className="text-white">{dictionary.footer.stats.fakeVotesValue}</span>
@@ -183,9 +183,9 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                            alt="FirstSpawn Logo"
                            className="w-8 h-8 mr-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 border-black"
                         />
-                        <span className="pixel-font text-white">{dictionary.footer.brand.name}</span>
+                        <span className="font-display text-white">{dictionary.footer.brand.name}</span>
                      </div>
-                     <p className="font-sans text-lg text-gray-500 mb-6 max-w-xs">
+                     <p className="font-ui text-lg text-gray-500 mb-6 max-w-xs">
                        {dictionary.footer.brand.description}
                      </p>
                      <div className="flex space-x-4">
@@ -229,7 +229,7 @@ export default function Footer({ lang, dictionary }: FooterProps) {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t-4 border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-600 font-sans text-lg">
+                <div className="border-t-4 border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-600 font-ui text-lg">
                    <p>{dictionary.footer.bottom.copyright.replace('{year}', new Date().getFullYear().toString())}</p>
                    <div className="flex space-x-6 mt-4 md:mt-0">
                       <div className="flex items-center space-x-2">

@@ -5,7 +5,7 @@ interface PixelButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 export const PixelButton: React.FC<PixelButtonProps> = ({ children, variant = 'primary', className = '', ...props }) => {
-  const baseStyle = "font-pixel text-xl uppercase px-6 py-2 border-4 border-black transition-all active:translate-y-1 active:shadow-none focus:outline-none";
+  const baseStyle = "font-display text-xl uppercase px-6 py-2 border-4 border-black transition-all active:translate-y-1 active:shadow-none focus:outline-none";
   
   const variants = {
     primary: "bg-[#4ADE80] text-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:bg-[#86efac]", // Hytale Green
@@ -33,7 +33,7 @@ export const PixelCard: React.FC<{ children: React.ReactNode; className?: string
       <div className="border-2 border-[#2EBCDA]/40 h-full w-full bg-[#0B131A] p-4 flex flex-col items-center">
         {title && (
             <div className="mb-4 text-center border-b-2 border-[#2EBCDA]/40 pb-2 w-full">
-                <h2 className="font-pixel text-2xl text-[#4ADE80] tracking-widest animate-pulse">{title}</h2>
+                <h2 className="font-display text-2xl text-[#4ADE80] tracking-widest animate-pulse">{title}</h2>
             </div>
         )}
         {children}

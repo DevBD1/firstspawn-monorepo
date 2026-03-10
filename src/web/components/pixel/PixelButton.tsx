@@ -38,7 +38,7 @@ const PixelButton: React.FC<PixelButtonProps> = ({
     };
 
     const combinedStyles = `
-        pixel-font uppercase tracking-wider 
+        font-display uppercase tracking-wider 
         border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] 
         active:shadow-none active:translate-x-[2px] active:translate-y-[2px] 
         transition-all duration-75 inline-block text-center

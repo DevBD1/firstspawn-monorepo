@@ -160,6 +160,7 @@
 - Hytale OAuth2 API not yet public — `user_game_accounts` table ready but integration gated
 - Reputation snapshot computation job not yet implemented (table exists, no background worker)
 - SQLAlchemy warning remains for `CIText` custom type (`cache_ok` not set); low-priority cleanup to suppress warnings and improve query-plan caching.
+- consent is currently validated at signup time, but not yet persisted in backend user profile fields.
 
 ---
 

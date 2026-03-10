@@ -12,7 +12,41 @@
     "nav": {
         "discover": "DISCOVER",
         "myLoot": "MY LOOT",
-        "console": "CONSOLE"
+        "console": "CONSOLE",
+        "signUp": "SIGN UP",
+        "logIn": "LOG IN",
+        "logOut": "LOG OUT"
+    },
+    "auth": {
+        "shared": {
+            "backToHome": "BACK TO HOME"
+        },
+        "login": {
+            "title": "LOG IN TO FIRSTSPAWN",
+            "subtitle": "Enter your account details to continue.",
+            "identifierLabel": "EMAIL OR USERNAME",
+            "identifierPlaceholder": "pilot@firstspawn.gg",
+            "passwordLabel": "PASSWORD",
+            "passwordPlaceholder": "Enter your password",
+            "submit": "LOG IN",
+            "alternatePrompt": "No account yet?",
+            "alternateCta": "SIGN UP"
+        },
+        "signup": {
+            "title": "CREATE YOUR ACCOUNT",
+            "subtitle": "Sign up to manage your profile, loot, and server activity in one place.",
+            "emailLabel": "EMAIL",
+            "emailPlaceholder": "pilot@firstspawn.gg",
+            "usernameLabel": "USERNAME",
+            "usernamePlaceholder": "spawn_operator",
+            "passwordLabel": "PASSWORD",
+            "passwordPlaceholder": "At least 8 characters",
+            "confirmPasswordLabel": "CONFIRM PASSWORD",
+            "confirmPasswordPlaceholder": "Repeat your password",
+            "submit": "CREATE ACCOUNT",
+            "alternatePrompt": "Already linked?",
+            "alternateCta": "LOG IN"
+        }
     },
     "footer": {
         "cta": {

@@ -21,7 +21,7 @@ export default async function DebugOG({
         padding: "2rem",
       }}
     >
-      <h1 style={{ fontFamily: "monospace", fontSize: "1.5rem" }}>
+      <h1 style={{ fontFamily: '"JetBrains Mono"', fontSize: "1.5rem" }}>
         OpenGraph Preview: <span style={{ color: "#22d3ee" }}>{lang}</span>
       </h1>
       <div
@@ -42,7 +42,7 @@ export default async function DebugOG({
           }}
         />
       </div>
-      <p style={{ fontFamily: "monospace", color: "#666" }}>
+      <p style={{ fontFamily: '"JetBrains Mono"', color: "#666" }}>
         Path: /{lang}/opengraph-image
       </p>
     </div>

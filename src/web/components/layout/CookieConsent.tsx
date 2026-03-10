@@ -62,7 +62,7 @@ export default function CookieConsent({ dictionary }: CookieConsentProps) {
                                 <Cookie className="text-accent-cyan w-6 h-6" />
                             </div>
                             <div className="flex-1">
-                                <p className="font-sans text-gray-300 text-sm leading-relaxed mb-4">
+                                <p className="font-ui text-gray-300 text-sm leading-relaxed mb-4">
                                     {dictionary.cookie_consent.message}
                                 </p>
                                 <div className="flex items-center gap-3">

@@ -63,7 +63,7 @@ export default function LocaleSwitcher({
             <div className="w-full space-y-2">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="w-full pixel-font text-[10px] px-4 py-3 bg-secondary border-2 border-black flex items-center justify-between hover:bg-zinc-700 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+                    className="w-full font-display text-[10px] px-4 py-3 bg-secondary border-2 border-black flex items-center justify-between hover:bg-zinc-700 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
                 >
                     <div className="flex items-center gap-3">
                         <span className="text-zinc-500">{currentLocale.toUpperCase()}</span>
@@ -82,7 +82,7 @@ export default function LocaleSwitcher({
                                 key={lang.code}
                                 onClick={() => handleLocaleChange(lang.code)}
                                 className={`
-                                    w-full text-left px-3 py-2 pixel-font text-[10px] transition-colors
+                                    w-full text-left px-3 py-2 font-display text-[10px] transition-colors
                                     ${currentLocale === lang.code
                                         ? "text-primary bg-primary/10"
                                         : "text-zinc-400 hover:text-white hover:bg-secondary"
@@ -103,7 +103,7 @@ export default function LocaleSwitcher({
         <div className="relative inline-block text-left" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="pixel-font text-[10px] px-3 py-2 bg-secondary border-2 border-black flex items-center gap-2 hover:bg-zinc-700 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
+                className="font-display text-[10px] px-3 py-2 bg-secondary border-2 border-black flex items-center gap-2 hover:bg-zinc-700 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
             >
                 <span className="text-zinc-500">{currentLocale.toUpperCase()}</span>
                 <span className="text-white">{currentLang.name}</span>
@@ -120,7 +120,7 @@ export default function LocaleSwitcher({
                                 key={lang.code}
                                 onClick={() => handleLocaleChange(lang.code)}
                                 className={`
-                                    w-full text-left px-4 py-2 pixel-font text-[10px] transition-colors
+                                    w-full text-left px-4 py-2 font-display text-[10px] transition-colors
                                     ${currentLocale === lang.code
                                         ? "bg-primary text-white"
                                         : "text-zinc-400 hover:bg-secondary hover:text-white"

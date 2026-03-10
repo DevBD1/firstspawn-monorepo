@@ -230,14 +230,14 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
             >
                 {/* Construction Warning Top */}
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#FFD700] px-6 py-2 border-2 border-[#1A1A1A]">
-                    <span className="text-[#1A1A1A] font-bold pixel-font text-sm tracking-wider">
+                    <span className="text-[#1A1A1A] font-bold font-display text-sm tracking-wider">
                         ⚠ {landing.under_construction || "UNDER CONSTRUCTION"} ⚠
                     </span>
                 </div>
 
                 {/* Title */}
                 <motion.h1 
-                    className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFD700] to-[#FF6B00] mb-4 pixel-font tracking-tight mt-4"
+                    className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFD700] to-[#FF6B00] mb-4 font-display tracking-tight mt-4"
                     animate={{ textShadow: ['0 0 20px rgba(255,215,0,0.5)', '0 0 40px rgba(255,215,0,0.8)', '0 0 20px rgba(255,215,0,0.5)'] }}
                     transition={{ duration: 2, repeat: Infinity }}
                 >
@@ -260,22 +260,22 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                         <div className="flex items-center justify-center gap-4 mb-4">
                             <ConstructionWorker />
                             <div className="text-left">
-                        <h2 className="text-lg md:text-xl text-[#2EBCDA] pixel-font mb-2">
+                        <h2 className="text-lg md:text-xl text-[#2EBCDA] font-display mb-2">
                                     {landing.building_title || "BUILDING THE ULTIMATE DISCOVERY ECOSYSTEM"}
                                 </h2>
-                                <p className="text-[#6D8A99] font-mono text-sm">
+                                <p className="text-[#6D8A99] font-ui text-sm">
                                     {landing.status || "STATUS"}: <span className="text-[#4ADE80]">{landing.active || "ACTIVE"}{dots}</span>
                                 </p>
                             </div>
                         </div>
 
-                        <p className="text-[#9CA3AF] font-mono text-sm md:text-base leading-relaxed mb-4 max-w-xl mx-auto">
+                        <p className="text-[#9CA3AF] font-ui text-sm md:text-base leading-relaxed mb-4 max-w-xl mx-auto">
                             {landing.building_desc || "More than just a server list — FirstSpawn is a social network for Minecraft & Hytale players. Sync your cross-platform identity, leave reviews backed by verified playtime, solve puzzles to win prizes, form Guilds, and earn reputation badges."}
                         </p>
 
                         {/* Progress Bar */}
                         <div className="max-w-md mx-auto">
-                            <div className="flex justify-between text-xs font-mono text-[#6D8A99] mb-2">
+                            <div className="flex justify-between text-xs font-ui text-[#6D8A99] mb-2">
                                 <span>{landing.progress || "PROGRESS"}</span>
                                 <span>42%</span>
                             </div>
@@ -314,7 +314,7 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                             transition={{ delay: 0.5 + i * 0.1 }}
                         >
                             <div className="text-2xl mb-1">{feature.icon}</div>
-                            <div className="text-[8px] md:text-xs font-mono text-[#6D8A99]">{feature.label}</div>
+                            <div className="text-[8px] md:text-xs font-ui text-[#6D8A99]">{feature.label}</div>
                         </motion.div>
                     ))}
                 </div>
@@ -322,20 +322,20 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                 {/* Newsletter Signup */}
                 <div className="space-y-4 max-w-lg mx-auto">
                     <div>
-                        <h3 className="text-white font-pixel text-lg md:text-xl mb-2 tracking-wide">
+                        <h3 className="text-white font-display text-lg md:text-xl mb-2 tracking-wide">
                             {landing.notify_title || "BE FIRST TO SPAWN"}
                         </h3>
-                        <p className="text-[#6D8A99] text-[10px] md:text-xs font-mono leading-relaxed">
+                        <p className="text-[#6D8A99] text-[10px] md:text-xs font-ui leading-relaxed">
                             {landing.notify_desc || "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!"}
                         </p>
                     </div>
 
                     {isSubscribed ? (
-                        <div className="p-4 bg-[#4ADE80]/10 border border-[#4ADE80]/30 text-[#4ADE80] font-pixel text-center animate-pulse">
+                        <div className="p-4 bg-[#4ADE80]/10 border border-[#4ADE80]/30 text-[#4ADE80] font-display text-center animate-pulse">
                             {landing.subscription_verified || "SUBSCRIPTION VERIFIED"}
                         </div>
                     ) : confirmEmailSent ? (
-                        <div className="p-4 bg-[#2EBCDA]/10 border border-[#2EBCDA]/30 text-[#2EBCDA] font-pixel text-center">
+                        <div className="p-4 bg-[#2EBCDA]/10 border border-[#2EBCDA]/30 text-[#2EBCDA] font-display text-center">
                             {landing.check_inbox || "CHECK YOUR INBOX"}
                         </div>
                     ) : (
@@ -345,7 +345,7 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                                 placeholder={dictionary.common?.enter_email || "Enter your email"}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="flex-grow bg-[#0B131A]/50 text-white px-6 py-4 font-mono text-sm focus:outline-none placeholder-[#4B5563]"
+                                className="flex-grow bg-[#0B131A]/50 text-white px-6 py-4 font-ui text-sm focus:outline-none placeholder-[#4B5563]"
                                 required
                             />
                             <PixelButton type="submit" variant="primary" className="!bg-[#FFD700] !text-[#0F161C] !border-none !rounded-none min-w-[120px] font-bold tracking-wider hover:brightness-110 !m-0">
@@ -358,7 +358,7 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-[#2EBCDA] font-mono text-sm"
+                            className="text-[#2EBCDA] font-ui text-sm"
                         >
                             {statusMessage}
                         </motion.div>

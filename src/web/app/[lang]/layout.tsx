@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Press_Start_2P, VT323 } from "next/font/google";
+import { JetBrains_Mono, Press_Start_2P, VT323 } from "next/font/google";
 import "../globals.css";
 import { i18n, type Locale } from "../../lib/i18n-config";
 import { getDictionary } from "../../lib/get-dictionary";
+import { getAuthState } from "../../lib/auth";
 import Navbar from "../../components/layout/Navbar";
 import { Suspense } from "react";
 import Footer from "../../components/layout/Footer";
@@ -10,26 +11,21 @@ import CookieConsent from "../../components/layout/CookieConsent";
 import { PostHogProvider } from "../../components/providers/PostHogProvider";
 import PostHogPageView from "../../components/providers/PostHogPageView";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
+const vt323 = VT323({
+    weight: "400",
     subsets: ["latin"],
+    variable: "--font-ui-base",
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
+const jetBrainsMono = JetBrains_Mono({
     subsets: ["latin"],
+    variable: "--font-body-base",
 });
 
 const pressStart2P = Press_Start_2P({
     weight: "400",
     subsets: ["latin"],
-    variable: "--font-press-start-2p",
-});
-
-const vt323 = VT323({
-    weight: "400",
-    subsets: ["latin"],
-    variable: "--font-vt323",
+    variable: "--font-display-base",
 });
 
 export async function generateMetadata({
@@ -102,16 +98,16 @@ export default async function RootLayout({
 }) {
     const { lang } = (await params) as { lang: Locale };
     const dictionary = await getDictionary(lang);
+    const authState = await getAuthState();
 
     return (
         <html lang={lang}>
             <PostHogProvider>
                 <body
                     className={`
-          ${geistSans.variable} 
-          ${geistMono.variable} 
-          ${pressStart2P.variable} 
+          ${jetBrainsMono.variable} 
           ${vt323.variable} 
+          ${pressStart2P.variable} 
           antialiased min-h-screen flex flex-col
         `}
             >
@@ -133,7 +129,7 @@ export default async function RootLayout({
                     }}
                 />
                 <div className="crt-overlay" />
-                <Navbar lang={lang} dictionary={dictionary} />
+                <Navbar lang={lang} dictionary={dictionary} isAuthenticated={authState.isAuthenticated} />
                 <main className="flex-grow">
                     {children}
                 </main>

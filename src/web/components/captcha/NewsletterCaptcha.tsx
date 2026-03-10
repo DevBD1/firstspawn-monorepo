@@ -145,7 +145,7 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
                         
                         {/* Instruction / Status Display */}
                         <div className={`
-                            p-4 border-2 border-black text-center text-xl uppercase transition-colors duration-300 font-pixel
+                            p-4 border-2 border-black text-center text-xl uppercase transition-colors duration-300 font-display
                             ${captchaState === CaptchaState.IDLE ? 'bg-[#0B131A] text-[#ADCDE2]' : ''}
                             ${captchaState === CaptchaState.VERIFYING ? 'bg-yellow-900/50 text-yellow-200 animate-pulse' : ''}
                             ${captchaState === CaptchaState.SUCCESS ? 'bg-green-900/50 text-green-400' : ''}
@@ -165,7 +165,7 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
 
                         {/* Controls */}
                         <div className="space-y-4">
-                            <div className="flex justify-between text-[#ADCDE2] text-lg uppercase font-mono">
+                            <div className="flex justify-between text-[#ADCDE2] text-lg uppercase font-ui">
                                 <span>Rotate</span>
                                 <span>{Math.round(rotation)}°</span>
                             </div>
@@ -180,7 +180,7 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
                                 disabled={captchaState === CaptchaState.SUCCESS || captchaState === CaptchaState.VERIFYING}
                             />
                             
-                            <div className="flex justify-between text-xs text-[#ADCDE2]/50 uppercase font-sans">
+                            <div className="flex justify-between text-xs text-[#ADCDE2]/50 uppercase font-ui">
                                 <span>L</span>
                                 <span>R</span>
                             </div>
@@ -223,7 +223,7 @@ export default function NewsletterCaptcha({ isOpen, onClose, onVerify }: Newslet
                     </PixelCard>
                     
                     {/* Footer info */}
-                    <div className="text-center text-[#ADCDE2]/40 text-xs font-sans mt-4">
+                    <div className="text-center text-[#ADCDE2]/40 text-xs font-ui mt-4">
                         BE SMART
                         <br/>
                         Attempts: {attempts}

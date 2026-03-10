@@ -50,7 +50,7 @@ export const ConfirmationEmail = ({
 const main = {
   backgroundColor: '#0B131A',
   color: '#ADCDE2',
-  fontFamily: 'monospace',
+  fontFamily: '"JetBrains Mono"',
 };
 
 const container = {
