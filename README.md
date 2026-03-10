@@ -18,6 +18,15 @@ Turborepo.
 - Retention should come from meaningful loops (favorites, reviews, guilds, daily
   participation)
 
+## Workspace Status
+
+- **Web (`src/web`)**: Next.js beta app
+- **API (`src/api`)**: FastAPI service under active implementation
+- **Mobile (`src/mobile`)**: scaffold state
+
+Detailed API implementation status, runtime steps, and test matrix are maintained in
+[`src/api/README.md`](src/api/README.md).
+
 ## Documentation
 
 Comprehensive documentation is available in the `docs/` directory:
@@ -67,13 +76,16 @@ cp .env.example .env
 
 ```bash
 # Start infrastructure (PostgreSQL + Redis)
-docker-compose up -d postgres redis
+docker compose up -d postgres redis
 
 # Run database migrations
 cd src/api && alembic upgrade head && cd ../..
 
-# Start all development servers
-npm run dev
+# Start API
+cd src/api && uvicorn app.main:app --reload --port 8000
+
+# In a second terminal, start web app
+npx turbo run dev --filter=@firstspawn/web
 ```
 
 The following services will be available:
@@ -94,7 +106,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 
 # API
 API_ENV=development
-API_DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/firstspawn
+API_DATABASE_URL=postgresql+psycopg://firstspawn:firstspawn@localhost:5432/firstspawn
 API_REDIS_URL=redis://localhost:6379/0
 
 # Optional (with graceful degradation)
@@ -123,7 +135,7 @@ npm run typecheck    # Run TypeScript type checking
 npm run ci           # Run full CI pipeline locally
 
 # Testing
-npm run test         # Run all tests (placeholder - not yet implemented)
+npm run test         # Run workspace tests (API currently has active tests)
 
 # API Specific
 cd src/api
@@ -155,21 +167,18 @@ firstspawn-monorepo/
 
 ## Testing
 
-> **Note:** Testing framework is not yet implemented. Planned for Q2 2026.
-
-When implemented, tests will be co-located with source files or in `__tests__/`
-directories:
+Project-level checks:
 
 ```bash
-# Run all tests
-npm run test
-
-# Run tests for specific workspace
-npx turbo run test --filter=@firstspawn/web
-
-# Run with coverage
-npm run test -- --coverage
+# Monorepo static validation
+npm run format:check
+npm run lint
+npm run typecheck
+npm run build
 ```
+
+For API-specific tests and validation commands, use
+[`src/api/README.md`](src/api/README.md).
 
 ## Release Process
 

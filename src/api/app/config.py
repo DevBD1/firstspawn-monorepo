@@ -15,6 +15,10 @@ class Settings(BaseSettings):
         "postgresql+psycopg://firstspawn:firstspawn@localhost:5432/firstspawn"
     )
     API_REDIS_URL: str = "redis://localhost:6379/0"
+    API_JWT_SECRET: str = "dev-only-secret-change-me"
+    API_JWT_ISSUER: str = "firstspawn-api"
+    API_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    API_REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     model_config = SettingsConfigDict(
         env_file=(".env", str(_ROOT_ENV)),
@@ -25,4 +29,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

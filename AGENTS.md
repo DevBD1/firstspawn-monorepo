@@ -382,6 +382,14 @@ Active documentation lives in `docs/plans/`:
 - `05-api-v1-contract.md` - API v1 contract and endpoint standards
 - `06-data-model-v1.md` - PostgreSQL v1 schema baseline
 
+### README Ownership
+
+- Root `README.md` must stay high-level (monorepo overview, shared setup, shared scripts).
+- Service-specific implementation/runtime/testing details must live in that service README:
+  - API details in `src/api/README.md`
+  - Web details in `src/web/README.md` (when present)
+- Do not duplicate deep API status matrices in the root `README.md`; link to `src/api/README.md` instead.
+
 ### Planning Documents (`docs/plans/`)
 
 Store planning documents (specs, proposals, RFCs, and design notes) in:

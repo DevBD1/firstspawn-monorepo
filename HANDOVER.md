@@ -103,9 +103,40 @@
 - `server_platforms` junction table for Minecraft editions (Java/Bedrock/Pocket) — not an array column, for queryability
 - `reviews` are 1-per-user-per-server with `is_verified` flag backed by playtime data
 - `server_reputation_snapshots` is daily-materialized (not a view) for ranked discovery performance
-- Single root `.env.example` for local dev; per-host env vars in production dashboards (Netlify, VPS)
+- Single root `.env.example` for local dev; per-host env vars in production dashboards (Vercel, VPS)
 
 **Validation:** 21 model exports ✅, `ruff check .` → 0 errors ✅, both migrations executed ✅
+
+---
+
+### Session 8 — Auth API Foundation (2026-03-10)
+
+**What changed:**
+- Implemented auth endpoints under `src/api/app/api/v1/endpoints/auth.py`: `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me`
+- Added API dependency layer (`src/api/app/api/deps.py`) with bearer token user resolution
+- Added DB session management (`src/api/app/db.py`)
+- Added security helpers (`src/api/app/security.py`) for password hashing (scrypt), token hashing, and signed access/refresh tokens
+- Added envelope/error schemas and structured error class (`src/api/app/schemas/*`, `src/api/app/errors.py`)
+- Added request ID middleware and error/validation envelope handlers in `src/api/app/main.py`
+- Added auth/security tests in `src/api/tests/test_security.py`
+
+**Key decisions:**
+- Login supports `identifier` (email or username)
+- Refresh token rotation revokes prior session on successful refresh
+- Logout is idempotent (returns success for already-invalid refresh tokens)
+
+**Validation:** `cd src/api && ruff check .` ✅, `cd src/api && pytest -q` → 5 passed ✅
+
+**Follow-up (same day):**
+- Added DB-backed auth integration tests with temporary schema isolation:
+  - `src/api/tests/conftest.py`
+  - `src/api/tests/test_auth_integration.py`
+- Integration tests currently skip when `API_TEST_DATABASE_URL`/`API_DATABASE_URL` is not available.
+- Updated `.env.example` and `src/api/README.md` with integration test DB env hints.
+- Later same day, validated against live local PostgreSQL and fixed runtime issues found by integration tests:
+  - fixed test DB URL rendering bug (password masking) and `search_path` (`schema,public`) handling in `src/api/tests/conftest.py`
+  - fixed `INET` persistence for non-IP test hosts and timezone-safe refresh expiry comparison in `src/api/app/api/v1/endpoints/auth.py`
+- Integration auth suite now runs and passes against DB (`5 passed`).
 
 ---
 
@@ -113,12 +144,12 @@
 
 | Area | Status |
 |---|---|
-| Web app (`src/web`) | Beta — deployed on Netlify |
-| API (`src/api`) | Scaffold + V2 DB schema done; auth endpoints not yet implemented |
+| Web app (`src/web`) | Beta — deployed on Vercel |
+| API (`src/api`) | Auth foundation + V2 DB schema done; discovery/plugin endpoints pending |
 | DB migrations | `001_initial_schema` + `002_schema_v2` **executed** — 20 tables live |
 | CI pipeline | Active on `main` + PRs |
 | Pre-commit hooks | Configured via Husky / lint-staged |
-| Testing | Not implemented (placeholder only) |
+| Testing | Basic API tests present (`health`, `security`); broader integration coverage pending |
 
 ---
 
@@ -128,6 +159,7 @@
 - Redis not yet integrated into API code
 - Hytale OAuth2 API not yet public — `user_game_accounts` table ready but integration gated
 - Reputation snapshot computation job not yet implemented (table exists, no background worker)
+- SQLAlchemy warning remains for `CIText` custom type (`cache_ok` not set); low-priority cleanup to suppress warnings and improve query-plan caching.
 
 ---
 

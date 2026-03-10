@@ -6,6 +6,7 @@ from sqlalchemy.types import UserDefinedType
 
 class CIText(UserDefinedType):
     """Case-insensitive text type using PostgreSQL citext extension."""
+    cache_ok = True
 
     def get_col_spec(self, **kw):
         return "CITEXT"
