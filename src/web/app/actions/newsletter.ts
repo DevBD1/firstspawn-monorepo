@@ -3,7 +3,7 @@
 import { Resend } from 'resend';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { ConfirmationEmail } from '@/components/emails/ConfirmationEmail';
+import { ConfirmationEmail } from '@/features/email/templates/ConfirmationEmail';
 import { render } from '@react-email/render';
 import { getPostHogClient } from '@/lib/posthog-server';
 

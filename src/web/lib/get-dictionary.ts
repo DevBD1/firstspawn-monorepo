@@ -1,46 +1,58 @@
 import "server-only";
 import type { Locale } from "./i18n-config";
 
-const dictionaries: any = {
-    en: () => import("./dictionaries/en.json").then((module) => module.default),
-    tr: () => import("./dictionaries/tr.json").then((module) => module.default),
-    de: () => import("./dictionaries/de.json").then((module) => module.default),
-    ru: () => import("./dictionaries/ru.json").then((module) => module.default),
-    es: () => import("./dictionaries/es.json").then((module) => module.default),
-    fr: () => import("./dictionaries/fr.json").then((module) => module.default),
-};
-
-const deepMerge = (target: any, source: any) => {
-    for (const key in source) {
-        if (source[key] instanceof Object && key in target) {
-            Object.assign(source[key], deepMerge(target[key], source[key]));
-        }
-    }
-    Object.assign(target || {}, source);
-    return target;
-};
-
-// Simplified merge for nested dictionaries
-function mergeDictionaries(fallback: any, target: any) {
-    const merged = JSON.parse(JSON.stringify(fallback)); // Clone English
-
-    for (const category in target) {
-        if (merged[category]) {
-            merged[category] = { ...merged[category], ...target[category] };
-        } else {
-            merged[category] = target[category];
-        }
-    }
-
-    return merged;
+export interface Dictionary {
+  common: {
+    site_title?: string;
+    brand?: string;
+    tagline?: string;
+    [key: string]: string | undefined;
+  };
+  [key: string]: unknown;
 }
 
-export const getDictionary = async (locale: Locale) => {
-    const englishDict = await dictionaries.en();
-    const targetLoader = dictionaries[locale];
-    if (locale === "en" || !targetLoader) return englishDict;
+type DictionaryLoader = () => Promise<Dictionary>;
 
-    const targetDict = await targetLoader();
+const dictionaries: Record<Locale, DictionaryLoader> = {
+  en: () => import("./dictionaries/en.json").then((module) => module.default as unknown as Dictionary),
+  tr: () => import("./dictionaries/tr.json").then((module) => module.default as unknown as Dictionary),
+  de: () => import("./dictionaries/de.json").then((module) => module.default as unknown as Dictionary),
+  ru: () => import("./dictionaries/ru.json").then((module) => module.default as unknown as Dictionary),
+  es: () => import("./dictionaries/es.json").then((module) => module.default as unknown as Dictionary),
+  fr: () => import("./dictionaries/fr.json").then((module) => module.default as unknown as Dictionary),
+};
 
-    return mergeDictionaries(englishDict, targetDict); // Merge target into English foundations
+const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+};
+
+function mergeDictionaries(fallback: Dictionary, target: Dictionary): Dictionary {
+  const merged = JSON.parse(JSON.stringify(fallback)) as Dictionary;
+
+  for (const category in target) {
+    const targetCategory = target[category];
+    const mergedCategory = merged[category];
+
+    if (isObjectRecord(mergedCategory) && isObjectRecord(targetCategory)) {
+      merged[category] = {
+        ...mergedCategory,
+        ...targetCategory,
+      };
+      continue;
+    }
+
+    merged[category] = targetCategory;
+  }
+
+  return merged;
+}
+
+export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
+  const englishDict = await dictionaries.en();
+  if (locale === "en") {
+    return englishDict;
+  }
+
+  const targetDict = await dictionaries[locale]();
+  return mergeDictionaries(englishDict, targetDict);
 };

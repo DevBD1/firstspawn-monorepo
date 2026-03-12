@@ -26,3 +26,25 @@
 ## What is next?
 1. Add translated values for the new `auth.signup.*Label*` keys in non-English dictionaries (`tr`, `de`, `ru`, `es`, `fr`).
 2. Decide whether consent timestamps should also be exposed in admin/internal APIs (currently persisted but not returned in auth responses).
+
+### 23:09 - Component Architecture Refactor (Route Groups + Features)
+- Reorganized `src/web/app/[lang]` into route groups: `(marketing)` for chrome-enabled pages and `(auth)` for auth pages, keeping all public URLs unchanged.
+- Removed pathname-based chrome toggling by replacing `SiteChrome` with server-side marketing layout composition via `components/layout/MarketingChrome.tsx`.
+- Migrated component architecture into feature slices: `features/auth`, `features/landing`, `features/captcha`, and moved email templates to `features/email/templates`.
+- Standardized client boundary naming (`*.client.tsx`) for interactive files and kept non-interactive components as plain `.tsx`.
+- Consolidated UI primitives into `components/ui` (`PixelButton`, `PixelCard`, `DiscordIcon`) and removed duplicated button/card implementations from auth/captcha.
+- Extracted business logic into hooks/libs (`useNewsletterSignup`, `useScrewCaptcha`, auth helpers), preserving existing analytics event names and server-action contracts.
+- Replaced footer logo `<img>` with Next.js `<Image />` in layout surface.
+- Known incomplete item: `debug-og/page.tsx` intentionally still uses `<img>` and triggers a single non-blocking Next lint warning.
+
+### 23:09 - Component Refactor Validation
+- `npm run lint --workspace @firstspawn/web` (passes with one warning in `debug-og/page.tsx` for `@next/next/no-img-element`).
+- `npx tsc --noEmit -p src/web/tsconfig.json` (passes).
+- `npm run lint` (fails in unrelated workspace `@firstspawn/ui` due existing ESLint glob/config mismatch: lint target `src/` ignored).
+- `npm run typecheck` (fails at repo level because Turborepo has no `typecheck` task configured).
+- `npm run build` (fails in `@firstspawn/web` in sandbox due blocked Google Fonts fetch for `next/font/google`, not due TypeScript/runtime errors in refactor scope).
+
+### 23:09 - Next Steps (Post-Refactor)
+1. Decide whether to convert `debug-og/page.tsx` preview image to Next `<Image />` or intentionally suppress the lint warning.
+2. Align root CI scripts with current Turbo tasks (add `typecheck` task or change root script) and fix `@firstspawn/ui` lint config/input mismatch.
+3. If build reproducibility in restricted environments matters, switch from remote Google font fetch to locally hosted fonts.
