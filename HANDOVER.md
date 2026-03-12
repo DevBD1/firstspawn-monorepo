@@ -1,7 +1,7 @@
 # Project Handover
 
 **Repository:** firstspawn-monorepo
-**Last Updated:** 2026-03-09
+**Last Updated:** 2026-03-12
 
 > Source of truth for directory layout and conventions is **`AGENTS.md`**.
 > This file records what was done, by whom (session), and what is next.
@@ -137,6 +137,27 @@
   - fixed test DB URL rendering bug (password masking) and `search_path` (`schema,public`) handling in `src/api/tests/conftest.py`
   - fixed `INET` persistence for non-IP test hosts and timezone-safe refresh expiry comparison in `src/api/app/api/v1/endpoints/auth.py`
 - Integration auth suite now runs and passes against DB (`5 passed`).
+
+---
+
+### Session 9 — Auth UI Port + Auth Route UX (2026-03-12)
+
+**What changed:**
+- Ported login/signup UI direction from `references/` concept into web auth pages (`src/web/components/auth/*`, `src/web/app/[lang]/{login,signup}`)
+- Added concept-style auth button component and Discord icon component
+- Kept email flows wired to existing server actions/API (`loginAction`/`registerAction`), with Discord + passkey intentionally dummy for now
+- Added localized `/[lang]/register` alias route that redirects to `/[lang]/signup`
+- Updated auth copy to FirstSpawn/community language (removed “The Stash” wording)
+- Fixed close behavior on auth pages: top-right `X` now respects `next` return path when present
+- Hid global chrome on auth routes (`login`, `signup`, `register`): navbar/footer/cookie-consent are not rendered on those screens
+
+**Key decisions:**
+- Keep both `/signup` (real page) and `/register` (alias) temporarily for compatibility
+- Keep social/passkey actions as placeholders until backend/provider integration starts
+- Preserve focus by removing site chrome from auth screens
+
+**Validation:**
+- Targeted ESLint run for changed auth/layout files passed ✅
 
 ---
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import type { Locale } from "../../lib/i18n-config";
@@ -25,6 +26,13 @@ interface NavbarProps {
 
 export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  const currentPath = pathname && pathname.startsWith(`/${lang}`)
+    ? pathname
+    : `/${lang}`;
+  const signupHref = `/${lang}/signup?next=${encodeURIComponent(currentPath)}`;
+  const loginHref = `/${lang}/login?next=${encodeURIComponent(currentPath)}`;
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "unset";
@@ -85,7 +93,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
       ) : (
         <>
           <PixelButton
-            href={`/${lang}/signup`}
+            href={signupHref}
             variant="success"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}
@@ -93,7 +101,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
             {dictionary.nav.signUp}
           </PixelButton>
           <PixelButton
-            href={`/${lang}/login`}
+            href={loginHref}
             variant="primary"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}

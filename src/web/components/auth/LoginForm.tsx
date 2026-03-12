@@ -3,16 +3,22 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Key, Mail } from "lucide-react";
 import { loginAction } from "@/app/actions/auth";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
+import AuthPixelButton from "@/components/auth/AuthPixelButton";
+import DiscordIcon from "@/components/auth/DiscordIcon";
 
 interface LoginFormCopy {
+  discordCta: string;
+  passkeyCta: string;
+  dividerLabel: string;
   identifierLabel: string;
   identifierPlaceholder: string;
   passwordLabel: string;
   passwordPlaceholder: string;
   submitLabel: string;
+  submitPendingLabel: string;
   alternatePrompt: string;
   alternateCta: string;
 }
@@ -23,17 +29,19 @@ interface LoginFormProps {
   copy: LoginFormCopy;
 }
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <AuthPixelButton
       type="submit"
+      variant="primary"
       disabled={pending}
-      className="font-display mt-2 w-full border-2 border-black bg-primary px-4 py-3 text-[11px] uppercase tracking-wider text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70 active:translate-y-[2px] active:translate-x-[2px] active:shadow-none"
+      className="mt-2 flex w-full items-center justify-center gap-2"
     >
-      {pending ? "AUTHENTICATING..." : label}
-    </button>
+      {pending ? pendingLabel : label}
+      <ArrowRight className="h-4 w-4" />
+    </AuthPixelButton>
   );
 }
 
@@ -43,76 +51,126 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
   const fieldErrors = state?.fieldErrors ?? {};
   const message = state?.message ?? null;
   const signupHref = nextPath
-    ? `/${lang}/signup?next=${encodeURIComponent(nextPath)}`
-    : `/${lang}/signup`;
+    ? `/${lang}/register?next=${encodeURIComponent(nextPath)}`
+    : `/${lang}/register`;
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="lang" value={lang} />
       <input type="hidden" name="next" value={nextPath || ""} />
 
-      <div>
-        <label className="mb-2 block font-display text-[10px] uppercase tracking-wider text-zinc-300" htmlFor="login-identifier">
-          {copy.identifierLabel}
-        </label>
-        <input
-          id="login-identifier"
-          name="identifier"
-          type="text"
-          required
-          minLength={3}
-          autoComplete="username"
-          placeholder={copy.identifierPlaceholder}
-          className="w-full border-2 border-black bg-zinc-900 px-4 py-3 font-ui text-base text-white outline-none transition-colors placeholder:text-zinc-500 focus:border-fs-diamond"
-        />
-        {fieldErrors.identifier ? (
-          <p className="mt-2 font-ui text-sm text-red-400">{fieldErrors.identifier}</p>
-        ) : null}
-      </div>
+      <div className="space-y-4">
+        <AuthPixelButton
+          type="button"
+          variant="discord"
+          className="flex w-full items-center justify-center gap-3"
+        >
+          <DiscordIcon className="h-5 w-5" />
+          {copy.discordCta}
+        </AuthPixelButton>
 
-      <div>
-        <label className="mb-2 block font-display text-[10px] uppercase tracking-wider text-zinc-300" htmlFor="login-password">
-          {copy.passwordLabel}
-        </label>
-        <div className="relative">
-          <input
-            id="login-password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            required
-            minLength={8}
-            autoComplete="current-password"
-            placeholder={copy.passwordPlaceholder}
-            className="w-full border-2 border-black bg-zinc-900 px-4 py-3 pr-24 font-ui text-base text-white outline-none transition-colors placeholder:text-zinc-500 focus:border-fs-diamond"
+        <AuthPixelButton
+          type="button"
+          variant="secondary"
+          className="flex w-full items-center justify-center gap-3"
+        >
+          <Key className="h-4 w-4" />
+          {copy.passkeyCta}
+        </AuthPixelButton>
+
+        <div className="relative py-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t-2 border-zinc-800" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-zinc-950 px-4 font-ui text-base uppercase text-zinc-500">
+              {copy.dividerLabel}
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label
+              className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
+              htmlFor="login-identifier"
+            >
+              {copy.identifierLabel}
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+              <input
+                id="login-identifier"
+                name="identifier"
+                type="text"
+                required
+                minLength={3}
+                autoComplete="username"
+                placeholder={copy.identifierPlaceholder}
+                className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+            {fieldErrors.identifier ? (
+              <p className="font-ui text-base text-red-400">{fieldErrors.identifier}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <label
+              className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
+              htmlFor="login-password"
+            >
+              {copy.passwordLabel}
+            </label>
+            <div className="relative">
+              <input
+                id="login-password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                autoComplete="current-password"
+                placeholder={copy.passwordPlaceholder}
+                className="w-full border-2 border-zinc-800 bg-zinc-900 px-4 py-3 pr-12 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((previous) => !previous)}
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-zinc-700 bg-zinc-800 text-zinc-100 transition-colors hover:bg-zinc-700"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+            {fieldErrors.password ? (
+              <p className="font-ui text-base text-red-400">{fieldErrors.password}</p>
+            ) : null}
+          </div>
+
+          {message ? (
+            <div className="border-2 border-red-800 bg-red-950/50 px-4 py-3 font-ui text-base text-red-300">
+              {message}
+            </div>
+          ) : null}
+
+          <SubmitButton
+            label={copy.submitLabel}
+            pendingLabel={copy.submitPendingLabel}
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword((previous) => !previous)}
-            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-black bg-secondary text-white hover:bg-secondary-hover"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-          </button>
         </div>
-        {fieldErrors.password ? (
-          <p className="mt-2 font-ui text-sm text-red-400">{fieldErrors.password}</p>
-        ) : null}
       </div>
 
-      {message ? (
-        <div className="border-2 border-black bg-red-950/70 px-4 py-3 font-ui text-sm text-red-300">
-          {message}
-        </div>
-      ) : null}
-
-      <SubmitButton label={copy.submitLabel} />
-
-      <p className="pt-2 text-center font-ui text-sm text-zinc-400">
-        {copy.alternatePrompt}{" "}
-        <Link href={signupHref} className="font-display text-[10px] uppercase tracking-wider text-fs-diamond hover:text-cyan-300">
-          {copy.alternateCta}
-        </Link>
-      </p>
+      <div className="mt-8 border-t-2 border-zinc-800/50 pt-6">
+        <p className="font-body text-sm text-zinc-500">
+          {copy.alternatePrompt}{" "}
+          <Link
+            href={signupHref}
+            className="font-ui text-base font-bold uppercase tracking-wide text-emerald-500 underline decoration-emerald-500/30 underline-offset-4 transition-colors hover:text-emerald-400"
+          >
+            {copy.alternateCta}
+          </Link>
+        </p>
+      </div>
     </form>
   );
 }

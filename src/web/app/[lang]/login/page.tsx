@@ -10,11 +10,15 @@ interface LoginDictionary {
     login?: {
       title?: string;
       subtitle?: string;
+      discordCta?: string;
+      passkeyCta?: string;
+      dividerLabel?: string;
       identifierLabel?: string;
       identifierPlaceholder?: string;
       passwordLabel?: string;
       passwordPlaceholder?: string;
       submit?: string;
+      submitPending?: string;
       alternatePrompt?: string;
       alternateCta?: string;
     };
@@ -23,6 +27,18 @@ interface LoginDictionary {
     };
   };
 }
+
+const resolveCloseHref = (lang: string, nextPath: string | undefined): string => {
+  if (!nextPath || !nextPath.startsWith("/")) {
+    return `/${lang}`;
+  }
+
+  if (nextPath.startsWith(`/${lang}`)) {
+    return nextPath;
+  }
+
+  return `/${lang}`;
+};
 
 export default async function LoginPage({
   params,
@@ -40,6 +56,7 @@ export default async function LoginPage({
 
   const query = await searchParams;
   const nextPath = typeof query.next === "string" ? query.next : undefined;
+  const closeHref = resolveCloseHref(lang, nextPath);
 
   const dictionary = (await getDictionary(lang)) as LoginDictionary;
   const login = dictionary.auth?.login || {};
@@ -48,21 +65,28 @@ export default async function LoginPage({
   return (
     <AuthShell
       lang={lang}
-      title={login.title || "LOG IN TO FIRSTSPAWN"}
-      subtitle={login.subtitle || "Enter your account details to continue."}
+      title={login.title || "WELCOME TO FIRSTSPAWN"}
+      subtitle={
+        login.subtitle || "Log in to access your favorite servers and communities."
+      }
       backLabel={shared.backToHome || "BACK TO BASE"}
+      closeHref={closeHref}
     >
       <LoginForm
         lang={lang}
         nextPath={nextPath}
         copy={{
+          discordCta: login.discordCta || "Sign in with Discord",
+          passkeyCta: login.passkeyCta || "Sign in with Passkey",
+          dividerLabel: login.dividerLabel || "Or",
           identifierLabel: login.identifierLabel || "EMAIL OR USERNAME",
-          identifierPlaceholder: login.identifierPlaceholder || "pilot@firstspawn.gg",
+          identifierPlaceholder: login.identifierPlaceholder || "steve@craft.com",
           passwordLabel: login.passwordLabel || "PASSWORD",
           passwordPlaceholder: login.passwordPlaceholder || "Enter your password",
-          submitLabel: login.submit || "ENTER CONSOLE",
-          alternatePrompt: login.alternatePrompt || "No account yet?",
-          alternateCta: login.alternateCta || "SIGN UP",
+          submitLabel: login.submit || "Continue with Email",
+          submitPendingLabel: login.submitPending || "Authenticating...",
+          alternatePrompt: login.alternatePrompt || "New to FirstSpawn?",
+          alternateCta: login.alternateCta || "Create an account",
         }}
       />
     </AuthShell>

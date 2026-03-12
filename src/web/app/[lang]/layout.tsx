@@ -5,10 +5,8 @@ import { i18n } from "../../lib/i18n-config";
 import { getDictionary } from "../../lib/get-dictionary";
 import { getAuthState } from "../../lib/auth";
 import { resolveLocaleParam } from "../../lib/resolve-locale";
-import Navbar from "../../components/layout/Navbar";
 import { Suspense } from "react";
-import Footer from "../../components/layout/Footer";
-import CookieConsent from "../../components/layout/CookieConsent";
+import SiteChrome from "../../components/layout/SiteChrome";
 import { PostHogProvider } from "../../components/providers/PostHogProvider";
 import PostHogPageView from "../../components/providers/PostHogPageView";
 
@@ -132,12 +130,13 @@ export default async function RootLayout({
                     }}
                 />
                 <div className="crt-overlay" />
-                <Navbar lang={lang} dictionary={dictionary} isAuthenticated={authState.isAuthenticated} />
-                <main className="flex-grow">
+                <SiteChrome
+                    lang={lang}
+                    dictionary={dictionary}
+                    isAuthenticated={authState.isAuthenticated}
+                >
                     {children}
-                </main>
-                <Footer lang={lang} dictionary={dictionary} />
-                <CookieConsent dictionary={dictionary} />
+                </SiteChrome>
                 <Suspense fallback={null}>
                     <PostHogPageView />
                 </Suspense>
