@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Press_Start_2P, VT323 } from "next/font/google";
 import "../globals.css";
-import { i18n, type Locale } from "../../lib/i18n-config";
+import { i18n } from "../../lib/i18n-config";
 import { getDictionary } from "../../lib/get-dictionary";
 import { getAuthState } from "../../lib/auth";
+import { resolveLocaleParam } from "../../lib/resolve-locale";
 import Navbar from "../../components/layout/Navbar";
 import { Suspense } from "react";
 import Footer from "../../components/layout/Footer";
@@ -33,8 +34,9 @@ export async function generateMetadata({
 }: {
     params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
-    const { lang } = await params;
-    const dict = await getDictionary(lang as Locale);
+    const { lang: langParam } = await params;
+    const lang = resolveLocaleParam(langParam);
+    const dict = await getDictionary(lang);
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://firstspawn.com';
 
@@ -96,7 +98,8 @@ export default async function RootLayout({
     children: React.ReactNode;
     params: Promise<{ lang: string }>;
 }) {
-    const { lang } = (await params) as { lang: Locale };
+    const { lang: langParam } = await params;
+    const lang = resolveLocaleParam(langParam);
     const dictionary = await getDictionary(lang);
     const authState = await getAuthState();
 

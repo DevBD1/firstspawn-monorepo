@@ -2,12 +2,13 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { i18n, type Locale } from "./i18n-config";
+import {
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+  getApiBaseUrl,
+} from "./auth-config";
 
-export const ACCESS_TOKEN_COOKIE = "fs_access_token";
-export const REFRESH_TOKEN_COOKIE = "fs_refresh_token";
-export const USER_SESSION_COOKIE = "fs_user";
-
-export const REFRESH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+export { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, getApiBaseUrl };
 
 export interface AuthCookieUser {
   id: string;
@@ -21,37 +22,61 @@ export interface AuthState {
   user: AuthCookieUser | null;
 }
 
-export const getApiBaseUrl = (): string => {
-  const baseUrl = process.env.API_BASE_URL || "http://localhost:8000/api/v1";
-  return baseUrl.replace(/\/$/, "");
-};
+interface Envelope<T> {
+  data: T | null;
+  error: {
+    code: string;
+    message: string;
+  } | null;
+}
+
+interface MeResponseData {
+  user: unknown;
+}
 
 export const isSupportedLocale = (value: string): value is Locale => {
   return i18n.locales.includes(value as Locale);
 };
 
-const parseUserCookie = (rawValue: string | undefined): AuthCookieUser | null => {
-  if (!rawValue) {
+const parseApiUser = (value: unknown): AuthCookieUser | null => {
+  if (!value || typeof value !== "object") {
     return null;
   }
 
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.id !== "string" ||
+    typeof record.email !== "string" ||
+    typeof record.username !== "string" ||
+    typeof record.locale !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    email: record.email,
+    username: record.username,
+    locale: record.locale,
+  };
+};
+
+const getVerifiedUser = async (accessToken: string): Promise<AuthCookieUser | null> => {
   try {
-    const parsed = JSON.parse(decodeURIComponent(rawValue)) as Partial<AuthCookieUser>;
-    if (
-      typeof parsed.id !== "string" ||
-      typeof parsed.email !== "string" ||
-      typeof parsed.username !== "string" ||
-      typeof parsed.locale !== "string"
-    ) {
+    const response = await fetch(`${getApiBaseUrl()}/auth/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
       return null;
     }
 
-    return {
-      id: parsed.id,
-      email: parsed.email,
-      username: parsed.username,
-      locale: parsed.locale,
-    };
+    const json = (await response.json()) as Envelope<MeResponseData>;
+    return parseApiUser(json.data?.user);
   } catch {
     return null;
   }
@@ -60,8 +85,17 @@ const parseUserCookie = (rawValue: string | undefined): AuthCookieUser | null =>
 export const getAuthState = async (): Promise<AuthState> => {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
 
-  if (!refreshToken) {
+  if (!refreshToken || !accessToken) {
+    return {
+      isAuthenticated: false,
+      user: null,
+    };
+  }
+
+  const verifiedUser = await getVerifiedUser(accessToken);
+  if (!verifiedUser) {
     return {
       isAuthenticated: false,
       user: null,
@@ -70,6 +104,6 @@ export const getAuthState = async (): Promise<AuthState> => {
 
   return {
     isAuthenticated: true,
-    user: parseUserCookie(cookieStore.get(USER_SESSION_COOKIE)?.value),
+    user: verifiedUser,
   };
 };

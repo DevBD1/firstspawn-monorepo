@@ -3,7 +3,7 @@ import AuthShell from "@/components/auth/AuthShell";
 import LoginForm from "@/components/auth/LoginForm";
 import { getAuthState } from "@/lib/auth";
 import { getDictionary } from "@/lib/get-dictionary";
-import type { Locale } from "@/lib/i18n-config";
+import { resolveLocaleParam } from "@/lib/resolve-locale";
 
 interface LoginDictionary {
   auth?: {
@@ -31,7 +31,8 @@ export default async function LoginPage({
   params: Promise<{ lang: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { lang } = (await params) as { lang: Locale };
+  const { lang: langParam } = await params;
+  const lang = resolveLocaleParam(langParam);
   const session = await getAuthState();
   if (session.isAuthenticated) {
     redirect(`/${lang}/console`);

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAuthState } from "@/lib/auth";
 import { getDictionary } from "@/lib/get-dictionary";
-import type { Locale } from "@/lib/i18n-config";
+import { resolveLocaleParam } from "@/lib/resolve-locale";
 
 interface ConsoleDictionary {
   nav?: {
@@ -14,7 +14,8 @@ export default async function ConsolePage({
 }: {
   params: Promise<{ lang: string }>;
 }) {
-  const { lang } = (await params) as { lang: Locale };
+  const { lang: langParam } = await params;
+  const lang = resolveLocaleParam(langParam);
   const session = await getAuthState();
   if (!session.isAuthenticated) {
     redirect(`/${lang}/login?next=/${lang}/console`);

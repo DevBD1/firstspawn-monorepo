@@ -19,6 +19,11 @@ interface SignupFormCopy {
   submitLabel: string;
   alternatePrompt: string;
   alternateCta: string;
+  termsLabelPrefix: string;
+  termsLabelCta: string;
+  privacyLabelPrefix: string;
+  privacyLabelCta: string;
+  marketingConsentLabel: string;
 }
 
 interface SignupFormProps {
@@ -46,6 +51,9 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
   const [showPasswords, setShowPasswords] = useState(false);
   const fieldErrors = state?.fieldErrors ?? {};
   const message = state?.message ?? null;
+  const loginHref = nextPath
+    ? `/${lang}/login?next=${encodeURIComponent(nextPath)}`
+    : `/${lang}/login`;
 
   return (
     <form action={action} className="space-y-4" autoComplete="on">
@@ -157,9 +165,9 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
             className="mt-1 h-4 w-4 shrink-0 accent-fs-diamond"
           />
           <span>
-            I agree to the{" "}
+            {copy.termsLabelPrefix}{" "}
             <Link href={`/${lang}/terms`} className="font-ui text-sm font-semibold text-fs-diamond underline underline-offset-2 hover:text-cyan-300">
-              Terms of Service
+              {copy.termsLabelCta}
             </Link>
             .
           </span>
@@ -180,9 +188,9 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
             className="mt-1 h-4 w-4 shrink-0 accent-fs-diamond"
           />
           <span>
-            I agree to the{" "}
+            {copy.privacyLabelPrefix}{" "}
             <Link href={`/${lang}/privacy`} className="font-ui text-sm font-semibold text-fs-diamond underline underline-offset-2 hover:text-cyan-300">
-              Privacy Policy
+              {copy.privacyLabelCta}
             </Link>
             .
           </span>
@@ -201,9 +209,7 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
             type="checkbox"
             className="mt-1 h-4 w-4 shrink-0 accent-fs-diamond"
           />
-          <span>
-            I want to receive product updates and marketing emails from FirstSpawn.
-          </span>
+          <span>{copy.marketingConsentLabel}</span>
         </label>
       </div>
 
@@ -217,7 +223,7 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
 
       <p className="pt-2 text-center font-ui text-sm text-zinc-400">
         {copy.alternatePrompt}{" "}
-        <Link href={`/${lang}/login`} className="font-display text-[10px] uppercase tracking-wider text-fs-diamond hover:text-cyan-300">
+        <Link href={loginHref} className="font-display text-[10px] uppercase tracking-wider text-fs-diamond hover:text-cyan-300">
           {copy.alternateCta}
         </Link>
       </p>

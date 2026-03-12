@@ -61,6 +61,9 @@ def test_validation_error_response_is_json_serializable() -> None:
                 "username": "valid_user",
                 "password": "StrongPass123!",
                 "locale": "en",
+                "terms_accepted": True,
+                "privacy_accepted": True,
+                "marketing_consent": False,
             },
         )
     app.dependency_overrides.clear()
@@ -86,6 +89,9 @@ def test_register_duplicate_race_returns_validation_error() -> None:
                 "username": "duplicate_user",
                 "password": "StrongPass123!",
                 "locale": "en",
+                "terms_accepted": True,
+                "privacy_accepted": True,
+                "marketing_consent": False,
             },
         )
     app.dependency_overrides.clear()

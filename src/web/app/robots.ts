@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { i18n } from '../lib/i18n-config';
 
 export default function robots(): MetadataRoute.Robots {
   // 1. Check if we are in production.
@@ -16,6 +17,13 @@ export default function robots(): MetadataRoute.Robots {
     };
   }
 
+  const authAndProtectedRoutes = i18n.locales.flatMap((locale) => [
+    `/${locale}/login/`,
+    `/${locale}/signup/`,
+    `/${locale}/console/`,
+    `/${locale}/loot/`,
+  ]);
+
   return {
     rules: {
       userAgent: '*',
@@ -27,6 +35,7 @@ export default function robots(): MetadataRoute.Robots {
         '/account/', 
         '/api/',      // Don't waste crawl budget on backend API routes
         '/private/',
+        ...authAndProtectedRoutes,
       ],
     },
     // 3. Point to your sitemap (Crucial)

@@ -1,11 +1,12 @@
-import type { Locale } from "@/lib/i18n-config";
+import { resolveLocaleParam } from "@/lib/resolve-locale";
 
 export default async function PrivacyPage({
   params,
 }: {
   params: Promise<{ lang: string }>;
 }) {
-  const { lang } = (await params) as { lang: Locale };
+  const { lang: langParam } = await params;
+  const lang = resolveLocaleParam(langParam);
 
   return (
     <section className="min-h-[calc(100vh-84px)] bg-[radial-gradient(circle_at_84%_18%,rgba(34,211,238,0.16),transparent_35%),linear-gradient(180deg,#090b14_0%,#10172a_55%,#090c13_100%)] px-4 py-12 sm:px-6 lg:px-8">

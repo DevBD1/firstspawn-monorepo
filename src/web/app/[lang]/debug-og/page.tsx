@@ -1,11 +1,12 @@
-import { Locale } from "../../../lib/i18n-config";
+import { resolveLocaleParam } from "../../../lib/resolve-locale";
 
 export default async function DebugOG({
   params,
 }: {
   params: Promise<{ lang: string }>;
 }) {
-  const { lang } = (await params) as { lang: Locale };
+  const { lang: langParam } = await params;
+  const lang = resolveLocaleParam(langParam);
 
   return (
     <div
@@ -31,9 +32,8 @@ export default async function DebugOG({
           maxWidth: "100%",
         }}
       >
-        {/* Using a timestamp to prevent caching during dev */}
         <img
-          src={`/${lang}/opengraph-image?t=${Date.now()}`}
+          src={`/${lang}/opengraph-image`}
           alt="Open Graph Preview"
           style={{
             maxWidth: "100%",

@@ -9,6 +9,8 @@ import {
   REFRESH_TOKEN_COOKIE,
   USER_SESSION_COOKIE,
   getApiBaseUrl,
+} from "@/lib/auth-config";
+import {
   isSupportedLocale,
 } from "@/lib/auth";
 import type { AuthActionState, AuthFieldErrors } from "@/lib/auth-action-state";
@@ -155,25 +157,7 @@ const setSessionCookies = async (payload: AuthApiResponseData): Promise<void> =>
     path: "/",
     maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
   });
-
-  cookieStore.set(
-    USER_SESSION_COOKIE,
-    encodeURIComponent(
-      JSON.stringify({
-        id: payload.user.id,
-        email: payload.user.email,
-        username: payload.user.username,
-        locale: payload.user.locale,
-      }),
-    ),
-    {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: secureCookie,
-      path: "/",
-      maxAge: REFRESH_COOKIE_MAX_AGE_SECONDS,
-    },
-  );
+  cookieStore.delete(USER_SESSION_COOKIE);
 };
 
 const clearSessionCookies = async (): Promise<void> => {
@@ -270,6 +254,9 @@ export async function registerAction(
       username: parsed.data.username,
       password: parsed.data.password,
       locale: lang,
+      terms_accepted: parsed.data.termsAccepted === "on",
+      privacy_accepted: parsed.data.privacyAccepted === "on",
+      marketing_consent: parsed.data.marketingConsent,
     }),
   });
 

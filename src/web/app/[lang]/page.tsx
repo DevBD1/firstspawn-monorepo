@@ -1,13 +1,14 @@
 import { getDictionary } from "../../lib/get-dictionary";
-import type { Locale } from "../../lib/i18n-config";
 import LandingPage from "../../components/landing/LandingPage";
+import { resolveLocaleParam } from "../../lib/resolve-locale";
 
 export default async function Home({
     params,
 }: {
     params: Promise<{ lang: string }>;
 }) {
-    const { lang } = (await params) as { lang: Locale };
+    const { lang: langParam } = await params;
+    const lang = resolveLocaleParam(langParam);
     const dict = await getDictionary(lang);
 
     return (

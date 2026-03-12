@@ -42,6 +42,9 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const fieldErrors = state?.fieldErrors ?? {};
   const message = state?.message ?? null;
+  const signupHref = nextPath
+    ? `/${lang}/signup?next=${encodeURIComponent(nextPath)}`
+    : `/${lang}/signup`;
 
   return (
     <form action={action} className="space-y-4">
@@ -106,7 +109,7 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
 
       <p className="pt-2 text-center font-ui text-sm text-zinc-400">
         {copy.alternatePrompt}{" "}
-        <Link href={`/${lang}/signup`} className="font-display text-[10px] uppercase tracking-wider text-fs-diamond hover:text-cyan-300">
+        <Link href={signupHref} className="font-display text-[10px] uppercase tracking-wider text-fs-diamond hover:text-cyan-300">
           {copy.alternateCta}
         </Link>
       </p>

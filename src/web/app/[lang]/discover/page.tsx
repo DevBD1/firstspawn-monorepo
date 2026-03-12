@@ -1,5 +1,5 @@
 import { getDictionary } from "@/lib/get-dictionary";
-import type { Locale } from "@/lib/i18n-config";
+import { resolveLocaleParam } from "@/lib/resolve-locale";
 
 interface DiscoverDictionary {
   nav?: {
@@ -12,7 +12,8 @@ export default async function DiscoverPage({
 }: {
   params: Promise<{ lang: string }>;
 }) {
-  const { lang } = (await params) as { lang: Locale };
+  const { lang: langParam } = await params;
+  const lang = resolveLocaleParam(langParam);
   const dictionary = (await getDictionary(lang)) as DiscoverDictionary;
 
   return (

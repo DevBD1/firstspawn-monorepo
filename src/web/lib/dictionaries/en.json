@@ -45,7 +45,12 @@
             "confirmPasswordPlaceholder": "Repeat your password",
             "submit": "CREATE ACCOUNT",
             "alternatePrompt": "Already linked?",
-            "alternateCta": "LOG IN"
+            "alternateCta": "LOG IN",
+            "termsLabelPrefix": "I agree to the",
+            "termsLabelCta": "Terms of Service",
+            "privacyLabelPrefix": "I agree to the",
+            "privacyLabelCta": "Privacy Policy",
+            "marketingConsentLabel": "I want to receive product updates and marketing emails from FirstSpawn."
         }
     },
     "footer": {

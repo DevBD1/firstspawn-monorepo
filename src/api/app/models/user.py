@@ -54,6 +54,19 @@ class User(Base, AuditMixin):
         nullable=False,
         default="en",
     )
+    terms_accepted_at: Mapped[datetime | None] = mapped_column(
+        nullable=True,
+    )
+    privacy_accepted_at: Mapped[datetime | None] = mapped_column(
+        nullable=True,
+    )
+    marketing_consent: Mapped[bool] = mapped_column(
+        nullable=False,
+        default=False,
+    )
+    marketing_consent_at: Mapped[datetime | None] = mapped_column(
+        nullable=True,
+    )
     last_login_at: Mapped[datetime | None] = mapped_column(
         nullable=True,
     )

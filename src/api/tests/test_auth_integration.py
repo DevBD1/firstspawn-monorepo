@@ -15,6 +15,9 @@ def _register_user(
             "username": username,
             "password": password,
             "locale": "en",
+            "terms_accepted": True,
+            "privacy_accepted": True,
+            "marketing_consent": False,
         },
     )
     assert response.status_code == 201
@@ -128,6 +131,9 @@ def test_register_duplicate_email_returns_validation_error(client: TestClient) -
             "username": "dup_user_2",
             "password": "StrongPass123!",
             "locale": "en",
+            "terms_accepted": True,
+            "privacy_accepted": True,
+            "marketing_consent": False,
         },
     )
     assert duplicate.status_code == 409

@@ -16,6 +16,9 @@ class RegisterRequest(BaseModel):
     username: str
     password: str = Field(min_length=8, max_length=128)
     locale: str = "en"
+    terms_accepted: bool
+    privacy_accepted: bool
+    marketing_consent: bool = False
 
     @field_validator("email")
     @classmethod
@@ -42,6 +45,20 @@ class RegisterRequest(BaseModel):
         if normalized not in _LOCALE_VALUES:
             raise ValueError("Unsupported locale.")
         return normalized
+
+    @field_validator("terms_accepted")
+    @classmethod
+    def validate_terms_accepted(cls, value: bool) -> bool:
+        if not value:
+            raise ValueError("Terms must be accepted.")
+        return value
+
+    @field_validator("privacy_accepted")
+    @classmethod
+    def validate_privacy_accepted(cls, value: bool) -> bool:
+        if not value:
+            raise ValueError("Privacy policy must be accepted.")
+        return value
 
 
 class LoginRequest(BaseModel):
