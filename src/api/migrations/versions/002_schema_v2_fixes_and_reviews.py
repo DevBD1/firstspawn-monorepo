@@ -170,9 +170,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.UniqueConstraint(
-            "platform", "platform_user_id", name="uq_game_account_platform_id"
-        ),
+        sa.UniqueConstraint("platform", "platform_user_id", name="uq_game_account_platform_id"),
         comment="Linked game accounts for identity verification",
     )
     op.create_check_constraint(
@@ -180,9 +178,7 @@ def upgrade() -> None:
         "user_game_accounts",
         sa.text("platform IN ('mojang', 'hytale')"),
     )
-    op.create_index(
-        "idx_game_accounts_user_id", "user_game_accounts", ["user_id"]
-    )
+    op.create_index("idx_game_accounts_user_id", "user_game_accounts", ["user_id"])
 
     # ============================================
     # New table: reviews
@@ -211,9 +207,7 @@ def upgrade() -> None:
         sa.Column("rating", sa.SmallInteger(), nullable=False),
         sa.Column("title", sa.Text(), nullable=True),
         sa.Column("body", sa.Text(), nullable=False),
-        sa.Column(
-            "is_verified", sa.Boolean(), nullable=False, server_default="false"
-        ),
+        sa.Column("is_verified", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("verified_playtime_seconds", sa.Integer(), nullable=True),
         sa.Column(
             "status",
@@ -247,9 +241,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.UniqueConstraint(
-            "server_id", "author_user_id", name="uq_reviews_server_author"
-        ),
+        sa.UniqueConstraint("server_id", "author_user_id", name="uq_reviews_server_author"),
         comment="User reviews on game servers",
     )
     op.create_check_constraint(
@@ -264,9 +256,7 @@ def upgrade() -> None:
     )
     op.create_index("idx_reviews_server_id", "reviews", ["server_id"])
     op.create_index("idx_reviews_author_user_id", "reviews", ["author_user_id"])
-    op.create_index(
-        "idx_reviews_status_created", "reviews", ["status", "created_at"]
-    )
+    op.create_index("idx_reviews_status_created", "reviews", ["status", "created_at"])
 
     # ============================================
     # New table: review_votes
@@ -299,14 +289,10 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.UniqueConstraint(
-            "review_id", "user_id", name="uq_review_votes_review_user"
-        ),
+        sa.UniqueConstraint("review_id", "user_id", name="uq_review_votes_review_user"),
         comment="Helpfulness votes on reviews",
     )
-    op.create_index(
-        "idx_review_votes_review_id", "review_votes", ["review_id"]
-    )
+    op.create_index("idx_review_votes_review_id", "review_votes", ["review_id"])
 
     # ============================================
     # New table: review_moderation_actions
@@ -412,9 +398,7 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.UniqueConstraint(
-            "server_id", "snapshot_date", name="uq_reputation_server_date"
-        ),
+        sa.UniqueConstraint("server_id", "snapshot_date", name="uq_reputation_server_date"),
         comment="Daily materialized reputation scores for servers",
     )
     op.create_index(
@@ -456,9 +440,7 @@ def downgrade() -> None:
     op.drop_index("idx_server_heartbeats_idempotency", "server_heartbeats")
 
     # Drop FTS trigger, function, index, column
-    op.execute(
-        "DROP TRIGGER IF EXISTS trg_servers_search_vector_update ON servers;"
-    )
+    op.execute("DROP TRIGGER IF EXISTS trg_servers_search_vector_update ON servers;")
     op.execute("DROP FUNCTION IF EXISTS servers_search_vector_update();")
     op.drop_index("idx_servers_search_vector", "servers")
     op.drop_column("servers", "search_vector")

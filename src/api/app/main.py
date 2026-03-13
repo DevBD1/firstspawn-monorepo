@@ -42,9 +42,7 @@ async def handle_api_error(request: Request, exc: ApiError) -> JSONResponse:
 
 
 @app.exception_handler(RequestValidationError)
-async def handle_validation_error(
-    request: Request, exc: RequestValidationError
-) -> JSONResponse:
+async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
     encoded_errors = jsonable_encoder(exc.errors())
     return JSONResponse(

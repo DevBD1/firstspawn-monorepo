@@ -22,9 +22,7 @@ def _with_search_path(database_url: str, schema: str) -> str:
     current_options = str(query.get("options", "")).strip()
     search_path_option = f"-csearch_path={schema},public"
     query["options"] = (
-        f"{current_options} {search_path_option}".strip()
-        if current_options
-        else search_path_option
+        f"{current_options} {search_path_option}".strip() if current_options else search_path_option
     )
     return url.set(query=query).render_as_string(hide_password=False)
 

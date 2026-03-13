@@ -91,14 +91,7 @@ def hash_password(password: str) -> str:
         p=p,
         dklen=64,
     )
-    return (
-        "scrypt"
-        f"${n}"
-        f"${r}"
-        f"${p}"
-        f"${_b64url_encode(salt)}"
-        f"${_b64url_encode(derived)}"
-    )
+    return f"scrypt${n}${r}${p}${_b64url_encode(salt)}${_b64url_encode(derived)}"
 
 
 def verify_password(password: str, encoded_hash: str | None) -> bool:

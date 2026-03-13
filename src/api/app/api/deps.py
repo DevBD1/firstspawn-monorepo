@@ -22,9 +22,7 @@ def get_request_id(request: Request) -> str | None:
 
 
 def get_current_user(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
-    ],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     db: Annotated[Session, Depends(get_db_session)],
 ) -> User:
     """Resolve current user from access token."""

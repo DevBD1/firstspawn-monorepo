@@ -11,9 +11,7 @@ class Settings(BaseSettings):
     API_ENV: str = "development"
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
-    API_DATABASE_URL: str = (
-        "postgresql+psycopg://firstspawn:firstspawn@localhost:5432/firstspawn"
-    )
+    API_DATABASE_URL: str = "postgresql+psycopg://firstspawn:firstspawn@localhost:5432/firstspawn"
     API_REDIS_URL: str = "redis://localhost:6379/0"
     API_JWT_SECRET: str = "dev-only-secret-change-me"
     API_JWT_ISSUER: str = "firstspawn-api"
