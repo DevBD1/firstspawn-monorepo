@@ -28,6 +28,7 @@ export default async function DebugOG({ params }: { params: Promise<{ lang: stri
           maxWidth: "100%",
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element -- raw OG endpoint preview */}
         <img
           src={`/${lang}/opengraph-image`}
           alt="Open Graph Preview"
