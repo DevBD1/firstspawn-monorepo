@@ -20,6 +20,7 @@ FastAPI production API with SQLAlchemy 2.0 + Alembic migrations.
   - Access + refresh token issuance
   - Refresh token rotation
   - Logout revocation (idempotent)
+  - Registration consent persistence (`terms_accepted`, `privacy_accepted`, `marketing_consent`)
 - Standard API response envelope for success/errors + per-request `request_id`
 - DB-backed integration tests for auth flows
 

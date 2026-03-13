@@ -53,7 +53,7 @@ firstspawn-monorepo/
 - **Styling:** Tailwind CSS v4 + Framer Motion
 - **UI Library:** React 19
 - **Icons:** Lucide React
-- **Fonts:** Press Start 2P (pixel), VT323 (retro), Geist Sans/Mono
+- **Fonts:** Press Start 2P (display), VT323 (UI), JetBrains Mono (body)
 
 ### Backend (API)
 
@@ -100,6 +100,9 @@ npm run format:check
 # Type check all packages
 npm run typecheck
 
+# Type check web app directly (recommended until turbo typecheck task is wired)
+npx tsc --noEmit -p src/web/tsconfig.json
+
 # Run full CI pipeline locally
 npm run ci
 
@@ -130,8 +133,9 @@ npm run clean
   - `.pixel-border-dark` - Dark pixel-style border
   - `.pixel-shadow` - Pixel shadow effect
   - `.crt-overlay` - CRT scanline effect
-  - `.pixel-font` - Press Start 2P font
-  - `.font-retro` - VT323 monospace font
+  - `.font-display` - Press Start 2P font
+  - `.font-ui` - VT323 UI font
+  - `.font-body` - JetBrains Mono body font
 
 ### Tailwind v4 Configuration
 
@@ -170,7 +174,7 @@ npm run clean
 - Uses Resend for email delivery
 - JWT tokens for confirmation links
 - PostHog tracking for analytics
-- Confirmation email component in `src/web/components/emails/`
+- Confirmation email component in `src/web/features/email/templates/`
 
 ### Analytics (PostHog)
 
@@ -185,11 +189,23 @@ npm run clean
 
 ```
 app/
-├── [lang]/              # i18n route groups
-│   ├── layout.tsx       # Root layout with fonts, metadata
-│   ├── page.tsx         # Landing page
-│   ├── opengraph-image.tsx  # Dynamic OG image
-│   └── debug-og/        # OG image debug route
+├── [lang]/
+│   ├── layout.tsx              # Root locale layout (fonts, metadata, providers)
+│   ├── opengraph-image.tsx     # Dynamic OG image
+│   ├── (marketing)/            # Routes with global chrome
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── discover/
+│   │   ├── loot/
+│   │   ├── console/
+│   │   ├── privacy/
+│   │   ├── terms/
+│   │   └── debug-og/
+│   └── (auth)/                 # Auth routes without global chrome
+│       ├── layout.tsx
+│       ├── login/
+│       ├── signup/
+│       └── register/
 ├── actions/             # Server actions
 │   ├── captcha.ts
 │   └── newsletter.ts
@@ -200,12 +216,16 @@ app/
 └── sitemap.ts           # Dynamic sitemap.xml
 
 components/
-├── captcha/             # Newsletter captcha components
-├── emails/              # React Email components
-├── landing/             # Landing page sections
-├── layout/              # Navbar, Footer, CookieConsent, LocaleSwitcher
-├── pixel/               # Pixel-styled UI components
+├── ui/                  # Shared web UI primitives (PixelButton, PixelCard, icons)
+├── layout/              # Navbar, Footer, CookieConsent, LocaleSwitcher, MarketingChrome
 └── providers/           # PostHogProvider, PostHogPageView
+
+features/
+├── auth/                # Auth feature components/hooks/lib/types
+├── landing/             # Landing feature components/hooks/lib/types
+├── captcha/             # Captcha feature components/hooks/lib/types
+└── email/
+    └── templates/       # React Email templates
 
 lib/
 ├── dictionaries/        # i18n JSON files (en, tr, de, ru, es, fr)
@@ -319,6 +339,7 @@ NODE_ENV                      # development | production
 
 - Use "use client" directive for client components
 - Keep server components as default (no directive)
+- Use `.client.tsx` suffix for interactive components; keep server components as plain `.tsx`
 - Props interfaces should be exported
 - Use Tailwind utility classes, avoid inline styles
 
@@ -332,9 +353,17 @@ NODE_ENV                      # development | production
 ### Styling
 
 - Use CSS variables from `globals.css` for colors
+- Centralize typography in `src/web/app/globals.css` via root font tokens:
+  - `--font-family-display` (pixel headings)
+  - `--font-family-ui` (readable UI/forms)
+  - `--font-family-body` (site-wide body default)
 - Prefer `fs-diamond` (cyan-400) for primary accents
-- Use `.pixel-font` for headings, `.font-retro` for body text
+- Use `.font-display` for large display headings and primary CTA buttons
+- Prefer `.font-ui` (VT323) for form inputs, helper/error text, and legal links
+- Keep long-form/content text on body defaults (`--font-family-body`, JetBrains Mono) unless intentionally styled
 - Maintain pixel-retro aesthetic with utility classes
+- Keep internal/technical implementation labels out of end-user UI copy (for example avoid terms like
+  "SECURE NODE", "JWT SESSION", "TRUST LAYER V1" in public-facing auth screens)
 
 ## Security Considerations
 
@@ -434,17 +463,22 @@ Format rules:
 
 ### Adding a New Page
 
-1. Create route directory under `src/web/app/[lang]/`
+1. Create route under the correct route group:
+   - `src/web/app/[lang]/(marketing)/...` for pages with navbar/footer/cookie consent
+   - `src/web/app/[lang]/(auth)/...` for auth pages without global chrome
 2. Add `page.tsx` with proper i18n setup
-3. Update `Navbar.tsx` if navigation needed
+3. Update `src/web/components/layout/Navbar.client.tsx` if navigation needed
 4. Add route to `robots.ts` disallow list if protected
 5. Update sitemap if public page
 
 ### Adding a New Component
 
-1. Determine if shared or app-specific
-2. Shared: Add to `packages/ui/src/`, export in `index.ts`
-3. App-specific: Add to appropriate `src/web/components/` subdirectory
+1. Determine the proper layer:
+   - Cross-app reusable component: `packages/ui/src/`
+   - Shared web primitive/layout/provider: `src/web/components/`
+   - Feature-owned component with local logic: `src/web/features/<feature>/components/`
+2. Keep stateful/business logic in feature hooks/lib, not in shared UI primitives
+3. Use `.client.tsx` only when interaction/browser APIs require it
 4. Use existing component patterns for consistency
 
 ### Adding a Server Action

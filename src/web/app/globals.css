@@ -4,6 +4,9 @@
   --background: #050505;
   --foreground: #f0f0f0;
   --border: #000000;
+  --font-family-display: var(--font-display-base, "Press Start 2P"), "Press Start 2P";
+  --font-family-ui: var(--font-ui-base, "VT323"), "VT323";
+  --font-family-body: var(--font-body-base, "JetBrains Mono"), "JetBrains Mono";
 
   /* Shared Palette */
   --fs-diamond: #22d3ee;
@@ -19,13 +22,18 @@
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --secondary: #333333;
-  --secondary-hover: #52525b; /* zinc-600 */
+  --secondary-hover: #52525b;
+  /* zinc-600 */
   --success: #4ade80;
-  --success-hover: #22c55e; /* green-500 */
-  --danger: #dc2626; /* red-600 */
-  --danger-hover: #ef4444; /* red-500 */
-  
-  --accent-cyan: #22d3ee; /* cyan-400 */
+  --success-hover: #22c55e;
+  /* green-500 */
+  --danger: #dc2626;
+  /* red-600 */
+  --danger-hover: #ef4444;
+  /* red-500 */
+
+  --accent-cyan: #22d3ee;
+  /* cyan-400 */
 }
 
 @theme inline {
@@ -33,7 +41,7 @@
   --color-foreground: var(--foreground);
   --color-bg-panel: var(--bg-panel);
   --color-border: var(--border);
-  
+
   --color-navbar-bg: var(--navbar-bg);
   --color-footer-bg: var(--footer-bg);
   --color-footer-border: var(--footer-border);
@@ -95,18 +103,22 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-vt323), "Press Start 2P", cursive;
+  font-family: var(--font-family-body);
   image-rendering: pixelated;
   margin: 0;
   min-height: screen;
 }
 
-.pixel-font {
-  font-family: var(--font-press-start-2p), "Press Start 2P", cursive;
+.font-display {
+  font-family: var(--font-family-display) !important;
 }
 
-.font-retro {
-  font-family: var(--font-vt323), monospace;
+.font-ui {
+  font-family: var(--font-family-ui);
+}
+
+.font-body {
+  font-family: var(--font-family-body);
 }
 
 ::-webkit-scrollbar {

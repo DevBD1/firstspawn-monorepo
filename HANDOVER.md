@@ -1,7 +1,7 @@
 # Project Handover
 
 **Repository:** firstspawn-monorepo
-**Last Updated:** 2026-03-09
+**Last Updated:** 2026-03-12
 
 > Source of truth for directory layout and conventions is **`AGENTS.md`**.
 > This file records what was done, by whom (session), and what is next.
@@ -140,6 +140,27 @@
 
 ---
 
+### Session 9 — Auth UI Port + Auth Route UX (2026-03-12)
+
+**What changed:**
+- Ported login/signup UI direction from `references/` concept into web auth pages (`src/web/components/auth/*`, `src/web/app/[lang]/{login,signup}`)
+- Added concept-style auth button component and Discord icon component
+- Kept email flows wired to existing server actions/API (`loginAction`/`registerAction`), with Discord + passkey intentionally dummy for now
+- Added localized `/[lang]/register` alias route that redirects to `/[lang]/signup`
+- Updated auth copy to FirstSpawn/community language (removed “The Stash” wording)
+- Fixed close behavior on auth pages: top-right `X` now respects `next` return path when present
+- Hid global chrome on auth routes (`login`, `signup`, `register`): navbar/footer/cookie-consent are not rendered on those screens
+
+**Key decisions:**
+- Keep both `/signup` (real page) and `/register` (alias) temporarily for compatibility
+- Keep social/passkey actions as placeholders until backend/provider integration starts
+- Preserve focus by removing site chrome from auth screens
+
+**Validation:**
+- Targeted ESLint run for changed auth/layout files passed ✅
+
+---
+
 ## Current State
 
 | Area | Status |
@@ -160,6 +181,7 @@
 - Hytale OAuth2 API not yet public — `user_game_accounts` table ready but integration gated
 - Reputation snapshot computation job not yet implemented (table exists, no background worker)
 - SQLAlchemy warning remains for `CIText` custom type (`cache_ok` not set); low-priority cleanup to suppress warnings and improve query-plan caching.
+- consent is currently validated at signup time, but not yet persisted in backend user profile fields.
 
 ---
 

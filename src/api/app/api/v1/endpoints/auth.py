@@ -137,13 +137,18 @@ def register(
             details={"field": "username"},
         )
 
+    now = datetime.now(UTC)
     user = User(
         email=payload.email,
         username=payload.username,
         password_hash=hash_password(payload.password),
         status="active",
         locale=payload.locale,
-        last_login_at=datetime.now(UTC),
+        terms_accepted_at=now,
+        privacy_accepted_at=now,
+        marketing_consent=payload.marketing_consent,
+        marketing_consent_at=now if payload.marketing_consent else None,
+        last_login_at=now,
     )
     db.add(user)
     try:

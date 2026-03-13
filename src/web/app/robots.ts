@@ -1,35 +1,45 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from "next";
+import { i18n } from "../lib/i18n-config";
 
 export default function robots(): MetadataRoute.Robots {
   // 1. Check if we are in production.
   // You don't want Google indexing your "vercel-app-r43.app" preview URLs.
-  const isProduction = process.env.VERCEL_ENV === 'production'; 
-  
+  const isProduction = process.env.VERCEL_ENV === "production";
+
   // Or use your own env variable: process.env.NEXT_PUBLIC_SITE_URL === 'https://yourdomain.com'
 
   if (!isProduction) {
     return {
       rules: {
-        userAgent: '*',
-        disallow: '/', // Block EVERYTHING if not production
+        userAgent: "*",
+        disallow: "/", // Block EVERYTHING if not production
       },
     };
   }
 
+  const authAndProtectedRoutes = i18n.locales.flatMap((locale) => [
+    `/${locale}/login`,
+    `/${locale}/signup`,
+    `/${locale}/register`,
+    `/${locale}/console`,
+    `/${locale}/loot`,
+  ]);
+
   return {
     rules: {
-      userAgent: '*',
-      allow: '/',
+      userAgent: "*",
+      allow: "/",
       // 2. Block the parts of the app that are behind login or still broken
       disallow: [
-        '/dashboard/', 
-        '/admin/', 
-        '/account/', 
-        '/api/',      // Don't waste crawl budget on backend API routes
-        '/private/',
+        "/dashboard/",
+        "/admin/",
+        "/account/",
+        "/api/", // Don't waste crawl budget on backend API routes
+        "/private/",
+        ...authAndProtectedRoutes,
       ],
     },
     // 3. Point to your sitemap (Crucial)
-    sitemap: 'https://firstspawn.com/sitemap.xml',
+    sitemap: "https://firstspawn.com/sitemap.xml",
   };
 }
