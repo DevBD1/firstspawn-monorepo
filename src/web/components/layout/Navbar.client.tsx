@@ -95,6 +95,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
             variant="success"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}
+            disabled
           >
             {dictionary.nav.signUp}
           </PixelButton>
@@ -103,6 +104,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
             variant="primary"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}
+            disabled
           >
             {dictionary.nav.logIn}
           </PixelButton>
@@ -159,16 +161,14 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
       </div>
 
       <div
-        className={`fixed inset-0 z-[101] bg-black/70 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
-          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className={`fixed inset-0 z-[101] bg-black/70 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
         onClick={() => setIsOpen(false)}
       />
 
       <div
-        className={`fixed top-0 left-0 z-[102] flex h-[100dvh] w-[85%] max-w-[320px] -translate-x-full flex-col border-r-4 border-black bg-bg-panel transition-transform duration-300 ease-in-out md:hidden ${
-          isOpen ? "translate-x-0" : ""
-        }`}
+        className={`fixed top-0 left-0 z-[102] flex h-[100dvh] w-[85%] max-w-[320px] -translate-x-full flex-col border-r-4 border-black bg-bg-panel transition-transform duration-300 ease-in-out md:hidden ${isOpen ? "translate-x-0" : ""
+          }`}
       >
         <div className="flex flex-shrink-0 items-center justify-between border-b-4 border-black bg-navbar-bg p-5">
           <div className="font-ui text-sm font-semibold uppercase tracking-wider text-primary">Menu</div>
