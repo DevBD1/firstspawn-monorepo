@@ -12,6 +12,7 @@
   },
   "scripts": {
     "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf node_modules"
   },
   "dependencies": {
