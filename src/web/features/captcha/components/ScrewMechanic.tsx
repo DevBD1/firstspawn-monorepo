@@ -15,13 +15,21 @@ const ScrewThread = ({ width, height }: { width: number; height: number }) => {
         stroke="#4a5568"
         strokeWidth="2"
         shapeRendering="crispEdges"
-      />,
+      />
     );
   }
 
   return (
     <g>
-      <rect x="0" y="0" width={width} height={height} fill="#2d3748" stroke="black" strokeWidth="2" />
+      <rect
+        x="0"
+        y="0"
+        width={width}
+        height={height}
+        fill="#2d3748"
+        stroke="black"
+        strokeWidth="2"
+      />
       <rect x="0" y="2" width={width} height="4" fill="#718096" opacity="0.5" />
       <g opacity="0.6">{threads}</g>
     </g>
@@ -46,7 +54,15 @@ const PixelNut = ({ x, angle, isGhost }: { x: number; angle: number; isGhost?: b
           strokeLinejoin="round"
           opacity={opacity}
         />
-        <circle cx="0" cy="0" r="10" fill="#1a1c2c" stroke={strokeColor} strokeWidth="2" opacity={opacity} />
+        <circle
+          cx="0"
+          cy="0"
+          r="10"
+          fill="#1a1c2c"
+          stroke={strokeColor}
+          strokeWidth="2"
+          opacity={opacity}
+        />
         <rect x="-5" y="-25" width="10" height="10" fill={detailColor} opacity={opacity} />
         <rect x="-5" y="15" width="10" height="10" fill="#7d1e31" opacity={isGhost ? 0 : 1} />
 
@@ -68,7 +84,11 @@ const calculateX = (rotation: number): number => {
   return startX + progress * (endX - startX);
 };
 
-export function ScrewMechanic({ rotation, targetRotation = 0, showTarget = true }: ScrewMechanicProps) {
+export function ScrewMechanic({
+  rotation,
+  targetRotation = 0,
+  showTarget = true,
+}: ScrewMechanicProps) {
   const currentX = calculateX(rotation);
   const targetX = calculateX(targetRotation);
 

@@ -141,7 +141,9 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
               F
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-display text-lg tracking-tighter text-white">{dictionary.common.brand}</h1>
+              <h1 className="font-display text-lg tracking-tighter text-white">
+                {dictionary.common.brand}
+              </h1>
               <p className="font-ui text-[10px] uppercase tracking-wide text-gray-500">
                 {dictionary.common.tagline}
               </p>
@@ -161,17 +163,21 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
       </div>
 
       <div
-        className={`fixed inset-0 z-[101] bg-black/70 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-          }`}
+        className={`fixed inset-0 z-[101] bg-black/70 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
         onClick={() => setIsOpen(false)}
       />
 
       <div
-        className={`fixed top-0 left-0 z-[102] flex h-[100dvh] w-[85%] max-w-[320px] -translate-x-full flex-col border-r-4 border-black bg-bg-panel transition-transform duration-300 ease-in-out md:hidden ${isOpen ? "translate-x-0" : ""
-          }`}
+        className={`fixed top-0 left-0 z-[102] flex h-[100dvh] w-[85%] max-w-[320px] -translate-x-full flex-col border-r-4 border-black bg-bg-panel transition-transform duration-300 ease-in-out md:hidden ${
+          isOpen ? "translate-x-0" : ""
+        }`}
       >
         <div className="flex flex-shrink-0 items-center justify-between border-b-4 border-black bg-navbar-bg p-5">
-          <div className="font-ui text-sm font-semibold uppercase tracking-wider text-primary">Menu</div>
+          <div className="font-ui text-sm font-semibold uppercase tracking-wider text-primary">
+            Menu
+          </div>
           <button
             onClick={() => setIsOpen(false)}
             className="flex h-10 w-10 items-center justify-center border-2 border-black bg-secondary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"

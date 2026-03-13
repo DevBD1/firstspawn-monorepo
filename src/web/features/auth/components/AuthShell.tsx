@@ -24,9 +24,7 @@ function FeatureItem({ icon: Icon, title, description }: FeatureItemProps) {
         <Icon className="h-5 w-5 text-emerald-500" />
       </div>
       <div>
-        <h3 className="font-ui text-lg font-bold uppercase tracking-wide text-zinc-200">
-          {title}
-        </h3>
+        <h3 className="font-ui text-lg font-bold uppercase tracking-wide text-zinc-200">{title}</h3>
         <p className="font-body text-sm text-zinc-400">{description}</p>
       </div>
     </div>
@@ -55,9 +53,7 @@ export default function AuthShell({
               <div className="flex h-10 w-10 items-center justify-center border-2 border-emerald-700 bg-emerald-500 shadow-[4px_4px_0px_0px_#047857]">
                 <div className="h-4 w-4 bg-zinc-950" />
               </div>
-              <span className="font-display text-xl uppercase text-zinc-100">
-                FirstSpawn
-              </span>
+              <span className="font-display text-xl uppercase text-zinc-100">FirstSpawn</span>
             </Link>
 
             <h2 className="mb-6 font-display text-2xl uppercase leading-tight text-zinc-100 xl:text-3xl">
@@ -66,8 +62,8 @@ export default function AuthShell({
               <span className="text-emerald-500">Is Possible.</span>
             </h2>
             <p className="mb-12 max-w-md font-body text-base text-zinc-400">
-              The discovery ecosystem for Minecraft and Hytale servers. Built for
-              real players, real trust, and the community.
+              The discovery ecosystem for Minecraft and Hytale servers. Built for real players, real
+              trust, and the community.
             </p>
 
             <div className="space-y-6">
@@ -108,17 +104,13 @@ export default function AuthShell({
               <div className="flex h-8 w-8 items-center justify-center border-2 border-emerald-700 bg-emerald-500 shadow-[2px_2px_0px_0px_#047857]">
                 <div className="h-3 w-3 bg-zinc-950" />
               </div>
-              <span className="font-display text-lg uppercase text-zinc-100">
-                FirstSpawn
-              </span>
+              <span className="font-display text-lg uppercase text-zinc-100">FirstSpawn</span>
             </div>
 
             <h1 className="mb-2 font-display text-xl uppercase leading-tight text-zinc-100 sm:text-2xl">
               {title}
             </h1>
-            <p className="mb-8 font-body text-sm text-zinc-400 sm:text-base">
-              {subtitle}
-            </p>
+            <p className="mb-8 font-body text-sm text-zinc-400 sm:text-base">{subtitle}</p>
 
             {children}
           </div>

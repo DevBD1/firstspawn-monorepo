@@ -10,9 +10,7 @@ import {
   USER_SESSION_COOKIE,
   getApiBaseUrl,
 } from "@/lib/auth-config";
-import {
-  isSupportedLocale,
-} from "@/lib/auth";
+import { isSupportedLocale } from "@/lib/auth";
 import type { AuthActionState, AuthFieldErrors } from "@/lib/auth-action-state";
 
 interface EnvelopeError {
@@ -77,10 +75,7 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   lang: z.string().default("en"),
   next: z.string().optional(),
-  identifier: z
-    .string()
-    .min(3, "Use your email or username.")
-    .max(255, "Identifier is too long."),
+  identifier: z.string().min(3, "Use your email or username.").max(255, "Identifier is too long."),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters.")
@@ -106,7 +101,7 @@ const toFormObject = (formData: FormData): Record<string, string> => {
 };
 
 const mapZodErrors = (
-  issues: z.ZodIssue[],
+  issues: z.ZodIssue[]
 ): {
   message: string;
   fieldErrors: AuthFieldErrors;
@@ -130,7 +125,11 @@ const mapZodErrors = (
   };
 };
 
-const normalizeRedirectPath = (lang: string, nextPath: string | undefined, fallback: string): string => {
+const normalizeRedirectPath = (
+  lang: string,
+  nextPath: string | undefined,
+  fallback: string
+): string => {
   if (!nextPath || !nextPath.startsWith("/")) {
     return `/${lang}${fallback}`;
   }
@@ -236,7 +235,7 @@ const mapApiError = (error: EnvelopeError): AuthActionState => {
 
 export async function registerAction(
   _previous: AuthActionState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AuthActionState> {
   const parsed = registerSchema.safeParse(toFormObject(formData));
   if (!parsed.success) {
@@ -272,7 +271,7 @@ export async function registerAction(
       response.error || {
         code: "AUTH_REGISTER_FAILED",
         message: "Could not create your account.",
-      },
+      }
     );
   }
 
@@ -283,7 +282,7 @@ export async function registerAction(
 
 export async function loginAction(
   _previous: AuthActionState,
-  formData: FormData,
+  formData: FormData
 ): Promise<AuthActionState> {
   const parsed = loginSchema.safeParse(toFormObject(formData));
   if (!parsed.success) {
@@ -305,7 +304,7 @@ export async function loginAction(
       response.error || {
         code: "AUTH_LOGIN_FAILED",
         message: "Could not sign you in.",
-      },
+      }
     );
   }
 

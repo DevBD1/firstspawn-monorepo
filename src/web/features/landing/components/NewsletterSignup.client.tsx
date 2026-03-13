@@ -70,7 +70,11 @@ export default function NewsletterSignup({
       )}
 
       {statusMessage ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-ui text-sm text-[#2EBCDA]">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="font-ui text-sm text-[#2EBCDA]"
+        >
           {statusMessage}
         </motion.div>
       ) : null}

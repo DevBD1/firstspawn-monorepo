@@ -96,7 +96,9 @@ function FooterSection({ children, id, isOpen, onToggle, title }: FooterSectionP
           className={`text-gray-500 transition-transform duration-200 md:hidden ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
-      <div className={`${isOpen ? "block" : "hidden"} mt-4 transition-all duration-200 md:mt-6 md:block`}>
+      <div
+        className={`${isOpen ? "block" : "hidden"} mt-4 transition-all duration-200 md:mt-6 md:block`}
+      >
         <ul className="space-y-3 text-left font-ui text-xl">{children}</ul>
       </div>
     </div>
@@ -156,7 +158,9 @@ export default function Footer({ dictionary }: FooterProps) {
             <div className="hidden w-full max-w-sm border-2 border-gray-700 bg-[#1a1a1a] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] md:block">
               <div className="mb-2 flex items-center space-x-3">
                 <ShieldCheck className="text-success" />
-                <span className="font-display text-xs text-success">{dictionary.footer.stats.title}</span>
+                <span className="font-display text-xs text-success">
+                  {dictionary.footer.stats.title}
+                </span>
               </div>
               <div className="space-y-2 font-ui text-lg text-gray-300">
                 <div className="flex justify-between">
@@ -188,7 +192,9 @@ export default function Footer({ dictionary }: FooterProps) {
               />
               <span className="font-display text-white">{dictionary.footer.brand.name}</span>
             </div>
-            <p className="mb-6 max-w-xs font-ui text-lg text-gray-500">{dictionary.footer.brand.description}</p>
+            <p className="mb-6 max-w-xs font-ui text-lg text-gray-500">
+              {dictionary.footer.brand.description}
+            </p>
             <div className="flex space-x-4">
               {socialLinks.map((link) => {
                 const Icon = link.icon;
@@ -212,10 +218,26 @@ export default function Footer({ dictionary }: FooterProps) {
             onToggle={toggleSection}
             isOpen={Boolean(openSections.platform)}
           >
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.platform.about}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.platform.trust}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.platform.badges}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.platform.api}</span></li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.platform.about}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.platform.trust}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.platform.badges}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.platform.api}
+              </span>
+            </li>
           </FooterSection>
 
           <FooterSection
@@ -224,10 +246,26 @@ export default function Footer({ dictionary }: FooterProps) {
             onToggle={toggleSection}
             isOpen={Boolean(openSections.resources)}
           >
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.resources.help}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.resources.api}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.resources.community}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.resources.partners}</span></li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.resources.help}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.resources.api}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.resources.community}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.resources.partners}
+              </span>
+            </li>
           </FooterSection>
 
           <FooterSection
@@ -236,15 +274,36 @@ export default function Footer({ dictionary }: FooterProps) {
             onToggle={toggleSection}
             isOpen={Boolean(openSections.legal)}
           >
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.legal.terms}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.legal.privacy}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.legal.cookie}</span></li>
-            <li><span className="cursor-not-allowed text-gray-600">{dictionary.footer.columns.legal.acceptable}</span></li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.legal.terms}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.legal.privacy}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.legal.cookie}
+              </span>
+            </li>
+            <li>
+              <span className="cursor-not-allowed text-gray-600">
+                {dictionary.footer.columns.legal.acceptable}
+              </span>
+            </li>
           </FooterSection>
         </div>
 
         <div className="flex flex-col items-center justify-between border-t-4 border-gray-800 pt-8 font-ui text-lg text-gray-600 md:flex-row">
-          <p>{dictionary.footer.bottom.copyright.replace("{year}", new Date().getFullYear().toString())}</p>
+          <p>
+            {dictionary.footer.bottom.copyright.replace(
+              "{year}",
+              new Date().getFullYear().toString()
+            )}
+          </p>
           <div className="mt-4 flex space-x-6 md:mt-0">
             <div className="flex items-center space-x-2">
               <Activity size={16} />

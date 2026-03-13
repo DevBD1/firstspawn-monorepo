@@ -74,7 +74,12 @@ const FloatingBlocks = () => {
           }}
           initial={{ y: 0, opacity: 0 }}
           animate={{ y: [0, -300, -300], opacity: [0, 1, 0] }}
-          transition={{ duration: block.duration, repeat: Infinity, delay: block.delay, ease: "easeOut" }}
+          transition={{
+            duration: block.duration,
+            repeat: Infinity,
+            delay: block.delay,
+            ease: "easeOut",
+          }}
         />
       ))}
     </div>
@@ -87,7 +92,10 @@ export default function LandingScene({ children }: LandingSceneProps) {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0B0B15] via-[#1A1025] to-[#2D1B4E]">
         <div
           className="absolute inset-0 animate-pulse opacity-40"
-          style={{ backgroundImage: "radial-gradient(white 1px, transparent 1px)", backgroundSize: "60px 60px" }}
+          style={{
+            backgroundImage: "radial-gradient(white 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
         />
         <div className="absolute bottom-0 left-0 right-0 h-[30%] origin-bottom bg-[linear-gradient(to_right,rgba(46,188,218,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(46,188,218,0.05)_1px,transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] opacity-50" />
         <FloatingBlocks />

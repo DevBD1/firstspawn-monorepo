@@ -55,5 +55,8 @@ yarn.lock
 pnpm-lock.yaml
 uv.lock
 
+# Markdown (managed manually)
+*.md
+
 # Archive
 archive/

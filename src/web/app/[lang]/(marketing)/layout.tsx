@@ -17,7 +17,11 @@ export default async function MarketingLayout({
   const authState = await getAuthState();
 
   return (
-    <MarketingChrome lang={lang} dictionary={dictionary} isAuthenticated={authState.isAuthenticated}>
+    <MarketingChrome
+      lang={lang}
+      dictionary={dictionary}
+      isAuthenticated={authState.isAuthenticated}
+    >
       {children}
     </MarketingChrome>
   );

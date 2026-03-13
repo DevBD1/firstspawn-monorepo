@@ -33,7 +33,11 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
       <input type="hidden" name="next" value={nextPath || ""} />
 
       <div className="space-y-4">
-        <PixelButton type="button" variant="discord" className="flex w-full items-center justify-center gap-3">
+        <PixelButton
+          type="button"
+          variant="discord"
+          className="flex w-full items-center justify-center gap-3"
+        >
           <DiscordIcon className="h-5 w-5" />
           {copy.discordCta}
         </PixelButton>
@@ -70,7 +74,9 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
                 className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
-            {fieldErrors.email ? <p className="font-ui text-base text-red-400">{fieldErrors.email}</p> : null}
+            {fieldErrors.email ? (
+              <p className="font-ui text-base text-red-400">{fieldErrors.email}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">

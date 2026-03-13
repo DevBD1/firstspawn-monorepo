@@ -36,9 +36,13 @@ interface UseScrewCaptchaReturn {
   handleVerify: () => Promise<void>;
 }
 
-const randomRotation = (): number => Math.floor(Math.random() * CAPTCHA_RANDOM_RANGE) + CAPTCHA_RANDOM_BASE;
+const randomRotation = (): number =>
+  Math.floor(Math.random() * CAPTCHA_RANDOM_RANGE) + CAPTCHA_RANDOM_BASE;
 
-export function useScrewCaptcha({ isOpen, onVerify }: UseScrewCaptchaParams): UseScrewCaptchaReturn {
+export function useScrewCaptcha({
+  isOpen,
+  onVerify,
+}: UseScrewCaptchaParams): UseScrewCaptchaReturn {
   const [rotation, setRotation] = useState(50);
   const [targetRotation, setTargetRotation] = useState(0);
   const [captchaState, setCaptchaState] = useState<CaptchaState>(CaptchaState.IDLE);

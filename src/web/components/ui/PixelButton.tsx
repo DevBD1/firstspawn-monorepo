@@ -26,10 +26,12 @@ const BUTTON_BASE_CLASSES =
   "relative inline-flex items-center justify-center border-2 uppercase transition-all duration-150 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-70";
 
 const VARIANT_CLASSES: Record<PixelButtonVariant, string> = {
-  primary: "font-display tracking-wider bg-primary hover:bg-primary-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+  primary:
+    "font-display tracking-wider bg-primary hover:bg-primary-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
   secondary:
     "font-display tracking-wider bg-secondary hover:bg-secondary-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-  danger: "font-display tracking-wider bg-danger hover:bg-danger-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+  danger:
+    "font-display tracking-wider bg-danger hover:bg-danger-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
   success:
     "font-display tracking-wider bg-success hover:bg-success-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
   outline:
@@ -48,7 +50,8 @@ const SIZE_CLASSES: Record<PixelButtonSize, string> = {
   lg: "px-6 py-3 text-xs",
 };
 
-const joinClasses = (...values: Array<string | undefined>): string => values.filter(Boolean).join(" ");
+const joinClasses = (...values: Array<string | undefined>): string =>
+  values.filter(Boolean).join(" ");
 
 export default function PixelButton({
   children,

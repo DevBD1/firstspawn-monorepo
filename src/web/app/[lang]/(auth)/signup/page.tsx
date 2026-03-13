@@ -50,8 +50,7 @@ export default async function SignupPage({
           passwordLabel: signup.passwordLabel || "PASSWORD",
           passwordPlaceholder: signup.passwordPlaceholder || "At least 8 characters",
           confirmPasswordLabel: signup.confirmPasswordLabel || "CONFIRM PASSWORD",
-          confirmPasswordPlaceholder:
-            signup.confirmPasswordPlaceholder || "Repeat your password",
+          confirmPasswordPlaceholder: signup.confirmPasswordPlaceholder || "Repeat your password",
           submitLabel: signup.submit || "Continue with Email",
           submitPendingLabel: signup.submitPending || "Creating account...",
           alternatePrompt: signup.alternatePrompt || "Already have an account?",

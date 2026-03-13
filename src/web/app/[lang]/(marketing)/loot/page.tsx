@@ -9,11 +9,7 @@ interface LootDictionary {
   };
 }
 
-export default async function LootPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
+export default async function LootPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
   const session = await getAuthState();
@@ -29,7 +25,9 @@ export default async function LootPage({
         <div className="mb-6 inline-block border-2 border-black bg-success px-3 py-2 font-display text-[10px] uppercase tracking-wider text-black">
           PLAYER INVENTORY LINKED
         </div>
-        <h1 className="font-display text-2xl text-white md:text-3xl">{dictionary.nav?.myLoot || "MY LOOT"}</h1>
+        <h1 className="font-display text-2xl text-white md:text-3xl">
+          {dictionary.nav?.myLoot || "MY LOOT"}
+        </h1>
         <p className="mt-4 max-w-3xl font-ui text-2xl text-zinc-300">
           {session.user?.username || "Operator"}, your progression inventory hub is now unlocked.
           Reward drops, puzzle keys, and badge claims will appear here.

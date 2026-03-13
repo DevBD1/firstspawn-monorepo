@@ -2,11 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { i18n, type Locale } from "./i18n-config";
-import {
-  ACCESS_TOKEN_COOKIE,
-  REFRESH_TOKEN_COOKIE,
-  getApiBaseUrl,
-} from "./auth-config";
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, getApiBaseUrl } from "./auth-config";
 
 export { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, getApiBaseUrl };
 

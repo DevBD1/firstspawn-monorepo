@@ -1,10 +1,6 @@
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 
-export default async function DebugOG({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
+export default async function DebugOG({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
 
@@ -42,9 +38,7 @@ export default async function DebugOG({
           }}
         />
       </div>
-      <p style={{ fontFamily: '"JetBrains Mono"', color: "#666" }}>
-        Path: /{lang}/opengraph-image
-      </p>
+      <p style={{ fontFamily: '"JetBrains Mono"', color: "#666" }}>Path: /{lang}/opengraph-image</p>
     </div>
   );
 }

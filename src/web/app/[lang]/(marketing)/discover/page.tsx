@@ -7,11 +7,7 @@ interface DiscoverDictionary {
   };
 }
 
-export default async function DiscoverPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
+export default async function DiscoverPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
   const dictionary = (await getDictionary(lang)) as DiscoverDictionary;

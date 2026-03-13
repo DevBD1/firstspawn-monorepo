@@ -9,11 +9,7 @@ interface ConsoleDictionary {
   };
 }
 
-export default async function ConsolePage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
+export default async function ConsolePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
   const session = await getAuthState();
@@ -29,7 +25,9 @@ export default async function ConsolePage({
         <div className="mb-6 inline-block border-2 border-black bg-primary px-3 py-2 font-display text-[10px] uppercase tracking-wider text-white">
           COMMAND TERMINAL ONLINE
         </div>
-        <h1 className="font-display text-2xl text-white md:text-3xl">{dictionary.nav?.console || "CONSOLE"}</h1>
+        <h1 className="font-display text-2xl text-white md:text-3xl">
+          {dictionary.nav?.console || "CONSOLE"}
+        </h1>
         <p className="mt-4 max-w-3xl font-ui text-2xl text-zinc-300">
           Welcome back, {session.user?.username || "Operator"}. Personal server analytics,
           verification controls, and account command tools will live in this panel.

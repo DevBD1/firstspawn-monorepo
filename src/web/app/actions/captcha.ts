@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
@@ -27,7 +27,7 @@ const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T
 };
 
 export const verifyHumanityWithWit = async (success: boolean, delta: number): Promise<string> => {
-  const prompt = success 
+  const prompt = success
     ? `The user successfully solved a pixel-art screw captcha. They were off by only ${delta.toFixed(1)} degrees. Write a very short, funny, retro-futuristic "Access Granted" message (max 10 words). Tone: Cyberpunk or 8-bit RPG.`
     : `The user failed a pixel-art screw captcha. They were off by ${delta.toFixed(1)} degrees. Write a very short, sarcastic, retro-futuristic "Access Denied" message (max 10 words). Tone: Cyberpunk or 8-bit RPG helper bot.`;
 
@@ -44,8 +44,8 @@ export const verifyHumanityWithWit = async (success: boolean, delta: number): Pr
     try {
       const result = await withTimeout(
         geminiClient.models.generateContent({
-        model: "gemini-2.0-flash-exp",
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
+          model: "gemini-2.0-flash-exp",
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
         }),
         REQUEST_TIMEOUT_MS
       );

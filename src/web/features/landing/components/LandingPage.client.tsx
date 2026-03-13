@@ -84,7 +84,11 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
                   {landing.building_title || "BUILDING THE ULTIMATE DISCOVERY ECOSYSTEM"}
                 </h2>
                 <p className="font-ui text-sm text-[#6D8A99]">
-                  {landing.status || "STATUS"}: <span className="text-[#4ADE80]">{landing.active || "ACTIVE"}{dots}</span>
+                  {landing.status || "STATUS"}:{" "}
+                  <span className="text-[#4ADE80]">
+                    {landing.active || "ACTIVE"}
+                    {dots}
+                  </span>
                 </p>
               </div>
             </div>
@@ -146,7 +150,11 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
         />
       </motion.div>
 
-      <NewsletterCaptcha isOpen={showCaptcha} onClose={closeCaptcha} onVerify={handleVerifySuccess} />
+      <NewsletterCaptcha
+        isOpen={showCaptcha}
+        onClose={closeCaptcha}
+        onVerify={handleVerifySuccess}
+      />
     </LandingScene>
   );
 }

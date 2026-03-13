@@ -1,10 +1,6 @@
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 
-export default async function TermsPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
+export default async function TermsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
 

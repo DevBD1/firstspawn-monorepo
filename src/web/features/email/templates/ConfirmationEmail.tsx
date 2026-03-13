@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import {
   Body,
   Container,
@@ -9,15 +9,13 @@ import {
   Section,
   Text,
   Button,
-} from '@react-email/components';
+} from "@react-email/components";
 
 interface ConfirmationEmailProps {
   confirmationLink: string;
 }
 
-export const ConfirmationEmail = ({
-  confirmationLink,
-}: ConfirmationEmailProps) => (
+export const ConfirmationEmail = ({ confirmationLink }: ConfirmationEmailProps) => (
   <Html>
     <Head />
     <Preview>Confirm your subscription to FirstSpawn</Preview>
@@ -28,7 +26,8 @@ export const ConfirmationEmail = ({
           Traveler,
           <br />
           <br />
-          We received a request to add this frequency to our secure channel. To complete the handshake, please verify your identity.
+          We received a request to add this frequency to our secure channel. To complete the
+          handshake, please verify your identity.
         </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={confirmationLink}>
@@ -47,53 +46,53 @@ export const ConfirmationEmail = ({
 );
 
 const main = {
-  backgroundColor: '#0B131A',
-  color: '#ADCDE2',
+  backgroundColor: "#0B131A",
+  color: "#ADCDE2",
   fontFamily: '"JetBrains Mono"',
 };
 
 const container = {
-  padding: '40px 20px',
-  margin: '0 auto',
+  padding: "40px 20px",
+  margin: "0 auto",
 };
 
 const h1 = {
-  color: '#4ADE80',
-  fontSize: '24px',
-  letterSpacing: '2px',
-  textAlign: 'center' as const,
-  marginBottom: '40px',
+  color: "#4ADE80",
+  fontSize: "24px",
+  letterSpacing: "2px",
+  textAlign: "center" as const,
+  marginBottom: "40px",
 };
 
 const text = {
-  fontSize: '16px',
-  lineHeight: '26px',
-  color: '#ADCDE2',
+  fontSize: "16px",
+  lineHeight: "26px",
+  color: "#ADCDE2",
 };
 
 const buttonContainer = {
-  textAlign: 'center' as const,
-  margin: '40px 0',
+  textAlign: "center" as const,
+  margin: "40px 0",
 };
 
 const button = {
-  backgroundColor: '#2EBCDA',
-  borderRadius: '0',
-  color: '#000',
-  fontSize: '14px',
-  fontWeight: 'bold',
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  display: 'inline-block',
-  padding: '12px 24px',
-  letterSpacing: '1px',
+  backgroundColor: "#2EBCDA",
+  borderRadius: "0",
+  color: "#000",
+  fontSize: "14px",
+  fontWeight: "bold",
+  textDecoration: "none",
+  textAlign: "center" as const,
+  display: "inline-block",
+  padding: "12px 24px",
+  letterSpacing: "1px",
 };
 
 const footer = {
-  fontSize: '12px',
-  color: '#526b7c',
-  marginTop: '40px',
-  textAlign: 'center' as const,
+  fontSize: "12px",
+  color: "#526b7c",
+  marginTop: "40px",
+  textAlign: "center" as const,
 };
 
 export default ConfirmationEmail;

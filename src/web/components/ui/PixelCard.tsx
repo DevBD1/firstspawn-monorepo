@@ -24,7 +24,9 @@ export default function PixelCard({ children, className, title }: PixelCardProps
       <div className="h-full w-full border-2 border-[#2EBCDA]/40 bg-[#0B131A] p-4">
         {title ? (
           <div className="mb-4 w-full border-b-2 border-[#2EBCDA]/40 pb-2 text-center">
-            <h2 className="font-display text-2xl tracking-widest text-[#4ADE80] animate-pulse">{title}</h2>
+            <h2 className="font-display text-2xl tracking-widest text-[#4ADE80] animate-pulse">
+              {title}
+            </h2>
           </div>
         ) : null}
         {children}

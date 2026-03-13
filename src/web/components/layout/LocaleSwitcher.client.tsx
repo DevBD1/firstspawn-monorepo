@@ -10,7 +10,10 @@ export interface LocaleSwitcherProps {
   variant?: "dropdown" | "inline";
 }
 
-export default function LocaleSwitcher({ currentLocale, variant = "dropdown" }: LocaleSwitcherProps) {
+export default function LocaleSwitcher({
+  currentLocale,
+  variant = "dropdown",
+}: LocaleSwitcherProps) {
   const pathName = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);

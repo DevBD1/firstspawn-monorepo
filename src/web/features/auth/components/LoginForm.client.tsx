@@ -33,7 +33,11 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
       <input type="hidden" name="next" value={nextPath || ""} />
 
       <div className="space-y-4">
-        <PixelButton type="button" variant="discord" className="flex w-full items-center justify-center gap-3">
+        <PixelButton
+          type="button"
+          variant="discord"
+          className="flex w-full items-center justify-center gap-3"
+        >
           <DiscordIcon className="h-5 w-5" />
           {copy.discordCta}
         </PixelButton>
