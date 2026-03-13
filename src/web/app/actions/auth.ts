@@ -87,12 +87,19 @@ const loginSchema = z.object({
     .max(128, "Password must be at most 128 characters."),
 });
 
+const RAW_FORM_FIELDS = new Set(["password", "confirmPassword"]);
+
 const toFormObject = (formData: FormData): Record<string, string> => {
   const entries = Object.fromEntries(formData.entries());
   const normalized: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(entries)) {
-    normalized[key] = typeof value === "string" ? value.trim() : "";
+    if (typeof value !== "string") {
+      normalized[key] = "";
+      continue;
+    }
+
+    normalized[key] = RAW_FORM_FIELDS.has(key) ? value : value.trim();
   }
 
   return normalized;

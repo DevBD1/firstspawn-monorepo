@@ -18,10 +18,11 @@ export default function robots(): MetadataRoute.Robots {
   }
 
   const authAndProtectedRoutes = i18n.locales.flatMap((locale) => [
-    `/${locale}/login/`,
-    `/${locale}/signup/`,
-    `/${locale}/console/`,
-    `/${locale}/loot/`,
+    `/${locale}/login`,
+    `/${locale}/signup`,
+    `/${locale}/register`,
+    `/${locale}/console`,
+    `/${locale}/loot`,
   ]);
 
   return {
