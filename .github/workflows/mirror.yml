@@ -2,10 +2,8 @@ name: Sync GitHub to GitLab
 
 on:
   push:
-    branches:
-      - '**'
-    tags:
-      - '**'
+    branches: [ main ]
+    tags: [ "v*" ]
   workflow_dispatch:
 
 jobs:
