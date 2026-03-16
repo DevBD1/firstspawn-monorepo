@@ -1,14 +1,32 @@
 name: Mirror to GitLab
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  workflow_dispatch:
 
 jobs:
   mirror:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Push to GitLab
+      - name: Checkout full repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push mirror to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
         run: |
-          git remote add gitlab https://oauth2:${{secrets.GITLAB_TOKEN}}@gitlab.com/devbd1-group/firstspawn-monorepo.git
-          git push gitlab --all
-          git push gitlab --tags
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git remote add gitlab "https://oauth2:${GITLAB_TOKEN}@gitlab.com/GITLAB_USERNAME_OR_GROUP/firstspawn-monorepo.git"
+
+          git fetch --all --tags
+
+          git push --mirror gitlab
