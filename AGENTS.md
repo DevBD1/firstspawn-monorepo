@@ -224,8 +224,23 @@ features/
 ├── auth/                # Auth feature components/hooks/lib/types
 ├── landing/             # Landing feature components/hooks/lib/types
 ├── captcha/             # Captcha feature components/hooks/lib/types
-└── email/
-    └── templates/       # React Email templates
+├── email/
+│   └── templates/       # React Email templates
+└── admin/               # Admin dashboard (English-only)
+    ├── components/      # AdminSidebar, StatsCard, LiveIndicator, AdminChrome
+    ├── hooks/           # usePermission, useAdminSocket
+    ├── lib/             # permissions.ts
+    └── types/           # admin.ts types
+
+admin/                   # Admin dashboard routes (English-only, no i18n)
+├── layout.tsx           # Root admin layout with RBAC
+├── page.tsx             # Overview dashboard
+├── users/
+├── servers/
+├── moderation/
+├── agents/
+├── system/
+└── exports/
 
 lib/
 ├── dictionaries/        # i18n JSON files (en, tr, de, ru, es, fr)
@@ -278,6 +293,30 @@ OPENAI_API_KEY                # OpenAI API key (fallback)
 VERCEL_ENV                    # Set automatically by Vercel
 NODE_ENV                      # development | production
 ```
+
+### Admin Dashboard
+
+**Location:** `src/web/app/admin/` (English-only, no i18n)
+
+**Authentication:** Role-based JWT (`user`, `moderator`, `analyst`, `admin`, `super_admin`)
+
+**Structure:**
+- `layout.tsx` - Root layout with RBAC check via `requireAdmin()`
+- `page.tsx` - Overview dashboard with real-time metrics
+- `users/`, `servers/`, `moderation/`, `agents/`, `system/`, `exports/` - Section pages
+
+**Design Patterns:**
+- Uses same pixel-retro aesthetic as main site
+- `StatsCard` - Metric display with pixel border and corner accents
+- `AdminSidebar` - Navigation with role-based visibility
+- `LiveIndicator` - Pulsing status indicator for real-time data
+- Components follow `PixelCard` visual style (border-4, shadow-[8px_8px_0...])
+
+**Authorization:**
+- `lib/admin-auth.ts` - Server-side auth with role checking
+- `features/admin/lib/permissions.ts` - Permission matrix
+- `requireAdmin()` redirects to `/en/login` if not authenticated
+- `requireRole()` for specific role requirements
 
 ## Workspace Notes
 

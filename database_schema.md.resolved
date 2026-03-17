@@ -9,6 +9,7 @@ erDiagram
         citext email UK
         citext username UK
         text password_hash "nullable, OAuth-only"
+        string role "user | moderator | analyst | admin | super_admin"
         string status "active | suspended | deleted"
         string locale "default: en"
         timestamptz last_login_at
@@ -373,8 +374,33 @@ erDiagram
         timestamptz created_at
     }
 
+    admin_audit_logs {
+        uuid id PK
+        uuid actor_user_id FK
+        string actor_role
+        inet actor_ip
+        text actor_user_agent
+        string action_category "auth | user_management | server_management | moderation | review_moderation | agent_approval | system_config | data_export | alert_rule"
+        string action_type
+        text action_description
+        string target_type "user | server | report | review | agent_run | system"
+        uuid target_id "nullable"
+        text target_descriptor
+        jsonb previous_state
+        jsonb new_state
+        text changes_summary
+        text request_id
+        text session_id
+        boolean success
+        text error_code
+        text error_message
+        jsonb metadata
+        timestamptz created_at
+    }
+
     servers ||--o{ reviews : "receives"
     reviews ||--o{ review_votes : "voted on"
     reviews ||--o{ review_moderation_actions : "moderated"
     servers ||--o{ server_reputation_snapshots : "daily snapshot"
+    users ||--o{ admin_audit_logs : "audits"
 ```
