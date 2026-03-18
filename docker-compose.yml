@@ -59,10 +59,27 @@ services:
     networks:
       - firstspawn-network
 
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: firstspawn-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@firstspawn.com
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - firstspawn-network
+
 volumes:
   postgres_data:
   redis_data:
-
+  pgadmin_data:
 
 networks:
   firstspawn-network:
