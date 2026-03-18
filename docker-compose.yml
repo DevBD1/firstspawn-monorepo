@@ -1,86 +1,70 @@
-version: "3.8"
-
 services:
-  # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
     container_name: firstspawn-postgres
+    restart: always
     environment:
-      POSTGRES_USER: firstspawn
-      POSTGRES_PASSWORD: firstspawn
-      POSTGRES_DB: firstspawn
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_USER:-firstspawn}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-firstspawn}
+    # Port mapping kaldırıldı (güvenlik için dışarı açmıyoruz)
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U firstspawn -d firstspawn"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-firstspawn} -d ${DB_NAME:-firstspawn}" ]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - firstspawn-network
 
-  # Redis Cache/Queue
   redis:
     image: redis:7-alpine
     container_name: firstspawn-redis
-    ports:
-      - "6379:6379"
+    restart: always
+    # Port mapping kaldırıldı
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
     networks:
       - firstspawn-network
 
-  # FastAPI Application
   api:
     build:
-      context: ./src/api
-      dockerfile: Dockerfile
+      context: . # Monorepo kökü (paylaşımlı paketler için önemli)
+      dockerfile: src/api/Dockerfile
     container_name: firstspawn-api
+    restart: always
     environment:
-      API_ENV: development
-      API_DATABASE_URL: postgresql+psycopg://firstspawn:firstspawn@postgres:5432/firstspawn
+      API_ENV: production
+      # Konteyner isimlerini (postgres/redis) kullanarak iç ağdan bağlanıyoruz
+      API_DATABASE_URL: postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
       API_REDIS_URL: redis://redis:6379/0
     ports:
-      - "8000:8000"
-    volumes:
-      - ./src/api:/app:cached
-      - /app/__pycache__
+      - "80:8000"
+    # Canlı ortamda kod mount edilmez, imaj içinden okunur
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # IPv6 desteği için [::] kullanımı
+    # command: "uvicorn src.api.app.main:app --host :: --port 8000"
+    command: "uvicorn app.main:app --app-dir src/api --host :: --port 8000"
     networks:
       - firstspawn-network
-
-  # Next.js Web App (optional - can also run locally)
-  # web:
-  #   build:
-  #     context: ./src/web
-  #     dockerfile: Dockerfile
-  #   container_name: firstspawn-web
-  #   environment:
-  #     NEXT_PUBLIC_SITE_URL: http://localhost:3000
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - firstspawn-network
 
 volumes:
   postgres_data:
   redis_data:
 
+
 networks:
   firstspawn-network:
     driver: bridge
+    enable_ipv6: true # Docker daemon.json ile uyumlu olması için
