@@ -95,8 +95,11 @@ services:
   dozzle:
     image: amir20/dozzle:latest
     container_name: firstspawn-dozzle
+    environment:
+      - DOZZLE_USERNAME=${DOZZLE_USERNAME:-admin}
+      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD:-admin}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro # Sadece okuma yetkisiyle loglara erişim
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - firstspawn-network
     restart: always
