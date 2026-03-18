@@ -92,6 +92,15 @@ services:
       - fastapi
       - pgadmin
 
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: firstspawn-dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Sadece okuma yetkisiyle loglara erişim
+    networks:
+      - firstspawn-network
+    restart: always
+
 volumes:
   postgres_data:
   redis_data:
