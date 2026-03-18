@@ -34,7 +34,7 @@ services:
     networks:
       - firstspawn-network
 
-  api:
+  fastapi:
     build:
       context: . # Monorepo kökü (paylaşımlı paketler için önemli)
       dockerfile: src/api/Dockerfile
@@ -45,8 +45,10 @@ services:
       # Konteyner isimlerini (postgres/redis) kullanarak iç ağdan bağlanıyoruz
       API_DATABASE_URL: postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
       API_REDIS_URL: redis://redis:6379/0
-    ports:
-      - "80:8000"
+    # ports:
+    #   - "80:8000"  <-- Bu satırı sil/yorum satırı yap, dışarıya port açmayacağız
+    expose:
+      - "8000" # Sadece Docker iç ağında (firstspawn-network) erişilebilir olacak
     # Canlı ortamda kod mount edilmez, imaj içinden okunur
     depends_on:
       postgres:
@@ -76,10 +78,25 @@ services:
     networks:
       - firstspawn-network
 
+  nginx:
+    image: nginx:latest
+    container_name: firstspawn-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - firstspawn-network
+    depends_on:
+      - fastapi
+      - pgadmin
+
 volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
+
 
 networks:
   firstspawn-network:
