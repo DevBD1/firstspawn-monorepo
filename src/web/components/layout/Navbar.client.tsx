@@ -17,7 +17,7 @@ export interface NavbarProps {
       discover: string;
       myLoot: string;
       console: string;
-      signUp: string;
+      register: string;
       logIn: string;
       logOut: string;
     };
@@ -29,7 +29,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
   const pathname = usePathname();
 
   const currentPath = pathname && pathname.startsWith(`/${lang}`) ? pathname : `/${lang}`;
-  const signupHref = `/${lang}/signup?next=${encodeURIComponent(currentPath)}`;
+  const registerHref = `/${lang}/register?next=${encodeURIComponent(currentPath)}`;
   const loginHref = `/${lang}/login?next=${encodeURIComponent(currentPath)}`;
 
   useEffect(() => {
@@ -91,13 +91,13 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
       ) : (
         <>
           <PixelButton
-            href={signupHref}
+            href={registerHref}
             variant="success"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}
             disabled
           >
-            {dictionary.nav.signUp}
+            {dictionary.nav.register}
           </PixelButton>
           <PixelButton
             href={loginHref}

@@ -8,16 +8,16 @@ import PixelButton from "@/components/ui/PixelButton";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
 import { usePasswordVisibility } from "@/features/auth/hooks/usePasswordVisibility";
-import type { SignupFormCopy } from "@/features/auth/types";
+import type { RegisterFormCopy } from "@/features/auth/types";
 import AuthSubmitButton from "./AuthSubmitButton.client";
 
-interface SignupFormProps {
+interface RegisterFormProps {
   lang: string;
   nextPath?: string;
-  copy: SignupFormCopy;
+  copy: RegisterFormCopy;
 }
 
-export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
+export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps) {
   const [state, action] = useActionState(registerAction, AUTH_ACTION_INITIAL_STATE);
   const { isVisible: showPasswords, toggle } = usePasswordVisibility();
 
@@ -57,18 +57,18 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
           <div className="space-y-2">
             <label
               className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
-              htmlFor="signup-email"
+              htmlFor="register-email"
             >
               {copy.emailLabel}
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
-                id="signup-email"
+                id="register-email"
                 name="email"
                 type="email"
                 required
-                autoComplete="section-signup email"
+                autoComplete="section-register email"
                 inputMode="email"
                 placeholder={copy.emailPlaceholder}
                 className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
@@ -82,20 +82,20 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
           <div className="space-y-2">
             <label
               className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
-              htmlFor="signup-username"
+              htmlFor="register-username"
             >
               {copy.usernameLabel}
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
-                id="signup-username"
+                id="register-username"
                 name="username"
                 type="text"
                 required
                 minLength={3}
                 maxLength={32}
-                autoComplete="section-signup nickname"
+                autoComplete="section-register nickname"
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
@@ -111,19 +111,19 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
           <div className="space-y-2">
             <label
               className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
-              htmlFor="signup-password"
+              htmlFor="register-password"
             >
               {copy.passwordLabel}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
-                id="signup-password"
+                id="register-password"
                 name="password"
                 type={showPasswords ? "text" : "password"}
                 required
                 minLength={8}
-                autoComplete="section-signup new-password"
+                autoComplete="section-register new-password"
                 placeholder={copy.passwordPlaceholder}
                 className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 pr-12 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
@@ -144,19 +144,19 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
           <div className="space-y-2">
             <label
               className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
-              htmlFor="signup-confirm-password"
+              htmlFor="register-confirm-password"
             >
               {copy.confirmPasswordLabel}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
               <input
-                id="signup-confirm-password"
+                id="register-confirm-password"
                 name="confirmPassword"
                 type={showPasswords ? "text" : "password"}
                 required
                 minLength={8}
-                autoComplete="section-signup new-password"
+                autoComplete="section-register new-password"
                 placeholder={copy.confirmPasswordPlaceholder}
                 className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
@@ -168,11 +168,11 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
 
           <div className="space-y-3 border-2 border-zinc-800 bg-zinc-900/60 p-4">
             <label
-              htmlFor="signup-terms-accepted"
+              htmlFor="register-terms-accepted"
               className="flex cursor-pointer items-start gap-3 font-body text-sm text-zinc-200"
             >
               <input
-                id="signup-terms-accepted"
+                id="register-terms-accepted"
                 name="termsAccepted"
                 type="checkbox"
                 required
@@ -194,11 +194,11 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
             ) : null}
 
             <label
-              htmlFor="signup-privacy-accepted"
+              htmlFor="register-privacy-accepted"
               className="flex cursor-pointer items-start gap-3 font-body text-sm text-zinc-200"
             >
               <input
-                id="signup-privacy-accepted"
+                id="register-privacy-accepted"
                 name="privacyAccepted"
                 type="checkbox"
                 required
@@ -220,11 +220,11 @@ export default function SignupForm({ lang, nextPath, copy }: SignupFormProps) {
             ) : null}
 
             <label
-              htmlFor="signup-marketing-consent"
+              htmlFor="register-marketing-consent"
               className="flex cursor-pointer items-start gap-3 font-body text-sm text-zinc-300"
             >
               <input
-                id="signup-marketing-consent"
+                id="register-marketing-consent"
                 name="marketingConsent"
                 type="checkbox"
                 className="mt-1 h-4 w-4 shrink-0 accent-emerald-500"

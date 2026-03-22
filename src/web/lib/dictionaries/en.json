@@ -13,7 +13,7 @@
     "discover": "DISCOVER",
     "myLoot": "MY LOOT",
     "console": "CONSOLE",
-    "signUp": "SIGN UP",
+    "register": "REGISTER",
     "logIn": "LOG IN",
     "logOut": "LOG OUT"
   },
@@ -36,7 +36,7 @@
       "alternatePrompt": "New to FirstSpawn?",
       "alternateCta": "CREATE AN ACCOUNT"
     },
-    "signup": {
+    "register": {
       "title": "START YOUR JOURNEY",
       "subtitle": "Join the verified ecosystem for Minecraft and Hytale.",
       "discordCta": "CONTINUE WITH DISCORD",

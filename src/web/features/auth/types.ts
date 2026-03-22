@@ -12,7 +12,7 @@ export interface LoginFormCopy {
   alternateCta: string;
 }
 
-export interface SignupFormCopy {
+export interface RegisterFormCopy {
   discordCta: string;
   dividerLabel: string;
   emailLabel: string;
@@ -58,9 +58,9 @@ export interface LoginDictionary {
   };
 }
 
-export interface SignupDictionary {
+export interface RegisterDictionary {
   auth?: {
-    signup?: {
+    register?: {
       title?: string;
       subtitle?: string;
       discordCta?: string;

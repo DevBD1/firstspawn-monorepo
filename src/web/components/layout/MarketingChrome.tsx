@@ -10,7 +10,7 @@ export interface MarketingChromeDictionary {
     discover: string;
     myLoot: string;
     console: string;
-    signUp: string;
+    register: string;
     logIn: string;
     logOut: string;
   };

@@ -23,7 +23,7 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
 
   const fieldErrors = state?.fieldErrors ?? {};
   const message = state?.message ?? null;
-  const signupHref = nextPath
+  const registerHref = nextPath
     ? `/${lang}/register?next=${encodeURIComponent(nextPath)}`
     : `/${lang}/register`;
 
@@ -134,7 +134,7 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
         <p className="font-body text-sm text-zinc-500">
           {copy.alternatePrompt}{" "}
           <Link
-            href={signupHref}
+            href={registerHref}
             className="font-ui text-base font-bold uppercase tracking-wide text-emerald-500 underline decoration-emerald-500/30 underline-offset-4 transition-colors hover:text-emerald-400"
           >
             {copy.alternateCta}
