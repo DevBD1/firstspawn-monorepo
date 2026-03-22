@@ -245,6 +245,32 @@ const mapApiError = (error: EnvelopeError): AuthActionState => {
   };
 };
 
+interface TurnstileResponse {
+  success: boolean;
+  "error-codes": string[];
+  challenge_ts?: string;
+  hostname?: string;
+}
+
+async function verifyTurnstileToken(token: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true; // Bypass if not configured
+  if (!token) return false;
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`,
+    });
+    const data = (await response.json()) as TurnstileResponse;
+    return data.success;
+  } catch (error) {
+    console.error("Turnstile validation error:", error);
+    return false;
+  }
+}
+
 export async function registerAction(
   _previous: AuthActionState,
   formData: FormData
@@ -260,6 +286,16 @@ export async function registerAction(
       fieldErrors: {
         confirmPassword: "Please make sure both passwords are the same.",
       },
+    };
+  }
+
+  const turnstileToken = formData.get("cf-turnstile-response")?.toString() || "";
+  const isHuman = await verifyTurnstileToken(turnstileToken);
+  
+  if (!isHuman) {
+    return {
+      message: "Security check failed. Please try again.",
+      fieldErrors: {},
     };
   }
 
@@ -298,6 +334,16 @@ export async function loginAction(
   const parsed = loginSchema.safeParse(toFormObject(formData));
   if (!parsed.success) {
     return mapZodErrors(parsed.error.issues);
+  }
+
+  const turnstileToken = formData.get("cf-turnstile-response")?.toString() || "";
+  const isHuman = await verifyTurnstileToken(turnstileToken);
+  
+  if (!isHuman) {
+    return {
+      message: "Security check failed. Please try again.",
+      fieldErrors: {},
+    };
   }
 
   const lang = isSupportedLocale(parsed.data.lang) ? parsed.data.lang : "en";

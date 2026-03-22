@@ -9,6 +9,7 @@ import DiscordIcon from "@/components/ui/DiscordIcon";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
 import { usePasswordVisibility } from "@/features/auth/hooks/usePasswordVisibility";
 import type { RegisterFormCopy } from "@/features/auth/types";
+import { Turnstile } from "@marsidev/react-turnstile";
 import AuthSubmitButton from "./AuthSubmitButton.client";
 
 interface RegisterFormProps {
@@ -240,6 +241,12 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
           {message ? (
             <div className="border-2 border-red-800 bg-red-950/50 px-4 py-3 font-ui text-base text-red-300">
               {message}
+            </div>
+          ) : null}
+
+          {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
+            <div className="flex justify-center">
+              <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} options={{ theme: "dark" }} />
             </div>
           ) : null}
 
