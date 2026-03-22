@@ -305,3 +305,21 @@ Constraints:
 
 Constraints:
 - unique `(server_id, snapshot_date)`
+
+## 11. Admin Table
+
+### `admins`
+- `id uuid pk`
+- `user_id uuid unique not null fk -> users.id`
+- `role text not null` (`moderator`, `analyst`, `admin`, `super_admin`)
+- `granted_by_user_id uuid null fk -> users.id`
+- `notes text null`
+- `is_active boolean not null default true`
+- audit columns
+
+Constraints:
+- unique `users_admin_user_id_key`
+- CHECK `role IN ('moderator', 'analyst', 'admin', 'super_admin')`
+
+Indexes:
+- `idx_admins_role_active (role, is_active)`

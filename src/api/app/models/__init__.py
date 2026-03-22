@@ -3,6 +3,7 @@
 This module exports all SQLAlchemy models for use in migrations and queries.
 """
 
+from app.models.admin import Admin
 from app.models.agent import ActionProposal, AgentRun, DecisionLog
 from app.models.base import Base
 from app.models.game_account import UserGameAccount
@@ -26,6 +27,8 @@ __all__ = [
     "UserSession",
     "UserOAuthIdentity",
     "UserGameAccount",
+    # Admin models
+    "Admin",
     # Server models
     "Server",
     "Tag",

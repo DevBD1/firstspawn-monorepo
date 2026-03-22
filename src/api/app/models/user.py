@@ -14,6 +14,7 @@ from app.models.base import AuditMixin, Base
 from app.models.types import CIText
 
 if TYPE_CHECKING:
+    from app.models.admin import Admin
     from app.models.game_account import UserGameAccount
     from app.models.moderation import Report
     from app.models.review import Review
@@ -97,6 +98,11 @@ class User(Base, AuditMixin):
     game_accounts: Mapped[list[UserGameAccount]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+    admin_profile: Mapped[Admin | None] = relationship(
+        foreign_keys="[Admin.user_id]",
+        back_populates="user",
+        uselist=False,
     )
 
     __table_args__ = (
