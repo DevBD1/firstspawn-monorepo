@@ -23,6 +23,7 @@ export default async function LoginPage({
 
   const query = await searchParams;
   const nextPath = typeof query.next === "string" ? query.next : undefined;
+  const showRegisteredBanner = query.registered === "true";
   const closeHref = resolveCloseHref(lang, nextPath);
 
   const dictionary = (await getDictionary(lang)) as LoginDictionary;
@@ -40,6 +41,10 @@ export default async function LoginPage({
       <LoginForm
         lang={lang}
         nextPath={nextPath}
+        showRegisteredBanner={showRegisteredBanner}
+        registeredMessage={
+          login.registeredSuccess || "Account created! Log in to get started."
+        }
         copy={{
           discordCta: login.discordCta || "Sign in with Discord",
           passkeyCta: login.passkeyCta || "Sign in with Passkey",

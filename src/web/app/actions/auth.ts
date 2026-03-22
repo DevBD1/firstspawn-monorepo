@@ -176,18 +176,29 @@ const clearSessionCookies = async (): Promise<void> => {
 
 const callAuthApi = async <T>(path: string, init: RequestInit): Promise<Envelope<T>> => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}${path}`, {
+    const url = new URL(`${getApiBaseUrl()}${path}`);
+    const headers = new Headers(init.headers);
+    headers.set("Content-Type", "application/json");
+
+    const basicUser = process.env.API_BASIC_AUTH_USER;
+    const basicPass = process.env.API_BASIC_AUTH_PASS;
+    if (basicUser && basicPass) {
+      const auth = Buffer.from(`${basicUser}:${basicPass}`).toString("base64");
+      headers.set("Authorization", `Basic ${auth}`);
+    }
+
+
+
+    const response = await fetch(url.toString(), {
       ...init,
-      headers: {
-        "Content-Type": "application/json",
-        ...(init.headers || {}),
-      },
+      headers,
       cache: "no-store",
     });
 
     const json = (await response.json()) as Envelope<T>;
 
     if (!response.ok) {
+      console.error("Auth API HTTP error status:", response.status, "body:", json);
       return {
         data: null,
         error: json.error || {
@@ -198,7 +209,8 @@ const callAuthApi = async <T>(path: string, init: RequestInit): Promise<Envelope
     }
 
     return json;
-  } catch {
+  } catch (err) {
+    console.error("[callAuthApi] FATAL FETCH ERROR:", err);
     return {
       data: null,
       error: {
@@ -275,9 +287,8 @@ export async function registerAction(
     );
   }
 
-  await setSessionCookies(response.data);
-
-  redirect(normalizeRedirectPath(lang, parsed.data.next, "/console"));
+  const loginPath = `/${lang}/login?registered=true`;
+  redirect(loginPath);
 }
 
 export async function loginAction(

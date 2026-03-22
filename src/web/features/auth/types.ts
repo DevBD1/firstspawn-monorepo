@@ -51,6 +51,7 @@ export interface LoginDictionary {
       submitPending?: string;
       alternatePrompt?: string;
       alternateCta?: string;
+      registeredSuccess?: string;
     };
     shared?: {
       backToHome?: string;

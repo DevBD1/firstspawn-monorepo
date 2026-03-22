@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Eye, EyeOff, Key, Mail } from "lucide-react";
+import { CheckCircle, Eye, EyeOff, Key, Mail } from "lucide-react";
 import { loginAction } from "@/app/actions/auth";
 import PixelButton from "@/components/ui/PixelButton";
 import DiscordIcon from "@/components/ui/DiscordIcon";
@@ -14,10 +14,18 @@ import AuthSubmitButton from "./AuthSubmitButton.client";
 interface LoginFormProps {
   lang: string;
   nextPath?: string;
+  showRegisteredBanner?: boolean;
+  registeredMessage?: string;
   copy: LoginFormCopy;
 }
 
-export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
+export default function LoginForm({
+  lang,
+  nextPath,
+  showRegisteredBanner,
+  registeredMessage,
+  copy,
+}: LoginFormProps) {
   const [state, action] = useActionState(loginAction, AUTH_ACTION_INITIAL_STATE);
   const { isVisible: showPassword, toggle } = usePasswordVisibility();
 
@@ -31,6 +39,13 @@ export default function LoginForm({ lang, nextPath, copy }: LoginFormProps) {
     <form action={action} className="space-y-4">
       <input type="hidden" name="lang" value={lang} />
       <input type="hidden" name="next" value={nextPath || ""} />
+
+      {showRegisteredBanner && registeredMessage ? (
+        <div className="flex items-center gap-3 border-2 border-emerald-700 bg-emerald-950/50 px-4 py-3 font-ui text-base text-emerald-300">
+          <CheckCircle className="h-5 w-5 shrink-0 text-emerald-400" />
+          <span>{registeredMessage}</span>
+        </div>
+      ) : null}
 
       <div className="space-y-4">
         <PixelButton

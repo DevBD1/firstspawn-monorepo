@@ -182,6 +182,8 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
                 {copy.termsLabelPrefix}{" "}
                 <Link
                   href={`/${lang}/terms`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-body font-semibold text-emerald-500 underline underline-offset-2 transition-colors hover:text-emerald-400"
                 >
                   {copy.termsLabelCta}
@@ -208,6 +210,8 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
                 {copy.privacyLabelPrefix}{" "}
                 <Link
                   href={`/${lang}/privacy`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-body font-semibold text-emerald-500 underline underline-offset-2 transition-colors hover:text-emerald-400"
                 >
                   {copy.privacyLabelCta}
