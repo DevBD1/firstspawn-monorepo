@@ -126,6 +126,12 @@ def hash_refresh_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
+def hash_token(token: str) -> str:
+    """Hash a generic token (verification, reset, etc.) for storage."""
+
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
 def issue_access_token(user_id: uuid.UUID) -> tuple[str, int]:
     """Create a signed access token."""
 

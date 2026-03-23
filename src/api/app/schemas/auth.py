@@ -1,6 +1,7 @@
 """Auth request/response schemas."""
 
 import re
+from datetime import datetime
 import uuid
 
 from pydantic import BaseModel, Field, field_validator
@@ -85,11 +86,18 @@ class LogoutRequest(BaseModel):
     refresh_token: str = Field(min_length=20)
 
 
+class VerifyEmailRequest(BaseModel):
+    """Email verification payload."""
+
+    token: str = Field(min_length=32)
+
+
 class AuthUser(BaseModel):
     """User shape exposed by auth endpoints."""
 
     id: uuid.UUID
     email: str
+    email_confirmed_at: datetime | None = None
     username: str
     status: str
     locale: str
@@ -127,3 +135,10 @@ class MeResponseData(BaseModel):
     """Current user response data."""
 
     user: AuthUser
+
+
+class VerifyEmailResponseData(BaseModel):
+    """Email verification success response data."""
+
+    status: str = "success"
+    message: str = "Email verified successfully."

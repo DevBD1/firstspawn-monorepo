@@ -323,8 +323,8 @@ export async function registerAction(
     );
   }
 
-  const loginPath = `/${lang}/login?registered=true`;
-  redirect(loginPath);
+  const activationPath = `/${lang}/activation?email=${encodeURIComponent(parsed.data.email)}`;
+  redirect(activationPath);
 }
 
 export async function loginAction(

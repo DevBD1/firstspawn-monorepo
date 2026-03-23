@@ -59,6 +59,13 @@
       "privacyLabelCta": "Privacy Policy",
       "marketingConsentLabel": "I want to receive product updates and marketing emails from FirstSpawn.",
       "legalDisclaimer": "By joining, you agree to our Terms of Service and Privacy Policy. We never post to connected accounts without permission."
+    },
+    "activation": {
+      "title": "CHECK YOUR INBOX",
+      "message": "You will soon receive an email on the following address:",
+      "instruction": "Please activate your account by clicking on the link provided in it.",
+      "spam_warning": "Please remember to check your spam and trash box!!!",
+      "provider_warning": "Services like Hotmail, Yahoo, AOL often mistakenly identify the activation email as spam!"
     }
   },
   "footer": {

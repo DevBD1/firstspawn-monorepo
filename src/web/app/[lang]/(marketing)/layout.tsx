@@ -21,6 +21,7 @@ export default async function MarketingLayout({
       lang={lang}
       dictionary={dictionary}
       isAuthenticated={authState.isAuthenticated}
+      user={authState.user}
     >
       {children}
     </MarketingChrome>

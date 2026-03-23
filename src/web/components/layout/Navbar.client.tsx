@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import type { Locale } from "@/lib/i18n-config";
+import type { AuthCookieUser } from "@/lib/auth";
 import PixelButton from "@/components/ui/PixelButton";
 import LocaleSwitcher from "./LocaleSwitcher.client";
 
@@ -22,9 +23,10 @@ export interface NavbarProps {
       logOut: string;
     };
   };
+  user?: AuthCookieUser | null;
 }
 
-export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProps) {
+export default function Navbar({ lang, dictionary, isAuthenticated, user }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -60,6 +62,18 @@ export default function Navbar({ lang, dictionary, isAuthenticated }: NavbarProp
 
       {isAuthenticated ? (
         <>
+          {user && !user.email_confirmed_at && (
+            <Link
+              href={`/${lang}/activation?email=${encodeURIComponent(user.email)}`}
+              onClick={() => closeMobileIfOpen(isMobile)}
+              className={`flex items-center justify-center border-2 border-red-500 bg-red-950/30 px-3 py-1 text-red-400 font-ui text-xs hover:bg-red-900/50 transition-colors ${
+                isMobile ? "w-full py-3" : "h-8"
+              }`}
+              title="Your email is not verified"
+            >
+              <span className="animate-pulse mr-2">!</span> Verify Email
+            </Link>
+          )}
           <PixelButton
             href={`/${lang}/loot`}
             variant="secondary"

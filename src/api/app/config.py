@@ -18,6 +18,16 @@ class Settings(BaseSettings):
     API_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     API_REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
+    MAIL_USERNAME: str = "admin@firstspawn.com"
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = "admin@firstspawn.com"
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "mailserver"
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+
+    FRONTEND_URL: str = "http://localhost:3000"
+
     model_config = SettingsConfigDict(
         env_file=(".env", str(_ROOT_ENV)),
         env_file_encoding="utf-8",

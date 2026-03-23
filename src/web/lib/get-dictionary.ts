@@ -8,6 +8,19 @@ export interface Dictionary {
     tagline?: string;
     [key: string]: string | undefined;
   };
+  auth?: {
+    activation?: {
+      title: string;
+      message: string;
+      instruction: string;
+      spam_warning: string;
+      provider_warning: string;
+    };
+    shared?: {
+      backToHome: string;
+    };
+    [key: string]: any;
+  };
   [key: string]: unknown;
 }
 

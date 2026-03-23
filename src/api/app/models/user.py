@@ -36,6 +36,9 @@ class User(Base, AuditMixin):
         unique=True,
         nullable=False,
     )
+    email_confirmed_at: Mapped[datetime | None] = mapped_column(
+        nullable=True,
+    )
     username: Mapped[str] = mapped_column(
         CIText,
         unique=True,
@@ -96,6 +99,10 @@ class User(Base, AuditMixin):
         back_populates="author",
     )
     game_accounts: Mapped[list[UserGameAccount]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    verification_tokens: Mapped[list[VerificationToken]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -198,4 +205,45 @@ class UserOAuthIdentity(Base, AuditMixin):
             name="uq_oauth_identity",
         ),
         {"comment": "OAuth provider identities linked to users"},
+    )
+
+
+class VerificationToken(Base, AuditMixin):
+    """Secure tokens for email verification or password resets."""
+
+    __tablename__ = "verification_tokens"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    token_hash: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+    purpose: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="email_verification",
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        nullable=False,
+    )
+
+    # Relationships
+    user: Mapped[User] = relationship(back_populates="verification_tokens")
+
+    __table_args__ = (
+        Index("idx_verification_tokens_user_id", "user_id"),
+        Index("idx_verification_tokens_token_hash", "token_hash", unique=True),
+        CheckConstraint(
+            "purpose IN ('email_verification', 'password_reset')",
+            name="chk_verification_tokens_purpose",
+        ),
+        {"comment": "Secure tokens for sensitive account actions"},
     )

@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n-config";
 import Navbar from "./Navbar.client";
 import Footer from "./Footer.client";
 import CookieConsent from "./CookieConsent.client";
+import type { AuthCookieUser } from "@/lib/auth";
 
 export interface MarketingChromeDictionary {
   common: { brand: string; tagline: string };
@@ -76,6 +77,7 @@ interface MarketingChromeProps {
   lang: Locale;
   dictionary: MarketingChromeDictionary;
   isAuthenticated: boolean;
+  user?: AuthCookieUser | null;
   children: ReactNode;
 }
 
@@ -83,11 +85,12 @@ export default function MarketingChrome({
   lang,
   dictionary,
   isAuthenticated,
+  user,
   children,
 }: MarketingChromeProps) {
   return (
     <>
-      <Navbar lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} />
+      <Navbar lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} user={user} />
       <main className="flex-grow">{children}</main>
       <Footer dictionary={dictionary} />
       <CookieConsent dictionary={dictionary} />

@@ -1,11 +1,12 @@
 """Auth endpoints for register/login/token lifecycle."""
 
 import ipaddress
+import secrets
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
 from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -13,7 +14,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user, get_request_id
 from app.db import get_db_session
 from app.errors import ApiError
-from app.models.user import User, UserSession
+from app.models.user import User, UserSession, VerificationToken
 from app.schemas.auth import (
     AuthResponseData,
     AuthUser,
@@ -25,6 +26,8 @@ from app.schemas.auth import (
     RefreshResponseData,
     RegisterRequest,
     TokenPair,
+    VerifyEmailRequest,
+    VerifyEmailResponseData,
 )
 from app.schemas.common import Envelope
 from app.security import (
@@ -32,10 +35,12 @@ from app.security import (
     decode_refresh_token,
     hash_password,
     hash_refresh_token,
+    hash_token,
     issue_access_token,
     issue_refresh_token,
     verify_password,
 )
+from app.services.email import send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -116,6 +121,7 @@ def _create_session_and_tokens(db: Session, user: User, request: Request) -> Tok
 def register(
     payload: RegisterRequest,
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Annotated[Session, Depends(get_db_session)],
     request_id: Annotated[str | None, Depends(get_request_id)],
 ) -> dict[str, object]:
@@ -151,10 +157,22 @@ def register(
         last_login_at=now,
     )
     db.add(user)
+    db.flush()
+
+    # Generate verification token
+    raw_token = secrets.token_urlsafe(32)
+    verification_token = VerificationToken(
+        user_id=user.id,
+        token_hash=hash_token(raw_token),
+        purpose="email_verification",
+        expires_at=now + timedelta(hours=24),
+    )
+    db.add(verification_token)
+
     try:
-        db.flush()
         tokens = _create_session_and_tokens(db, user, request)
         db.commit()
+        background_tasks.add_task(send_verification_email, user.email, raw_token, user.locale)
     except IntegrityError as exc:
         db.rollback()
         orig = getattr(exc, "orig", None)
@@ -311,3 +329,89 @@ def me(
 ) -> dict[str, object]:
     response_data = MeResponseData(user=_user_payload(current_user)).model_dump()
     return _success(response_data, request_id)
+
+
+@router.post("/verify-email", response_model=Envelope[VerifyEmailResponseData])
+def verify_email(
+    payload: VerifyEmailRequest,
+    db: Annotated[Session, Depends(get_db_session)],
+    request_id: Annotated[str | None, Depends(get_request_id)],
+) -> dict[str, object]:
+    """Verify user email using a token."""
+    token_hash = hash_token(payload.token)
+    now = datetime.now(UTC)
+
+    # Find the token
+    token_record = db.scalar(
+        select(VerificationToken).where(
+            VerificationToken.token_hash == token_hash,
+            VerificationToken.purpose == "email_verification",
+            VerificationToken.expires_at > now,
+        )
+    )
+
+    if not token_record:
+        raise ApiError(
+            status_code=400,
+            code="AUTH_INVALID_TOKEN",
+            message="Invalid or expired verification token.",
+        )
+
+    user = db.get(User, token_record.user_id)
+    if not user:
+        raise ApiError(
+            status_code=404,
+            code="USER_NOT_FOUND",
+            message="User not found.",
+        )
+
+    # Mark as confirmed
+    user.email_confirmed_at = now
+    
+    # Clean up token
+    db.delete(token_record)
+    db.commit()
+
+    response_data = VerifyEmailResponseData().model_dump()
+    return _success(response_data, request_id)
+
+
+@router.post("/resend-verification", response_model=Envelope[dict[str, str]])
+def resend_verification(
+    background_tasks: BackgroundTasks,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db_session)],
+    request_id: Annotated[str | None, Depends(get_request_id)],
+) -> dict[str, object]:
+    """Resend email verification token."""
+    if current_user.email_confirmed_at is not None:
+        raise ApiError(
+            status_code=400,
+            code="AUTH_ALREADY_VERIFIED",
+            message="Email is already verified.",
+        )
+
+    now = datetime.now(UTC)
+
+    # Invalidate existing tokens
+    db.execute(
+        VerificationToken.__table__.delete().where(
+            VerificationToken.user_id == current_user.id,
+            VerificationToken.purpose == "email_verification",
+        )
+    )
+
+    # Generate new token
+    raw_token = secrets.token_urlsafe(32)
+    verification_token = VerificationToken(
+        user_id=current_user.id,
+        token_hash=hash_token(raw_token),
+        purpose="email_verification",
+        expires_at=now + timedelta(hours=24),
+    )
+    db.add(verification_token)
+    db.commit()
+
+    background_tasks.add_task(send_verification_email, current_user.email, raw_token, current_user.locale)
+    
+    return _success({"status": "success", "message": "Verification email resent."}, request_id)

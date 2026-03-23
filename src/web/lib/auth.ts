@@ -9,6 +9,7 @@ export { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, getApiBaseUrl };
 export interface AuthCookieUser {
   id: string;
   email: string;
+  email_confirmed_at: string | null;
   username: string;
   locale: string;
 }
@@ -52,6 +53,10 @@ const parseApiUser = (value: unknown): AuthCookieUser | null => {
   return {
     id: record.id,
     email: record.email,
+    email_confirmed_at:
+      record.email_confirmed_at && typeof record.email_confirmed_at === "string"
+        ? record.email_confirmed_at
+        : null,
     username: record.username,
     locale: record.locale,
   };
