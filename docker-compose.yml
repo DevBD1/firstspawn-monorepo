@@ -109,6 +109,49 @@ services:
       - firstspawn-network
     restart: always
 
+  mailserver:
+    image: mailserver:amd64
+    container_name: mailserver
+    hostname: mail.firstspawn.com
+    domainname: firstspawn.com
+    ports:
+      - "25:25"
+      - "587:587"
+      - "465:465"
+      - "993:993"
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - ENABLE_SPAMASSASSIN=0
+      - ENABLE_CLAMAV=0
+      - ENABLE_FAIL2BAN=1
+      - SSL_TYPE=manual
+      - SSL_CERT_PATH=/etc/letsencrypt/firstspawn.crt
+      - SSL_KEY_PATH=/etc/letsencrypt/firstspawn.key
+      - OVERRIDE_HOSTNAME=mail.firstspawn.com
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    networks:
+      - firstspawn-network
+
+  webmail:
+    image: webmail:amd64
+    container_name: webmail
+    environment:
+      # İç ağda 'mailserver' ismini kullanarak bağlanıyoruz
+      - ROUNDCUBEMAIL_DB_TYPE=sqlite
+      - ROUNDCUBEMAIL_SKIN=elastic
+      - ROUNDCUBEMAIL_DEFAULT_HOST=tls://mailserver
+      - ROUNDCUBEMAIL_SMTP_SERVER=tls://mailserver
+    depends_on:
+      - mailserver
+    networks:
+      - firstspawn-network
+
 volumes:
   postgres_data:
   redis_data:
