@@ -6,8 +6,8 @@ repository.
 ## Project Overview
 
 FirstSpawn is a discovery and trust platform for game servers, starting with
-Hytale and expanding to Minecraft. It's a monorepo using npm workspaces +
-Turborepo with a pixel-retro design aesthetic.
+Hytale and expanding to Minecraft. It's a pnpm workspace monorepo with a
+pixel-retro design aesthetic.
 
 **Core Thesis:**
 
@@ -20,14 +20,12 @@ Turborepo with a pixel-retro design aesthetic.
 
 ```
 firstspawn-monorepo/
-├── src/
-│   ├── api/              # FastAPI production API (Python)
-│   ├── web/              # Next.js 16 web app (beta)
+├── apps/
+│   ├── api/              # FastAPI production API (Python, code under apps/api/src)
+│   ├── web/              # Next.js 16 web app (beta, code under apps/web/src/)
 │   └── mobile/           # Expo/React Native scaffold (needs init)
-├── infrastructure/       # Docker Compose, database init scripts
-│   └── postgres/
-│       └── init/
 ├── packages/
+│   ├── database/         # Alembic migrations + PostgreSQL init scripts
 │   ├── ui/               # Shared UI components (no build step)
 │   ├── typescript-config/# Shared TS configs (base, nextjs, react-library, react-native)
 │   └── config/           # Shared ESLint config
@@ -41,7 +39,6 @@ firstspawn-monorepo/
 │       └── 06-data-model-v1.md
 │   └── implementations/  # Session handover logs
 │       └── YYYY-MM-DD-title.md
-└── turbo.json            # Turbo configuration
 ```
 
 ## Technology Stack
@@ -66,6 +63,7 @@ firstspawn-monorepo/
 
 ### Shared Packages
 
+- `@firstspawn/database`: Alembic migrations and PostgreSQL init assets
 - `@firstspawn/ui`: Source TypeScript files exported directly (no build)
 - `@firstspawn/typescript-config`: Shared TypeScript configurations
 - `@firstspawn/config`: Shared ESLint configuration
@@ -74,40 +72,40 @@ firstspawn-monorepo/
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Development (runs all dev servers)
-npm run dev
+pnpm dev
 
 # Target specific workspace
-npx turbo run dev --filter=@firstspawn/web
+pnpm --filter @firstspawn/web dev
 
 # Build all
-npm run build
+pnpm build
 
 # Lint all
-npm run lint
+pnpm lint
 
 # Fix lint issues
-npm run lint:fix
+pnpm lint:fix
 
 # Format code
-npm run format
+pnpm format
 
 # Check formatting without modifying files
-npm run format:check
+pnpm format:check
 
 # Type check all packages
-npm run typecheck
+pnpm typecheck
 
-# Type check web app directly (recommended until turbo typecheck task is wired)
-npx tsc --noEmit -p src/web/tsconfig.json
+# Type check web app directly
+pnpm --filter @firstspawn/web typecheck
 
 # Run full CI pipeline locally
-npm run ci
+pnpm ci
 
 # Clean all build artifacts
-npm run clean
+pnpm clean
 ```
 
 ## Critical Project-Specific Information
@@ -115,10 +113,10 @@ npm run clean
 ### i18n System
 
 - Translations use a **custom deep-merge fallback system** in
-  `src/web/lib/get-dictionary.ts`
+  `apps/web/src/lib/get-dictionary.ts`
 - Always merge target locale into English base (see `mergeDictionaries()`
   function)
-- Dictionary files are JSON, located in `src/web/lib/dictionaries/`
+- Dictionary files are JSON, located in `apps/web/src/lib/dictionaries/`
 - Supported locales: `en`, `tr`, `de`, `ru`, `es`, `fr`
 - MVP launch locales: `en`, `tr`, `de`
 - Locale route param is `lang` (not `locale`)
@@ -126,7 +124,7 @@ npm run clean
 
 ### Pixel-Retro Design System
 
-- Custom CSS variables in `src/web/app/globals.css` define the palette
+- Custom CSS variables in `apps/web/src/app/globals.css` define the palette
 - Primary accent color: `--fs-diamond: #22d3ee` (cyan-400)
 - Available utility classes:
   - `.pixel-border` - Light pixel-style border
@@ -147,7 +145,7 @@ npm run clean
 ### OpenGraph Image Generation
 
 - Uses **edge runtime** (`export const runtime = 'edge'`)
-- Custom font loading from `src/web/assets/fonts/`
+- Custom font loading from `apps/web/src/assets/fonts/`
 - Always load fonts via `fetch(new URL(..., import.meta.url))`
 - Font used: Press Start 2P
 - Size: 1200x630px
@@ -161,7 +159,7 @@ npm run clean
 
 ### AI-Powered Captcha
 
-- Located in `src/web/app/actions/captcha.ts`
+- Located in `apps/web/src/app/actions/captcha.ts`
 - Uses Gemini 2.0 Flash with OpenAI fallback
 - Generates retro-futuristic access messages when providers are available
 - Must degrade gracefully when AI keys/credits/providers are unavailable (no
@@ -170,87 +168,57 @@ npm run clean
 
 ### Newsletter System
 
-- Server action: `src/web/app/actions/newsletter.ts`
+- Server action: `apps/web/src/app/actions/newsletter.ts`
 - Uses Resend for email delivery
 - JWT tokens for confirmation links
 - PostHog tracking for analytics
-- Confirmation email component in `src/web/features/email/templates/`
+- Confirmation email component in `apps/web/src/features/email/templates/`
 
 ### Analytics (PostHog)
 
-- Client-side: `src/web/instrumentation-client.ts`
-- Server-side: `src/web/lib/posthog-server.ts`
+- Client-side: `apps/web/src/instrumentation-client.ts`
+- Server-side: `apps/web/src/lib/posthog-server.ts`
 - Requires `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST`
 - Automatic exception capture enabled
 
 ## Code Organization
 
-### Web App Structure (`src/web/`)
+### Web App Structure (`apps/web/`)
 
 ```
-app/
-├── [lang]/
-│   ├── layout.tsx              # Root locale layout (fonts, metadata, providers)
-│   ├── opengraph-image.tsx     # Dynamic OG image
-│   ├── (marketing)/            # Routes with global chrome
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── discover/
-│   │   ├── loot/
-│   │   ├── console/
-│   │   ├── privacy/
-│   │   ├── terms/
-│   │   └── debug-og/
-│   └── (auth)/                 # Auth routes without global chrome
-│       ├── layout.tsx
-│       ├── login/
-│       ├── signup/
-│       └── register/
-├── actions/             # Server actions
-│   ├── captcha.ts
-│   └── newsletter.ts
-├── api/                 # API routes
-│   └── newsletter/
-├── globals.css          # Global styles + Tailwind config
-├── robots.ts            # Dynamic robots.txt
-└── sitemap.ts           # Dynamic sitemap.xml
-
-components/
-├── ui/                  # Shared web UI primitives (PixelButton, PixelCard, icons)
-├── layout/              # Navbar, Footer, CookieConsent, LocaleSwitcher, MarketingChrome
-└── providers/           # PostHogProvider, PostHogPageView
-
-features/
-├── auth/                # Auth feature components/hooks/lib/types
-├── landing/             # Landing feature components/hooks/lib/types
-├── captcha/             # Captcha feature components/hooks/lib/types
-├── email/
-│   └── templates/       # React Email templates
-└── admin/               # Admin dashboard (English-only)
-    ├── components/      # AdminSidebar, StatsCard, LiveIndicator, AdminChrome
-    ├── hooks/           # usePermission, useAdminSocket
-    ├── lib/             # permissions.ts
-    └── types/           # admin.ts types
-
-admin/                   # Admin dashboard routes (English-only, no i18n)
-├── layout.tsx           # Root admin layout with RBAC
-├── page.tsx             # Overview dashboard
-├── users/
-├── servers/
-├── moderation/
-├── agents/
-├── system/
-└── exports/
-
-lib/
-├── dictionaries/        # i18n JSON files (en, tr, de, ru, es, fr)
-├── get-dictionary.ts    # i18n loader with deep-merge
-├── i18n-config.ts       # Locale configuration
-├── links.ts             # External links config
-└── posthog-server.ts    # Server-side PostHog client
-
-assets/
-└── fonts/               # PressStart2P-Regular.ttf for OG images
+src/
+├── app/
+│   ├── [lang]/
+│   │   ├── layout.tsx            # Root locale layout (fonts, metadata, providers)
+│   │   ├── opengraph-image.tsx   # Dynamic OG image
+│   │   ├── (marketing)/          # Routes with global chrome
+│   │   └── (auth)/               # Auth routes without global chrome
+│   ├── actions/                  # Server actions
+│   ├── admin/                    # Admin dashboard routes (English-only)
+│   ├── api/                      # API routes
+│   ├── globals.css               # Global styles + Tailwind config
+│   ├── robots.ts                 # Dynamic robots.txt
+│   └── sitemap.ts                # Dynamic sitemap.xml
+├── assets/
+│   └── fonts/                    # PressStart2P-Regular.ttf for OG images
+├── components/
+│   ├── ui/                       # Shared web UI primitives
+│   ├── layout/                   # Navbar, Footer, MarketingChrome
+│   └── providers/                # PostHogProvider, PostHogPageView
+├── features/
+│   ├── auth/
+│   ├── landing/
+│   ├── captcha/
+│   ├── email/templates/
+│   └── admin/
+├── lib/
+│   ├── dictionaries/
+│   ├── get-dictionary.ts
+│   ├── i18n-config.ts
+│   ├── links.ts
+│   └── posthog-server.ts
+├── instrumentation-client.ts
+└── proxy.ts
 
 public/                  # Static assets
 ```
@@ -296,7 +264,7 @@ NODE_ENV                      # development | production
 
 ### Admin Dashboard
 
-**Location:** `src/web/app/admin/` (English-only, no i18n)
+**Location:** `apps/web/src/app/admin/` (English-only, no i18n)
 
 **Authentication:** Role-based JWT (`user`, `moderator`, `analyst`, `admin`, `super_admin`)
 
@@ -351,9 +319,9 @@ NODE_ENV                      # development | production
 ## Testing
 
 - **Status:** Not yet implemented
-- `npm test` exists in turbo config but no test runner installed
+- `pnpm test` exists at the repo root but no test runner is installed for the JS workspaces
 - Add Vitest or Jest before writing tests
-- Recommended location: `src/web/tests/` or co-located `*.test.ts` files
+- Recommended location: `apps/web/tests/` or co-located `*.test.ts` files
 
 ## Code Style Guidelines
 
@@ -369,7 +337,7 @@ NODE_ENV                      # development | production
 - Use `from __future__ import annotations` at the top of all model files
 - Add forward imports in `if TYPE_CHECKING:` blocks to avoid circular dependencies
 - All code must pass `ruff check .` with zero errors
-- Ruff configuration in `src/api/pyproject.toml`:
+- Ruff configuration in `apps/api/pyproject.toml`:
   - Line length: 100
   - Enabled rules: E, F, I, B, UP
 - Run `ruff check . --fix` before committing Python changes
@@ -392,7 +360,7 @@ NODE_ENV                      # development | production
 ### Styling
 
 - Use CSS variables from `globals.css` for colors
-- Centralize typography in `src/web/app/globals.css` via root font tokens:
+- Centralize typography in `apps/web/src/app/globals.css` via root font tokens:
   - `--font-family-display` (pixel headings)
   - `--font-family-ui` (readable UI/forms)
   - `--font-family-body` (site-wide body default)
@@ -454,9 +422,9 @@ Active documentation lives in `docs/plans/`:
 
 - Root `README.md` must stay high-level (monorepo overview, shared setup, shared scripts).
 - Service-specific implementation/runtime/testing details must live in that service README:
-  - API details in `src/api/README.md`
-  - Web details in `src/web/README.md` (when present)
-- Do not duplicate deep API status matrices in the root `README.md`; link to `src/api/README.md` instead.
+  - API details in `apps/api/README.md`
+  - Web details in `apps/web/README.md` (when present)
+- Do not duplicate deep API status matrices in the root `README.md`; link to `apps/api/README.md` instead.
 
 ### Planning Documents (`docs/plans/`)
 
@@ -493,20 +461,20 @@ Format rules:
 
 ### Adding a New Locale
 
-1. Add locale code to `i18n.locales` in `src/web/lib/i18n-config.ts`
-2. Create new dictionary file `src/web/lib/dictionaries/[locale].json`
+1. Add locale code to `i18n.locales` in `apps/web/src/lib/i18n-config.ts`
+2. Create new dictionary file `apps/web/src/lib/dictionaries/[locale].json`
 3. Copy from `en.json` and translate
-4. Add dictionary loader in `src/web/lib/get-dictionary.ts`
+4. Add dictionary loader in `apps/web/src/lib/get-dictionary.ts`
 5. Update `opengraph-image.tsx` if locale-specific OG images needed
 6. Update `sitemap.ts` to include new locale routes
 
 ### Adding a New Page
 
 1. Create route under the correct route group:
-   - `src/web/app/[lang]/(marketing)/...` for pages with navbar/footer/cookie consent
-   - `src/web/app/[lang]/(auth)/...` for auth pages without global chrome
+   - `apps/web/src/app/[lang]/(marketing)/...` for pages with navbar/footer/cookie consent
+   - `apps/web/src/app/[lang]/(auth)/...` for auth pages without global chrome
 2. Add `page.tsx` with proper i18n setup
-3. Update `src/web/components/layout/Navbar.client.tsx` if navigation needed
+3. Update `apps/web/src/components/layout/Navbar.client.tsx` if navigation needed
 4. Add route to `robots.ts` disallow list if protected
 5. Update sitemap if public page
 
@@ -514,15 +482,15 @@ Format rules:
 
 1. Determine the proper layer:
    - Cross-app reusable component: `packages/ui/src/`
-   - Shared web primitive/layout/provider: `src/web/components/`
-   - Feature-owned component with local logic: `src/web/features/<feature>/components/`
+   - Shared web primitive/layout/provider: `apps/web/src/components/`
+   - Feature-owned component with local logic: `apps/web/src/features/<feature>/components/`
 2. Keep stateful/business logic in feature hooks/lib, not in shared UI primitives
 3. Use `.client.tsx` only when interaction/browser APIs require it
 4. Use existing component patterns for consistency
 
 ### Adding a Server Action
 
-1. Create in `src/web/app/actions/` (or extend existing)
+1. Create in `apps/web/src/app/actions/` (or extend existing)
 2. Add `'use server'` directive at top
 3. Use Zod for input validation
 4. Return typed response objects
@@ -553,13 +521,13 @@ Husky runs automatically on every commit via the `prepare` script:
 
 - Prettier: Code formatting (configured in `prettier.config.mjs`)
 - ESLint: Linting with Next.js configs
-- Run manually: `npm run format`, `npm run lint`
+- Run manually: `pnpm format`, `pnpm lint`
 
 **Python:**
 
 - Ruff: Fast Python linting and formatting
 - MyPy: Static type checking
-- Run manually: `ruff check .`, `ruff format .`, `mypy app/`
+- Run manually: `ruff check .`, `ruff format .`, `mypy src/`
 
 ### CI/CD Pipeline
 
@@ -569,7 +537,7 @@ GitHub Actions runs on every PR and push to `main`/`develop`:
 2. **typecheck**: TypeScript type checking
 3. **build**: Build all packages
 4. **python-lint**: Ruff + MyPy for Python
-5. **security**: npm audit for vulnerabilities
+5. **security**: pnpm audit for vulnerabilities
 6. **test**: Test placeholder (continues on failure)
 
 **Required status checks** (enforced via branch protection):
@@ -594,7 +562,7 @@ See `docs/DEPENDENCY_POLICY.md` for complete policy.
 
 **Quick rules:**
 
-- Commit `package-lock.json` always
+- Commit `pnpm-lock.yaml` always
 - Patch updates: Weekly (automated)
 - Minor updates: Bi-weekly (manual review)
 - Major updates: Quarterly (planned)
@@ -603,7 +571,7 @@ See `docs/DEPENDENCY_POLICY.md` for complete policy.
 **Tools:**
 
 - Dependabot: Automated PRs for updates
-- `npm audit`: Security scanning in CI
+- `pnpm audit`: Security scanning in CI
 
 ### Housekeeping Automation
 

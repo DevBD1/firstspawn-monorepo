@@ -2,31 +2,26 @@
   "name": "firstspawn",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "src/*",
-    "packages/*"
-  ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint -- --fix",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yml,yaml}\"",
-    "typecheck": "turbo run typecheck",
-    "ci": "npm run format:check && npm run lint && npm run typecheck && npm run build",
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm -r --parallel --if-present dev",
+    "lint": "pnpm -r --if-present lint",
+    "lint:fix": "pnpm -r --if-present lint -- --fix",
+    "test": "pnpm -r --if-present test",
+    "clean": "pnpm -r --if-present clean && rm -rf node_modules",
+    "format": "pnpm exec prettier --write \"**/*.{ts,tsx,js,jsx,md,json,yml,yaml,css}\"",
+    "format:check": "pnpm exec prettier --check \"**/*.{ts,tsx,js,jsx,md,json,yml,yaml,css}\"",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "ci": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run build",
     "prepare": "husky"
   },
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.3",
-    "turbo": "^2.5.4",
     "typescript": "^5"
   },
-  "packageManager": "npm@10.9.2",
+  "packageManager": "pnpm@10.12.1",
   "engines": {
     "node": ">=18"
   }

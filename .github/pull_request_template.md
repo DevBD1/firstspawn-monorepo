@@ -19,12 +19,12 @@ Fixes #(issue number)
 
 Please describe the tests that you ran to verify your changes:
 
-- [ ] Unit tests pass (`npm test`)
+- [ ] Unit tests pass (`pnpm test`)
 - [ ] Integration tests pass
 - [ ] Manual testing performed
-- [ ] Build succeeds (`npm run build`)
-- [ ] Lint checks pass (`npm run lint`)
-- [ ] Format checks pass (`npm run format:check`)
+- [ ] Build succeeds (`pnpm build`)
+- [ ] Lint checks pass (`pnpm lint`)
+- [ ] Format checks pass (`pnpm format:check`)
 
 ## Test Configuration
 

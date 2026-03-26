@@ -42,9 +42,9 @@
 Every milestone and merge to `main` must satisfy:
 
 1. Lint gate:
-   - `npm run lint` passes in all affected workspaces.
+   - `pnpm lint` passes in all affected workspaces.
 2. Build gate:
-   - `npm run build` passes for affected deployable workspaces.
+   - `pnpm build` passes for affected deployable workspaces.
 3. Test gate:
    - Critical-path changes require automated tests.
    - If a test harness is missing, introducing the harness is part of the change.
@@ -74,15 +74,15 @@ Every milestone and merge to `main` must satisfy:
 
 ### Common Commands
 ```bash
-npm install
-npm run dev
-npm run build
-npm run lint
+pnpm install
+pnpm dev
+pnpm build
+pnpm lint
 ```
 
 ### Workspace-targeted run
 ```bash
-npx turbo run dev --filter=@firstspawn/web
+pnpm --filter @firstspawn/web dev
 ```
 
 ### Documentation Rule
@@ -93,9 +93,9 @@ npx turbo run dev --filter=@firstspawn/web
 
 ## 6. Immediate Next Actions
 
-1. Expand `firstspawn/api-py` scaffold into full v1 API modules.
-2. Migrate from `firstspawn/api` placeholder to Python service incrementally.
+1. Expand `apps/api` into the full v1 API module set.
+2. Continue converging runtime, schema, and auth work inside the `apps/api` service.
 3. Implement v1 API contract from `docs/05-api-v1-contract.md`.
 4. Implement v1 schema from `docs/06-data-model-v1.md`.
 5. Add CI workflow enforcing the hard quality gates.
-6. Configure Vercel to keep `firstspawn/web` as the only deploy root.
+6. Configure Vercel to keep `apps/web` as the only deploy root.

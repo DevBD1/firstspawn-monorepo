@@ -8,14 +8,14 @@
 * @firstspawn/maintainers
 
 # Web app
-/src/web/ @firstspawn/web-team
-/src/web/app/ @firstspawn/web-team
-/src/web/components/ @firstspawn/web-team
+/apps/web/ @firstspawn/web-team
+/apps/web/src/app/ @firstspawn/web-team
+/apps/web/src/components/ @firstspawn/web-team
 
 # API
-/src/api/ @firstspawn/api-team
-/src/api/app/models/ @firstspawn/api-team
-/src/api/migrations/ @firstspawn/api-team
+/apps/api/ @firstspawn/api-team
+/apps/api/src/models/ @firstspawn/api-team
+/packages/database/ @firstspawn/api-team
 
 # Infrastructure and DevOps
 /infrastructure/ @firstspawn/devops
@@ -31,5 +31,5 @@
 
 # CI/CD
 /.github/ @firstspawn/platform-team
-/turbo.json @firstspawn/platform-team
+/pnpm-workspace.yaml @firstspawn/platform-team
 /package.json @firstspawn/platform-team
