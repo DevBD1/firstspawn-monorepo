@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@firstspawn/typescript-config": "*",
+    "@firstspawn/typescript-config": "workspace:*",
     "@types/react": "^19",
     "eslint": "^9",
     "typescript": "^5",

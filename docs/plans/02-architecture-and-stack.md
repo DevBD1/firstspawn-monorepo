@@ -2,13 +2,13 @@
 
 ## 1. Monorepo Baseline
 
-This repository uses npm workspaces + Turborepo.
+This repository uses a pnpm workspace monorepo.
 
 Current workspaces:
-- `firstspawn/web` (Next.js web app)
-- `firstspawn/api` (API workspace placeholder)
-- `firstspawn/api-py` (FastAPI production API scaffold)
-- `firstspawn/mobile` (mobile scaffold)
+- `apps/web` (Next.js web app)
+- `apps/api` (FastAPI production API)
+- `apps/mobile` (mobile scaffold)
+- `packages/database` (Alembic migrations and PostgreSQL init assets)
 - `packages/ui` (shared UI package)
 - `packages/config` and `packages/typescript-config` (shared config)
 
@@ -16,7 +16,8 @@ Planned additions in-monorepo:
 - `firstspawn/agents` (agent runtime and policy engine)
 - `firstspawn/data` (feature jobs, evaluations, model workflows)
 
-Turborepo remains the orchestration layer for both JavaScript and Python tasks.
+pnpm workspace scripts remain the orchestration layer for JavaScript tasks,
+while Python tooling runs directly from `apps/api` and `packages/database`.
 
 ## 2. Technology Decisions (Current)
 
@@ -89,10 +90,10 @@ WebSocket events for status changes, notifications, and key social events where 
 ## 6. Deployment Baseline
 
 ### Web
-- Vercel project configured to deploy only `firstspawn/web`.
+- Vercel project configured to deploy only `apps/web`.
 - Production branch: `main`.
 - Ensure Vercel project settings keep:
-  - root directory: `firstspawn/web`,
+  - root directory: `apps/web`,
   - framework preset: Next.js,
   - source files outside root directory: enabled (for monorepo shared packages).
 
@@ -111,7 +112,7 @@ Maturity levels:
 
 Current target mapping:
 - `@firstspawn/web`: `L2` Beta (targeting `L3` after lint/build/test/security gates are green).
-- `@firstspawn/api`: `L0` Scaffold (to be replaced by `firstspawn/api-py`).
+- `@firstspawn/api`: `L2` Beta.
 - `@firstspawn/mobile`: `L0` Scaffold.
 - `@firstspawn/ui`: `L1` Prototype.
 

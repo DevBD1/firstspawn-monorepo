@@ -10,7 +10,7 @@ services:
     # Port mapping kaldırıldı (güvenlik için dışarı açmıyoruz)
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./packages/database/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-firstspawn} -d ${DB_NAME:-firstspawn}" ]
       interval: 5s
@@ -37,7 +37,7 @@ services:
   fastapi:
     build:
       context: . # Monorepo kökü (paylaşımlı paketler için önemli)
-      dockerfile: src/api/Dockerfile
+      dockerfile: apps/api/Dockerfile
     container_name: firstspawn-api
     restart: always
     environment:
@@ -56,8 +56,8 @@ services:
       redis:
         condition: service_healthy
     # IPv6 desteği için [::] kullanımı
-    # command: "uvicorn src.api.app.main:app --host :: --port 8000"
-    command: "uvicorn app.main:app --app-dir src/api --host :: --port 8000"
+    # command: "uvicorn main:app --app-dir apps/api/src --host :: --port 8000"
+    command: "uvicorn main:app --app-dir apps/api/src --host :: --port 8000"
     networks:
       - firstspawn-network
 
@@ -88,9 +88,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infrastructure/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./infrastructure/nginx/certs:/etc/nginx/certs:ro
     networks:
       - firstspawn-network
     depends_on:

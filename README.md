@@ -8,8 +8,7 @@
 ## Overview
 
 FirstSpawn is a discovery and trust platform for game servers, starting with
-Hytale and expanding to Minecraft. Built as a monorepo using npm workspaces +
-Turborepo.
+Hytale and expanding to Minecraft. Built as a pnpm workspace monorepo.
 
 **Core Thesis:**
 
@@ -20,12 +19,12 @@ Turborepo.
 
 ## Workspace Status
 
-- **Web (`src/web`)**: Next.js beta app
-- **API (`src/api`)**: FastAPI service under active implementation
-- **Mobile (`src/mobile`)**: scaffold state
+- **Web (`apps/web`)**: Next.js beta app
+- **API (`apps/api`)**: FastAPI service under active implementation
+- **Mobile (`apps/mobile`)**: scaffold state
 
 Detailed API implementation status, runtime steps, and test matrix are maintained in
-[`src/api/README.md`](src/api/README.md).
+[`apps/api/README.md`](apps/api/README.md).
 
 ## Documentation
 
@@ -48,7 +47,7 @@ Comprehensive documentation is available in the `docs/` directory:
 ### Prerequisites
 
 - **Node.js** >= 18 (we recommend using [nvm](https://github.com/nvm-sh/nvm))
-- **npm** >= 10 (managed via `packageManager` field)
+- **pnpm** >= 10 (managed via `packageManager` field)
 - **Python** >= 3.11 (for API)
 - **Docker** & **Docker Compose** (for local infrastructure)
 
@@ -60,10 +59,10 @@ git clone https://github.com/firstspawn/firstspawn-monorepo.git
 cd firstspawn-monorepo
 
 # Install Node.js dependencies
-npm install
+pnpm install
 
 # Install Python dependencies (for API)
-cd src/api
+cd apps/api
 pip install -e ".[dev]"
 cd ../..
 
@@ -79,13 +78,13 @@ cp .env.example .env
 docker compose up -d postgres redis
 
 # Run database migrations
-cd src/api && alembic upgrade head && cd ../..
+pnpm --dir packages/database run migrate
 
 # Start API
-cd src/api && uvicorn app.main:app --reload --port 8000
+cd apps/api && uvicorn main:app --app-dir src --reload --port 8000
 
 # In a second terminal, start web app
-npx turbo run dev --filter=@firstspawn/web
+pnpm --filter @firstspawn/web dev
 ```
 
 The following services will be available:
@@ -120,42 +119,42 @@ GEMINI_API_KEY=your_key
 
 ```bash
 # Development
-npm run dev          # Start all dev servers with hot reload
+pnpm dev             # Start all dev servers with hot reload
 
 # Building
-npm run build        # Build all packages
-npm run clean        # Clean all build artifacts
+pnpm build           # Build all packages
+pnpm clean           # Clean all build artifacts
 
 # Code Quality
-npm run lint         # Run ESLint across all packages
-npm run lint:fix     # Fix ESLint issues automatically
-npm run format       # Format code with Prettier
-npm run format:check # Check formatting without modifying files
-npm run typecheck    # Run TypeScript type checking
-npm run ci           # Run full CI pipeline locally
+pnpm lint            # Run ESLint across all packages
+pnpm lint:fix        # Fix ESLint issues automatically
+pnpm format          # Format code with Prettier
+pnpm format:check    # Check formatting without modifying files
+pnpm typecheck       # Run TypeScript type checking
+pnpm ci              # Run full CI pipeline locally
 
 # Testing
-npm run test         # Run workspace tests (API currently has active tests)
+pnpm test            # Run workspace tests (API currently has active tests)
 
 # API Specific
-cd src/api
-alembic upgrade head              # Run pending migrations
-alembic revision --autogenerate   # Create new migration
+pnpm --dir packages/database run migrate       # Run pending migrations
+cd apps/api
+alembic -c ../../packages/database/alembic.ini revision --autogenerate   # Create new migration
 ruff check .                      # Python linting
 ruff format .                     # Python formatting
-mypy app/                         # Python type checking
+mypy src/                         # Python type checking
 ```
 
 ### Project Structure
 
 ```
 firstspawn-monorepo/
-├── src/
-│   ├── api/              # FastAPI production API (Python)
-│   ├── web/              # Next.js 16 web app (beta)
+├── apps/
+│   ├── api/              # FastAPI production API (Python, code under apps/api/src)
+│   ├── web/              # Next.js 16 web app (code under apps/web/src/)
 │   └── mobile/           # Expo/React Native scaffold
-├── infrastructure/       # Docker Compose, database init
 ├── packages/
+│   ├── database/         # Alembic migrations + PostgreSQL init scripts
 │   ├── ui/               # Shared UI components (no build)
 │   ├── typescript-config/# Shared TS configs
 │   └── config/           # Shared ESLint config
@@ -171,14 +170,14 @@ Project-level checks:
 
 ```bash
 # Monorepo static validation
-npm run format:check
-npm run lint
-npm run typecheck
-npm run build
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm build
 ```
 
 For API-specific tests and validation commands, use
-[`src/api/README.md`](src/api/README.md).
+[`apps/api/README.md`](apps/api/README.md).
 
 ## Release Process
 
@@ -190,7 +189,7 @@ We follow [Semantic Versioning](https://semver.org/):
 
 ### Creating a Release
 
-1. Ensure all tests pass: `npm run ci`
+1. Ensure all tests pass: `pnpm ci`
 2. Update version in relevant `package.json` files
 3. Create a release PR with changelog updates
 4. After merge, tag the release:
@@ -217,7 +216,7 @@ We welcome contributions! Please read our guidelines:
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Make your changes
-4. Run the full CI pipeline: `npm run ci`
+4. Run the full CI pipeline: `pnpm ci`
 5. Commit your changes (pre-commit hooks will run automatically)
 6. Push to your fork: `git push origin feature/your-feature`
 7. Open a Pull Request

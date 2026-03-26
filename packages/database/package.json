@@ -1,0 +1,11 @@
+{
+  "name": "@firstspawn/database",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "migrate": "alembic -c alembic.ini upgrade head",
+    "migrate:status": "alembic -c alembic.ini current",
+    "migrate:history": "alembic -c alembic.ini history",
+    "clean": "rm -rf __pycache__ .pytest_cache .ruff_cache"
+  }
+}

@@ -59,11 +59,11 @@ dependencies = [
 
 ## Lockfile Rules
 
-### package-lock.json
+### pnpm-lock.yaml
 
 - **Always commit**: Ensures reproducible builds
-- **Never manually edit**: Always use `npm install`
-- **Update command**: `npm update` or `npm install package@version`
+- **Never manually edit**: Always use `pnpm install`
+- **Update command**: `pnpm update` or `pnpm add package@version`
 
 ### Python uv.lock (Future)
 
@@ -91,7 +91,7 @@ dependencies = [
 ### Automated Scanning
 
 - **Dependabot alerts**: Enabled for all repos
-- **npm audit**: Runs in CI (moderate level blocks)
+- **pnpm audit**: Runs in CI (moderate level blocks)
 - **GitHub Security Advisories**: Monitored by security team
 
 ### Response Time
@@ -116,7 +116,7 @@ When a dependency is deprecated:
 ### Weekly Tasks (Every Monday)
 
 - [ ] Review Dependabot PRs
-- [ ] Run `npm audit` locally
+- [ ] Run `pnpm audit` locally
 - [ ] Check for deprecated packages
 
 ### Monthly Tasks (First Monday)
@@ -130,7 +130,7 @@ When a dependency is deprecated:
 ### Current Stack
 
 - **Dependabot**: Automated dependency updates
-- **npm audit**: Security vulnerability scanning
+- **pnpm audit**: Security vulnerability scanning
 - **depcheck**: Unused dependency detection
 
 ### Planned

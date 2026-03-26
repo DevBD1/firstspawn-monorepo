@@ -3,7 +3,7 @@
 echo "🔍 Running pre-commit checks..."
 
 # Run lint-staged
-npx lint-staged
+pnpm exec lint-staged
 
 # Check for secrets (basic check)
 if git diff --cached --name-only | xargs grep -l "API_KEY\|SECRET\|PASSWORD\|TOKEN" 2>/dev/null | grep -v "\.example\|\.md\|husky\|package.json\|pyproject.toml"; then
