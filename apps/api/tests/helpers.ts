@@ -49,6 +49,8 @@ export const createTestApp = async (): Promise<TestContext> => {
   const schemaName = `test_api_${randomUUID().replaceAll("-", "")}`;
 
   const adminPool = new Pool(toPoolConfig(normalizedBaseUrl));
+  await adminPool.query('create extension if not exists "uuid-ossp"');
+  await adminPool.query('create extension if not exists "citext"');
   await adminPool.query(`create schema "${schemaName}"`);
 
   const testUrlObject = new URL(normalizedBaseUrl);
