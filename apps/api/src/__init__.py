@@ -1,1 +1,0 @@
-"""FirstSpawn FastAPI application package."""

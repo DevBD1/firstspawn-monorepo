@@ -66,9 +66,34 @@
     }
   },
   "cookie_consent": {
-    "message": "Web sitemizde size en iyi piksel deneyimini sunmak için çerezleri kullanıyoruz.",
-    "accept": "KABUL ET",
-    "decline": "REDDET"
+    "title": "ÇEREZ AYARLARI",
+    "introPrefix": "Web sitemiz, FirstSpawn'u güvenli tutmak, oturumunuzu sürdürmek, dil tercihlerinizi hatırlamak ve platformun temel işlevlerini korumak için zorunlu çerezler ve sınırlı teknik veriler kullanır.",
+    "introLinkLabel": "Daha fazla bilgi",
+    "introSuffix": "ile bu ayarların deneyiminizi nasıl etkilediğini öğrenebilirsiniz.",
+    "consentPrefix": "İzninizle FirstSpawn, ziyaretçilerin platformu nasıl kullandığını anlamak, keşif akışlarını iyileştirmek ve sıralama, güven ile onboarding sistemlerini daha tutarlı hale getirmek için analiz çerezleri de kullanabilir. Ayrıntılar için",
+    "privacyLinkLabel": "Gizlilik Politikamıza",
+    "consentMiddle": "ve",
+    "termsLinkLabel": "Kullanım Şartlarımıza",
+    "consentSuffix": "bakın. Analiz sağlayıcıları",
+    "servicesLinkLabel": "üçüncü taraf hizmetler",
+    "acceptAll": "TÜMÜNÜ KABUL ET",
+    "manageSettings": "AYARLARI YÖNET",
+    "savePreferences": "TERCİHLERİ KAYDET",
+    "acceptSelected": "SEÇİLENLERİ KABUL ET",
+    "essentialOnly": "YALNIZCA ZORUNLU",
+    "back": "GERİ",
+    "essentialTitle": "ZORUNLU ÇEREZLER",
+    "essentialDescription": "Hesap güvenliği, oturum sürekliliği, dil ayarları ve platformun temel çalışması için gereklidir. Bunlar her zaman açık kalır.",
+    "analyticsTitle": "ANALİTİK ÇEREZLER",
+    "analyticsDescription": "Trafiği ölçmemize, özellik kullanımını anlamamıza ve keşfi ücretli görünürlüğe dönüştürmeden ürün kararlarını iyileştirmemize yardımcı olur.",
+    "manageDescription": "İzninizle FirstSpawn, ziyaretçilerin platformu nasıl kullandığını anlamak ve keşif, güven ile onboarding sistemlerini iyileştirmek için analitik çerezleri kullanabilir. Zorunlu çerezler ise sitenin güvenli ve tutarlı çalışması için her zaman etkin kalır.",
+    "categoryNecessary": "Zorunlu",
+    "categoryStatistics": "İstatistik",
+    "categoryPersonalization": "Kişiselleştirme",
+    "categoryMarketing": "Pazarlama",
+    "categoryUnavailable": "Kişiselleştirme ve pazarlama çerezleri şu anda FirstSpawn üzerinde aktif değildir.",
+    "stateOn": "AÇIK",
+    "stateOff": "KAPALI"
   },
   "home": {
     "welcome": "Harika bir şeyler inşa etmeye hazırız."

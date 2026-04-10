@@ -1,300 +1,221 @@
 # FirstSpawn
 
-> Discovery and trust platform for game servers
+Discovery and trust platform for game servers, starting with Hytale and Minecraft.
 
-[![CI](https://github.com/firstspawn/firstspawn-monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/firstspawn/firstspawn-monorepo/actions/workflows/ci.yml)
+[![CI](https://github.com/devbd1/firstspawn-monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/devbd1/firstspawn-monorepo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## Overview
 
-FirstSpawn is a discovery and trust platform for game servers, starting with
-Hytale and expanding to Minecraft. Built as a pnpm workspace monorepo.
+FirstSpawn is a pnpm workspace monorepo with:
 
-**Core Thesis:**
+- `apps/api`: Fastify API in TypeScript
+- `apps/mobile`: Expo scaffold
+- `apps/web`: Next.js 16 web app
+- `packages/config`: shared ESLint config
+- `packages/database`: Drizzle config and SQL migrations
+- `packages/typescript-config`: shared TypeScript configs
+- `packages/ui`: shared UI source package
 
-- Discovery should be relevance-driven, not pay-to-win
-- Trust should be earned through verified activity and reputation
-- Retention should come from meaningful loops (favorites, reviews, guilds, daily
-  participation)
+The repository is being actively refactored around the Fastify + TypeScript +
+Drizzle stack. The current baseline is:
 
-## Workspace Status
+- Web app is the primary shipped surface
+- API auth + deletion/restore foundation is implemented
+- Admin/public server catalog routes are implemented
+- Collector target + heartbeat ingestion routes are implemented
+- `apps/collector` now drives heartbeat polling for `mc_java`
+- Docker scheduler now runs archive / rollup retention / delete purge jobs
+- Reviews, favorites, moderation, plugin telemetry, and agent workflows are
+  Phase 2
 
-- **Web (`apps/web`)**: Next.js beta app
-- **API (`apps/api`)**: FastAPI service under active implementation
-- **Mobile (`apps/mobile`)**: scaffold state
+## Backend MVP Status
 
-Detailed API implementation status, runtime steps, and test matrix are maintained in
-[`apps/api/README.md`](apps/api/README.md).
+Current backend is **not fully complete for MVP** yet.
 
-## Documentation
+Implemented:
 
-Comprehensive documentation is available in the `docs/` directory:
+- Auth endpoints (`register`, `login`, `refresh`, `logout`, `me`)
+- Soft-delete flow (`delete/request`, `restore/confirm`, `restore/expedite-delete`)
+- Admin catalog endpoints for `mc_java` servers
+- Public server list/detail endpoints
+- Collector target and heartbeat ingestion endpoints
+- New `apps/collector` service with `/healthz` and `/metrics`
+- Docker scheduler container for daily archive / rollup / purge jobs
+- Rebaselined Drizzle migration history
+- MVP schema foundation (`users`, `sessions`, `verification_tokens`, `user_deletion_requests`, `servers`, `server_heartbeats`, hourly/daily rollups)
 
-1. **[Product & Strategy](docs/plans/01-product-and-strategy.md)** - Vision,
-   audience, monetization
-2. **[Architecture & Stack](docs/plans/02-architecture-and-stack.md)** - Tech
-   decisions, security, deployment
-3. **[Execution & Operations](docs/plans/03-execution-and-ops.md)** - Roadmap,
-   quality gates, workflow
-4. **[Agentic Ecosystem Guide](docs/plans/04-agentic-ecosystem-implementation-guide.md)** -
-   Autonomous agents
-5. **[API v1 Contract](docs/plans/05-api-v1-contract.md)** - API endpoints, auth,
-   standards
-6. **[Data Model v1](docs/plans/06-data-model-v1.md)** - PostgreSQL schema baseline
+Pending for MVP completion:
+
+- Live end-to-end probe verification against a real Minecraft target
+- Web discover integration on top of the new public server API
+- Any post-MVP expansion beyond `mc_java`
 
 ## Quick Start
 
 ### Prerequisites
 
-- **Node.js** >= 18 (we recommend using [nvm](https://github.com/nvm-sh/nvm))
-- **pnpm** >= 10 (managed via `packageManager` field)
-- **Python** >= 3.11 (for API)
-- **Docker** & **Docker Compose** (for local infrastructure)
+- Node.js `>=18`
+- pnpm `>=10`
+- Docker CLI + Docker Compose
+- Docker daemon running (Docker Desktop or alternative)
 
-### Installation
+### Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/firstspawn/firstspawn-monorepo.git
+git clone https://github.com/devbd1/firstspawn-monorepo.git
 cd firstspawn-monorepo
-
-# Install Node.js dependencies
 pnpm install
-
-# Install Python dependencies (for API)
-cd apps/api
-pip install -e ".[dev]"
-cd ../..
-
-# Copy environment variables
 cp .env.example .env
-# Edit .env with your configuration
 ```
 
-### Running Locally
+### Local Development
 
 ```bash
-# Start infrastructure (PostgreSQL + Redis)
 docker compose up -d postgres redis
-
-# Run database migrations
 pnpm --dir packages/database run migrate
-
-# Start API
-cd apps/api && uvicorn main:app --app-dir src --reload --port 8000
-
-# In a second terminal, start web app
+pnpm --filter @firstspawn/api dev
+pnpm --filter @firstspawn/collector dev
 pnpm --filter @firstspawn/web dev
 ```
 
-The following services will be available:
-
-- **Web App**: http://localhost:3000
-- **API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
-
-### Environment Variables
-
-Required environment variables (see `.env.example` for full list):
+If Docker daemon is not running yet:
 
 ```bash
-# Web
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_POSTHOG_KEY=your_key
-NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
-
-# API
-API_ENV=development
-API_DATABASE_URL=postgresql+psycopg://firstspawn:firstspawn@localhost:5432/firstspawn
-API_REDIS_URL=redis://localhost:6379/0
-
-# Optional (with graceful degradation)
-RESEND_API_KEY=your_key
-GEMINI_API_KEY=your_key
+docker ps
+# if it says "Cannot connect to the Docker daemon", start Docker Desktop first
 ```
 
-## Development
+Local endpoints:
 
-### Available Scripts
+- Web: `http://localhost:3000`
+- API: `http://localhost:8000`
+- API docs: `http://localhost:8000/docs`
+
+Run all containers (including API, collector, scheduler, and edge tools):
 
 ```bash
-# Development
-pnpm dev             # Start all dev servers with hot reload
-
-# Building
-pnpm build           # Build all packages
-pnpm clean           # Clean all build artifacts
-
-# Code Quality
-pnpm lint            # Run ESLint across all packages
-pnpm lint:fix        # Fix ESLint issues automatically
-pnpm format          # Format code with Prettier
-pnpm format:check    # Check formatting without modifying files
-pnpm typecheck       # Run TypeScript type checking
-pnpm ci              # Run full CI pipeline locally
-
-# Testing
-pnpm test            # Run workspace tests (API currently has active tests)
-
-# API Specific
-pnpm --dir packages/database run migrate       # Run pending migrations
-cd apps/api
-alembic -c ../../packages/database/alembic.ini revision --autogenerate   # Create new migration
-ruff check .                      # Python linting
-ruff format .                     # Python formatting
-mypy src/                         # Python type checking
+docker compose up -d
 ```
 
-### Project Structure
+### Local Docker Stack (Browser)
 
+If you run full stack with Docker (`docker compose up -d`), use these URLs:
+
+- Nginx entrypoint: `http://localhost`
+- API (via Nginx): `http://api.localhost`
+- pgAdmin (via Nginx): `http://db.localhost`
+- Dozzle logs (via Nginx): `http://logs.localhost`
+- pgAdmin direct port: `http://localhost:5050`
+- PostgreSQL direct port: `localhost:5432`
+
+Notes:
+
+- `api.localhost` and `logs.localhost` are protected with Basic Auth.
+- `api.localhost` has one exception: `/api/v1/auth/me` skips Basic Auth because it must use Bearer auth in `Authorization` header.
+- Nginx reads `NGINX_AUTH_USER` and `NGINX_AUTH_PASS` from `.env` and
+  auto-generates `.htpasswd` on container start.
+- In Docker mode, API is **not** published on `localhost:8000`; it is internal and
+  exposed through Nginx.
+- Collector and scheduler run on the internal Docker network and are not exposed on host ports by default.
+- In this mode set `API_BASE_URL=http://api.localhost/api/v1` in `.env` for web -> API calls.
+
+Set up Basic Auth once on your machine:
+
+```bash
+# set credentials in .env
+NGINX_AUTH_USER=admin
+NGINX_AUTH_PASS=change_me
+
+# apply
+docker compose up -d --force-recreate nginx
 ```
+
+Quick checks:
+
+```bash
+curl -I http://localhost
+curl -I http://api.localhost/healthz
+curl -I http://db.localhost
+curl -I http://logs.localhost
+```
+
+## MVP Runtime Environment
+
+New backend MVP services require the following environment values in `.env`:
+
+- API admin and collector auth:
+  - `API_ADMIN_EMAIL_ALLOWLIST`
+  - `API_COLLECTOR_KEY`
+- Collector runtime:
+  - `COLLECTOR_API_BASE_URL`
+  - `COLLECTOR_PING_INTERVAL_SECONDS`
+  - `COLLECTOR_PAYLOAD_INTERVAL_SECONDS`
+  - `COLLECTOR_CONCURRENCY`
+  - `COLLECTOR_TARGET_PAGE_SIZE`
+  - `COLLECTOR_PROBE_TIMEOUT_MS`
+
+### Backend VPS IPv6 (Step By Step)
+
+To run backend services on an IPv6 VPS, complete all steps below:
+
+1. Enable Docker daemon IPv6 in daemon config (not only Compose network).
+2. Set Compose network `enable_ipv6: true` and define an IPv6 subnet in `ipam`.
+3. Enable host kernel/sysctl IPv6 forwarding.
+4. Ensure services listen on IPv6 (`::`) and not only `0.0.0.0`.
+5. Open IPv6 in VPS firewall/security group.
+6. Add DNS `AAAA` records for your domains.
+7. Bind reverse proxy (nginx/caddy) for IPv6 listeners.
+8. Verify from outside using an IPv6 client.
+- Scheduler (UTC cron, daily defaults):
+  - `SCHEDULE_ARCHIVE_INACTIVE`
+  - `SCHEDULE_ROLLUP_RETENTION`
+  - `SCHEDULE_PURGE_DELETED_USERS`
+
+## Common Commands
+
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm format
+pnpm typecheck
+pnpm test
+pnpm ci
+```
+
+Targeted commands:
+
+```bash
+pnpm --filter @firstspawn/web dev
+pnpm --filter @firstspawn/api dev
+pnpm --filter @firstspawn/collector dev
+pnpm --dir packages/database run migrate
+pnpm --dir packages/database run generate
+```
+
+## Documentation
+
+- [`docs/idea-pool.md`](docs/idea-pool.md): parked future ideas only
+- [`DESIGN.md`](DESIGN.md): UI/UX design system baseline (visual language, tokens, component style)
+- [`apps/api/README.md`](apps/api/README.md): API runtime, endpoints, and tests
+- [`packages/database/README.md`](packages/database/README.md): database
+  migration workflow
+
+## Repository Layout
+
+```text
 firstspawn-monorepo/
 ├── apps/
-│   ├── api/              # FastAPI production API (Python, code under apps/api/src)
-│   ├── web/              # Next.js 16 web app (code under apps/web/src/)
-│   └── mobile/           # Expo/React Native scaffold
-├── packages/
-│   ├── database/         # Alembic migrations + PostgreSQL init scripts
-│   ├── ui/               # Shared UI components (no build)
-│   ├── typescript-config/# Shared TS configs
-│   └── config/           # Shared ESLint config
-├── docs/                 # Product documentation
-│   ├── DEPENDENCY_POLICY.md
-│   ├── plans/            # Planning documents
-│   └── implementations/  # Handover logs
+│   ├── api/
+│   ├── mobile/
+│   └── web/
+├── docs/
+│   └── idea-pool.md
+├── .infras/
+└── packages/
+    ├── config/
+    ├── database/
+    ├── typescript-config/
+    └── ui/
 ```
-
-## Testing
-
-Project-level checks:
-
-```bash
-# Monorepo static validation
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm build
-```
-
-For API-specific tests and validation commands, use
-[`apps/api/README.md`](apps/api/README.md).
-
-## Release Process
-
-We follow [Semantic Versioning](https://semver.org/):
-
-- **MAJOR**: Breaking changes
-- **MINOR**: New features (backward compatible)
-- **PATCH**: Bug fixes
-
-### Creating a Release
-
-1. Ensure all tests pass: `pnpm ci`
-2. Update version in relevant `package.json` files
-3. Create a release PR with changelog updates
-4. After merge, tag the release:
-
-```bash
-git tag -a v0.2.0 -m "Release v0.2.0"
-git push origin v0.2.0
-```
-
-5. CI will automatically deploy to production (configured in Vercel)
-
-### Deployment
-
-- **Web**: Vercel (automatic on push to `main`)
-- **API**: Planned for managed container runtime
-- **Database**: PostgreSQL managed service
-
-## Contributing
-
-We welcome contributions! Please read our guidelines:
-
-### Getting Started
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Make your changes
-4. Run the full CI pipeline: `pnpm ci`
-5. Commit your changes (pre-commit hooks will run automatically)
-6. Push to your fork: `git push origin feature/your-feature`
-7. Open a Pull Request
-
-### Code Style
-
-- **TypeScript**: Strict mode, prefer interfaces over types
-- **Python**: PEP 8 compliance, type hints required
-- **Formatting**: Prettier (JS/TS), Ruff (Python)
-- **Linting**: ESLint (JS/TS), Ruff (Python), MyPy (Python types)
-
-### Commit Messages
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat: add new server discovery endpoint
-fix: resolve memory leak in heartbeat handler
-docs: update API authentication examples
-refactor: simplify database query logic
-test: add integration tests for auth flow
-chore: update dependencies
-```
-
-### Pull Request Process
-
-1. Fill out the PR template completely
-2. Ensure CI checks pass
-3. Request review from CODEOWNERS
-4. Address review feedback
-5. Squash and merge when approved
-
-### Reporting Issues
-
-When reporting bugs, please include:
-
-- Clear description of the issue
-- Steps to reproduce
-- Expected vs actual behavior
-- Environment details (OS, Node version, etc.)
-- Screenshots if applicable
-
-## Technology Stack
-
-### Frontend (Beta)
-
-- **Framework**: Next.js 16 with App Router
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS v4 + Framer Motion
-- **UI**: React 19, Lucide React icons
-- **i18n**: Custom deep-merge system (EN, TR, DE, RU, ES, FR supported; MVP launch: EN, TR, DE)
-
-### Backend (API)
-
-- **Language**: Python 3.11+
-- **Framework**: FastAPI
-- **ORM**: SQLAlchemy 2.x + Alembic
-- **Database**: PostgreSQL 16
-- **Cache**: Redis 7
-
-### Shared Packages
-
-- `@firstspawn/ui`: Source TypeScript (no build step)
-- `@firstspawn/typescript-config`: Shared TS configurations
-- `@firstspawn/config`: Shared ESLint configuration
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
-for details.
-
-## Support
-
-- 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/firstspawn/firstspawn-monorepo/issues)
-- 💬
-  [Discussions](https://github.com/firstspawn/firstspawn-monorepo/discussions)
-
----
-
-Built with passion by the FirstSpawn team

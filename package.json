@@ -9,8 +9,8 @@
     "lint:fix": "pnpm -r --if-present lint -- --fix",
     "test": "pnpm -r --if-present test",
     "clean": "pnpm -r --if-present clean && rm -rf node_modules",
-    "format": "pnpm exec prettier --write \"**/*.{ts,tsx,js,jsx,md,json,yml,yaml,css}\"",
-    "format:check": "pnpm exec prettier --check \"**/*.{ts,tsx,js,jsx,md,json,yml,yaml,css}\"",
+    "format": "pnpm exec prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,md,json,yml,yaml,css,sql}\"",
+    "format:check": "pnpm exec prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,md,json,yml,yaml,css,sql}\"",
     "typecheck": "pnpm -r --if-present typecheck",
     "ci": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run build",
     "prepare": "husky"

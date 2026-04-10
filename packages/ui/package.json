@@ -8,8 +8,19 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
-    }
+    },
+    "./branding/tokens": {
+      "types": "./src/branding/tokens.ts",
+      "default": "./src/branding/tokens.ts"
+    },
+    "./styles/brand.css": "./src/styles/brand.css"
   },
+  "files": [
+    "src"
+  ],
+  "sideEffects": [
+    "./src/styles/brand.css"
+  ],
   "scripts": {
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",

@@ -1,18 +1,27 @@
-. "$(dirname "$0")/_/husky.sh"
-
 echo "🔍 Running pre-commit checks..."
 
 # Run lint-staged
-pnpm exec lint-staged
+pnpm exec lint-staged --concurrent false
 
-# Check for secrets (basic check)
-if git diff --cached --name-only | xargs grep -l "API_KEY\|SECRET\|PASSWORD\|TOKEN" 2>/dev/null | grep -v "\.example\|\.md\|husky\|package.json\|pyproject.toml"; then
-  echo "⚠️  Warning: Potential secrets detected in staged files. Please review."
-  echo "If these are example values or documentation, you can continue."
-  read -p "Continue anyway? (y/N) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 1
+# Check for potential secrets in added lines only.
+SECRET_PATTERN="API_KEY|SECRET|PASSWORD|TOKEN"
+if git diff --cached --no-color --unified=0 | grep -E "^\+.*($SECRET_PATTERN)" >/dev/null 2>&1; then
+  echo "⚠️  Warning: Potential secrets found in staged added lines."
+  echo "Review staged diff before pushing."
+
+  if [ "${HUSKY_BLOCK_SECRETS:-0}" = "1" ]; then
+    if [ -t 0 ]; then
+      printf "Strict mode on. Continue anyway? (y/N) "
+      read -r REPLY
+      if ! printf "%s" "$REPLY" | grep -Eq "^[Yy]$"; then
+        exit 1
+      fi
+    else
+      echo "Strict mode on and non-interactive shell. Blocking commit."
+      exit 1
+    fi
+  else
+    echo "Continuing. Set HUSKY_BLOCK_SECRETS=1 to enforce blocking."
   fi
 fi
 

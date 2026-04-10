@@ -1,29 +1,23 @@
-# /apps/api/Dockerfile
-FROM python:3.11-slim
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Sistem bağımlılıkları (PostgreSQL bağlantısı için)
-RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
-# PYTHONPATH tanımlıyoruz (Kritik adım)
-ENV PYTHONPATH=/app
+RUN corepack enable
 
-# Bağımlılıkları kopyala ve kur
-COPY apps/api/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/package.json
+COPY packages/database/package.json packages/database/package.json
+COPY packages/typescript-config/package.json packages/typescript-config/package.json
 
-# Tüm monorepo yerine sadece gerekli kısımları kopyala (SoC)
-# COPY apps/api/ ./apps/api/
+RUN pnpm install --frozen-lockfile
 
-# Tüm kodları kopyala
 COPY . .
 
-# Eğer paylaşımlı paketlerin varsa buraya ekle: COPY packages/ ./packages/
+RUN pnpm --filter @firstspawn/api build
 
-WORKDIR /app
+WORKDIR /app/apps/api
 
-# IPv6 üzerinden dinlemek için :: adresini kullanıyoruz
-# Çalıştırma dizini olarak API klasörünü belirle veya absolute path kullan
-# CMD ["uvicorn", "main:app", "--app-dir", "apps/api/src", "--host", "::", "--port", "8000"]
-CMD ["uvicorn", "main:app", "--app-dir", "apps/api/src", "--host", "::", "--port", "8000"]
+CMD ["node", "dist/src/index.js"]

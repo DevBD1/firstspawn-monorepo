@@ -8,6 +8,7 @@ import {
   REFRESH_COOKIE_MAX_AGE_SECONDS,
   REFRESH_TOKEN_COOKIE,
   USER_SESSION_COOKIE,
+  getApiBasicAuthHeader,
   getApiBaseUrl,
 } from "./lib/auth-config";
 
@@ -86,10 +87,12 @@ const isAccessTokenExpired = (token: string): boolean => {
 
 const refreshSession = async (refreshToken: string): Promise<RefreshedTokens | null> => {
   try {
+    const basicAuth = getApiBasicAuthHeader();
     const response = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(basicAuth ? { Authorization: basicAuth } : {}),
       },
       body: JSON.stringify({ refresh_token: refreshToken }),
       cache: "no-store",

@@ -8,6 +8,7 @@ import {
   REFRESH_COOKIE_MAX_AGE_SECONDS,
   REFRESH_TOKEN_COOKIE,
   USER_SESSION_COOKIE,
+  getApiBasicAuthHeader,
   getApiBaseUrl,
 } from "@/lib/auth-config";
 import { isSupportedLocale } from "@/lib/auth";
@@ -180,14 +181,10 @@ const callAuthApi = async <T>(path: string, init: RequestInit): Promise<Envelope
     const headers = new Headers(init.headers);
     headers.set("Content-Type", "application/json");
 
-    const basicUser = process.env.API_BASIC_AUTH_USER;
-    const basicPass = process.env.API_BASIC_AUTH_PASS;
-    if (basicUser && basicPass) {
-      const auth = Buffer.from(`${basicUser}:${basicPass}`).toString("base64");
-      headers.set("Authorization", `Basic ${auth}`);
+    const basicAuth = getApiBasicAuthHeader();
+    if (basicAuth) {
+      headers.set("Authorization", basicAuth);
     }
-
-
 
     const response = await fetch(url.toString(), {
       ...init,
@@ -291,7 +288,7 @@ export async function registerAction(
 
   const turnstileToken = formData.get("cf-turnstile-response")?.toString() || "";
   const isHuman = await verifyTurnstileToken(turnstileToken);
-  
+
   if (!isHuman) {
     return {
       message: "Security check failed. Please try again.",
@@ -338,7 +335,7 @@ export async function loginAction(
 
   const turnstileToken = formData.get("cf-turnstile-response")?.toString() || "";
   const isHuman = await verifyTurnstileToken(turnstileToken);
-  
+
   if (!isHuman) {
     return {
       message: "Security check failed. Please try again.",

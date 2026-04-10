@@ -1,597 +1,246 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this
-repository.
+Repository guidance for AI agents working in `firstspawn-monorepo`.
 
-## Project Overview
+## Project Snapshot
 
 FirstSpawn is a discovery and trust platform for game servers, starting with
-Hytale and expanding to Minecraft. It's a pnpm workspace monorepo with a
-pixel-retro design aesthetic.
+Hytale and expanding to Minecraft.
 
-**Core Thesis:**
+Core thesis:
+- Discovery should be relevance-driven, not pay-to-win.
+- Trust should be earned through verified activity and reputation.
+- Retention should come from repeatable discovery and trust loops.
 
-- Discovery should be relevance-driven, not pay-to-win
-- Trust should be earned through verified activity and reputation
-- Retention should come from meaningful loops (favorites, reviews, guilds, daily
-  participation)
+## Monorepo Layout
 
-## Monorepo Structure
-
-```
+```text
 firstspawn-monorepo/
 ├── apps/
-│   ├── api/              # FastAPI production API (Python, code under apps/api/src)
-│   ├── web/              # Next.js 16 web app (beta, code under apps/web/src/)
-│   └── mobile/           # Expo/React Native scaffold (needs init)
+│   ├── api/              # Fastify API (TypeScript, code in apps/api/src)
+│   ├── collector/        # Heartbeat collector service (TypeScript, code in apps/collector/src)
+│   ├── web/              # Next.js 16 app (code in apps/web/src)
+│   └── mobile/           # Expo scaffold
 ├── packages/
-│   ├── database/         # Alembic migrations + PostgreSQL init scripts
-│   ├── ui/               # Shared UI components (no build step)
-│   ├── typescript-config/# Shared TS configs (base, nextjs, react-library, react-native)
-│   └── config/           # Shared ESLint config
-├── docs/                 # Product documentation
-│   ├── plans/            # Planning documents (specs, proposals, RFCs)
-│       ├── 01-product-and-strategy.md
-│       ├── 02-architecture-and-stack.md
-│       ├── 03-execution-and-ops.md
-│       ├── 04-agentic-ecosystem-implementation-guide.md
-│       ├── 05-api-v1-contract.md
-│       └── 06-data-model-v1.md
-│   └── implementations/  # Session handover logs
-│       └── YYYY-MM-DD-title.md
+│   ├── database/         # Drizzle config + SQL migrations
+│   ├── ui/               # Shared UI source package
+│   ├── config/           # Shared ESLint config
+│   └── typescript-config/# Shared TS configs
+├── docs/
+│   └── idea-pool.md      # Parked future ideas only
+└── .infras/              # Operational scripts and infra notes
 ```
 
-## Technology Stack
+## Current Stack
 
-### Frontend (Beta)
+- Web: Next.js 16, React 19, TypeScript 5, Tailwind CSS v4, Framer Motion
+- API: Fastify 5, Zod, Drizzle ORM, PostgreSQL, Redis
+- Collector: Node/TypeScript service polling `mc_java` targets and posting heartbeats
+- Shared UI: `@firstspawn/ui` exports source TypeScript directly
+- Tooling: pnpm workspaces, ESLint, Prettier, Vitest
 
-- **Framework:** Next.js 16 with App Router
-- **Language:** TypeScript 5
-- **Styling:** Tailwind CSS v4 + Framer Motion
-- **UI Library:** React 19
-- **Icons:** Lucide React
-- **Fonts:** Press Start 2P (display), VT323 (UI), JetBrains Mono (body)
+## Source Of Truth
 
-### Backend (API)
+- Root overview and shared setup: `README.md`
+- Product UI/UX design system baseline: `DESIGN.md`
+- API runtime, endpoints, and validation commands: `apps/api/README.md`
+- Database migration workflow: `packages/database/README.md`
+- Parked future ideas: `docs/idea-pool.md`
 
-- **Language:** Python 3.11+
-- **Framework:** FastAPI (in progress — scaffold + DB schema implemented)
-- **ORM/Migrations:** SQLAlchemy 2.x + Alembic
-- **Database:** PostgreSQL 16 (source of truth)
-- **Cache/Queue:** Redis 7
-- **Search:** PostgreSQL FTS (MVP), Elasticsearch (future scale)
+## Documentation Rules
 
-### Shared Packages
+- Keep `docs/` minimal.
+- Use `docs/idea-pool.md` only for parked future ideas.
+- Keep UI/UX design language in `DESIGN.md` (not in `docs/`).
+- Put service-specific runtime details in the nearest service README instead of
+  `docs/`.
+- Avoid stale status docs, duplicate setup instructions, and speculative
+  roadmaps.
+- If information belongs in the product baseline, put it in `README.md` or the
+  relevant service README instead of creating another doc.
 
-- `@firstspawn/database`: Alembic migrations and PostgreSQL init assets
-- `@firstspawn/ui`: Source TypeScript files exported directly (no build)
-- `@firstspawn/typescript-config`: Shared TypeScript configurations
-- `@firstspawn/config`: Shared ESLint configuration
-
-## Build and Development Commands
+## Shared Commands
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Development (runs all dev servers)
 pnpm dev
-
-# Target specific workspace
-pnpm --filter @firstspawn/web dev
-
-# Build all
 pnpm build
-
-# Lint all
 pnpm lint
-
-# Fix lint issues
-pnpm lint:fix
-
-# Format code
 pnpm format
-
-# Check formatting without modifying files
-pnpm format:check
-
-# Type check all packages
 pnpm typecheck
-
-# Type check web app directly
-pnpm --filter @firstspawn/web typecheck
-
-# Run full CI pipeline locally
+pnpm test
 pnpm ci
-
-# Clean all build artifacts
-pnpm clean
 ```
 
-## Critical Project-Specific Information
+Useful targeted commands:
 
-### i18n System
-
-- Translations use a **custom deep-merge fallback system** in
-  `apps/web/src/lib/get-dictionary.ts`
-- Always merge target locale into English base (see `mergeDictionaries()`
-  function)
-- Dictionary files are JSON, located in `apps/web/src/lib/dictionaries/`
-- Supported locales: `en`, `tr`, `de`, `ru`, `es`, `fr`
-- MVP launch locales: `en`, `tr`, `de`
-- Locale route param is `lang` (not `locale`)
-- Default locale is `en`
-
-### Pixel-Retro Design System
-
-- Custom CSS variables in `apps/web/src/app/globals.css` define the palette
-- Primary accent color: `--fs-diamond: #22d3ee` (cyan-400)
-- Available utility classes:
-  - `.pixel-border` - Light pixel-style border
-  - `.pixel-border-dark` - Dark pixel-style border
-  - `.pixel-shadow` - Pixel shadow effect
-  - `.crt-overlay` - CRT scanline effect
-  - `.font-display` - Press Start 2P font
-  - `.font-ui` - VT323 UI font
-  - `.font-body` - JetBrains Mono body font
-
-### Tailwind v4 Configuration
-
-- Uses `@import "tailwindcss"` syntax (not `@tailwind` directives)
-- Configured in `globals.css` with `@theme inline` for custom properties
-- PostCSS config uses `@tailwindcss/postcss` plugin
-- Custom colors mapped to CSS variables (see `@theme inline` block)
-
-### OpenGraph Image Generation
-
-- Uses **edge runtime** (`export const runtime = 'edge'`)
-- Custom font loading from `apps/web/src/assets/fonts/`
-- Always load fonts via `fetch(new URL(..., import.meta.url))`
-- Font used: Press Start 2P
-- Size: 1200x630px
-
-### SEO/Robots Behavior
-
-- `robots.ts` checks `VERCEL_ENV === 'production'`
-- **Automatically blocks indexing on preview deployments**
-- Add new protected routes to the `disallow` array in `robots.ts`
-- Sitemap generated dynamically from `i18n.locales`
-
-### AI-Powered Captcha
-
-- Located in `apps/web/src/app/actions/captcha.ts`
-- Uses Gemini 2.0 Flash with OpenAI fallback
-- Generates retro-futuristic access messages when providers are available
-- Must degrade gracefully when AI keys/credits/providers are unavailable (no
-  hard failure)
-- Requires `GEMINI_API_KEY` or `OPENAI_API_KEY` for AI-enhanced messaging
-
-### Newsletter System
-
-- Server action: `apps/web/src/app/actions/newsletter.ts`
-- Uses Resend for email delivery
-- JWT tokens for confirmation links
-- PostHog tracking for analytics
-- Confirmation email component in `apps/web/src/features/email/templates/`
-
-### Analytics (PostHog)
-
-- Client-side: `apps/web/src/instrumentation-client.ts`
-- Server-side: `apps/web/src/lib/posthog-server.ts`
-- Requires `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST`
-- Automatic exception capture enabled
-
-## Code Organization
-
-### Web App Structure (`apps/web/`)
-
-```
-src/
-├── app/
-│   ├── [lang]/
-│   │   ├── layout.tsx            # Root locale layout (fonts, metadata, providers)
-│   │   ├── opengraph-image.tsx   # Dynamic OG image
-│   │   ├── (marketing)/          # Routes with global chrome
-│   │   └── (auth)/               # Auth routes without global chrome
-│   ├── actions/                  # Server actions
-│   ├── admin/                    # Admin dashboard routes (English-only)
-│   ├── api/                      # API routes
-│   ├── globals.css               # Global styles + Tailwind config
-│   ├── robots.ts                 # Dynamic robots.txt
-│   └── sitemap.ts                # Dynamic sitemap.xml
-├── assets/
-│   └── fonts/                    # PressStart2P-Regular.ttf for OG images
-├── components/
-│   ├── ui/                       # Shared web UI primitives
-│   ├── layout/                   # Navbar, Footer, MarketingChrome
-│   └── providers/                # PostHogProvider, PostHogPageView
-├── features/
-│   ├── auth/
-│   ├── landing/
-│   ├── captcha/
-│   ├── email/templates/
-│   └── admin/
-├── lib/
-│   ├── dictionaries/
-│   ├── get-dictionary.ts
-│   ├── i18n-config.ts
-│   ├── links.ts
-│   └── posthog-server.ts
-├── instrumentation-client.ts
-└── proxy.ts
-
-public/                  # Static assets
+```bash
+pnpm --filter @firstspawn/web dev
+pnpm --filter @firstspawn/api dev
+pnpm --filter @firstspawn/collector dev
+pnpm --dir packages/database run migrate
+pnpm --dir packages/database run generate
 ```
 
-### Shared UI Package (`packages/ui/`)
-
-- Exports source TypeScript files directly (no build step)
-- Components are simple React components with TypeScript
-- Current components: `Button.tsx`
-- Import pattern: `import { Button } from '@firstspawn/ui'`
-
-## Environment Variables Required
-
-### Required for Web App
-
-```
-NEXT_PUBLIC_SITE_URL          # For canonical URLs and OG images
-NEXT_PUBLIC_POSTHOG_KEY       # PostHog project API key
-NEXT_PUBLIC_POSTHOG_HOST      # PostHog host URL
-```
-
-### Required for Newsletter
-
-```
-RESEND_API_KEY                # Resend API key for emails
-JWT_SECRET                    # Secret for newsletter confirmation tokens
-RESEND_AUDIENCE_ID            # Resend audience ID (optional)
-```
-
-### Required for AI Captcha
-
-```
-GEMINI_API_KEY                # Google Gemini API key (primary)
-OPENAI_API_KEY                # OpenAI API key (fallback)
-```
-
-### Deployment
-
-```
-VERCEL_ENV                    # Set automatically by Vercel
-NODE_ENV                      # development | production
-```
-
-### Admin Dashboard
-
-**Location:** `apps/web/src/app/admin/` (English-only, no i18n)
-
-**Authentication:** Role-based JWT (`user`, `moderator`, `analyst`, `admin`, `super_admin`)
-
-**Structure:**
-- `layout.tsx` - Root layout with RBAC check via `requireAdmin()`
-- `page.tsx` - Overview dashboard with real-time metrics
-- `users/`, `servers/`, `moderation/`, `agents/`, `system/`, `exports/` - Section pages
-
-**Design Patterns:**
-- Uses same pixel-retro aesthetic as main site
-- `StatsCard` - Metric display with pixel border and corner accents
-- `AdminSidebar` - Navigation with role-based visibility
-- `LiveIndicator` - Pulsing status indicator for real-time data
-- Components follow `PixelCard` visual style (border-4, shadow-[8px_8px_0...])
-
-**Authorization:**
-- `lib/admin-auth.ts` - Server-side auth with role checking
-- `features/admin/lib/permissions.ts` - Permission matrix
-- `requireAdmin()` redirects to `/en/login` if not authenticated
-- `requireRole()` for specific role requirements
-
-## Workspace Notes
-
-### @firstspawn/web
-
-- **Status:** Beta (L2 maturity)
-- **Port:** 3000
-- **Deployment:** Vercel (configured to deploy only this app)
-- **Runtime:** Node.js >= 18
-
-### @firstspawn/api
-
-- **Status:** Scaffold + V1 DB schema done; auth endpoints not yet implemented
-- **Port:** 8000
-- **Framework:** FastAPI + SQLAlchemy 2.x + Alembic
-- **Purpose:** Production API implementation aligned to
-  `docs/plans/05-api-v1-contract.md` and `docs/plans/06-data-model-v1.md`
-- **Note:** Previously named `api-py`, now consolidated to `api`
-
-### @firstspawn/mobile
-
-- **Status:** Scaffold only, requires initialization
-- **To initialize:** `npx create-expo-app@latest . --template`
-- Dependencies reference `@firstspawn/ui` for shared components
-
-### @firstspawn/ui
-
-- **Status:** Active
-- **Important:** Exports source TS files directly (no build step)
-- Uses `@firstspawn/typescript-config/react-library` for TS config
-
-## Testing
-
-- **Status:** Not yet implemented
-- `pnpm test` exists at the repo root but no test runner is installed for the JS workspaces
-- Add Vitest or Jest before writing tests
-- Recommended location: `apps/web/tests/` or co-located `*.test.ts` files
-
-## Code Style Guidelines
-
-### TypeScript
-
-- Strict mode enabled
-- Use type imports: `import type { Locale } from "..."`
-- Prefer interfaces over type aliases for object shapes
-- Use explicit return types on exported functions
-
-### Python
-
-- Use `from __future__ import annotations` at the top of all model files
-- Add forward imports in `if TYPE_CHECKING:` blocks to avoid circular dependencies
-- All code must pass `ruff check .` with zero errors
-- Ruff configuration in `apps/api/pyproject.toml`:
-  - Line length: 100
-  - Enabled rules: E, F, I, B, UP
-- Run `ruff check . --fix` before committing Python changes
-
-### Components
-
-- Use "use client" directive for client components
-- Keep server components as default (no directive)
-- Use `.client.tsx` suffix for interactive components; keep server components as plain `.tsx`
-- Props interfaces should be exported
-- Use Tailwind utility classes, avoid inline styles
+## Web Rules
 
 ### i18n
 
-- All user-facing strings must use dictionary values
-- Never hardcode text in components
-- Add new keys to `en.json` first, then other locales
-- Use `dictionary.category.key` pattern for nested access
+- Dictionary files live in `apps/web/src/lib/dictionaries/`.
+- Supported locales: `en`, `tr`, `de`, `ru`, `es`, `fr`.
+- MVP locales: `en`, `tr`, `de`.
+- Route param is `lang`, not `locale`.
+- Always merge the target dictionary into English via
+  `apps/web/src/lib/get-dictionary.ts`.
+- All user-facing strings must come from dictionaries.
 
-### Styling
+### Design System
 
-- Use CSS variables from `globals.css` for colors
-- Centralize typography in `apps/web/src/app/globals.css` via root font tokens:
-  - `--font-family-display` (pixel headings)
-  - `--font-family-ui` (readable UI/forms)
-  - `--font-family-body` (site-wide body default)
-- Prefer `fs-diamond` (cyan-400) for primary accents
-- Use `.font-display` for large display headings and primary CTA buttons
-- Prefer `.font-ui` (VT323) for form inputs, helper/error text, and legal links
-- Keep long-form/content text on body defaults (`--font-family-body`, JetBrains Mono) unless intentionally styled
-- Maintain pixel-retro aesthetic with utility classes
-- Keep internal/technical implementation labels out of end-user UI copy (for example avoid terms like
-  "SECURE NODE", "JWT SESSION", "TRUST LAYER V1" in public-facing auth screens)
+- The site uses a pixel-retro visual language.
+- Global tokens and utility classes live in
+  `apps/web/src/app/globals.css`.
+- Primary accent is `--fs-diamond: #22d3ee`.
+- Typography tokens:
+  - `--font-family-display`
+  - `--font-family-ui`
+  - `--font-family-body`
 
-## Security Considerations
+### Routing
 
-### Authentication
+- Marketing pages with global chrome go under
+  `apps/web/src/app/[lang]/(marketing)/`.
+- Auth pages without global chrome go under
+  `apps/web/src/app/[lang]/(auth)/`.
+- Admin routes stay under `apps/web/src/app/admin/` and are English-only.
 
-- JWT tokens for newsletter confirmation (1-hour expiry)
-- Password hashing will use Argon2id (backend not yet implemented)
+### SEO And OG
 
-### API Protection
+- `apps/web/src/app/robots.ts` blocks indexing on preview deployments.
+- Add new protected routes to the `disallow` list in `robots.ts`.
+- `apps/web/src/app/sitemap.ts` is generated from configured locales.
+- OG image generation uses edge runtime and loads fonts with
+  `fetch(new URL(..., import.meta.url))`.
 
-- Rate limiting planned by actor category (guest, user, owner/plugin)
-- HMAC signatures for plugin verification
-- Replay-window checks for plugin API
+### Graceful Degradation
 
-### Environment
+- AI-enhanced captcha copy must not hard-fail when provider keys or credits are
+  missing.
+- Newsletter, analytics, and optional third-party integrations must fail
+  safely.
 
-- Never commit `.env` files
-- Copy `.env.example` to `.env` for local development
-- All secrets must be server-side only
-- Only publish-safe values may use the `NEXT_PUBLIC_` prefix
+## API Rules
 
-## Deployment
+- Keep route contracts in Zod and use Fastify Swagger/OpenAPI as the
+  machine-readable contract source.
+- Keep schema changes aligned between `packages/database/schema-design.md`,
+  `apps/api/src/db/schema.ts`, and generated migrations.
+- Use explicit return types on exported functions unless the framework surface
+  makes the type obvious.
+- Prefer transactions for auth/session mutations that revoke or rotate refresh
+  tokens.
+- Passwords are hashed with scrypt and refresh tokens are hashed at rest.
+- Shared bearer auth and collector-key checks live under `apps/api/src/lib/`.
+- New backend slices should register through `apps/api/src/routes/index.ts` so
+  `/openapi.json` stays complete.
 
-### Web (Vercel)
+### Current API Surface
 
-- Production branch: `main`
-- Environment variables configured in Vercel dashboard
-- OG images use edge runtime
-- Automatic preview deployments for PRs
+- Auth routes remain under `apps/api/src/routes/v1/auth.ts`.
+- Server catalog routes live under `apps/api/src/routes/v1/servers.ts`.
+- Collector routes live under `apps/api/src/routes/v1/collector.ts`.
+- Public server detail uses slug.
+- Admin and collector write paths use UUID server ids.
 
-### Future API (Python)
+### Catalog And Freshness Rules
 
-- Planned for managed container runtime
-- PostgreSQL + Redis managed services
-- Independent deployment from web
+- MVP support is `mc_java` only for admin writes, collector targets, and public
+  freshness.
+- Public list hides archived rows by default and never exposes suspended rows.
+- Public detail returns `404` for suspended or missing rows.
+- Online/offline is derived from `servers.last_ping_at` with a 15 minute window.
+- Collector accepts only successful heartbeat samples. Offline is absence, not
+  an explicit event.
+- Heartbeat dedupe is scoped by `(server_id, idempotency_key)`.
+- Late/out-of-order successful samples are accepted, but `servers.last_ping_at`
+  must stay monotonic.
 
-## Documentation
+### API Validation
 
-Active documentation lives in `docs/plans/`:
+- API tests live in `apps/api/tests/`.
+- `pnpm test` runs workspace suites, including the API Vitest suite.
+- DB-backed API tests should use `API_TEST_DATABASE_URL` when provided.
+- API test harness uses schema-level isolation per test run.
 
-- `01-product-and-strategy.md` - Vision, users, loops, monetization
-- `02-architecture-and-stack.md` - Tech decisions, security, deployment
-- `03-execution-and-ops.md` - Roadmap, quality gates, workflow
-- `04-agentic-ecosystem-implementation-guide.md` - Autonomous agents
-- `05-api-v1-contract.md` - API v1 contract and endpoint standards
-- `06-data-model-v1.md` - PostgreSQL v1 schema baseline
+## Database Rules
 
-### README Ownership
+- `packages/database` owns Drizzle config and SQL migration history.
+- The canonical design source of truth is `packages/database/schema-design.md`.
+- Runtime schema is derived into `apps/api/src/db/schema.ts`.
+- Generate migrations from schema changes, then apply them through the database
+  workspace scripts.
+- Raw heartbeat retention and rollup jobs stay in `packages/database/jobs/`.
+- Scheduler container runs existing SQL-backed archive / rollup / purge scripts
+  from `.infras/ops/cron/`.
 
-- Root `README.md` must stay high-level (monorepo overview, shared setup, shared scripts).
-- Service-specific implementation/runtime/testing details must live in that service README:
-  - API details in `apps/api/README.md`
-  - Web details in `apps/web/README.md` (when present)
-- Do not duplicate deep API status matrices in the root `README.md`; link to `apps/api/README.md` instead.
+## Collector Rules
 
-### Planning Documents (`docs/plans/`)
+- Collector source lives in `apps/collector/src/`.
+- Collector fetches paginated targets from `GET /api/v1/collector/targets`.
+- Collector posts one heartbeat event per request to
+  `POST /api/v1/collector/heartbeats`.
+- Auth uses `API_COLLECTOR_KEY` through the `x-collector-key` header.
+- Probe cadence defaults to 5 minute pings and 30 minute raw payload storage.
+- Collector exposes `/healthz` and `/metrics`.
+- Keep collector logic platform-agnostic; Docker runtime is wired through
+  `apps/collector/Dockerfile` and `docker-compose.yml`.
 
-Store planning documents (specs, proposals, RFCs, and design notes) in:
+## Environment Rules
 
-- `docs/plans/<topic-or-date>.md`
+- Never commit `.env` files.
+- Copy `.env.example` to `.env` for local development.
+- Secrets stay server-side only.
+- Only publish-safe values may use the `NEXT_PUBLIC_` prefix.
 
-### Session Handover Logs (`docs/implementations/`)
-
-For each substantial work session, create or update a handover log in:
-
-- `docs/implementations/YYYY-MM-DD-title.md`
-
-Format rules:
-
-1. Use the title: `# Handover - YYYY-MM-DD`
-2. Include sections in this order:
-   - `## Session Summary`
-   - `## Validation Performed`
-   - `## What is next?`
-3. In `Session Summary`, list:
-   - what changed (files/features/docs),
-   - important decisions/assumptions,
-   - any known risks or incomplete items.
-4. Keep `What is next?` short and actionable (1-3 numbered items).
-5. If a same-day handover already exists, append a new timestamped subsection
-   instead of creating a second file.
-
-> **Source of truth for all static file paths is `AGENTS.md`.**
-> `HANDOVER.md` contains historical session logs; paths listed there may be
-> outdated. Always consult `AGENTS.md` for current directory layout.
+Important env groups:
+- Web: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_POSTHOG_KEY`,
+  `NEXT_PUBLIC_POSTHOG_HOST`
+- API: `API_DATABASE_URL`, `API_REDIS_URL`, `API_JWT_SECRET`,
+  `API_TOKEN_HASH_SECRET`, `API_ADMIN_EMAIL_ALLOWLIST`, `API_COLLECTOR_KEY`
+- Collector: `COLLECTOR_API_BASE_URL`, `COLLECTOR_PING_INTERVAL_SECONDS`,
+  `COLLECTOR_PAYLOAD_INTERVAL_SECONDS`, `COLLECTOR_CONCURRENCY`,
+  `COLLECTOR_TARGET_PAGE_SIZE`, `COLLECTOR_PROBE_TIMEOUT_MS`
+- Scheduler: `SCHEDULE_ARCHIVE_INACTIVE`, `SCHEDULE_ROLLUP_RETENTION`,
+  `SCHEDULE_PURGE_DELETED_USERS`
+- Optional integrations: `RESEND_API_KEY`, `GEMINI_API_KEY`,
+  `OPENAI_API_KEY`
 
 ## Common Tasks
 
-### Adding a New Locale
+### Add A Locale
 
-1. Add locale code to `i18n.locales` in `apps/web/src/lib/i18n-config.ts`
-2. Create new dictionary file `apps/web/src/lib/dictionaries/[locale].json`
-3. Copy from `en.json` and translate
-4. Add dictionary loader in `apps/web/src/lib/get-dictionary.ts`
-5. Update `opengraph-image.tsx` if locale-specific OG images needed
-6. Update `sitemap.ts` to include new locale routes
+1. Update `apps/web/src/lib/i18n-config.ts`.
+2. Add the dictionary JSON file.
+3. Add the loader in `apps/web/src/lib/get-dictionary.ts`.
+4. Update sitemap or OG handling if the change affects public routing.
 
-### Adding a New Page
+### Add A Page
 
-1. Create route under the correct route group:
-   - `apps/web/src/app/[lang]/(marketing)/...` for pages with navbar/footer/cookie consent
-   - `apps/web/src/app/[lang]/(auth)/...` for auth pages without global chrome
-2. Add `page.tsx` with proper i18n setup
-3. Update `apps/web/src/components/layout/Navbar.client.tsx` if navigation needed
-4. Add route to `robots.ts` disallow list if protected
-5. Update sitemap if public page
+1. Choose the correct route group.
+2. Add the page with dictionary-driven copy.
+3. Update navigation only if the route is user-facing.
+4. Update `robots.ts` if the page is protected.
 
-### Adding a New Component
+### Add A Shared Component
 
-1. Determine the proper layer:
-   - Cross-app reusable component: `packages/ui/src/`
-   - Shared web primitive/layout/provider: `apps/web/src/components/`
-   - Feature-owned component with local logic: `apps/web/src/features/<feature>/components/`
-2. Keep stateful/business logic in feature hooks/lib, not in shared UI primitives
-3. Use `.client.tsx` only when interaction/browser APIs require it
-4. Use existing component patterns for consistency
+1. Put cross-app primitives in `packages/ui/src/`.
+2. Put shared web-only primitives in `apps/web/src/components/`.
+3. Put feature-owned logic in `apps/web/src/features/<feature>/`.
 
-### Adding a Server Action
+## Current Workspace Status
 
-1. Create in `apps/web/src/app/actions/` (or extend existing)
-2. Add `'use server'` directive at top
-3. Use Zod for input validation
-4. Return typed response objects
-5. Add error handling with logging
-
-## Repository Hygiene
-
-The repository maintains high code quality through automated tooling and CI/CD.
-
-### Editor Configuration
-
-- `.editorconfig` enforces consistent formatting:
-  - UTF-8 encoding, LF line endings
-  - 2 spaces for JS/TS/JSON/YAML, 4 spaces for Python
-  - Max 100 character line length
-  - Always insert final newline
-
-### Pre-commit Hooks (Husky)
-
-Husky runs automatically on every commit via the `prepare` script:
-
-- **pre-commit**: Runs `lint-staged` to format and lint staged files
-- **prepare-commit-msg**: Auto-prepends issue numbers from branch names
-
-### Linting and Formatting
-
-**TypeScript/JavaScript:**
-
-- Prettier: Code formatting (configured in `prettier.config.mjs`)
-- ESLint: Linting with Next.js configs
-- Run manually: `pnpm format`, `pnpm lint`
-
-**Python:**
-
-- Ruff: Fast Python linting and formatting
-- MyPy: Static type checking
-- Run manually: `ruff check .`, `ruff format .`, `mypy src/`
-
-### CI/CD Pipeline
-
-GitHub Actions runs on every PR and push to `main`/`develop`:
-
-1. **lint-and-format**: Prettier check + ESLint
-2. **typecheck**: TypeScript type checking
-3. **build**: Build all packages
-4. **python-lint**: Ruff + MyPy for Python
-5. **security**: pnpm audit for vulnerabilities
-6. **test**: Test placeholder (continues on failure)
-
-**Required status checks** (enforced via branch protection):
-
-The following checks must pass before merging to `main`:
-
-- Lint & Format Check
-- Type Check
-- Build
-- Python Lint & Format
-
-**Branch protection settings:**
-
-- Require branches to be up-to-date before merging
-- 1 approving review required
-- Stale reviews dismissed on new commits
-- Force pushes and branch deletion blocked
-
-### Dependency Management
-
-See `docs/DEPENDENCY_POLICY.md` for complete policy.
-
-**Quick rules:**
-
-- Commit `pnpm-lock.yaml` always
-- Patch updates: Weekly (automated)
-- Minor updates: Bi-weekly (manual review)
-- Major updates: Quarterly (planned)
-- Security updates: Immediate response required
-
-**Tools:**
-
-- Dependabot: Automated PRs for updates
-- `pnpm audit`: Security scanning in CI
-
-### Housekeeping Automation
-
-**Stale Issue/PR Management:**
-
-- Issues: Stale after 60 days, close after 7 more
-- PRs: Stale after 30 days, close after 14 more
-- Exempt labels: `keep-open`, `critical`, `roadmap`, `wip`
-
-**Stale Branch Cleanup:**
-
-- Weekly scan for branches >90 days old
-- Skips branches with open PRs
-- Currently in dry-run mode (manual enable required)
-
-### PR Requirements
-
-All PRs should:
-
-- Fill out the PR template completely
-- Pass all CI checks
-- Request review from CODEOWNERS
-- Follow conventional commit format
+- `@firstspawn/web`: Beta app deployed via Vercel
+- `@firstspawn/api`: Auth/session/soft-delete/restore plus server catalog and
+  collector ingestion routes implemented
+- `@firstspawn/collector`: Active heartbeat collector for `mc_java` targets
+- `@firstspawn/mobile`: Scaffold only
+- `@firstspawn/ui`: Active shared component package
