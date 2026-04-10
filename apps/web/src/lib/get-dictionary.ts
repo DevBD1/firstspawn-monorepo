@@ -19,7 +19,7 @@ export interface Dictionary {
     shared?: {
       backToHome: string;
     };
-    [key: string]: any;
+    [key: string]: unknown;
   };
   [key: string]: unknown;
 }
