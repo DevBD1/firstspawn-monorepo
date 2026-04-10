@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { serverHeartbeats } from "../src/db/schema.js";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("servers integration", () => {
@@ -215,6 +216,97 @@ describe("servers integration", () => {
     const allSlugs = includeArchived.json().data.servers.map((item: { slug: string }) => item.slug);
     expect(allSlugs).toContain(active.slug);
     expect(allSlugs).toContain(archived.slug);
+  });
+
+  it("returns latest heartbeat metrics in public list", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_metrics",
+    });
+
+    const first = await createServerAsAdmin(admin.accessToken, {
+      slug: "metrics-one",
+      name: "Metrics One",
+    });
+    const second = await createServerAsAdmin(admin.accessToken, {
+      slug: "metrics-two",
+      name: "Metrics Two",
+    });
+
+    const now = new Date();
+    await getContext()
+      .app.db.db.insert(serverHeartbeats)
+      .values([
+        {
+          serverId: first.id,
+          occurredAt: new Date("2026-04-10T09:00:00.000Z"),
+          collectedAt: now,
+          pingMs: 80,
+          onlinePlayers: 8,
+          maxPlayers: 80,
+          minecraftVersion: "1.20.1",
+          idempotencyKey: "metrics-one-old",
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          serverId: first.id,
+          occurredAt: new Date("2026-04-10T10:00:00.000Z"),
+          collectedAt: now,
+          pingMs: 45,
+          onlinePlayers: 14,
+          maxPlayers: 80,
+          minecraftVersion: "1.21.1",
+          idempotencyKey: "metrics-one-new",
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          serverId: second.id,
+          occurredAt: new Date("2026-04-10T11:00:00.000Z"),
+          collectedAt: now,
+          pingMs: 61,
+          onlinePlayers: 5,
+          maxPlayers: 60,
+          minecraftVersion: "1.20.4",
+          idempotencyKey: "metrics-two-new",
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]);
+
+    const response = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/servers?limit=10",
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const items = response.json().data.servers as Array<{
+      slug: string;
+      latest_metrics: {
+        ping_ms: number | null;
+        online_players: number | null;
+        max_players: number | null;
+        minecraft_version: string | null;
+        occurred_at: string | null;
+      };
+    }>;
+
+    expect(items.find((item) => item.slug === "metrics-one")?.latest_metrics).toEqual({
+      ping_ms: 45,
+      online_players: 14,
+      max_players: 80,
+      minecraft_version: "1.21.1",
+      occurred_at: "2026-04-10T10:00:00.000Z",
+    });
+    expect(items.find((item) => item.slug === "metrics-two")?.latest_metrics).toEqual({
+      ping_ms: 61,
+      online_players: 5,
+      max_players: 60,
+      minecraft_version: "1.20.4",
+      occurred_at: "2026-04-10T11:00:00.000Z",
+    });
   });
 
   it("hides suspended servers from public detail with 404", async () => {

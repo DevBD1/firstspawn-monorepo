@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNull, ilike, lt, or, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, ilike, lt, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
@@ -201,18 +201,41 @@ const freshnessFromServer = (server: ServerRecord, nowMs: number): "online" | "o
   return nowMs - server.lastPingAt.getTime() <= ONLINE_WINDOW_MS ? "online" : "offline";
 };
 
+const findLatestHeartbeats = async (
+  app: FastifyInstance,
+  serverIds: string[]
+): Promise<Map<string, HeartbeatRecord>> => {
+  const uniqueServerIds = [...new Set(serverIds)];
+  if (uniqueServerIds.length === 0) {
+    return new Map();
+  }
+
+  const rankedHeartbeats = app.db.db
+    .select({
+      id: serverHeartbeats.id,
+      rn: sql<number>`row_number() over (
+        partition by ${serverHeartbeats.serverId}
+        order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
+      )`.as("rn"),
+    })
+    .from(serverHeartbeats)
+    .where(inArray(serverHeartbeats.serverId, uniqueServerIds))
+    .as("ranked_heartbeats");
+
+  const rows = await app.db.db
+    .select({ heartbeat: serverHeartbeats })
+    .from(serverHeartbeats)
+    .innerJoin(rankedHeartbeats, eq(serverHeartbeats.id, rankedHeartbeats.id))
+    .where(eq(rankedHeartbeats.rn, 1));
+
+  return new Map(rows.map(({ heartbeat }) => [heartbeat.serverId, heartbeat]));
+};
+
 const findLatestHeartbeat = async (
   app: FastifyInstance,
   serverId: string
 ): Promise<HeartbeatRecord | null> => {
-  const rows = await app.db.db
-    .select()
-    .from(serverHeartbeats)
-    .where(eq(serverHeartbeats.serverId, serverId))
-    .orderBy(desc(serverHeartbeats.occurredAt))
-    .limit(1);
-
-  return rows[0] ?? null;
+  return (await findLatestHeartbeats(app, [serverId])).get(serverId) ?? null;
 };
 
 const normalizeServerPayload = (
@@ -650,15 +673,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         .limit(query.limit + 1);
 
       const sliced = rows.slice(0, query.limit);
-      const latestRows = await Promise.all(
-        sliced.map(async (server) => {
-          const latest = await findLatestHeartbeat(app, server.id);
-          return {
-            server,
-            latest,
-          };
-        })
+      const heartbeatsByServerId = await findLatestHeartbeats(
+        app,
+        sliced.map((server) => server.id)
       );
+      const latestRows = sliced.map((server) => ({
+        server,
+        latest: heartbeatsByServerId.get(server.id) ?? null,
+      }));
 
       const nowMs = Date.now();
       const nextCursor = rows.length > query.limit ? (rows[query.limit]?.id ?? null) : null;
