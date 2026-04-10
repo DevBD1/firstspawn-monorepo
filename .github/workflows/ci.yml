@@ -166,28 +166,36 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Wait for PostgreSQL
+        working-directory: apps/api
         run: |
-          node --input-type=module -e "import pg from 'pg';
-          const { Client } = pg;
-          const connectionString = 'postgresql://firstspawn:firstspawn@127.0.0.1:5432/firstspawn';
-          let attempt = 0;
-          while (attempt < 30) {
-            attempt += 1;
+          node --input-type=module <<'EOF'
+          import { Client } from "pg";
+
+          const connectionString =
+            process.env.API_TEST_DATABASE_URL ??
+            "postgresql://firstspawn:firstspawn@127.0.0.1:5432/firstspawn";
+
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+          for (let attempt = 1; attempt <= 30; attempt += 1) {
             const client = new Client({ connectionString });
+
             try {
               await client.connect();
-              await client.query('select 1');
+              await client.query("select 1");
               await client.end();
-              console.log('PostgreSQL is ready');
+              console.log("PostgreSQL is ready");
               process.exit(0);
-            } catch (error) {
+            } catch {
               await client.end().catch(() => undefined);
               console.log(`PostgreSQL not ready yet (attempt ${attempt}/30)`);
-              await new Promise((resolve) => setTimeout(resolve, 2000));
+              await sleep(2000);
             }
           }
-          console.error('PostgreSQL did not become ready in time');
-          process.exit(1);"
+
+          console.error("PostgreSQL did not become ready in time");
+          process.exit(1);
+          EOF
 
       - name: Run tests
         run: pnpm run test
