@@ -147,6 +147,10 @@ New backend MVP services require the following environment values in `.env`:
 - API admin and collector auth:
   - `API_ADMIN_EMAIL_ALLOWLIST`
   - `API_COLLECTOR_KEY`
+- Scheduler (UTC cron, daily defaults):
+  - `SCHEDULE_ARCHIVE_INACTIVE`
+  - `SCHEDULE_ROLLUP_RETENTION`
+  - `SCHEDULE_PURGE_DELETED_USERS`
 - Collector runtime:
   - `COLLECTOR_API_BASE_URL`
   - `COLLECTOR_PING_INTERVAL_SECONDS`
@@ -167,10 +171,6 @@ To run backend services on an IPv6 VPS, complete all steps below:
 6. Add DNS `AAAA` records for your domains.
 7. Bind reverse proxy (nginx/caddy) for IPv6 listeners.
 8. Verify from outside using an IPv6 client.
-- Scheduler (UTC cron, daily defaults):
-  - `SCHEDULE_ARCHIVE_INACTIVE`
-  - `SCHEDULE_ROLLUP_RETENTION`
-  - `SCHEDULE_PURGE_DELETED_USERS`
 
 ## Common Commands
 
