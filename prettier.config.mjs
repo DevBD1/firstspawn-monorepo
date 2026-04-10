@@ -40,17 +40,7 @@ const config = {
         tabWidth: 2,
       },
     },
-    {
-      files: "*.py",
-      options: {
-        tabWidth: 4,
-        printWidth: 100,
-      },
-    },
   ],
-
-  // Ignore patterns (matches .gitignore + additional patterns)
-  ignorePath: ".prettierignore",
 };
 
 export default config;

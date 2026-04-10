@@ -1,0 +1,30 @@
+{
+  "name": "@firstspawn/collector",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist coverage .vitest"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "minecraft-server-util": "^5.4.4",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@firstspawn/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
+    "eslint": "^9.39.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  }
+}

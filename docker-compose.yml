@@ -1,76 +1,41 @@
 services:
+  dozzle:
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_USERNAME=${DOZZLE_USERNAME:-admin}
+      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD:-admin}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - firstspawn-network
+    restart: always
   postgres:
     image: postgres:16-alpine
-    container_name: firstspawn-postgres
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-firstspawn}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME:-firstspawn}
-    # Port mapping kaldırıldı (güvenlik için dışarı açmıyoruz)
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./packages/database/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-firstspawn} -d ${DB_NAME:-firstspawn}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-firstspawn} -d ${DB_NAME:-firstspawn}"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - firstspawn-network
-
-  redis:
-    image: redis:7-alpine
-    container_name: firstspawn-redis
-    restart: always
-    # Port mapping kaldırıldı
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    networks:
-      - firstspawn-network
-
-  fastapi:
-    build:
-      context: . # Monorepo kökü (paylaşımlı paketler için önemli)
-      dockerfile: apps/api/Dockerfile
-    container_name: firstspawn-api
-    restart: always
-    environment:
-      API_ENV: production
-      # Konteyner isimlerini (postgres/redis) kullanarak iç ağdan bağlanıyoruz
-      API_DATABASE_URL: postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
-      API_REDIS_URL: redis://redis:6379/0
-    # ports:
-    #   - "80:8000"  <-- Bu satırı sil/yorum satırı yap, dışarıya port açmayacağız
-    expose:
-      - "8000" # Sadece Docker iç ağında (firstspawn-network) erişilebilir olacak
-    # Canlı ortamda kod mount edilmez, imaj içinden okunur
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    # IPv6 desteği için [::] kullanımı
-    # command: "uvicorn main:app --app-dir apps/api/src --host :: --port 8000"
-    command: "uvicorn main:app --app-dir apps/api/src --host :: --port 8000"
-    networks:
-      - firstspawn-network
-
   pgadmin:
     image: dpage/pgadmin4:8
-    container_name: firstspawn-pgadmin
     restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@firstspawn.com
       - PGADMIN_DEFAULT_PASSWORD=${DB_PASSWORD:-admin}
       - PGADMIN_CONFIG_SERVER_MODE=True
       - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=False
-      - PGADMIN_CONFIG_FORCE_CANONICAL_URL='https://db.firstspawn.com'
       - PGADMIN_CONFIG_CSRF_CHECK_REFERER=False
     ports:
       - "5050:80"
@@ -80,85 +45,107 @@ services:
       - postgres
     networks:
       - firstspawn-network
-
+  api:
+    build:
+      context: . # Monorepo root (important for shared packages)
+      dockerfile: apps/api/Dockerfile
+    restart: always
+    environment:
+      API_ENV: ${API_ENV}
+      DB_HOST: postgres
+      DB_USER: ${DB_USER:-firstspawn}
+      DB_PASSWORD: ${DB_PASSWORD:-firstspawn}
+      DB_NAME: ${DB_NAME:-firstspawn}
+      API_REDIS_URL: redis://redis:6379/0
+      API_ADMIN_EMAIL_ALLOWLIST: ${API_ADMIN_EMAIL_ALLOWLIST:-}
+      API_COLLECTOR_KEY: ${API_COLLECTOR_KEY:-change_me}
+    # ports:
+    #   - "80:8000"  <-- Remove/comment out this line; we will not expose the port externally
+    expose:
+      - "8000" # Accessible only within Docker's internal network (firstspawn-network)
+    # In production, code is not mounted; it is read from the image
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Use [::] for IPv6 support
+    networks:
+      - firstspawn-network
+  collector:
+    build:
+      context: .
+      dockerfile: apps/collector/Dockerfile
+    restart: always
+    environment:
+      COLLECTOR_API_BASE_URL: ${COLLECTOR_API_BASE_URL:-http://api:8000/api/v1}
+      API_COLLECTOR_KEY: ${API_COLLECTOR_KEY:-change_me}
+      COLLECTOR_PING_INTERVAL_SECONDS: ${COLLECTOR_PING_INTERVAL_SECONDS:-300}
+      COLLECTOR_PAYLOAD_INTERVAL_SECONDS: ${COLLECTOR_PAYLOAD_INTERVAL_SECONDS:-1800}
+      COLLECTOR_CONCURRENCY: ${COLLECTOR_CONCURRENCY:-10}
+      COLLECTOR_TARGET_PAGE_SIZE: ${COLLECTOR_TARGET_PAGE_SIZE:-100}
+      COLLECTOR_PROBE_TIMEOUT_MS: ${COLLECTOR_PROBE_TIMEOUT_MS:-5000}
+    depends_on:
+      - api
+      - postgres
+    expose:
+      - "8081"
+    networks:
+      - firstspawn-network
+  scheduler:
+    build:
+      context: .
+      dockerfile: .infras/ops/scheduler/Dockerfile
+    restart: always
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER:-firstspawn}
+      DB_PASSWORD: ${DB_PASSWORD:-firstspawn}
+      DB_NAME: ${DB_NAME:-firstspawn}
+      RETENTION_DAYS: ${RETENTION_DAYS:-14}
+      ARCHIVE_AFTER_HOURS: ${ARCHIVE_AFTER_HOURS:-168}
+      SCHEDULE_ARCHIVE_INACTIVE: "${SCHEDULE_ARCHIVE_INACTIVE:-0 2 * * *}"
+      SCHEDULE_ROLLUP_RETENTION: "${SCHEDULE_ROLLUP_RETENTION:-30 2 * * *}"
+      SCHEDULE_PURGE_DELETED_USERS: "${SCHEDULE_PURGE_DELETED_USERS:-0 3 * * *}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - firstspawn-network
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - firstspawn-network
   nginx:
     image: nginx:latest
-    container_name: firstspawn-nginx
+    environment:
+      NGINX_AUTH_USER: ${NGINX_AUTH_USER:-admin}
+      NGINX_AUTH_PASS: ${NGINX_AUTH_PASS:-admin}
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./infrastructure/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
-      - ./infrastructure/nginx/certs:/etc/nginx/certs:ro
+      - ./.infras/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./.infras/nginx/generate-htpasswd.sh:/docker-entrypoint.d/40-generate-htpasswd.sh:ro
     networks:
       - firstspawn-network
     depends_on:
-      - fastapi
+      - api
       - pgadmin
-
-  dozzle:
-    image: amir20/dozzle:latest
-    container_name: firstspawn-dozzle
-    environment:
-      - DOZZLE_USERNAME=${DOZZLE_USERNAME:-admin}
-      - DOZZLE_PASSWORD=${DOZZLE_PASSWORD:-admin}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - firstspawn-network
-    restart: always
-
-  mailserver:
-    image: mailserver:amd64
-    container_name: mailserver
-    hostname: mail.firstspawn.com
-    domainname: firstspawn.com
-    ports:
-      - "25:25"
-      - "587:587"
-      - "465:465"
-      - "993:993"
-    volumes:
-      - ./docker-data/dms/mail-data/:/var/mail/
-      - ./docker-data/dms/mail-state/:/var/mail-state/
-      - ./docker-data/dms/config/:/tmp/docker-mailserver/
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - ENABLE_SPAMASSASSIN=0
-      - ENABLE_CLAMAV=0
-      - ENABLE_FAIL2BAN=1
-      - SSL_TYPE=manual
-      - SSL_CERT_PATH=/etc/letsencrypt/firstspawn.crt
-      - SSL_KEY_PATH=/etc/letsencrypt/firstspawn.key
-      - OVERRIDE_HOSTNAME=mail.firstspawn.com
-    cap_add:
-      - NET_ADMIN
-    restart: always
-    networks:
-      - firstspawn-network
-
-  webmail:
-    image: webmail:amd64
-    container_name: webmail
-    environment:
-      # İç ağda 'mailserver' ismini kullanarak bağlanıyoruz
-      - ROUNDCUBEMAIL_DB_TYPE=sqlite
-      - ROUNDCUBEMAIL_SKIN=elastic
-      - ROUNDCUBEMAIL_DEFAULT_HOST=tls://mailserver
-      - ROUNDCUBEMAIL_SMTP_SERVER=tls://mailserver
-    depends_on:
-      - mailserver
-    networks:
-      - firstspawn-network
 
 volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
 
-
 networks:
   firstspawn-network:
     driver: bridge
-    enable_ipv6: true # Docker daemon.json ile uyumlu olması için
+    enable_ipv6: false # if true -> Docker daemon.json file must be set to "ipv6": true

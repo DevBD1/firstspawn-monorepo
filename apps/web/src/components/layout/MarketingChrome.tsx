@@ -16,9 +16,34 @@ export interface MarketingChromeDictionary {
     logOut: string;
   };
   cookie_consent: {
-    message: string;
-    accept: string;
-    decline: string;
+    title: string;
+    introPrefix: string;
+    introLinkLabel: string;
+    introSuffix: string;
+    consentPrefix: string;
+    privacyLinkLabel: string;
+    consentMiddle: string;
+    termsLinkLabel: string;
+    consentSuffix: string;
+    servicesLinkLabel: string;
+    acceptAll: string;
+    manageSettings: string;
+    savePreferences: string;
+    acceptSelected: string;
+    essentialOnly: string;
+    back: string;
+    essentialTitle: string;
+    essentialDescription: string;
+    analyticsTitle: string;
+    analyticsDescription: string;
+    manageDescription: string;
+    categoryNecessary: string;
+    categoryStatistics: string;
+    categoryPersonalization: string;
+    categoryMarketing: string;
+    categoryUnavailable: string;
+    stateOn: string;
+    stateOff: string;
   };
   footer: {
     cta: {
@@ -93,7 +118,7 @@ export default function MarketingChrome({
       <Navbar lang={lang} dictionary={dictionary} isAuthenticated={isAuthenticated} user={user} />
       <main className="flex-grow">{children}</main>
       <Footer dictionary={dictionary} />
-      <CookieConsent dictionary={dictionary} />
+      <CookieConsent lang={lang} dictionary={dictionary} />
     </>
   );
 }

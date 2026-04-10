@@ -1,24 +1,52 @@
 # @firstspawn/database
 
-Shared database workspace for PostgreSQL bootstrap SQL and Alembic migrations.
+Database workspace for Drizzle migrations and local PostgreSQL bootstrap assets.
 
-## Contents
+## Files
 
-- `init/`: Docker bootstrap SQL loaded by the local PostgreSQL container
-- `migrations/`: Alembic environment and revision history
-- `alembic.ini`: Alembic project configuration
+- `schema-design.md`: working ERD and design notes
+- `migrations/`: generated SQL migration history
+- `init/`: local bootstrap SQL for Docker
+- `drizzle.config.ts`: Drizzle config
+- `jobs/`: SQL jobs for rollup, retention, and active-server selection
 
-## Usage
+## Source Of Truth
 
-Run migrations from the repository root:
+- Canonical schema definition: `packages/database/schema-design.md`
+- Runtime implementation derived from that definition: `apps/api/src/db/schema.ts`
+
+## Commands
 
 ```bash
+pnpm --dir packages/database run generate
 pnpm --dir packages/database run migrate
 ```
 
-Generate a new migration from the repository root:
+## Operational Jobs
+
+Retention + rollup SQL:
 
 ```bash
-cd apps/api
-alembic -c ../../packages/database/alembic.ini revision --autogenerate -m "describe change"
+API_DATABASE_URL=postgresql://... RETENTION_DAYS=14 \
+  ./.infras/ops/cron/aggregate-retention.sh
+```
+
+Archive inactive servers:
+
+```bash
+API_DATABASE_URL=postgresql://... ARCHIVE_AFTER_HOURS=168 \
+  ./.infras/ops/cron/archive-inactive-servers.sh
+```
+
+Purge deleted users:
+
+```bash
+API_DATABASE_URL=postgresql://... \
+  ./.infras/ops/cron/purge-deleted-users.sh
+```
+
+Collector target query (active servers only):
+
+```bash
+psql "$API_DATABASE_URL" -f packages/database/jobs/select_active_servers.sql
 ```

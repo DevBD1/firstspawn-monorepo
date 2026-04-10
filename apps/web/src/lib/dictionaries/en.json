@@ -120,9 +120,34 @@
     }
   },
   "cookie_consent": {
-    "message": "We use cookies to ensure you get the best pixel-perfect experience on our website.",
-    "accept": "ACCEPT",
-    "decline": "DECLINE"
+    "title": "COOKIE SETTINGS",
+    "introPrefix": "Our website uses essential cookies and limited technical data to keep FirstSpawn secure, maintain your session, remember language preferences, and protect core platform functionality.",
+    "introLinkLabel": "Learn more",
+    "introSuffix": "about how these settings affect your experience.",
+    "consentPrefix": "With your permission, FirstSpawn may also use analytics cookies to understand how visitors use the platform, improve discovery flows, and make ranking, trust, and onboarding systems more reliable. See our",
+    "privacyLinkLabel": "Privacy Policy",
+    "consentMiddle": "and",
+    "termsLinkLabel": "Terms of Use",
+    "consentSuffix": "for more detail. Analytics providers may act as",
+    "servicesLinkLabel": "third-party services",
+    "acceptAll": "ACCEPT ALL",
+    "manageSettings": "MANAGE SETTINGS",
+    "savePreferences": "SAVE PREFERENCES",
+    "acceptSelected": "ACCEPT SELECTED",
+    "essentialOnly": "ESSENTIAL ONLY",
+    "back": "BACK",
+    "essentialTitle": "ESSENTIAL COOKIES",
+    "essentialDescription": "Required for account security, session continuity, language settings, and the basic operation of the platform. These remain enabled.",
+    "analyticsTitle": "ANALYTICS COOKIES",
+    "analyticsDescription": "Helps us measure traffic, understand feature usage, and improve product decisions without turning discovery into paid placement.",
+    "manageDescription": "With your permission, FirstSpawn may use analytics cookies to understand how visitors use the platform and to improve discovery, trust, and onboarding systems. Essential cookies remain enabled because they support the secure and reliable operation of the site.",
+    "categoryNecessary": "Necessary",
+    "categoryStatistics": "Statistics",
+    "categoryPersonalization": "Personalization",
+    "categoryMarketing": "Marketing",
+    "categoryUnavailable": "Personalization and marketing cookies are not currently active on FirstSpawn.",
+    "stateOn": "ON",
+    "stateOff": "OFF"
   },
   "home": {
     "welcome": "Ready to build something amazing."

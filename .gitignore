@@ -45,13 +45,6 @@ next-env.d.ts
 # expo
 .expo
 
-# python
-__pycache__/
-*.py[cod]
-.venv/
-.pytest_cache/
-.ruff_cache/
-
 references
 
 # nginx

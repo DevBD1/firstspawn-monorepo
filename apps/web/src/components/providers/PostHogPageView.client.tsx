@@ -9,7 +9,7 @@ export default function PostHogPageView() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (pathname && posthog) {
+    if (pathname && posthog.__loaded && !posthog.has_opted_out_capturing()) {
       let url = window.origin + pathname;
       if (searchParams && searchParams.toString()) {
         url += `?${searchParams.toString()}`;
