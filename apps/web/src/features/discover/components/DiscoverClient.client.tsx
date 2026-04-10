@@ -505,14 +505,10 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
             >
               <span className="font-ui text-sm text-foreground/50">
                 FOUND{" "}
-                <span className="font-display text-accent-cyan">
-                  {filteredServers.length}
-                </span>{" "}
+                <span className="font-display text-accent-cyan">{filteredServers.length}</span>{" "}
                 WORLDS
               </span>
-              <div className="flex gap-2">
-                {/* Mobile filter button would go here */}
-              </div>
+              <div className="flex gap-2">{/* Mobile filter button would go here */}</div>
             </motion.div>
 
             {/* Server Cards Grid */}

@@ -144,7 +144,10 @@ export default function LoginForm({
 
           {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
             <div className="flex justify-center">
-              <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} options={{ theme: "dark" }} />
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                options={{ theme: "dark" }}
+              />
             </div>
           ) : null}
 

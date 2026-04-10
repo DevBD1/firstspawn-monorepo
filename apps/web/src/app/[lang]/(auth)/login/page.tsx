@@ -42,9 +42,7 @@ export default async function LoginPage({
         lang={lang}
         nextPath={nextPath}
         showRegisteredBanner={showRegisteredBanner}
-        registeredMessage={
-          login.registeredSuccess || "Account created! Log in to get started."
-        }
+        registeredMessage={login.registeredSuccess || "Account created! Log in to get started."}
         copy={{
           discordCta: login.discordCta || "Sign in with Discord",
           passkeyCta: login.passkeyCta || "Sign in with Passkey",
