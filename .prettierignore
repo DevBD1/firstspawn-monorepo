@@ -51,3 +51,6 @@ pnpm-lock.yaml
 
 # Archive
 archive/
+
+# SQL files (database migrations and jobs)
+*.sql
