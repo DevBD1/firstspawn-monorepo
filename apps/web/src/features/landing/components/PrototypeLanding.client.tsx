@@ -103,7 +103,8 @@ export default function PrototypeLanding({ dictionary }: PrototypeLandingProps) 
     features_title: "WHY FIRSTSPAWN?",
     features_subtitle: "Built differently for the voxel gaming community",
     feature_1_title: "VERIFIED UPTIME",
-    feature_1_desc: "No more fake online counts. Our bots verify every server's status in real-time.",
+    feature_1_desc:
+      "No more fake online counts. Our bots verify every server's status in real-time.",
     feature_2_title: "PROOF OF PLAY",
     feature_2_desc: "Reviews backed by actual playtime. Only real players can leave ratings.",
     feature_3_title: "CROSS-PLATFORM ID",
@@ -250,9 +251,7 @@ export default function PrototypeLanding({ dictionary }: PrototypeLandingProps) 
             transition={{ duration: 1.5, repeat: Infinity }}
             className="flex flex-col items-center gap-2"
           >
-            <span className="font-ui text-xs tracking-widest text-foreground/40">
-              SCROLL
-            </span>
+            <span className="font-ui text-xs tracking-widest text-foreground/40">SCROLL</span>
             <div className="h-8 w-5 rounded-full border-2 border-foreground/30 p-1">
               <motion.div
                 animate={{ y: [0, 12, 0] }}
@@ -357,9 +356,7 @@ export default function PrototypeLanding({ dictionary }: PrototypeLandingProps) 
                         i % 2 === 0 ? "md:flex-row-reverse" : ""
                       }`}
                     >
-                      <span className="font-display text-5xl text-accent-cyan/20">
-                        {step.num}
-                      </span>
+                      <span className="font-display text-5xl text-accent-cyan/20">{step.num}</span>
                       <div>
                         <h3 className="mb-2 font-display text-xl tracking-wider text-foreground">
                           {step.title}

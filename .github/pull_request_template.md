@@ -30,7 +30,6 @@ Please describe the tests that you ran to verify your changes:
 
 - OS:
 - Node version:
-- Python version (if applicable):
 
 ## Checklist
 

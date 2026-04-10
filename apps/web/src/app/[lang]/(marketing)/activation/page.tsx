@@ -10,10 +10,7 @@ interface ActivationPageProps {
   searchParams: Promise<{ email?: string }>;
 }
 
-export default async function ActivationPage({
-  params,
-  searchParams,
-}: ActivationPageProps) {
+export default async function ActivationPage({ params, searchParams }: ActivationPageProps) {
   const { lang: langParam } = await params;
   const { email } = await searchParams;
   const lang = resolveLocaleParam(langParam);
@@ -23,7 +20,8 @@ export default async function ActivationPage({
     message: "You will soon receive an email on the following address:",
     instruction: "Please activate your account by clicking on the link provided in it.",
     spam_warning: "Please remember to check your spam and trash box!!!",
-    provider_warning: "Services like Hotmail, Yahoo, AOL often mistakenly identify the activation email as spam!"
+    provider_warning:
+      "Services like Hotmail, Yahoo, AOL often mistakenly identify the activation email as spam!",
   };
   const backToHome = dict.auth?.shared?.backToHome || "BACK TO HOME";
 
@@ -44,9 +42,7 @@ export default async function ActivationPage({
                   {email || "your email address"}
                 </span>
               </p>
-              <p className="font-body text-base text-zinc-400">
-                {copy.instruction}
-              </p>
+              <p className="font-body text-base text-zinc-400">{copy.instruction}</p>
             </div>
 
             <div className="w-full space-y-4 border-t-2 border-zinc-800/50 pt-8">
