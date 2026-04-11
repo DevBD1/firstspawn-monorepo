@@ -1,5 +1,21 @@
 import { z } from "zod";
 
+const envBoolean = z.preprocess((value) => {
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+
+    if (["1", "true", "yes", "on"].includes(normalized)) {
+      return true;
+    }
+
+    if (["0", "false", "no", "off", ""].includes(normalized)) {
+      return false;
+    }
+  }
+
+  return value;
+}, z.boolean());
+
 // ---------------------------------------------------------------------------
 // Server-only config
 // ---------------------------------------------------------------------------
@@ -28,7 +44,7 @@ const serverConfigSchema = z.object({
   // Vercel platform
   VERCEL_ENV: z.string().optional(),
   // Route gating
-  LOCK_BETA_ROUTES: z.coerce.boolean().optional(),
+  LOCK_BETA_ROUTES: envBoolean.optional(),
 });
 
 export type WebServerConfig = z.infer<typeof serverConfigSchema>;
@@ -61,7 +77,7 @@ const publicConfigSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("https://firstspawn.com"),
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().default("https://app.posthog.com"),
-  NEXT_PUBLIC_LOCK_BETA_ROUTES: z.coerce.boolean().default(false),
+  NEXT_PUBLIC_LOCK_BETA_ROUTES: envBoolean.default(false),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
 });
 
