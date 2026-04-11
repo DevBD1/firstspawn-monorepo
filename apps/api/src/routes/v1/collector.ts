@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, eq, gt, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
@@ -255,13 +255,20 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
       const cursor = parseCursor(request.query.cursor);
       const limit = request.query.limit;
 
+      const baseWhere = and(eq(servers.status, "active"), eq(servers.game, "mc_java"));
       const whereCondition = cursor
-        ? and(eq(servers.status, "active"), eq(servers.game, "mc_java"), gt(servers.id, cursor.id))
-        : and(eq(servers.status, "active"), eq(servers.game, "mc_java"));
+        ? and(
+            baseWhere,
+            or(
+              gt(servers.createdAt, cursor.createdAt),
+              and(eq(servers.createdAt, cursor.createdAt), gt(servers.id, cursor.id))
+            )
+          )
+        : baseWhere;
 
       const rows = await app.db.db.query.servers.findMany({
         where: whereCondition,
-        orderBy: [asc(servers.id)],
+        orderBy: [asc(servers.createdAt), asc(servers.id)],
         limit: limit + 1,
         columns: {
           id: true,
