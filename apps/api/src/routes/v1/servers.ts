@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, inArray, isNull, ilike, lt, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, ilike, lt, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
@@ -11,6 +11,8 @@ import { requireAdminUser } from "../../lib/request-auth.js";
 
 const ONLINE_WINDOW_MS = 15 * 60 * 1000;
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PUBLIC_PING_NULL_SORT_VALUE = 2_147_483_647;
+const PUBLIC_PLAYERS_NULL_SORT_VALUE = -1;
 
 type ServerRecord = typeof servers.$inferSelect;
 type HeartbeatRecord = typeof serverHeartbeats.$inferSelect;
@@ -19,7 +21,6 @@ const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline"]);
 const publicListSortSchema = z.enum(["players", "ping"]);
-const offsetCursorPattern = /^\d+$/;
 
 const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
@@ -70,7 +71,7 @@ const publicListQuerySchema = z.object({
   include_archived: z.coerce.boolean().default(false),
   sort: publicListSortSchema.default("players"),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  cursor: z.string().regex(offsetCursorPattern).optional(),
+  cursor: z.string().trim().min(1).optional(),
 });
 
 const adminCreateBodySchema = z.object({
@@ -152,7 +153,7 @@ const publicListResponseSchema = envelopeSchema(
         })
     ),
     pagination: z.object({
-      next_cursor: z.string().uuid().nullable(),
+      next_cursor: z.string().nullable(),
       limit: z.number().int().positive(),
     }),
   })
@@ -281,7 +282,10 @@ const normalizeServerPayload = (
 });
 
 const normalizeMetricsPayload = (
-  heartbeat: HeartbeatRecord | null
+  heartbeat: Pick<
+    HeartbeatRecord,
+    "pingMs" | "onlinePlayers" | "maxPlayers" | "minecraftVersion" | "occurredAt"
+  > | null
 ): {
   ping_ms: number | null;
   online_players: number | null;
@@ -296,87 +300,48 @@ const normalizeMetricsPayload = (
   occurred_at: heartbeat?.occurredAt.toISOString() ?? null,
 });
 
-type PublicListRow = {
-  server: ServerRecord;
-  latest: HeartbeatRecord | null;
-};
-
 type PublicListSort = z.infer<typeof publicListSortSchema>;
-
-const compareNullableNumberDesc = (left: number | null, right: number | null): number => {
-  if (left === right) {
-    return 0;
-  }
-
-  if (left === null) {
-    return 1;
-  }
-
-  if (right === null) {
-    return -1;
-  }
-
-  return right - left;
+type PublicListCursorPayload = {
+  sort: PublicListSort;
+  id: string;
+  primary: number;
+  secondary: number;
 };
 
-const compareNullableNumberAsc = (left: number | null, right: number | null): number => {
-  if (left === right) {
-    return 0;
+const encodePublicListCursor = (value: PublicListCursorPayload): string =>
+  Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+
+const decodePublicListCursor = (
+  cursor: string | undefined,
+  expectedSort: PublicListSort
+): PublicListCursorPayload | null => {
+  if (!cursor) {
+    return null;
   }
 
-  if (left === null) {
-    return 1;
-  }
-
-  if (right === null) {
-    return -1;
-  }
-
-  return left - right;
-};
-
-const comparePublicListRows = (
-  left: PublicListRow,
-  right: PublicListRow,
-  sort: PublicListSort
-): number => {
-  if (sort === "players") {
-    const playerOrder = compareNullableNumberDesc(
-      left.latest?.onlinePlayers ?? null,
-      right.latest?.onlinePlayers ?? null
-    );
-    if (playerOrder !== 0) {
-      return playerOrder;
+  try {
+    const parsed = JSON.parse(
+      Buffer.from(cursor, "base64url").toString("utf8")
+    ) as Partial<PublicListCursorPayload>;
+    if (
+      parsed.sort !== expectedSort ||
+      typeof parsed.id !== "string" ||
+      !z.string().uuid().safeParse(parsed.id).success ||
+      typeof parsed.primary !== "number" ||
+      typeof parsed.secondary !== "number"
+    ) {
+      return null;
     }
 
-    const pingOrder = compareNullableNumberAsc(
-      left.latest?.pingMs ?? null,
-      right.latest?.pingMs ?? null
-    );
-    if (pingOrder !== 0) {
-      return pingOrder;
-    }
+    return {
+      sort: parsed.sort,
+      id: parsed.id,
+      primary: parsed.primary,
+      secondary: parsed.secondary,
+    };
+  } catch {
+    return null;
   }
-
-  if (sort === "ping") {
-    const pingOrder = compareNullableNumberAsc(
-      left.latest?.pingMs ?? null,
-      right.latest?.pingMs ?? null
-    );
-    if (pingOrder !== 0) {
-      return pingOrder;
-    }
-
-    const playerOrder = compareNullableNumberDesc(
-      left.latest?.onlinePlayers ?? null,
-      right.latest?.onlinePlayers ?? null
-    );
-    if (playerOrder !== 0) {
-      return playerOrder;
-    }
-  }
-
-  return left.server.id.localeCompare(right.server.id);
 };
 
 const duplicateFieldFromError = (error: { constraint?: string; detail?: string }): string => {
@@ -723,7 +688,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
     },
     async (request) => {
       const query = request.query;
-      const offset = query.cursor ? Number.parseInt(query.cursor, 10) : 0;
+      const cursor = decodePublicListCursor(query.cursor, query.sort);
+      if (query.cursor && !cursor) {
+        throw new ApiError({
+          statusCode: 400,
+          code: "VALIDATION_ERROR",
+          message: "Invalid cursor.",
+          details: { field: "cursor" },
+        });
+      }
+
       const statuses = query.include_archived
         ? (["active", "archived"] as const)
         : (["active"] as const);
@@ -733,9 +707,6 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         filters.push(
           or(ilike(servers.name, q), ilike(servers.slug, q), ilike(servers.description, q))!
         );
-      }
-      if (query.cursor) {
-        filters.push(gtId(query.cursor));
       }
 
       const threshold = new Date(Date.now() - ONLINE_WINDOW_MS);
@@ -752,27 +723,99 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         );
       }
 
-      const rows = await app.db.db
-        .select()
-        .from(servers)
-        .where(and(...filters))
-        .orderBy(asc(servers.id));
+      const rankedHeartbeats = app.db.db
+        .select({
+          id: serverHeartbeats.id,
+          serverId: serverHeartbeats.serverId,
+          pingMs: serverHeartbeats.pingMs,
+          onlinePlayers: serverHeartbeats.onlinePlayers,
+          maxPlayers: serverHeartbeats.maxPlayers,
+          minecraftVersion: serverHeartbeats.minecraftVersion,
+          occurredAt: serverHeartbeats.occurredAt,
+          createdAt: serverHeartbeats.createdAt,
+          rn: sql<number>`row_number() over (
+            partition by ${serverHeartbeats.serverId}
+            order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
+          )`.as("rn"),
+        })
+        .from(serverHeartbeats)
+        .as("ranked_heartbeats");
 
-      const heartbeatsByServerId = await findLatestHeartbeats(
-        app,
-        rows.map((server) => server.id)
-      );
-      const latestRows = rows
-        .map((server) => ({
-          server,
-          latest: heartbeatsByServerId.get(server.id) ?? null,
-        }))
-        .sort((left, right) => comparePublicListRows(left, right, query.sort));
+      const sortPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})`;
+      const sortPingExpr = sql<number>`coalesce(${rankedHeartbeats.pingMs}, ${PUBLIC_PING_NULL_SORT_VALUE})`;
+      const cursorFilter =
+        cursor && query.sort === "players"
+          ? sql`(
+              ${sortPlayersExpr} < ${cursor.primary}
+              or (${sortPlayersExpr} = ${cursor.primary} and ${sortPingExpr} > ${cursor.secondary})
+              or (
+                ${sortPlayersExpr} = ${cursor.primary}
+                and ${sortPingExpr} = ${cursor.secondary}
+                and ${servers.id} > ${cursor.id}::uuid
+              )
+            )`
+          : cursor && query.sort === "ping"
+            ? sql`(
+                ${sortPingExpr} > ${cursor.primary}
+                or (${sortPingExpr} = ${cursor.primary} and ${sortPlayersExpr} < ${cursor.secondary})
+                or (
+                  ${sortPingExpr} = ${cursor.primary}
+                  and ${sortPlayersExpr} = ${cursor.secondary}
+                  and ${servers.id} > ${cursor.id}::uuid
+                )
+              )`
+            : undefined;
+      if (cursorFilter) {
+        filters.push(cursorFilter);
+      }
+
+      const rows = await app.db.db
+        .select({
+          server: servers,
+          latest: {
+            id: rankedHeartbeats.id,
+            pingMs: rankedHeartbeats.pingMs,
+            onlinePlayers: rankedHeartbeats.onlinePlayers,
+            maxPlayers: rankedHeartbeats.maxPlayers,
+            minecraftVersion: rankedHeartbeats.minecraftVersion,
+            occurredAt: rankedHeartbeats.occurredAt,
+            createdAt: rankedHeartbeats.createdAt,
+            serverId: rankedHeartbeats.serverId,
+          },
+        })
+        .from(servers)
+        .leftJoin(
+          rankedHeartbeats,
+          and(eq(servers.id, rankedHeartbeats.serverId), eq(rankedHeartbeats.rn, 1))
+        )
+        .where(and(...filters))
+        .orderBy(
+          query.sort === "players" ? desc(sortPlayersExpr) : asc(sortPingExpr),
+          query.sort === "players" ? asc(sortPingExpr) : desc(sortPlayersExpr),
+          asc(servers.id)
+        )
+        .limit(query.limit + 1);
 
       const nowMs = Date.now();
-      const sliced = latestRows.slice(offset, offset + query.limit);
+      const sliced = rows.slice(0, query.limit);
+      const tail = sliced[sliced.length - 1];
+      const tailPrimary =
+        tail && query.sort === "players"
+          ? (tail.latest?.onlinePlayers ?? PUBLIC_PLAYERS_NULL_SORT_VALUE)
+          : (tail?.latest?.pingMs ?? PUBLIC_PING_NULL_SORT_VALUE);
+      const tailSecondary =
+        tail && query.sort === "players"
+          ? (tail.latest?.pingMs ?? PUBLIC_PING_NULL_SORT_VALUE)
+          : (tail?.latest?.onlinePlayers ?? PUBLIC_PLAYERS_NULL_SORT_VALUE);
       const nextCursor =
-        latestRows.length > offset + query.limit ? String(offset + query.limit) : null;
+        rows.length > query.limit && tail
+          ? encodePublicListCursor({
+              sort: query.sort,
+              id: tail.server.id,
+              primary: tailPrimary,
+              secondary: tailSecondary,
+            })
+          : null;
       return successEnvelope(
         {
           servers: sliced.map(({ server, latest }) => ({
