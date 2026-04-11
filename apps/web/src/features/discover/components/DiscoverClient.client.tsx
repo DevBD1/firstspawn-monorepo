@@ -1,18 +1,15 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  useState,
-  useMemo,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useRef,
-  useTransition,
-} from "react";
+import { useState, useCallback, useDeferredValue, useEffect, useRef, useTransition } from "react";
 import PixelButton from "@/components/ui/PixelButton";
 import Link from "next/link";
-import type { PublicServerListItem, PublicServerSort } from "@/lib/servers-api";
+import type {
+  PublicServerGame,
+  PublicServerListItem,
+  PublicServerSort,
+  PublicServerTier,
+} from "@/lib/servers-api";
 import { loadMoreServers } from "@/app/actions/servers";
 
 const PAGE_SIZE = 100;
@@ -72,6 +69,8 @@ interface DiscoverClientProps {
   initialPagination: { next_cursor: string | null; limit: number };
 }
 
+type DiscoverGameFilter = "all" | "minecraft" | "hytale";
+
 export default function DiscoverClient({
   lang,
   initialServers,
@@ -84,12 +83,15 @@ export default function DiscoverClient({
   const refreshRequestIdRef = useRef(0);
   const hasHydratedRef = useRef(false);
 
-  const [selectedGame, setSelectedGame] = useState<"all" | "minecraft" | "hytale">("all");
-  const [selectedTier, setSelectedTier] = useState<string[]>([]);
+  const [selectedGame, setSelectedGame] = useState<DiscoverGameFilter>("all");
+  const [selectedTier, setSelectedTier] = useState<PublicServerTier[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery.trim());
   const [sortBy, setSortBy] = useState<PublicServerSort>("players");
   const [hoveredServer, setHoveredServer] = useState<string | null>(null);
+  const gameFilter: PublicServerGame | undefined =
+    selectedGame === "minecraft" ? "mc_java" : selectedGame === "hytale" ? "hytale" : undefined;
+  const tierFilter = selectedTier.length > 0 ? selectedTier : undefined;
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || isLoadingMore) return;
@@ -97,6 +99,8 @@ export default function DiscoverClient({
     try {
       const data = await loadMoreServers({
         q: deferredSearchQuery || undefined,
+        game: gameFilter,
+        tier: tierFilter,
         sort: sortBy,
         cursor: nextCursor,
         limit: PAGE_SIZE,
@@ -108,7 +112,7 @@ export default function DiscoverClient({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [deferredSearchQuery, isLoadingMore, nextCursor, sortBy]);
+  }, [deferredSearchQuery, gameFilter, isLoadingMore, nextCursor, sortBy, tierFilter]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) {
@@ -124,6 +128,8 @@ export default function DiscoverClient({
         try {
           const data = await loadMoreServers({
             q: deferredSearchQuery || undefined,
+            game: gameFilter,
+            tier: tierFilter,
             sort: sortBy,
             limit: PAGE_SIZE,
           });
@@ -143,30 +149,9 @@ export default function DiscoverClient({
         }
       })();
     });
-  }, [deferredSearchQuery, sortBy]);
+  }, [deferredSearchQuery, gameFilter, sortBy, tierFilter]);
 
-  // Tier and game filters stay client-side on the current result set.
-  const filteredServers = useMemo(() => {
-    let filtered = servers;
-
-    // Game filter
-    if (selectedGame !== "all") {
-      const targetGame = selectedGame === "minecraft" ? "mc_java" : "hytale";
-      filtered = filtered.filter((s) => s.game === targetGame);
-    }
-
-    // Tier filter
-    if (selectedTier.length > 0) {
-      filtered = filtered.filter((s) => {
-        const tier = getTier(s.latest_metrics?.online_players ?? 0);
-        return selectedTier.includes(tier);
-      });
-    }
-
-    return filtered;
-  }, [servers, selectedGame, selectedTier]);
-
-  const toggleTier = (tier: string) => {
+  const toggleTier = (tier: PublicServerTier) => {
     setSelectedTier((prev) =>
       prev.includes(tier) ? prev.filter((t) => t !== tier) : [...prev, tier]
     );
@@ -311,7 +296,11 @@ export default function DiscoverClient({
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {Object.entries(tierConfig).map(([tier, config]) => (
+                  {(
+                    Object.entries(tierConfig) as Array<
+                      [PublicServerTier, (typeof tierConfig)[PublicServerTier]]
+                    >
+                  ).map(([tier, config]) => (
                     <button
                       key={tier}
                       onClick={() => toggleTier(tier)}
@@ -400,8 +389,7 @@ export default function DiscoverClient({
               className="mb-4 flex items-center justify-between"
             >
               <span className="font-ui text-sm text-foreground/50">
-                FOUND <span className="font-display text-fs-diamond">{filteredServers.length}</span>{" "}
-                WORLDS
+                FOUND <span className="font-display text-fs-diamond">{servers.length}</span> WORLDS
               </span>
               {isRefreshing && (
                 <span className="font-ui text-xs text-foreground/40">SYNCING...</span>
@@ -411,7 +399,7 @@ export default function DiscoverClient({
             {/* Server Cards Grid */}
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence mode="popLayout">
-                {filteredServers.map((server, index) => {
+                {servers.map((server, index) => {
                   const players = server.latest_metrics?.online_players ?? 0;
                   const maxPlayers = server.latest_metrics?.max_players ?? 0;
                   const tier = tierConfig[getTier(players)];
@@ -569,7 +557,7 @@ export default function DiscoverClient({
             )}
 
             {/* Empty State */}
-            {filteredServers.length === 0 && (
+            {servers.length === 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
