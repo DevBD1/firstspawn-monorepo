@@ -6,6 +6,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
+import { checkRateLimit } from "../../lib/rate-limit.js";
 import { requireCurrentUser } from "../../lib/request-auth.js";
 import {
   decodeRefreshToken,
@@ -426,6 +427,19 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request, reply) => {
+      const allowed = await checkRateLimit(
+        app.redis,
+        `rl:auth_register:${request.ip ?? "unknown"}`,
+        5,
+        3600
+      );
+      if (!allowed) {
+        throw new ApiError({
+          statusCode: 429,
+          code: "RATE_LIMITED",
+          message: "Too many requests. Please try again later.",
+        });
+      }
       const payload = request.body;
       const db = app.db.db;
 
@@ -525,6 +539,19 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
+      const allowed = await checkRateLimit(
+        app.redis,
+        `rl:auth_login:${request.ip ?? "unknown"}`,
+        10,
+        900
+      );
+      if (!allowed) {
+        throw new ApiError({
+          statusCode: 429,
+          code: "RATE_LIMITED",
+          message: "Too many requests. Please try again later.",
+        });
+      }
       const identifier = request.body.identifier.trim();
       const user = await app.db.db.query.users.findFirst({
         where: or(eq(users.email, identifier.toLowerCase()), eq(users.username, identifier)),
@@ -593,6 +620,19 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
+      const allowed = await checkRateLimit(
+        app.redis,
+        `rl:auth_refresh:${request.ip ?? "unknown"}`,
+        30,
+        900
+      );
+      if (!allowed) {
+        throw new ApiError({
+          statusCode: 429,
+          code: "RATE_LIMITED",
+          message: "Too many requests. Please try again later.",
+        });
+      }
       let claims: ReturnType<typeof decodeRefreshToken>;
       try {
         claims = decodeRefreshToken(request.body.refresh_token, app.config);

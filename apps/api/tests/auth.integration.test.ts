@@ -94,6 +94,45 @@ describe("auth integration", () => {
     expect(loginUsername.json().error).toBeNull();
   });
 
+  it("rate limits repeated failed login attempts from the same IP", async () => {
+    await registerUser({
+      email: "limit@example.com",
+      username: "limit_user",
+    });
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const response = await getContext().app.inject({
+        method: "POST",
+        url: "/api/v1/auth/login",
+        headers: {
+          "x-forwarded-for": "203.0.113.10",
+        },
+        payload: {
+          identifier: "limit@example.com",
+          password: "wrong-password",
+        },
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json().error.code).toBe("AUTH_INVALID_CREDENTIALS");
+    }
+
+    const blocked = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/auth/login",
+      headers: {
+        "x-forwarded-for": "203.0.113.10",
+      },
+      payload: {
+        identifier: "limit@example.com",
+        password: "wrong-password",
+      },
+    });
+
+    expect(blocked.statusCode).toBe(429);
+    expect(blocked.json().error.code).toBe("RATE_LIMITED");
+  });
+
   it("rotates refresh tokens and rejects the old token", async () => {
     const authData = await registerUser({
       email: "refresh@example.com",
