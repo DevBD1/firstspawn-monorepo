@@ -1,5 +1,5 @@
 import { and, eq, isNull, or, sql } from "drizzle-orm";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { randomUUID, randomBytes } from "node:crypto";
 import { z } from "zod";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -413,12 +413,37 @@ const findActiveRestoreToken = async (
   };
 };
 
+const createRateLimitPreHandler = (
+  app: FastifyInstance,
+  keyPrefix: string,
+  maxRequests: number,
+  windowSeconds: number
+) => {
+  return async (request: FastifyRequest): Promise<void> => {
+    const allowed = await checkRateLimit(
+      app.redis,
+      `${keyPrefix}:${request.ip ?? "unknown"}`,
+      maxRequests,
+      windowSeconds
+    );
+
+    if (!allowed) {
+      throw new ApiError({
+        statusCode: 429,
+        code: "RATE_LIMITED",
+        message: "Too many requests. Please try again later.",
+      });
+    }
+  };
+};
+
 export const registerAuthRoutes = (fastify: FastifyInstance): void => {
   const app = fastify.withTypeProvider<ZodTypeProvider>();
 
   app.post(
     "/register",
     {
+      preHandler: [createRateLimitPreHandler(app, "rl:auth_register", 5, 3600)],
       schema: {
         body: registerBodySchema,
         response: {
@@ -427,19 +452,6 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request, reply) => {
-      const allowed = await checkRateLimit(
-        app.redis,
-        `rl:auth_register:${request.ip ?? "unknown"}`,
-        5,
-        3600
-      );
-      if (!allowed) {
-        throw new ApiError({
-          statusCode: 429,
-          code: "RATE_LIMITED",
-          message: "Too many requests. Please try again later.",
-        });
-      }
       const payload = request.body;
       const db = app.db.db;
 
@@ -531,6 +543,7 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
   app.post(
     "/login",
     {
+      preHandler: [createRateLimitPreHandler(app, "rl:auth_login", 10, 900)],
       schema: {
         body: loginBodySchema,
         response: {
@@ -539,19 +552,6 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      const allowed = await checkRateLimit(
-        app.redis,
-        `rl:auth_login:${request.ip ?? "unknown"}`,
-        10,
-        900
-      );
-      if (!allowed) {
-        throw new ApiError({
-          statusCode: 429,
-          code: "RATE_LIMITED",
-          message: "Too many requests. Please try again later.",
-        });
-      }
       const identifier = request.body.identifier.trim();
       const user = await app.db.db.query.users.findFirst({
         where: or(eq(users.email, identifier.toLowerCase()), eq(users.username, identifier)),
@@ -612,6 +612,7 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
   app.post(
     "/refresh",
     {
+      preHandler: [createRateLimitPreHandler(app, "rl:auth_refresh", 30, 900)],
       schema: {
         body: tokenBodySchema,
         response: {
@@ -620,19 +621,6 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      const allowed = await checkRateLimit(
-        app.redis,
-        `rl:auth_refresh:${request.ip ?? "unknown"}`,
-        30,
-        900
-      );
-      if (!allowed) {
-        throw new ApiError({
-          statusCode: 429,
-          code: "RATE_LIMITED",
-          message: "Too many requests. Please try again later.",
-        });
-      }
       let claims: ReturnType<typeof decodeRefreshToken>;
       try {
         claims = decodeRefreshToken(request.body.refresh_token, app.config);
