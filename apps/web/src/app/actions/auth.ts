@@ -13,6 +13,7 @@ import {
 } from "@/lib/auth-config";
 import { isSupportedLocale } from "@/lib/auth";
 import type { AuthActionState, AuthFieldErrors } from "@/lib/auth-action-state";
+import { getWebConfig } from "@/lib/config";
 
 interface EnvelopeError {
   code: string;
@@ -250,7 +251,7 @@ interface TurnstileResponse {
 }
 
 async function verifyTurnstileToken(token: string): Promise<boolean> {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
+  const { TURNSTILE_SECRET_KEY: secret } = getWebConfig();
   if (!secret) return true; // Bypass if not configured
   if (!token) return false;
 

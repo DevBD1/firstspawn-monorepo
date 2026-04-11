@@ -11,6 +11,7 @@ import {
   getApiBasicAuthHeader,
   getApiBaseUrl,
 } from "./lib/auth-config";
+import { getPublicConfig } from "./lib/config";
 
 // --- RATE LIMIT CONFIGURATION (Merged from middleware.ts) ---
 // Simple in-memory store for rate limiting (per-instance)
@@ -199,7 +200,7 @@ export async function proxy(request: NextRequest) {
   const lockedPaths = ["/discover", "/signup", "/login", "/server"];
   const isLockedPath = lockedPaths.some((p) => pathname.includes(p));
 
-  if (process.env.NEXT_PUBLIC_LOCK_BETA_ROUTES === "true" && isLockedPath) {
+  if (getPublicConfig().NEXT_PUBLIC_LOCK_BETA_ROUTES && isLockedPath) {
     const locale = getPathLocale(pathname) ?? getLocale(request) ?? i18n.defaultLocale;
     return NextResponse.redirect(new URL(`/${locale}`, request.url), 302);
   }

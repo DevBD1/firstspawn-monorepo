@@ -2,17 +2,19 @@
 
 import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
+import { getWebConfig } from "@/lib/config";
 
 const REQUEST_TIMEOUT_MS = 4000;
 
 const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
+  const { GEMINI_API_KEY, GOOGLE_API_KEY } = getWebConfig();
+  const apiKey = GEMINI_API_KEY ?? GOOGLE_API_KEY;
   if (!apiKey) return null;
   return new GoogleGenAI({ apiKey });
 };
 
 const getOpenAIClient = () => {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const { OPENAI_API_KEY: apiKey } = getWebConfig();
   if (!apiKey) return null;
   return new OpenAI({ apiKey });
 };

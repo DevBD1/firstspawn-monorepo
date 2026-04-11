@@ -6,9 +6,7 @@ import { z } from "zod";
 import { ConfirmationEmail } from "@/features/email/templates/ConfirmationEmail";
 import { render } from "@react-email/render";
 import { getPostHogClient } from "@/lib/posthog-server";
-
-const JWT_SECRET = process.env.JWT_SECRET;
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+import { getWebConfig, getPublicConfig } from "@/lib/config";
 
 const subscribeSchema = z.object({
   email: z.string().email(),
@@ -20,8 +18,9 @@ interface NewsletterActionResult {
 }
 
 const getResendClient = (): Resend | null => {
-  if (!process.env.RESEND_API_KEY) return null;
-  return new Resend(process.env.RESEND_API_KEY);
+  const { RESEND_API_KEY } = getWebConfig();
+  if (!RESEND_API_KEY) return null;
+  return new Resend(RESEND_API_KEY);
 };
 
 const safeCapture = (
@@ -31,7 +30,7 @@ const safeCapture = (
 ): void => {
   try {
     const posthog = getPostHogClient();
-    posthog.capture({ distinctId, event, properties });
+    posthog?.capture({ distinctId, event, properties });
   } catch (error) {
     console.warn("PostHog unavailable in newsletter action:", error);
   }
@@ -44,6 +43,10 @@ export async function subscribeToNewsletter(email: string): Promise<NewsletterAc
     if (!result.success) {
       return { success: false, message: "Invalid email format" };
     }
+
+    const { JWT_SECRET } = getWebConfig();
+    const { NEXT_PUBLIC_SITE_URL } = getPublicConfig();
+    const SITE_URL = (NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 
     if (!JWT_SECRET) {
       console.error("Missing JWT_SECRET");
