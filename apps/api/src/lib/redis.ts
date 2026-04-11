@@ -83,7 +83,9 @@ export function createRedisClient(url: string): RedisClient {
   });
 
   // Prevent unhandled error crashes if redis is unreachable.
-  client.on("error", () => {});
+  client.on("error", (err) => {
+    console.error("Redis Error:", err);
+  });
 
   return client;
 }
