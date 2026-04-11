@@ -7,6 +7,7 @@ import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 import { PostHogProvider } from "@/components/providers/PostHogProvider.client";
 import PostHogPageView from "@/components/providers/PostHogPageView.client";
+import { getPublicConfig } from "@/lib/config";
 
 const vt323 = VT323({
   weight: "400",
@@ -37,7 +38,7 @@ export async function generateMetadata({
   const siteTitle = dict.common.site_title || brand;
   const tagline = dict.common.tagline || "FirstSpawn";
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://firstspawn.com";
+  const { NEXT_PUBLIC_SITE_URL: baseUrl } = getPublicConfig();
 
   const languages: Record<string, string> = {};
   i18n.locales.forEach((locale) => {
@@ -102,6 +103,7 @@ export default async function RootLayout({
   const dictionary = await getDictionary(lang);
   const brand = dictionary.common.brand || "FirstSpawn";
   const tagline = dictionary.common.tagline || "FirstSpawn";
+  const { NEXT_PUBLIC_SITE_URL: siteUrl } = getPublicConfig();
 
   return (
     <html lang={lang}>
@@ -115,11 +117,11 @@ export default async function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: brand,
-              url: process.env.NEXT_PUBLIC_SITE_URL || "https://firstspawn.com",
+              url: siteUrl,
               description: tagline,
               potentialAction: {
                 "@type": "SearchAction",
-                target: `${process.env.NEXT_PUBLIC_SITE_URL || "https://firstspawn.com"}/search?q={search_term_string}`,
+                target: `${siteUrl}/search?q={search_term_string}`,
                 "query-input": "required name=search_term_string",
               },
             }),

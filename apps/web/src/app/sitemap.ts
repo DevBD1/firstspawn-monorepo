@@ -1,8 +1,9 @@
 import { MetadataRoute } from "next";
 import { i18n } from "../lib/i18n-config";
+import { getPublicConfig } from "../lib/config";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://firstspawn.com";
+  const { NEXT_PUBLIC_SITE_URL: baseUrl } = getPublicConfig();
 
   const staticRoutes = [
     {

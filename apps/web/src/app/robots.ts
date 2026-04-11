@@ -1,10 +1,11 @@
 import { MetadataRoute } from "next";
 import { i18n } from "../lib/i18n-config";
+import { getWebConfig } from "../lib/config";
 
 export default function robots(): MetadataRoute.Robots {
   // 1. Check if we are in production.
   // You don't want Google indexing your "vercel-app-r43.app" preview URLs.
-  const isProduction = process.env.VERCEL_ENV === "production";
+  const isProduction = getWebConfig().VERCEL_ENV === "production";
 
   // Or use your own env variable: process.env.NEXT_PUBLIC_SITE_URL === 'https://yourdomain.com'
 

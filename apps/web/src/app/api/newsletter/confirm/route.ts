@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import { getPostHogClient } from "@/lib/posthog-server";
-
-const JWT_SECRET = process.env.JWT_SECRET;
+import { getWebConfig, getPublicConfig } from "@/lib/config";
 
 interface ResendContactPayload {
   email: string;
@@ -12,12 +11,14 @@ interface ResendContactPayload {
 }
 
 const getResendClient = (): Resend | null => {
-  if (!process.env.RESEND_API_KEY) return null;
-  return new Resend(process.env.RESEND_API_KEY);
+  const { RESEND_API_KEY } = getWebConfig();
+  if (!RESEND_API_KEY) return null;
+  return new Resend(RESEND_API_KEY);
 };
 
 const getBaseUrl = (request: NextRequest): string => {
-  return (process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin).replace(/\/$/, "");
+  const { NEXT_PUBLIC_SITE_URL } = getPublicConfig();
+  return (NEXT_PUBLIC_SITE_URL || request.nextUrl.origin).replace(/\/$/, "");
 };
 
 const safeCapture = (
@@ -27,7 +28,7 @@ const safeCapture = (
 ): void => {
   try {
     const posthog = getPostHogClient();
-    posthog.capture({ distinctId, event, properties });
+    posthog?.capture({ distinctId, event, properties });
   } catch (error) {
     console.warn("PostHog unavailable in newsletter confirm route:", error);
   }
@@ -36,7 +37,7 @@ const safeCapture = (
 const safeIdentify = (email: string): void => {
   try {
     const posthog = getPostHogClient();
-    posthog.identify({
+    posthog?.identify({
       distinctId: email,
       properties: {
         email: email,
@@ -57,6 +58,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing token" }, { status: 400 });
   }
 
+  const { JWT_SECRET } = getWebConfig();
   if (!JWT_SECRET) {
     console.error("Missing JWT_SECRET");
     return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
@@ -71,7 +73,7 @@ export async function GET(request: NextRequest) {
     // 2. Add to Resend
     // 'audienceId' is optional in newer Resend SDKs (contacts are global).
     // If you have a legacy audience or specific segment, set RESEND_AUDIENCE_ID.
-    const audienceId = process.env.RESEND_AUDIENCE_ID;
+    const { RESEND_AUDIENCE_ID: audienceId } = getWebConfig();
     let contactSyncStatus: "synced" | "degraded" = "synced";
 
     const resend = getResendClient();
