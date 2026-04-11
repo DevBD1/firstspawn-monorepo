@@ -39,7 +39,7 @@
       "platform": {
         "title": "Platform",
         "about": "About FirstSpawn",
-        "trust": "Trust \u0026 Verification",
+        "trust": "Trust & Verification",
         "badges": "Server Badges",
         "api": "API Status"
       },
@@ -111,6 +111,37 @@
       "days": "DAYS",
       "minutes": "MINS",
       "seconds": "SECS"
+    }
+  },
+  "discover": {
+    "server_detail": {
+      "back": "BACK TO DISCOVER",
+      "online_players": "ONLINE PLAYERS",
+      "max_players": "MAX PLAYERS",
+      "version": "VERSION",
+      "ping": "PING",
+      "last_seen": "LAST SEEN",
+      "host": "HOST",
+      "port": "PORT",
+      "region": "REGION",
+      "website": "WEBSITE",
+      "discord": "DISCORD",
+      "online_mode": "ONLINE MODE",
+      "offline_mode": "OFFLINE MODE",
+      "not_available": "N/A",
+      "status_online": "ONLINE",
+      "status_offline": "OFFLINE",
+      "catalog_active": "ACTIVE",
+      "catalog_archived": "ARCHIVED",
+      "relative_time": {
+        "just_now": "az önce",
+        "year": { "one": "{count} yıl önce", "other": "{count} yıl önce" },
+        "month": { "one": "{count} ay önce", "other": "{count} ay önce" },
+        "day": { "one": "{count} gün önce", "other": "{count} gün önce" },
+        "hour": { "one": "{count} saat önce", "other": "{count} saat önce" },
+        "minute": { "one": "{count} dakika önce", "other": "{count} dakika önce" },
+        "second": { "one": "{count} saniye önce", "other": "{count} saniye önce" }
+      }
     }
   }
 }

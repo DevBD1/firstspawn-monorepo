@@ -1,169 +1,21 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useTransition,
+} from "react";
 import PixelButton from "@/components/ui/PixelButton";
-import PixelCard from "@/components/ui/PixelCard";
 import Link from "next/link";
+import type { PublicServerListItem, PublicServerSort } from "@/lib/servers-api";
+import { loadMoreServers } from "@/app/actions/servers";
 
-// Server data types
-interface Server {
-  id: string;
-  name: string;
-  game: "minecraft" | "hytale";
-  status: "online" | "offline" | "maintenance" | "upcoming";
-  players: { current: number; max: number };
-  version: string;
-  gamemode: string;
-  description: string;
-  rating: number;
-  reviews: number;
-  tags: string[];
-  tier: "common" | "rare" | "epic" | "legendary";
-  uptime: number;
-  verified: boolean;
-  rewards?: boolean;
-  peakRank?: number;
-}
-
-// Mock data - gamified
-const mockServers: Server[] = [
-  {
-    id: "1",
-    name: "Hypixel Network",
-    game: "minecraft",
-    status: "online",
-    players: { current: 84732, max: 100000 },
-    version: "1.20.4",
-    gamemode: "Minigames",
-    description: "The largest Minecraft server network. SkyBlock, Bed Wars, and 50+ games.",
-    rating: 4.8,
-    reviews: 12483,
-    tags: ["Minigames", "SkyBlock", "PvP", "Ranked"],
-    tier: "legendary",
-    uptime: 99.9,
-    verified: true,
-    rewards: true,
-    peakRank: 1,
-  },
-  {
-    id: "2",
-    name: "HytaleRealms",
-    game: "hytale",
-    status: "upcoming",
-    players: { current: 0, max: 50000 },
-    version: "Beta",
-    gamemode: "MMORPG",
-    description: "The premier Hytale MMORPG experience. Pre-register for exclusive loot!",
-    rating: 0,
-    reviews: 0,
-    tags: ["MMORPG", "Quests", "Open World", "Beta"],
-    tier: "epic",
-    uptime: 0,
-    verified: true,
-    rewards: true,
-  },
-  {
-    id: "3",
-    name: "PixelForge SMP",
-    game: "minecraft",
-    status: "online",
-    players: { current: 1420, max: 3000 },
-    version: "1.20.1",
-    gamemode: "Survival",
-    description: "Hardcore survival with custom dungeons, bosses, and weekly events.",
-    rating: 4.6,
-    reviews: 892,
-    tags: ["Survival", "Hardcore", "Dungeons", "Events"],
-    tier: "rare",
-    uptime: 98.5,
-    verified: true,
-    rewards: true,
-    peakRank: 12,
-  },
-  {
-    id: "4",
-    name: "SkyBlock Legends",
-    game: "minecraft",
-    status: "online",
-    players: { current: 3421, max: 5000 },
-    version: "1.20.4",
-    gamemode: "SkyBlock",
-    description: "Classic SkyBlock with a twist. Custom islands, trading, and economy.",
-    rating: 4.4,
-    reviews: 567,
-    tags: ["SkyBlock", "Economy", "Casual"],
-    tier: "rare",
-    uptime: 97.2,
-    verified: true,
-  },
-  {
-    id: "5",
-    name: "NetherScape",
-    game: "minecraft",
-    status: "online",
-    players: { current: 89, max: 500 },
-    version: "1.19.2",
-    gamemode: "PvP",
-    description: "Small PvP-focused server with ranked seasons and tournaments.",
-    rating: 4.2,
-    reviews: 123,
-    tags: ["PvP", "Ranked", "Tournaments"],
-    tier: "common",
-    uptime: 94.1,
-    verified: false,
-  },
-  {
-    id: "6",
-    name: "Craftopia RPG",
-    game: "minecraft",
-    status: "maintenance",
-    players: { current: 0, max: 2000 },
-    version: "1.20.4",
-    gamemode: "RPG",
-    description: "Full MMORPG experience with classes, skills, and massive world.",
-    rating: 4.7,
-    reviews: 2156,
-    tags: ["RPG", "Classes", "Quests", "Bosses"],
-    tier: "epic",
-    uptime: 96.8,
-    verified: true,
-    rewards: true,
-    peakRank: 8,
-  },
-  {
-    id: "7",
-    name: "Hytale Odyssey",
-    game: "hytale",
-    status: "upcoming",
-    players: { current: 0, max: 10000 },
-    version: "Pre-Alpha",
-    gamemode: "Adventure",
-    description: "Story-driven Hytale server with voice acting and cutscenes.",
-    rating: 0,
-    reviews: 0,
-    tags: ["Story", "Adventure", "Voice Acting"],
-    tier: "legendary",
-    uptime: 0,
-    verified: true,
-  },
-  {
-    id: "8",
-    name: "RedstoneLabs",
-    game: "minecraft",
-    status: "online",
-    players: { current: 234, max: 1000 },
-    version: "1.20.4",
-    gamemode: "Creative",
-    description: "Build without limits. WorldEdit, custom blocks, and build contests.",
-    rating: 4.5,
-    reviews: 345,
-    tags: ["Creative", "Building", "Contests"],
-    tier: "common",
-    uptime: 99.1,
-    verified: true,
-  },
-];
+const PAGE_SIZE = 100;
 
 // Tier configurations - like item rarities
 const tierConfig = {
@@ -205,63 +57,114 @@ const tierConfig = {
 const statusConfig = {
   online: { color: "#4ADE80", label: "ONLINE", pulse: true },
   offline: { color: "#DC2626", label: "OFFLINE", pulse: false },
-  maintenance: { color: "#F59E0B", label: "MAINTENANCE", pulse: false },
-  upcoming: { color: "#22D3EE", label: "COMING SOON", pulse: true },
+};
+
+const getTier = (players: number): "common" | "rare" | "epic" | "legendary" => {
+  if (players >= 10000) return "legendary";
+  if (players >= 1000) return "epic";
+  if (players >= 100) return "rare";
+  return "common";
 };
 
 interface DiscoverClientProps {
   lang: string;
-  dictionary: {
-    [key: string]: unknown;
-  };
+  initialServers: PublicServerListItem[];
+  initialPagination: { next_cursor: string | null; limit: number };
 }
 
-export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps) {
+export default function DiscoverClient({
+  lang,
+  initialServers,
+  initialPagination,
+}: DiscoverClientProps) {
+  const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
+  const [nextCursor, setNextCursor] = useState<string | null>(initialPagination.next_cursor);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRefreshing, startRefreshing] = useTransition();
+  const refreshRequestIdRef = useRef(0);
+  const hasHydratedRef = useRef(false);
+
   const [selectedGame, setSelectedGame] = useState<"all" | "minecraft" | "hytale">("all");
   const [selectedTier, setSelectedTier] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"players" | "rating" | "uptime" | "newest">("players");
+  const deferredSearchQuery = useDeferredValue(searchQuery.trim());
+  const [sortBy, setSortBy] = useState<PublicServerSort>("players");
   const [hoveredServer, setHoveredServer] = useState<string | null>(null);
 
-  // Filter and sort servers
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || isLoadingMore) return;
+    setIsLoadingMore(true);
+    try {
+      const data = await loadMoreServers({
+        q: deferredSearchQuery || undefined,
+        sort: sortBy,
+        cursor: nextCursor,
+        limit: PAGE_SIZE,
+      });
+      setServers((prev) => [...prev, ...data.servers]);
+      setNextCursor(data.pagination.next_cursor);
+    } catch (err) {
+      console.error("Failed to load more servers", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [deferredSearchQuery, isLoadingMore, nextCursor, sortBy]);
+
+  useEffect(() => {
+    if (!hasHydratedRef.current) {
+      hasHydratedRef.current = true;
+      return;
+    }
+
+    const requestId = refreshRequestIdRef.current + 1;
+    refreshRequestIdRef.current = requestId;
+
+    startRefreshing(() => {
+      void (async () => {
+        try {
+          const data = await loadMoreServers({
+            q: deferredSearchQuery || undefined,
+            sort: sortBy,
+            limit: PAGE_SIZE,
+          });
+
+          if (refreshRequestIdRef.current !== requestId) {
+            return;
+          }
+
+          setServers(data.servers);
+          setNextCursor(data.pagination.next_cursor);
+        } catch (err) {
+          if (refreshRequestIdRef.current !== requestId) {
+            return;
+          }
+
+          console.error("Failed to refresh discover servers", err);
+        }
+      })();
+    });
+  }, [deferredSearchQuery, sortBy]);
+
+  // Tier and game filters stay client-side on the current result set.
   const filteredServers = useMemo(() => {
-    let filtered = mockServers;
+    let filtered = servers;
 
     // Game filter
     if (selectedGame !== "all") {
-      filtered = filtered.filter((s) => s.game === selectedGame);
+      const targetGame = selectedGame === "minecraft" ? "mc_java" : "hytale";
+      filtered = filtered.filter((s) => s.game === targetGame);
     }
 
     // Tier filter
     if (selectedTier.length > 0) {
-      filtered = filtered.filter((s) => selectedTier.includes(s.tier));
+      filtered = filtered.filter((s) => {
+        const tier = getTier(s.latest_metrics?.online_players ?? 0);
+        return selectedTier.includes(tier);
+      });
     }
 
-    // Search
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.description.toLowerCase().includes(q) ||
-          s.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    }
-
-    // Sort
-    return [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case "players":
-          return b.players.current - a.players.current;
-        case "rating":
-          return b.rating - a.rating;
-        case "uptime":
-          return b.uptime - a.uptime;
-        default:
-          return 0;
-      }
-    });
-  }, [selectedGame, selectedTier, searchQuery, sortBy]);
+    return filtered;
+  }, [servers, selectedGame, selectedTier]);
 
   const toggleTier = (tier: string) => {
     setSelectedTier((prev) =>
@@ -269,8 +172,8 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
     );
   };
 
-  const onlineServers = mockServers.filter((s) => s.status === "online").length;
-  const totalPlayers = mockServers.reduce((acc, s) => acc + s.players.current, 0);
+  const onlineServers = servers.filter((s) => s.freshness_status === "online").length;
+  const totalPlayers = servers.reduce((acc, s) => acc + (s.latest_metrics?.online_players ?? 0), 0);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -280,7 +183,7 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
         <motion.div
           animate={{ x: [0, 50, 0], y: [0, -30, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -left-32 top-20 h-96 w-96 rounded-full bg-accent-cyan/5 blur-[100px]"
+          className="absolute -left-32 top-20 h-96 w-96 rounded-full bg-cyan-500/5 blur-[100px]"
         />
         <motion.div
           animate={{ x: [0, -30, 0], y: [0, 50, 0] }}
@@ -306,7 +209,7 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-display text-sm text-accent-cyan">
+                <span className="font-display text-sm text-fs-diamond">
                   {totalPlayers.toLocaleString()}
                 </span>
                 <span className="font-ui text-sm text-foreground/50">PLAYERS ACTIVE</span>
@@ -325,8 +228,8 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
             className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
           >
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded border border-accent-cyan/30 bg-accent-cyan/5 px-3 py-1">
-                <span className="font-display text-[10px] tracking-wider text-accent-cyan">
+              <div className="mb-2 inline-flex items-center gap-2 rounded border border-fs-diamond/30 bg-fs-diamond/5 px-3 py-1">
+                <span className="font-display text-[10px] tracking-wider text-fs-diamond">
                   MATCHMAKING CORE
                 </span>
               </div>
@@ -334,8 +237,7 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                 DISCOVER WORLDS
               </h1>
               <p className="mt-2 max-w-xl font-body text-foreground/60">
-                Find your next adventure. Browse verified Minecraft and Hytale servers ranked by
-                real player data.
+                Find your next adventure. Browse verified servers ranked by real player data.
               </p>
             </div>
 
@@ -348,8 +250,8 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search servers, gamemodes, tags..."
-                className="w-full rounded-none border-2 border-foreground/20 bg-background/80 py-3 pl-12 pr-4 font-body text-sm text-foreground placeholder:text-foreground/30 focus:border-accent-cyan focus:outline-none"
+                placeholder="Search servers, descriptions..."
+                className="w-full rounded-none border-2 border-foreground/20 bg-background/80 py-3 pl-12 pr-4 font-body text-sm text-foreground placeholder:text-foreground/30 focus:border-fs-diamond focus:outline-none"
               />
             </div>
           </motion.div>
@@ -371,13 +273,13 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                 onClick={() => setSelectedGame(tab.id as typeof selectedGame)}
                 className={`group relative overflow-hidden border-2 px-4 py-2 transition-all ${
                   selectedGame === tab.id
-                    ? "border-accent-cyan bg-accent-cyan/10"
+                    ? "border-fs-diamond bg-fs-diamond/10"
                     : "border-foreground/20 bg-background/50 hover:border-foreground/40"
                 }`}
               >
                 <span
                   className={`flex items-center gap-2 font-display text-xs tracking-wider ${
-                    selectedGame === tab.id ? "text-accent-cyan" : "text-foreground/60"
+                    selectedGame === tab.id ? "text-fs-diamond" : "text-foreground/60"
                   }`}
                 >
                   <span>{tab.icon}</span>
@@ -403,7 +305,7 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
               {/* Rarity Filter */}
               <div className="border-2 border-foreground/10 bg-bg-panel/50 p-4">
                 <div className="mb-4 flex items-center gap-2 border-b border-foreground/10 pb-2">
-                  <span className="font-display text-xs text-accent-cyan">◆</span>
+                  <span className="font-display text-xs text-fs-diamond">◆</span>
                   <span className="font-display text-xs tracking-wider text-foreground">
                     RARITY FILTER
                   </span>
@@ -444,7 +346,7 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
               {/* Sort Options */}
               <div className="border-2 border-foreground/10 bg-bg-panel/50 p-4">
                 <div className="mb-4 flex items-center gap-2 border-b border-foreground/10 pb-2">
-                  <span className="font-display text-xs text-accent-cyan">⇅</span>
+                  <span className="font-display text-xs text-fs-diamond">⇅</span>
                   <span className="font-display text-xs tracking-wider text-foreground">
                     SORT BY
                   </span>
@@ -452,16 +354,14 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                 <div className="space-y-2">
                   {[
                     { id: "players", label: "PLAYER COUNT" },
-                    { id: "rating", label: "RATING" },
-                    { id: "uptime", label: "UPTIME" },
-                    { id: "newest", label: "NEWEST" },
+                    { id: "ping", label: "PING" },
                   ].map((option) => (
                     <button
                       key={option.id}
                       onClick={() => setSortBy(option.id as typeof sortBy)}
                       className={`flex w-full items-center justify-between rounded px-3 py-2 font-ui text-sm transition-all ${
                         sortBy === option.id
-                          ? "bg-accent-cyan/10 text-accent-cyan"
+                          ? "bg-fs-diamond/10 text-fs-diamond"
                           : "text-foreground/60 hover:bg-foreground/5"
                       }`}
                     >
@@ -473,22 +373,18 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
               </div>
 
               {/* Stats Panel */}
-              <div className="border-2 border-accent-cyan/20 bg-accent-cyan/5 p-4">
-                <div className="mb-3 font-display text-xs tracking-wider text-accent-cyan">
+              <div className="border-2 border-fs-diamond/20 bg-fs-diamond/5 p-4">
+                <div className="mb-3 font-display text-xs tracking-wider text-fs-diamond">
                   YOUR STATS
                 </div>
                 <div className="space-y-2 font-ui text-sm">
                   <div className="flex justify-between text-foreground/60">
                     <span>Servers Visited</span>
-                    <span className="text-foreground">12</span>
+                    <span className="text-foreground">0</span>
                   </div>
                   <div className="flex justify-between text-foreground/60">
                     <span>Favorites</span>
-                    <span className="text-foreground">3</span>
-                  </div>
-                  <div className="flex justify-between text-foreground/60">
-                    <span>Reviews Left</span>
-                    <span className="text-foreground">7</span>
+                    <span className="text-foreground">0</span>
                   </div>
                 </div>
               </div>
@@ -504,30 +400,36 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
               className="mb-4 flex items-center justify-between"
             >
               <span className="font-ui text-sm text-foreground/50">
-                FOUND{" "}
-                <span className="font-display text-accent-cyan">{filteredServers.length}</span>{" "}
+                FOUND <span className="font-display text-fs-diamond">{filteredServers.length}</span>{" "}
                 WORLDS
               </span>
-              <div className="flex gap-2">{/* Mobile filter button would go here */}</div>
+              {isRefreshing && (
+                <span className="font-ui text-xs text-foreground/40">SYNCING...</span>
+              )}
             </motion.div>
 
             {/* Server Cards Grid */}
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence mode="popLayout">
                 {filteredServers.map((server, index) => {
-                  const tier = tierConfig[server.tier];
-                  const status = statusConfig[server.status];
-                  const isHovered = hoveredServer === server.id;
+                  const players = server.latest_metrics?.online_players ?? 0;
+                  const maxPlayers = server.latest_metrics?.max_players ?? 0;
+                  const tier = tierConfig[getTier(players)];
+                  const status =
+                    server.freshness_status === "online"
+                      ? statusConfig.online
+                      : statusConfig.offline;
+                  const isHovered = hoveredServer === server.slug;
 
                   return (
                     <motion.div
-                      key={server.id}
+                      key={server.slug}
                       layout
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.05 }}
-                      onMouseEnter={() => setHoveredServer(server.id)}
+                      transition={{ delay: (index % 20) * 0.05 }}
+                      onMouseEnter={() => setHoveredServer(server.slug)}
                       onMouseLeave={() => setHoveredServer(null)}
                       className="group relative"
                     >
@@ -559,18 +461,6 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                               {tier.label}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {server.rewards && (
-                              <span className="font-display text-xs text-amber-400" title="Rewards">
-                                🎁
-                              </span>
-                            )}
-                            {server.verified && (
-                              <span className="font-display text-xs text-success" title="Verified">
-                                ✓
-                              </span>
-                            )}
-                          </div>
                         </div>
 
                         {/* Card Content */}
@@ -600,19 +490,21 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                           <div className="mb-3 flex items-center gap-2">
                             <span
                               className={`rounded px-2 py-0.5 font-ui text-[10px] ${
-                                server.game === "minecraft"
+                                server.game === "mc_java"
                                   ? "bg-emerald-500/20 text-emerald-400"
                                   : "bg-purple-500/20 text-purple-400"
                               }`}
                             >
-                              {server.game.toUpperCase()}
-                            </span>
-                            <span className="font-ui text-[10px] text-foreground/50">
-                              {server.gamemode}
+                              {server.game === "mc_java" ? "MINECRAFT" : "HYTALE"}
                             </span>
                             <span className="font-ui text-[10px] text-foreground/30">
-                              {server.version}
+                              {server.latest_metrics?.minecraft_version ?? "—"}
                             </span>
+                            {server.latest_metrics?.ping_ms != null && (
+                              <span className="font-ui text-[10px] text-foreground/40">
+                                {server.latest_metrics.ping_ms}ms
+                              </span>
+                            )}
                           </div>
 
                           {/* Description */}
@@ -621,84 +513,60 @@ export default function DiscoverClient({ lang, dictionary }: DiscoverClientProps
                           </p>
 
                           {/* Player Count Bar */}
-                          {server.status === "online" && (
+                          {server.freshness_status === "online" && (
                             <div className="mb-4">
                               <div className="mb-1 flex justify-between font-ui text-[10px]">
                                 <span className="text-foreground/50">PLAYERS</span>
                                 <span className="text-foreground">
-                                  {server.players.current.toLocaleString()} /{" "}
-                                  {server.players.max.toLocaleString()}
+                                  {players.toLocaleString()} /{" "}
+                                  {maxPlayers > 0 ? maxPlayers.toLocaleString() : "?"}
                                 </span>
                               </div>
-                              <div className="h-2 overflow-hidden bg-foreground/10">
-                                <motion.div
-                                  initial={{ width: 0 }}
-                                  animate={{
-                                    width: `${
-                                      (server.players.current / server.players.max) * 100
-                                    }%`,
-                                  }}
-                                  transition={{ duration: 1, delay: index * 0.1 }}
-                                  className="h-full"
-                                  style={{ backgroundColor: tier.color }}
-                                />
-                              </div>
+                              {maxPlayers > 0 && (
+                                <div className="h-2 overflow-hidden bg-foreground/10">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{
+                                      width: `${Math.min(100, (players / maxPlayers) * 100)}%`,
+                                    }}
+                                    transition={{ duration: 1, delay: 0.1 }}
+                                    className="h-full"
+                                    style={{ backgroundColor: tier.color }}
+                                  />
+                                </div>
+                              )}
                             </div>
                           )}
-
-                          {/* Rating & Reviews */}
-                          {server.rating > 0 && (
-                            <div className="mb-3 flex items-center gap-3">
-                              <div className="flex items-center gap-1">
-                                <span className="font-display text-xs text-amber-400">★</span>
-                                <span className="font-ui text-sm text-foreground">
-                                  {server.rating}
-                                </span>
-                              </div>
-                              <span className="font-ui text-xs text-foreground/40">
-                                ({server.reviews.toLocaleString()} reviews)
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Tags */}
-                          <div className="mb-4 flex flex-wrap gap-1">
-                            {server.tags.slice(0, 3).map((tag) => (
-                              <span
-                                key={tag}
-                                className="rounded border border-foreground/10 px-1.5 py-0.5 font-ui text-[10px] text-foreground/50"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
 
                           {/* Action Button */}
-                          <Link href={`/server/${server.id}`}>
-                            <PixelButton
-                              variant={server.status === "upcoming" ? "outline" : "primary"}
-                              size="sm"
-                              className="w-full"
-                            >
-                              {server.status === "upcoming" ? "PRE-REGISTER" : "JOIN WORLD"}
-                            </PixelButton>
-                          </Link>
-                        </div>
-
-                        {/* Peak Rank Badge */}
-                        {server.peakRank && server.peakRank <= 10 && (
-                          <div className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-amber-500 bg-amber-500/20 shadow-lg">
-                            <span className="font-display text-[10px] text-amber-400">
-                              #{server.peakRank}
-                            </span>
+                          <div className="mt-6">
+                            <Link href={`/${lang}/server/${server.slug}`}>
+                              <PixelButton variant="primary" size="sm" className="w-full">
+                                VIEW WORLD
+                              </PixelButton>
+                            </Link>
                           </div>
-                        )}
+                        </div>
                       </div>
                     </motion.div>
                   );
                 })}
               </AnimatePresence>
             </div>
+
+            {/* Load More Button */}
+            {nextCursor && (
+              <div className="mt-8 flex justify-center">
+                <PixelButton
+                  onClick={loadMore}
+                  disabled={isLoadingMore || isRefreshing}
+                  variant="outline"
+                  className="w-full md:w-auto"
+                >
+                  {isLoadingMore ? "LOADING..." : "LOAD MORE"}
+                </PixelButton>
+              </div>
+            )}
 
             {/* Empty State */}
             {filteredServers.length === 0 && (

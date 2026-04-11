@@ -66,27 +66,27 @@ const itemVariants = {
   },
 };
 
-const floatAnimation = {
-  y: [0, -10, 0],
-  transition: {
-    duration: 3,
-    repeat: Infinity,
-    ease: "easeInOut",
-  },
-};
+// const floatAnimation = {
+//   y: [0, -10, 0],
+//   transition: {
+//     duration: 3,
+//     repeat: Infinity,
+//     ease: "easeInOut",
+//   },
+// };
 
-const pulseGlow = {
-  boxShadow: [
-    "0 0 20px rgba(34, 211, 238, 0.3)",
-    "0 0 40px rgba(34, 211, 238, 0.6)",
-    "0 0 20px rgba(34, 211, 238, 0.3)",
-  ],
-  transition: {
-    duration: 2,
-    repeat: Infinity,
-    ease: "easeInOut",
-  },
-};
+// const pulseGlow = {
+//   boxShadow: [
+//     "0 0 20px rgba(34, 211, 238, 0.3)",
+//     "0 0 40px rgba(34, 211, 238, 0.6)",
+//     "0 0 20px rgba(34, 211, 238, 0.3)",
+//   ],
+//   transition: {
+//     duration: 2,
+//     repeat: Infinity,
+//     ease: "easeInOut",
+//   },
+// };
 
 export default function PrototypeLanding({ dictionary }: PrototypeLandingProps) {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
