@@ -758,8 +758,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         .from(serverHeartbeats)
         .as("ranked_heartbeats");
 
-      const sortPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})`;
-      const sortPingExpr = sql<number>`coalesce(${rankedHeartbeats.pingMs}, ${PUBLIC_PING_NULL_SORT_VALUE})`;
+      const sortPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})::integer`;
+      const sortPingExpr = sql<number>`coalesce(${rankedHeartbeats.pingMs}::integer, ${PUBLIC_PING_NULL_SORT_VALUE})`;
       const tierPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, 0)`;
       if (query.tier && query.tier.length > 0) {
         const tierFilters = query.tier.map((tier) => {
