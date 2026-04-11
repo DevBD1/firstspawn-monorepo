@@ -1,10 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import PixelButton from "@/components/ui/PixelButton";
 import NewsletterCaptcha from "@/features/captcha/components/NewsletterCaptcha.client";
 import { useNewsletterSignup } from "@/features/landing/hooks/useNewsletterSignup";
 import type { LandingPageProps } from "@/features/landing/types";
+import HeroScene from "./HeroScene.client";
 import LandingScene from "./LandingScene.client";
 import NewsletterSignup from "./NewsletterSignup.client";
 
@@ -50,12 +52,12 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
 
   return (
     <LandingScene>
-      <section className="relative mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-28 pt-12 md:px-8 md:pt-16">
+      <section className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-28 pt-12 md:px-8 md:pt-16">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12"
+          className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(480px,0.95fr)] xl:gap-10"
         >
           <div className="space-y-8">
             <div className="inline-flex items-center gap-3 border-4 border-black bg-bg-panel px-4 py-3 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
@@ -103,101 +105,53 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
               </PixelButton>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 + index * 0.06, duration: 0.18 }}
-                  className="border-4 border-black bg-bg-panel px-4 py-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+            <div className="grid grid-cols-3 gap-3 md:max-w-xl">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="border-4 border-black bg-bg-panel px-3 py-3 text-center shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
                 >
-                  <div className="mb-2 h-2 w-10 bg-fs-diamond" />
-                  <p className="font-ui text-base tracking-[0.14em] text-foreground/80">
-                    {feature}
-                  </p>
-                </motion.div>
+                  <div className="font-display text-base tracking-[0.14em] text-fs-diamond md:text-lg">
+                    {stat.value}
+                  </div>
+                  <div className="mt-2 font-ui text-sm tracking-[0.14em] text-foreground/65">
+                    {stat.label}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
-          <motion.aside
+          <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.25 }}
-            className="border-4 border-black bg-bg-panel p-5 shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
+            className="xl:pt-2"
           >
-            <div className="mb-5 flex items-center justify-between border-b-4 border-black pb-4">
-              <div>
-                <p className="font-display text-xs tracking-[0.16em] text-fs-diamond">
-                  {landing.building_title}
-                </p>
-                <p className="mt-2 font-ui text-base tracking-[0.16em] text-foreground/65">
-                  {landing.under_construction}
-                </p>
-              </div>
-              <div className="border-4 border-black bg-background px-3 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                <span className="font-display text-xs tracking-[0.14em] text-success">
-                  {landing.active}
-                </span>
-              </div>
-            </div>
-
-            <div className="mb-5 border-4 border-black bg-background p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-              <div className="grid grid-cols-6 gap-2">
-                {Array.from({ length: 24 }).map((_, index) => (
-                  <motion.div
-                    key={index}
-                    className={`aspect-square border-2 border-black ${
-                      index % 5 === 0
-                        ? "bg-success"
-                        : index % 3 === 0
-                          ? "bg-fs-diamond"
-                          : "bg-secondary"
-                    }`}
-                    animate={{ opacity: index % 3 === 0 ? [0.55, 1, 0.55] : 1 }}
-                    transition={{
-                      duration: 1 + (index % 4) * 0.12,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {stats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="flex items-center justify-between border-4 border-black bg-background px-4 py-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
-                >
-                  <span className="font-ui text-sm tracking-[0.16em] text-foreground/65">
-                    {stat.label}
-                  </span>
-                  <span className="font-display text-lg tracking-[0.14em] text-fs-diamond">
-                    {stat.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 border-4 border-black bg-background p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-              <div className="mb-2 flex items-center justify-between font-ui text-sm tracking-[0.16em] text-foreground/65">
-                <span>{landing.progress}</span>
-                <span>42%</span>
-              </div>
-              <div className="border-2 border-black bg-secondary p-1">
-                <motion.div
-                  className="h-4 bg-fs-diamond"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "42%" }}
-                  transition={{ duration: 0.9, ease: "easeOut" }}
-                />
-              </div>
-            </div>
-          </motion.aside>
+            <HeroScene
+              activeLabel={landing.active || "ACTIVE"}
+              mascotAlt={landing.mascot_alt || ""}
+              sceneAlt={landing.scene_alt || ""}
+              sceneLabel={landing.scene_label || ""}
+              statusLabel={landing.status || "STATUS"}
+            />
+          </motion.div>
         </motion.div>
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 + index * 0.06, duration: 0.18 }}
+              className="border-4 border-black bg-bg-panel px-4 py-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+            >
+              <div className="mb-2 h-2 w-10 bg-fs-diamond" />
+              <p className="font-ui text-base tracking-[0.14em] text-foreground/80">{feature}</p>
+            </motion.div>
+          ))}
+        </div>
 
         <motion.div
           id="notify-signup"

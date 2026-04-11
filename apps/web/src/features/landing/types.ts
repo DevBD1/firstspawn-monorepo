@@ -4,6 +4,9 @@ export interface LandingCopy {
   status?: string;
   active?: string;
   building_desc?: string;
+  scene_label?: string;
+  scene_alt?: string;
+  mascot_alt?: string;
   progress?: string;
   feature_servers?: string;
   feature_verified?: string;
