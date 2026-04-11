@@ -9,12 +9,14 @@ type FetchInit = RequestInit & {
 };
 
 export type PublicServerSort = "players" | "ping";
+export type PublicServerGame = "mc_java" | "mc_bedrock" | "hytale";
+export type PublicServerTier = "common" | "rare" | "epic" | "legendary";
 
 export interface PublicServerListItem {
   slug: string;
   name: string;
   description: string;
-  game: "mc_java";
+  game: PublicServerGame;
   catalog_status: "active" | "archived";
   freshness_status: "online" | "offline";
   region: string | null;
@@ -32,7 +34,7 @@ export interface PublicServerDetail {
   slug: string;
   name: string;
   description: string;
-  game: "mc_java";
+  game: PublicServerGame;
   catalog_status: "active" | "archived";
   freshness_status: "online" | "offline";
   region: string | null;
@@ -57,6 +59,8 @@ export interface PublicServerDetail {
 export interface FetchServersParams {
   q?: string;
   freshness_status?: string;
+  game?: PublicServerGame;
+  tier?: PublicServerTier[];
   sort?: PublicServerSort;
   limit?: number;
   cursor?: string;
@@ -94,6 +98,8 @@ export async function fetchServers(
 
   if (params.q) url.searchParams.set("q", params.q);
   if (params.freshness_status) url.searchParams.set("freshness_status", params.freshness_status);
+  if (params.game) url.searchParams.set("game", params.game);
+  if (params.tier && params.tier.length > 0) url.searchParams.set("tier", params.tier.join(","));
   if (params.sort) url.searchParams.set("sort", params.sort);
   if (params.limit) url.searchParams.set("limit", params.limit.toString());
   if (params.cursor) url.searchParams.set("cursor", params.cursor);

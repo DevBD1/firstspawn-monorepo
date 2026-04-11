@@ -20,7 +20,9 @@ type HeartbeatRecord = typeof serverHeartbeats.$inferSelect;
 const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline"]);
+const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
 const publicListSortSchema = z.enum(["players", "ping"]);
+const publicTierSchema = z.enum(["common", "rare", "epic", "legendary"]);
 
 const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
@@ -46,7 +48,7 @@ const serverBaseSchema = z.object({
   description: z.string(),
   host: z.string(),
   port: z.number().int(),
-  game: z.literal("mc_java"),
+  game: gameSchema,
   catalog_status: adminStatusSchema,
   freshness_status: freshnessStatusSchema,
   online_mode: z.boolean(),
@@ -67,6 +69,18 @@ const adminListQuerySchema = z.object({
 
 const publicListQuerySchema = z.object({
   q: z.string().trim().min(1).max(255).optional(),
+  game: gameSchema.optional(),
+  tier: z
+    .string()
+    .trim()
+    .transform((value) =>
+      value
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+    )
+    .pipe(z.array(publicTierSchema).max(4))
+    .optional(),
   freshness_status: freshnessStatusSchema.optional(),
   include_archived: z.coerce.boolean().default(false),
   sort: publicListSortSchema.default("players"),
@@ -252,7 +266,7 @@ const normalizeServerPayload = (
   description: string;
   host: string;
   port: number;
-  game: "mc_java";
+  game: "mc_java" | "mc_bedrock" | "hytale";
   catalog_status: "active" | "suspended" | "archived";
   freshness_status: "online" | "offline";
   online_mode: boolean;
@@ -269,7 +283,7 @@ const normalizeServerPayload = (
   description: server.description,
   host: server.host,
   port: server.port,
-  game: "mc_java",
+  game: server.game as "mc_java" | "mc_bedrock" | "hytale",
   catalog_status: server.status as "active" | "suspended" | "archived",
   freshness_status: freshnessFromServer(server, nowMs),
   online_mode: server.onlineMode,
@@ -701,7 +715,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const statuses = query.include_archived
         ? (["active", "archived"] as const)
         : (["active"] as const);
-      const filters = [eq(servers.game, "mc_java"), inArray(servers.status, statuses)];
+      const filters = [
+        eq(servers.game, query.game ?? "mc_java"),
+        inArray(servers.status, statuses),
+      ];
       if (query.q) {
         const q = `%${query.q}%`;
         filters.push(
@@ -743,6 +760,22 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
       const sortPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})`;
       const sortPingExpr = sql<number>`coalesce(${rankedHeartbeats.pingMs}, ${PUBLIC_PING_NULL_SORT_VALUE})`;
+      const tierPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, 0)`;
+      if (query.tier && query.tier.length > 0) {
+        const tierFilters = query.tier.map((tier) => {
+          if (tier === "common") {
+            return sql`${tierPlayersExpr} < 100`;
+          }
+          if (tier === "rare") {
+            return sql`${tierPlayersExpr} >= 100 and ${tierPlayersExpr} < 1000`;
+          }
+          if (tier === "epic") {
+            return sql`${tierPlayersExpr} >= 1000 and ${tierPlayersExpr} < 10000`;
+          }
+          return sql`${tierPlayersExpr} >= 10000`;
+        });
+        filters.push(or(...tierFilters)!);
+      }
       const cursorFilter =
         cursor && query.sort === "players"
           ? sql`(
@@ -822,7 +855,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             slug: server.slug,
             name: server.name,
             description: server.description,
-            game: "mc_java" as const,
+            game: server.game as "mc_java" | "mc_bedrock" | "hytale",
             catalog_status: server.status as "active" | "suspended" | "archived",
             freshness_status: freshnessFromServer(server, nowMs),
             region: server.region ?? null,
