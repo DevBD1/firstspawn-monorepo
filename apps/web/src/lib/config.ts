@@ -27,6 +27,8 @@ const serverConfigSchema = z.object({
   TURNSTILE_SECRET_KEY: z.string().optional(),
   // Vercel platform
   VERCEL_ENV: z.string().optional(),
+  // Route gating
+  LOCK_BETA_ROUTES: z.coerce.boolean().optional(),
 });
 
 export type WebServerConfig = z.infer<typeof serverConfigSchema>;
@@ -78,6 +80,16 @@ export const getPublicConfig = (): WebPublicConfig => {
     cachedPublicConfig = publicConfigSchema.parse(process.env);
   }
   return cachedPublicConfig;
+};
+
+export const isBetaRouteLockEnabled = (): boolean => {
+  const serverConfig = getWebConfig();
+
+  if (typeof serverConfig.LOCK_BETA_ROUTES === "boolean") {
+    return serverConfig.LOCK_BETA_ROUTES;
+  }
+
+  return getPublicConfig().NEXT_PUBLIC_LOCK_BETA_ROUTES;
 };
 
 /** Convenience re-export used by `resetConfigForTests` in unit tests. */
