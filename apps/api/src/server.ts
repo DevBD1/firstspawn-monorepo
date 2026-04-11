@@ -16,17 +16,30 @@ import { getConfig } from "./lib/config.js";
 import { createDatabase, type DatabaseContext } from "./db/client.js";
 import type { Mailer } from "./services/mailer.js";
 import { createMailer } from "./services/mailer.js";
+import { createRedisClient, type RedisClient } from "./lib/redis.js";
 
 export interface BuildAppOptions {
   db?: DatabaseContext;
   mailer?: Mailer;
+  redis?: RedisClient;
 }
+
+const TRUSTED_PROXY_CIDRS = [
+  "127.0.0.0/8",
+  "::1/128",
+  "10.0.0.0/8",
+  "172.16.0.0/12",
+  "192.168.0.0/16",
+  "fc00::/7",
+  "fe80::/10",
+] as const;
 
 declare module "fastify" {
   interface FastifyInstance {
     db: DatabaseContext;
     mailer: Mailer;
     config: ReturnType<typeof getConfig>;
+    redis: RedisClient;
   }
 }
 
@@ -34,10 +47,12 @@ export const buildApp = async (options: BuildAppOptions = {}): Promise<FastifyIn
   const config = getConfig();
   const db = options.db ?? createDatabase(config.API_DATABASE_URL);
   const mailer = options.mailer ?? createMailer(config);
+  const redis = options.redis ?? createRedisClient(config.API_REDIS_URL);
 
   const app = Fastify({
     logger: config.API_ENV !== "test",
     genReqId: () => randomUUID(),
+    trustProxy: [...TRUSTED_PROXY_CIDRS],
   });
 
   app.setValidatorCompiler(validatorCompiler);
@@ -45,6 +60,7 @@ export const buildApp = async (options: BuildAppOptions = {}): Promise<FastifyIn
   app.decorate("db", db);
   app.decorate("mailer", mailer);
   app.decorate("config", config);
+  app.decorate("redis", redis);
 
   await app.register(swagger, {
     openapi: {
@@ -91,6 +107,7 @@ export const buildApp = async (options: BuildAppOptions = {}): Promise<FastifyIn
   });
 
   app.addHook("onClose", async () => {
+    await app.redis.quit().catch(() => {});
     await db.pool.end();
   });
 

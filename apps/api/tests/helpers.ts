@@ -7,6 +7,7 @@ import { Pool } from "pg";
 import { buildApp } from "../src/server.js";
 import { createDatabase, toPoolConfig } from "../src/db/client.js";
 import { resetConfigForTests } from "../src/lib/config.js";
+import { createInMemoryRedisClient } from "../src/lib/redis.js";
 
 const currentFile = fileURLToPath(import.meta.url);
 const currentDir = path.dirname(currentFile);
@@ -77,6 +78,7 @@ export const createTestApp = async (): Promise<TestContext> => {
 
   const app = await buildApp({
     db,
+    redis: createInMemoryRedisClient(),
     mailer: {
       async sendVerificationEmail(
         emailTo: string,

@@ -22,6 +22,7 @@ and database migrations managed from `packages/database`.
   - Email or username login via `identifier`
   - Access + refresh token issuance
   - Refresh token rotation
+  - Redis-backed auth rate limits for register, login, and refresh
   - Logout revocation (idempotent)
   - Registration consent persistence (`terms_accepted`, `privacy_accepted`, `marketing_consent`)
   - Deleted-account login returns `AUTH_RESTORE_REQUIRED` and sends restore email token
@@ -39,7 +40,6 @@ and database migrations managed from `packages/database`.
 
 ### Not Implemented Yet
 
-- Redis-backed runtime features
 - Live end-to-end probe validation against a real external Minecraft target in this environment
 
 ### Out Of Scope For MVP
