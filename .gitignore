@@ -45,7 +45,9 @@ next-env.d.ts
 # expo
 .expo
 
-references
-
 # nginx
 .htpasswd
+
+# local workspace
+.temp
+*.mjs
