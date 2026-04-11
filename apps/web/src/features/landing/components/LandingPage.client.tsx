@@ -1,7 +1,7 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import PixelButton from "@/components/ui/PixelButton";
 import NewsletterCaptcha from "@/features/captcha/components/NewsletterCaptcha.client";
 import { useNewsletterSignup } from "@/features/landing/hooks/useNewsletterSignup";
 import type { LandingPageProps } from "@/features/landing/types";
@@ -32,123 +32,191 @@ export default function LandingPage({ lang, dictionary }: LandingPageProps) {
   }, []);
 
   const landing = dictionary.landing || {};
+  const prototype = dictionary.prototype || {};
+  const heroTitle = (prototype.hero_title || dictionary.common?.brand || "")
+    .split("\n")
+    .filter(Boolean);
+  const stats = [
+    { value: "2,400+", label: prototype.stats_servers || "" },
+    { value: "140K+", label: prototype.stats_players || "" },
+    { value: "100%", label: prototype.stats_verified || "" },
+  ];
+  const features = [
+    landing.feature_servers,
+    landing.feature_verified,
+    landing.feature_uptime,
+    landing.feature_anticheat,
+  ].filter(Boolean);
 
   return (
     <LandingScene>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative mx-auto w-full max-w-4xl border-4 border-[#FFD700] bg-[#060B10] p-8 text-center md:p-12"
-        style={{ boxShadow: "8px 8px 0 #CC5500, 0 0 60px rgba(255,215,0,0.2)" }}
-      >
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 border-2 border-[#1A1A1A] bg-[#FFD700] px-6 py-2">
-          <span className="font-display text-sm font-bold tracking-wider text-[#1A1A1A]">
-            ⚠ {landing.under_construction || "UNDER CONSTRUCTION"} ⚠
-          </span>
-        </div>
-
-        <motion.h1
-          className="mt-4 mb-4 bg-gradient-to-b from-[#FFD700] to-[#FF6B00] bg-clip-text font-display text-4xl font-black tracking-tight text-transparent md:text-6xl"
-          animate={{
-            textShadow: [
-              "0 0 20px rgba(255,215,0,0.5)",
-              "0 0 40px rgba(255,215,0,0.8)",
-              "0 0 20px rgba(255,215,0,0.5)",
-            ],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
+      <section className="relative mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-28 pt-12 md:px-8 md:pt-16">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12"
         >
-          {dictionary.common?.brand || "FIRSTSPAWN"}
-        </motion.h1>
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-3 border-4 border-black bg-bg-panel px-4 py-3 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+              <motion.span
+                className="h-3 w-3 border-2 border-black bg-success"
+                animate={{ opacity: [1, 0.4, 1] }}
+                transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+              />
+              <span className="font-ui text-base tracking-[0.18em] text-fs-diamond">
+                {landing.status} {landing.active}
+                {dots}
+              </span>
+            </div>
 
-        <div className="relative mb-8 border-2 border-dashed border-[#FFD700]/50 bg-[#0F161C] p-6">
-          <div className="absolute top-0 left-0 h-3 w-3 border-t-2 border-l-2 border-[#FFD700]" />
-          <div className="absolute top-0 right-0 h-3 w-3 border-t-2 border-r-2 border-[#FFD700]" />
-          <div className="absolute bottom-0 left-0 h-3 w-3 border-b-2 border-l-2 border-[#FFD700]" />
-          <div className="absolute right-0 bottom-0 h-3 w-3 border-r-2 border-b-2 border-[#FFD700]" />
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <div className="relative">
-                <div className="mx-auto h-4 w-8 rounded-t-sm border-b-2 border-[#DAA520] bg-[#FFD700]" />
-                <div className="mx-auto h-6 w-6 bg-[#FDBF6F]" />
-                <div className="mx-auto h-8 w-8 border-2 border-[#CC5500] bg-[#FF6B00]" />
+            <div className="space-y-5">
+              <p className="font-display text-sm tracking-[0.24em] text-foreground">
+                {dictionary.common?.brand}
+              </p>
+              <div className="space-y-3">
+                {heroTitle.map((line, index) => (
+                  <motion.h1
+                    key={line}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + index * 0.08, duration: 0.2 }}
+                    className={`font-display text-4xl leading-tight tracking-[0.12em] sm:text-5xl md:text-6xl xl:text-7xl ${
+                      index === heroTitle.length - 1 ? "text-fs-diamond" : "text-foreground"
+                    }`}
+                  >
+                    {line}
+                  </motion.h1>
+                ))}
               </div>
-              <div className="text-left">
-                <h2 className="mb-2 font-display text-lg text-[#2EBCDA] md:text-xl">
-                  {landing.building_title || "BUILDING THE ULTIMATE DISCOVERY ECOSYSTEM"}
-                </h2>
-                <p className="font-ui text-sm text-[#6D8A99]">
-                  {landing.status || "STATUS"}:{" "}
-                  <span className="text-[#4ADE80]">
-                    {landing.active || "ACTIVE"}
-                    {dots}
-                  </span>
+              <p className="max-w-2xl font-body text-base leading-7 text-foreground/75 md:text-lg">
+                {prototype.hero_subtitle}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <PixelButton href={`/${lang}/discover`} variant="diamond" size="lg">
+                {prototype.cta_primary}
+              </PixelButton>
+              <PixelButton href={`/${lang}/console`} variant="outline" size="lg">
+                {prototype.cta_secondary}
+              </PixelButton>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 + index * 0.06, duration: 0.18 }}
+                  className="border-4 border-black bg-bg-panel px-4 py-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+                >
+                  <div className="mb-2 h-2 w-10 bg-fs-diamond" />
+                  <p className="font-ui text-base tracking-[0.14em] text-foreground/80">
+                    {feature}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <motion.aside
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.25 }}
+            className="border-4 border-black bg-bg-panel p-5 shadow-[8px_8px_0_0_rgba(0,0,0,1)]"
+          >
+            <div className="mb-5 flex items-center justify-between border-b-4 border-black pb-4">
+              <div>
+                <p className="font-display text-xs tracking-[0.16em] text-fs-diamond">
+                  {landing.building_title}
                 </p>
+                <p className="mt-2 font-ui text-base tracking-[0.16em] text-foreground/65">
+                  {landing.under_construction}
+                </p>
+              </div>
+              <div className="border-4 border-black bg-background px-3 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                <span className="font-display text-xs tracking-[0.14em] text-success">
+                  {landing.active}
+                </span>
               </div>
             </div>
 
-            <p className="mx-auto mb-4 max-w-xl font-ui text-sm leading-relaxed text-[#9CA3AF] md:text-base">
-              {landing.building_desc ||
-                "More than just a server list — FirstSpawn is a social network for Minecraft & Hytale players. Sync your cross-platform identity, leave reviews backed by verified playtime, solve puzzles to win prizes, form Guilds, and earn reputation badges."}
-            </p>
+            <div className="mb-5 border-4 border-black bg-background p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+              <div className="grid grid-cols-6 gap-2">
+                {Array.from({ length: 24 }).map((_, index) => (
+                  <motion.div
+                    key={index}
+                    className={`aspect-square border-2 border-black ${
+                      index % 5 === 0
+                        ? "bg-success"
+                        : index % 3 === 0
+                          ? "bg-fs-diamond"
+                          : "bg-secondary"
+                    }`}
+                    animate={{ opacity: index % 3 === 0 ? [0.55, 1, 0.55] : 1 }}
+                    transition={{
+                      duration: 1 + (index % 4) * 0.12,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
 
-            <div className="mx-auto max-w-md">
-              <div className="mb-2 flex justify-between font-ui text-xs text-[#6D8A99]">
-                <span>{landing.progress || "PROGRESS"}</span>
+            <div className="space-y-4">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="flex items-center justify-between border-4 border-black bg-background px-4 py-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+                >
+                  <span className="font-ui text-sm tracking-[0.16em] text-foreground/65">
+                    {stat.label}
+                  </span>
+                  <span className="font-display text-lg tracking-[0.14em] text-fs-diamond">
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 border-4 border-black bg-background p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+              <div className="mb-2 flex items-center justify-between font-ui text-sm tracking-[0.16em] text-foreground/65">
+                <span>{landing.progress}</span>
                 <span>42%</span>
               </div>
-              <div className="h-4 overflow-hidden border border-[#2EBCDA]/30 bg-[#1A2633]">
+              <div className="border-2 border-black bg-secondary p-1">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-[#4ADE80] via-[#2EBCDA] to-[#4ADE80]"
-                  style={{ backgroundSize: "200% 100%" }}
+                  className="h-4 bg-fs-diamond"
                   initial={{ width: "0%" }}
-                  animate={{ width: "42%", backgroundPosition: ["0% 0%", "100% 0%"] }}
-                  transition={{
-                    width: { duration: 1.5, ease: "easeOut" },
-                    backgroundPosition: { duration: 2, repeat: Infinity, ease: "linear" },
-                  }}
+                  animate={{ width: "42%" }}
+                  transition={{ duration: 0.9, ease: "easeOut" }}
                 />
               </div>
             </div>
-          </motion.div>
-        </div>
+          </motion.aside>
+        </motion.div>
 
-        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {[
-            { icon: "⛏️", label: landing.feature_servers || "MINECRAFT & HYTALE" },
-            { icon: "⏱️", label: landing.feature_verified || "VERIFIED PLAYTIME" },
-            { icon: "🏰", label: landing.feature_uptime || "GUILDS & BADGES" },
-            { icon: "🏆", label: landing.feature_anticheat || "WIN PRIZES" },
-          ].map((feature, index) => (
-            <motion.div
-              key={index}
-              className="border border-[#2EBCDA]/20 bg-[#0F161C] p-3 transition-colors hover:border-[#2EBCDA]/60"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + index * 0.1 }}
-            >
-              <div className="mb-1 text-2xl">{feature.icon}</div>
-              <div className="font-ui text-[8px] text-[#6D8A99] md:text-xs">{feature.label}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        <NewsletterSignup
-          dictionary={dictionary}
-          confirmEmailSent={confirmEmailSent}
-          email={email}
-          isSubscribed={isSubscribed}
-          statusMessage={statusMessage}
-          onEmailChange={setEmail}
-          onSubmit={handleSubscribe}
-        />
-      </motion.div>
+        <motion.div
+          id="notify-signup"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: 0.25 }}
+          className="border-4 border-black bg-background/95 p-6 shadow-[8px_8px_0_0_rgba(0,0,0,1)] md:p-8"
+        >
+          <NewsletterSignup
+            dictionary={dictionary}
+            confirmEmailSent={confirmEmailSent}
+            email={email}
+            isSubscribed={isSubscribed}
+            statusMessage={statusMessage}
+            onEmailChange={setEmail}
+            onSubmit={handleSubscribe}
+          />
+        </motion.div>
+      </section>
 
       <NewsletterCaptcha
         isOpen={showCaptcha}

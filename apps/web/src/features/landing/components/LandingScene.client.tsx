@@ -7,56 +7,53 @@ interface LandingSceneProps {
   children: ReactNode;
 }
 
-const CraneHook = () => (
+const SignalRig = () => (
   <motion.div
-    className="absolute top-0 right-[15%]"
+    className="absolute right-[12%] top-0 hidden origin-top lg:block"
     animate={{ rotate: [-5, 5, -5] }}
-    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-    style={{ transformOrigin: "top center" }}
+    transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
   >
-    <div className="mx-auto h-32 w-1 bg-[#666]" />
-    <div className="mx-auto h-3 w-6 rounded-b-lg border-2 border-[#CC5500] bg-[#FF6B00]" />
+    <div className="mx-auto h-28 w-1 bg-foreground/30" />
+    <div className="mx-auto h-4 w-8 border-2 border-black bg-secondary shadow-[4px_4px_0_0_rgba(0,0,0,1)]" />
     <motion.div
-      className="mx-auto mt-1 flex h-8 w-12 items-center justify-center border-2 border-[#1A8A9F] bg-[#2EBCDA]"
-      animate={{ rotate: [-3, 3, -3] }}
-      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      className="mx-auto mt-2 flex h-10 w-14 items-center justify-center border-4 border-black bg-fs-diamond shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
+      animate={{ y: [0, 4, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
     >
-      <div className="h-2 w-2 animate-pulse rounded-full bg-[#4ADE80]" />
+      <motion.div
+        className="h-3 w-3 border-2 border-black bg-success"
+        animate={{ opacity: [1, 0.45, 1] }}
+        transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+      />
     </motion.div>
   </motion.div>
 );
 
-const ConstructionBarrier = ({ delay = 0 }: { delay?: number }) => (
+const BeaconStrip = ({ delay = 0 }: { delay?: number }) => (
   <motion.div
-    className="flex flex-col items-center"
+    className="flex items-end gap-1"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
   >
-    <div className="relative h-12 w-16">
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(4)].map((_, index) => (
-          <motion.div
-            key={index}
-            className="h-3 bg-gradient-to-r from-[#FFD700] via-[#1A1A1A] to-[#FFD700]"
-            style={{ backgroundSize: "200% 100%" }}
-            animate={{ backgroundPosition: ["0% 0%", "100% 0%"] }}
-            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-          />
-        ))}
-      </div>
-    </div>
-    <div className="h-8 w-3 bg-[#FF6B00]" />
+    {[0, 1, 2].map((column) => (
+      <motion.div
+        key={column}
+        className="w-4 border-2 border-black bg-fs-diamond shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        animate={{ height: [20 + column * 8, 32 + column * 8, 20 + column * 8] }}
+        transition={{ duration: 1 + column * 0.15, repeat: Infinity, delay: delay + column * 0.12 }}
+      />
+    ))}
   </motion.div>
 );
 
 const FloatingBlocks = () => {
   const blocks = [
-    { size: 12, color: "#2EBCDA", delay: 0, x: "10%", duration: 4 },
-    { size: 8, color: "#4ADE80", delay: 0.5, x: "30%", duration: 5 },
-    { size: 16, color: "#FFD700", delay: 1, x: "60%", duration: 3.5 },
-    { size: 10, color: "#FF6B00", delay: 1.5, x: "80%", duration: 4.5 },
-    { size: 6, color: "#2EBCDA", delay: 2, x: "90%", duration: 3 },
+    { size: "h-3 w-3", tone: "bg-fs-diamond", delay: 0, x: "left-[10%]", duration: 3.8 },
+    { size: "h-2 w-2", tone: "bg-success", delay: 0.5, x: "left-[26%]", duration: 4.6 },
+    { size: "h-4 w-4", tone: "bg-primary", delay: 1, x: "left-[58%]", duration: 3.2 },
+    { size: "h-3 w-3", tone: "bg-secondary", delay: 1.4, x: "left-[78%]", duration: 4.2 },
+    { size: "h-2 w-2", tone: "bg-fs-diamond", delay: 1.9, x: "left-[90%]", duration: 2.8 },
   ];
 
   return (
@@ -64,21 +61,14 @@ const FloatingBlocks = () => {
       {blocks.map((block, index) => (
         <motion.div
           key={index}
-          className="absolute bottom-0"
-          style={{
-            left: block.x,
-            width: block.size,
-            height: block.size,
-            backgroundColor: block.color,
-            boxShadow: "inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.2)",
-          }}
+          className={`absolute bottom-10 border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] ${block.size} ${block.tone} ${block.x}`}
           initial={{ y: 0, opacity: 0 }}
-          animate={{ y: [0, -300, -300], opacity: [0, 1, 0] }}
+          animate={{ y: [0, -220, -220], opacity: [0, 1, 0] }}
           transition={{
             duration: block.duration,
             repeat: Infinity,
             delay: block.delay,
-            ease: "easeOut",
+            ease: "linear",
           }}
         />
       ))}
@@ -88,31 +78,27 @@ const FloatingBlocks = () => {
 
 export default function LandingScene({ children }: LandingSceneProps) {
   return (
-    <div className="relative flex min-h-[calc(100vh-80px)] w-full items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0B0B15] via-[#1A1025] to-[#2D1B4E]">
-        <div
-          className="absolute inset-0 animate-pulse opacity-40"
-          style={{
-            backgroundImage: "radial-gradient(white 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-        <div className="absolute bottom-0 left-0 right-0 h-[30%] origin-bottom bg-[linear-gradient(to_right,rgba(46,188,218,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(46,188,218,0.05)_1px,transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] opacity-50" />
+    <div className="relative flex min-h-[calc(100vh-80px)] w-full items-center overflow-hidden bg-background">
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_45%)]" />
+        <div className="absolute inset-x-0 top-0 h-20 border-b-4 border-black bg-bg-panel/70" />
+        <div className="absolute inset-x-0 bottom-0 h-44 border-t-4 border-black bg-bg-panel" />
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-[linear-gradient(to_right,rgba(240,240,240,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(240,240,240,0.08)_1px,transparent_1px)] bg-[size:32px_32px]" />
         <FloatingBlocks />
       </div>
 
-      <CraneHook />
+      <SignalRig />
 
-      <div className="absolute bottom-[10%] left-0 right-0 z-10 flex justify-around px-8">
-        <ConstructionBarrier delay={0.2} />
-        <ConstructionBarrier delay={0.4} />
-        <ConstructionBarrier delay={0.6} />
+      <div className="absolute bottom-12 left-0 right-0 z-10 flex justify-around px-8">
+        <BeaconStrip delay={0.2} />
+        <BeaconStrip delay={0.35} />
+        <BeaconStrip delay={0.5} />
       </div>
 
-      <div className="relative z-20 w-full px-4">{children}</div>
+      <div className="relative z-20 w-full">{children}</div>
 
-      <div className="pointer-events-none absolute inset-0 z-30 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
-      <div className="pointer-events-none absolute inset-0 z-30 opacity-10 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="pointer-events-none absolute inset-0 z-30 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.05)_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_6px] opacity-35" />
+      <div className="pointer-events-none absolute inset-0 z-30 bg-gradient-to-t from-background via-transparent to-background/30" />
     </div>
   );
 }

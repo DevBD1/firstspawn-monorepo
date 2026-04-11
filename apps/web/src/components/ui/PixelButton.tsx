@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 export type PixelButtonVariant =
   | "primary"
+  | "diamond"
   | "secondary"
   | "danger"
   | "success"
@@ -28,6 +29,8 @@ const BUTTON_BASE_CLASSES =
 const VARIANT_CLASSES: Record<PixelButtonVariant, string> = {
   primary:
     "font-display tracking-wider bg-primary hover:bg-primary-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+  diamond:
+    "font-display tracking-wider bg-fs-diamond text-background border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:brightness-110",
   secondary:
     "font-display tracking-wider bg-secondary hover:bg-secondary-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
   danger:

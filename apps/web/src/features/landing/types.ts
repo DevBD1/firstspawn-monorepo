@@ -16,6 +16,16 @@ export interface LandingCopy {
   check_inbox?: string;
 }
 
+export interface PrototypeCopy {
+  hero_title?: string;
+  hero_subtitle?: string;
+  cta_primary?: string;
+  cta_secondary?: string;
+  stats_servers?: string;
+  stats_players?: string;
+  stats_verified?: string;
+}
+
 export interface LandingDictionary {
   common?: {
     brand?: string;
@@ -23,6 +33,7 @@ export interface LandingDictionary {
     scribe?: string;
   };
   landing?: LandingCopy;
+  prototype?: PrototypeCopy;
 }
 
 export interface LandingPageProps {

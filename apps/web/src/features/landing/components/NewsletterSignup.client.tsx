@@ -27,28 +27,28 @@ export default function NewsletterSignup({
   const landing = dictionary.landing || {};
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
+    <div className="mx-auto w-full max-w-2xl space-y-4">
       <div>
-        <h3 className="mb-2 font-display text-lg tracking-wide text-white md:text-xl">
+        <h3 className="mb-2 font-display text-base tracking-wider text-foreground md:text-lg">
           {landing.notify_title || "BE FIRST TO SPAWN"}
         </h3>
-        <p className="font-ui text-[10px] leading-relaxed text-[#6D8A99] md:text-xs">
+        <p className="max-w-xl font-body text-sm leading-relaxed text-foreground/70">
           {landing.notify_desc ||
             "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!"}
         </p>
       </div>
 
       {isSubscribed ? (
-        <div className="animate-pulse border border-[#4ADE80]/30 bg-[#4ADE80]/10 p-4 text-center font-display text-[#4ADE80]">
+        <div className="border-4 border-black bg-success/15 p-4 text-center font-display text-sm tracking-wider text-success shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
           {landing.subscription_verified || "SUBSCRIPTION VERIFIED"}
         </div>
       ) : confirmEmailSent ? (
-        <div className="border border-[#2EBCDA]/30 bg-[#2EBCDA]/10 p-4 text-center font-display text-[#2EBCDA]">
+        <div className="border-4 border-black bg-fs-diamond/10 p-4 text-center font-display text-sm tracking-wider text-fs-diamond shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
           {landing.check_inbox || "CHECK YOUR INBOX"}
         </div>
       ) : (
         <form
-          className="group flex items-stretch gap-0 border-2 border-[#FFD700]/40 transition-colors hover:border-[#FFD700]/80 sm:flex-row"
+          className="group flex flex-col items-stretch gap-0 border-4 border-black bg-bg-panel shadow-[8px_8px_0_0_rgba(0,0,0,1)] sm:flex-row"
           onSubmit={onSubmit}
         >
           <input
@@ -56,13 +56,13 @@ export default function NewsletterSignup({
             placeholder={dictionary.common?.enter_email || "Enter your email"}
             value={email}
             onChange={(event) => onEmailChange(event.target.value)}
-            className="flex-grow bg-[#0B131A]/50 px-6 py-4 font-ui text-sm text-white placeholder-[#4B5563] focus:outline-none"
+            className="min-h-14 flex-grow border-b-4 border-black bg-background px-4 py-4 font-body text-sm text-foreground placeholder:text-foreground/35 focus:outline-none sm:border-b-0 sm:border-r-4"
             required
           />
           <PixelButton
             type="submit"
-            variant="primary"
-            className="!m-0 min-w-[120px] !rounded-none !border-none !bg-[#FFD700] !text-[#0F161C] font-bold tracking-wider hover:brightness-110"
+            variant="diamond"
+            className="!m-0 min-h-14 !border-0 text-center"
           >
             {landing.notify_btn || dictionary.common?.scribe || "NOTIFY ME"}
           </PixelButton>
@@ -73,7 +73,7 @@ export default function NewsletterSignup({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="font-ui text-sm text-[#2EBCDA]"
+          className="font-ui text-sm tracking-wide text-fs-diamond"
         >
           {statusMessage}
         </motion.div>
