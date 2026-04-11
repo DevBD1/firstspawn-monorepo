@@ -418,9 +418,9 @@ export default function PrototypeLanding({ dictionary }: PrototypeLandingProps) 
                 {d.cta_section_subtitle}
               </p>
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Link href="/register">
+                <Link href="/signup">
                   <PixelButton variant="success" size="lg">
-                    CREATE ACCOUNT
+                    SIGN UP
                   </PixelButton>
                 </Link>
                 <Link href="/discover">

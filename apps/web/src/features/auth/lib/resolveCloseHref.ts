@@ -1,4 +1,4 @@
-const FALLBACK_CLOSE_SEGMENTS = new Set(["console", "loot", "login", "register"]);
+const FALLBACK_CLOSE_SEGMENTS = new Set(["console", "loot", "login", "signup"]);
 
 export const resolveCloseHref = (lang: string, nextPath: string | undefined): string => {
   if (!nextPath || !nextPath.startsWith("/")) {

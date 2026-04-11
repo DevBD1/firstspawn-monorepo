@@ -13,7 +13,7 @@
     "discover": "DISCOVER",
     "myLoot": "MY LOOT",
     "console": "CONSOLE",
-    "register": "REGISTER",
+    "register": "SIGN UP",
     "logIn": "LOG IN",
     "logOut": "LOG OUT"
   },
@@ -34,7 +34,7 @@
       "submit": "CONTINUE WITH EMAIL",
       "submitPending": "AUTHENTICATING...",
       "alternatePrompt": "New to FirstSpawn?",
-      "alternateCta": "CREATE AN ACCOUNT"
+      "alternateCta": "SIGN UP"
     },
     "register": {
       "title": "START YOUR JOURNEY",
