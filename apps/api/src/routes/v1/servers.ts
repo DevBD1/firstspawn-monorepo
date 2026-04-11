@@ -18,6 +18,8 @@ type HeartbeatRecord = typeof serverHeartbeats.$inferSelect;
 const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline"]);
+const publicListSortSchema = z.enum(["players", "ping"]);
+const offsetCursorPattern = /^\d+$/;
 
 const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
@@ -66,8 +68,9 @@ const publicListQuerySchema = z.object({
   q: z.string().trim().min(1).max(255).optional(),
   freshness_status: freshnessStatusSchema.optional(),
   include_archived: z.coerce.boolean().default(false),
+  sort: publicListSortSchema.default("players"),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  cursor: z.string().uuid().optional(),
+  cursor: z.string().regex(offsetCursorPattern).optional(),
 });
 
 const adminCreateBodySchema = z.object({
@@ -116,7 +119,7 @@ const adminListResponseSchema = envelopeSchema(
   z.object({
     servers: z.array(serverBaseSchema),
     pagination: z.object({
-      next_cursor: z.string().uuid().nullable(),
+      next_cursor: z.string().nullable(),
       limit: z.number().int().positive(),
     }),
   })
@@ -292,6 +295,89 @@ const normalizeMetricsPayload = (
   minecraft_version: heartbeat?.minecraftVersion ?? null,
   occurred_at: heartbeat?.occurredAt.toISOString() ?? null,
 });
+
+type PublicListRow = {
+  server: ServerRecord;
+  latest: HeartbeatRecord | null;
+};
+
+type PublicListSort = z.infer<typeof publicListSortSchema>;
+
+const compareNullableNumberDesc = (left: number | null, right: number | null): number => {
+  if (left === right) {
+    return 0;
+  }
+
+  if (left === null) {
+    return 1;
+  }
+
+  if (right === null) {
+    return -1;
+  }
+
+  return right - left;
+};
+
+const compareNullableNumberAsc = (left: number | null, right: number | null): number => {
+  if (left === right) {
+    return 0;
+  }
+
+  if (left === null) {
+    return 1;
+  }
+
+  if (right === null) {
+    return -1;
+  }
+
+  return left - right;
+};
+
+const comparePublicListRows = (
+  left: PublicListRow,
+  right: PublicListRow,
+  sort: PublicListSort
+): number => {
+  if (sort === "players") {
+    const playerOrder = compareNullableNumberDesc(
+      left.latest?.onlinePlayers ?? null,
+      right.latest?.onlinePlayers ?? null
+    );
+    if (playerOrder !== 0) {
+      return playerOrder;
+    }
+
+    const pingOrder = compareNullableNumberAsc(
+      left.latest?.pingMs ?? null,
+      right.latest?.pingMs ?? null
+    );
+    if (pingOrder !== 0) {
+      return pingOrder;
+    }
+  }
+
+  if (sort === "ping") {
+    const pingOrder = compareNullableNumberAsc(
+      left.latest?.pingMs ?? null,
+      right.latest?.pingMs ?? null
+    );
+    if (pingOrder !== 0) {
+      return pingOrder;
+    }
+
+    const playerOrder = compareNullableNumberDesc(
+      left.latest?.onlinePlayers ?? null,
+      right.latest?.onlinePlayers ?? null
+    );
+    if (playerOrder !== 0) {
+      return playerOrder;
+    }
+  }
+
+  return left.server.id.localeCompare(right.server.id);
+};
 
 const duplicateFieldFromError = (error: { constraint?: string; detail?: string }): string => {
   const text = `${error.constraint ?? ""} ${error.detail ?? ""}`.toLowerCase();
@@ -637,6 +723,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
     },
     async (request) => {
       const query = request.query;
+      const offset = query.cursor ? Number.parseInt(query.cursor, 10) : 0;
       const statuses = query.include_archived
         ? (["active", "archived"] as const)
         : (["active"] as const);
@@ -669,24 +756,26 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         .select()
         .from(servers)
         .where(and(...filters))
-        .orderBy(asc(servers.id))
-        .limit(query.limit + 1);
+        .orderBy(asc(servers.id));
 
-      const sliced = rows.slice(0, query.limit);
       const heartbeatsByServerId = await findLatestHeartbeats(
         app,
-        sliced.map((server) => server.id)
+        rows.map((server) => server.id)
       );
-      const latestRows = sliced.map((server) => ({
-        server,
-        latest: heartbeatsByServerId.get(server.id) ?? null,
-      }));
+      const latestRows = rows
+        .map((server) => ({
+          server,
+          latest: heartbeatsByServerId.get(server.id) ?? null,
+        }))
+        .sort((left, right) => comparePublicListRows(left, right, query.sort));
 
       const nowMs = Date.now();
-      const nextCursor = rows.length > query.limit ? (rows[query.limit]?.id ?? null) : null;
+      const sliced = latestRows.slice(offset, offset + query.limit);
+      const nextCursor =
+        latestRows.length > offset + query.limit ? String(offset + query.limit) : null;
       return successEnvelope(
         {
-          servers: latestRows.map(({ server, latest }) => ({
+          servers: sliced.map(({ server, latest }) => ({
             slug: server.slug,
             name: server.name,
             description: server.description,

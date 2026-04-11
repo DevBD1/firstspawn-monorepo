@@ -1,0 +1,136 @@
+import { getApiBaseUrl, getApiBasicAuthHeader } from "./auth-config";
+
+const PAGE_REVALIDATE_SECONDS = 60;
+
+type FetchInit = RequestInit & {
+  next?: {
+    revalidate?: number;
+  };
+};
+
+export type PublicServerSort = "players" | "ping";
+
+export interface PublicServerListItem {
+  slug: string;
+  name: string;
+  description: string;
+  game: "mc_java";
+  catalog_status: "active" | "archived";
+  freshness_status: "online" | "offline";
+  region: string | null;
+  last_ping_at: string | null;
+  latest_metrics: {
+    ping_ms: number | null;
+    online_players: number | null;
+    max_players: number | null;
+    minecraft_version: string | null;
+    occurred_at: string | null;
+  };
+}
+
+export interface PublicServerDetail {
+  slug: string;
+  name: string;
+  description: string;
+  game: "mc_java";
+  catalog_status: "active" | "archived";
+  freshness_status: "online" | "offline";
+  region: string | null;
+  last_ping_at: string | null;
+  latest_metrics: {
+    ping_ms: number | null;
+    online_players: number | null;
+    max_players: number | null;
+    minecraft_version: string | null;
+    occurred_at: string | null;
+  };
+  host: string;
+  port: number;
+  id: string;
+  online_mode: boolean;
+  website_url: string | null;
+  discord_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FetchServersParams {
+  q?: string;
+  freshness_status?: string;
+  sort?: PublicServerSort;
+  limit?: number;
+  cursor?: string;
+}
+
+export interface FetchServersResponse {
+  servers: PublicServerListItem[];
+  pagination: {
+    next_cursor: string | null;
+    limit: number;
+  };
+}
+
+const defaultFetchInit = (): FetchInit => ({
+  next: { revalidate: PAGE_REVALIDATE_SECONDS },
+});
+
+const getHeaders = (): HeadersInit => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const basicAuth = getApiBasicAuthHeader();
+  if (basicAuth) {
+    headers["Authorization"] = basicAuth;
+  }
+  return headers;
+};
+
+export async function fetchServers(
+  params: FetchServersParams,
+  init: FetchInit = defaultFetchInit()
+): Promise<FetchServersResponse> {
+  const baseUrl = getApiBaseUrl();
+  const url = new URL(`${baseUrl}/servers`);
+
+  if (params.q) url.searchParams.set("q", params.q);
+  if (params.freshness_status) url.searchParams.set("freshness_status", params.freshness_status);
+  if (params.sort) url.searchParams.set("sort", params.sort);
+  if (params.limit) url.searchParams.set("limit", params.limit.toString());
+  if (params.cursor) url.searchParams.set("cursor", params.cursor);
+
+  const response = await fetch(url.toString(), {
+    headers: getHeaders(),
+    ...init,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch servers: ${response.status} ${response.statusText}`);
+  }
+
+  const payload = await response.json();
+  return payload.data;
+}
+
+export async function fetchServerDetail(
+  slug: string,
+  init: FetchInit = defaultFetchInit()
+): Promise<PublicServerDetail | null> {
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}/servers/${encodeURIComponent(slug)}`;
+
+  const response = await fetch(url, {
+    headers: getHeaders(),
+    ...init,
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch server detail: ${response.status} ${response.statusText}`);
+  }
+
+  const payload = await response.json();
+  return payload.data.server;
+}

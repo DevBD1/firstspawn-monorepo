@@ -196,5 +196,36 @@
     "step_3_desc": "Leave reviews, earn badges, and climb the reputation ladder.",
     "cta_section_title": "READY TO SPAWN?",
     "cta_section_subtitle": "Join thousands of players finding their forever servers."
+  },
+  "discover": {
+    "server_detail": {
+      "back": "BACK TO DISCOVER",
+      "online_players": "ONLINE PLAYERS",
+      "max_players": "MAX PLAYERS",
+      "version": "VERSION",
+      "ping": "PING",
+      "last_seen": "LAST SEEN",
+      "host": "HOST",
+      "port": "PORT",
+      "region": "REGION",
+      "website": "WEBSITE",
+      "discord": "DISCORD",
+      "online_mode": "ONLINE MODE",
+      "offline_mode": "OFFLINE MODE",
+      "not_available": "N/A",
+      "status_online": "ONLINE",
+      "status_offline": "OFFLINE",
+      "catalog_active": "ACTIVE",
+      "catalog_archived": "ARCHIVED",
+      "relative_time": {
+        "just_now": "just now",
+        "year": { "one": "{count} year ago", "other": "{count} years ago" },
+        "month": { "one": "{count} month ago", "other": "{count} months ago" },
+        "day": { "one": "{count} day ago", "other": "{count} days ago" },
+        "hour": { "one": "{count} hour ago", "other": "{count} hours ago" },
+        "minute": { "one": "{count} minute ago", "other": "{count} minutes ago" },
+        "second": { "one": "{count} second ago", "other": "{count} seconds ago" }
+      }
+    }
   }
 }
