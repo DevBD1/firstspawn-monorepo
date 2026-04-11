@@ -129,6 +129,16 @@ const clearAuthCookies = (response: NextResponse): void => {
   response.cookies.delete(USER_SESSION_COOKIE);
 };
 
+const getPathLocale = (pathname: string): string | null => {
+  for (const locale of i18n.locales) {
+    if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
+      return locale;
+    }
+  }
+
+  return null;
+};
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const forwardedFor = request.headers.get("x-forwarded-for");
@@ -186,6 +196,14 @@ export async function proxy(request: NextRequest) {
 
   // 2. ROUTING & I18N LOGIC
   // -------------------------------------------------------------------------
+  const lockedPaths = ["/discover", "/signup", "/login", "/server"];
+  const isLockedPath = lockedPaths.some((p) => pathname.includes(p));
+
+  if (process.env.NEXT_PUBLIC_LOCK_BETA_ROUTES === "true" && isLockedPath) {
+    const locale = getPathLocale(pathname) ?? getLocale(request) ?? i18n.defaultLocale;
+    return NextResponse.redirect(new URL(`/${locale}`, request.url), 302);
+  }
+
   let response: NextResponse;
 
   // Skip i18n redirects for API, Assets, Admin, or existing locales

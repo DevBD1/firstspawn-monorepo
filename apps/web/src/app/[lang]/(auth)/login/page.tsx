@@ -54,7 +54,7 @@ export default async function LoginPage({
           submitLabel: login.submit || "Continue with Email",
           submitPendingLabel: login.submitPending || "Authenticating...",
           alternatePrompt: login.alternatePrompt || "New to FirstSpawn?",
-          alternateCta: login.alternateCta || "Create an account",
+          alternateCta: login.alternateCta || "Sign up",
         }}
       />
     </AuthShell>

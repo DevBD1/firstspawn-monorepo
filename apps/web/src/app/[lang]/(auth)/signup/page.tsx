@@ -7,7 +7,7 @@ import { getAuthState } from "@/lib/auth";
 import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 
-export default async function RegisterPage({
+export default async function SignupPage({
   params,
   searchParams,
 }: {

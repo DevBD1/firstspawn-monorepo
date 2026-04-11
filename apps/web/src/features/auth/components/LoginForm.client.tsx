@@ -33,8 +33,8 @@ export default function LoginForm({
   const fieldErrors = state?.fieldErrors ?? {};
   const message = state?.message ?? null;
   const registerHref = nextPath
-    ? `/${lang}/register?next=${encodeURIComponent(nextPath)}`
-    : `/${lang}/register`;
+    ? `/${lang}/signup?next=${encodeURIComponent(nextPath)}`
+    : `/${lang}/signup`;
 
   return (
     <form action={action} className="space-y-4">

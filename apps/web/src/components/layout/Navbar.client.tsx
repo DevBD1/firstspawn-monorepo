@@ -31,7 +31,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
   const pathname = usePathname();
 
   const currentPath = pathname && pathname.startsWith(`/${lang}`) ? pathname : `/${lang}`;
-  const registerHref = `/${lang}/register?next=${encodeURIComponent(currentPath)}`;
+  const registerHref = `/${lang}/signup?next=${encodeURIComponent(currentPath)}`;
   const loginHref = `/${lang}/login?next=${encodeURIComponent(currentPath)}`;
 
   useEffect(() => {
