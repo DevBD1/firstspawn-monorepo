@@ -44,7 +44,7 @@ export default function ServerCard({
                 <motion.span
                   className="relative inline-flex h-2.5 w-2.5 bg-success border border-black"
                   animate={{ opacity: [1, 0.2, 1] }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: "steps(2)" }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
                 />
               ) : (
                 <span className="relative inline-flex h-2.5 w-2.5 bg-danger border border-black" />
