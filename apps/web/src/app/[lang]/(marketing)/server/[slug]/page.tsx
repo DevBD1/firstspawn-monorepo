@@ -137,7 +137,7 @@ export async function generateMetadata({
   if (!server) return { title: "Server Not Found" };
 
   return {
-    title: `${server.name} — FirstSpawn`,
+    title: `${server.name} - IP Address, Live Player Count, and Mods`,
     description: server.description.slice(0, 155),
   };
 }
@@ -164,8 +164,27 @@ export default async function ServerDetailPage({
   const isOnline = server.freshness_status === "online";
   const metrics = server.latest_metrics;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: server.name,
+    operatingSystem: "Java",
+    applicationCategory: "GameServer",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    description: server.description.slice(0, 155),
+    url: server.website_url || undefined,
+  };
+
   return (
     <main className="w-full min-h-screen bg-background px-4 py-8 relative overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Background decorations matching discover page */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
