@@ -49,5 +49,8 @@ next-env.d.ts
 .htpasswd
 
 # local workspace
-.temp
 *.mjs
+output
+tmp
+.temp
+.superpowers

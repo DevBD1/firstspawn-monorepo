@@ -153,26 +153,9 @@
     "welcome": "Ready to build something amazing."
   },
   "landing": {
-    "under_construction": "UNDER CONSTRUCTION",
-    "building_title": "BUILDING THE ULTIMATE DISCOVERY ECOSYSTEM",
     "status": "STATUS",
     "active": "ACTIVE",
-    "building_desc": "More than just a server list — FirstSpawn is a social network for Minecraft & Hytale players. Sync your cross-platform identity, leave reviews backed by verified playtime, solve puzzles to win prizes, form Guilds, and earn reputation badges.",
-    "scene_label": "SPAWN OVERLOOK",
     "scene_alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead.",
-    "mascot_alt": "The FirstSpawn scout familiar, a hovering signal wisp used to represent discovery and intelligence.",
-    "progress": "PROGRESS",
-    "feature_servers": "MINECRAFT & HYTALE",
-    "feature_verified": "VERIFIED PLAYTIME",
-    "feature_uptime": "GUILDS & BADGES",
-    "feature_anticheat": "WIN PRIZES",
-    "notify_title": "BE FIRST TO SPAWN",
-    "notify_desc": "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!",
-    "notify_btn": "NOTIFY ME",
-    "subscription_verified": "SUBSCRIPTION VERIFIED",
-    "check_inbox": "CHECK YOUR INBOX"
-  },
-  "prototype": {
     "hero_title": "DISCOVER YOUR NEXT\nADVENTURE",
     "hero_subtitle": "The first verified discovery platform for Minecraft and Hytale servers. Real players. Real uptime. Real communities.",
     "cta_primary": "START EXPLORING",
@@ -198,7 +181,22 @@
     "step_3_title": "CONTRIBUTE",
     "step_3_desc": "Leave reviews, earn badges, and climb the reputation ladder.",
     "cta_section_title": "READY TO SPAWN?",
-    "cta_section_subtitle": "Join thousands of players finding their forever servers."
+    "cta_section_subtitle": "Join thousands of players finding their forever servers.",
+    "feature_servers": "MINECRAFT & HYTALE",
+    "feature_verified": "VERIFIED PLAYTIME",
+    "feature_uptime": "GUILDS & BADGES",
+    "feature_anticheat": "WIN PRIZES",
+    "notify_title": "BE FIRST TO SPAWN",
+    "notify_desc": "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!",
+    "notify_btn": "NOTIFY ME",
+    "subscription_verified": "SUBSCRIPTION VERIFIED",
+    "check_inbox": "CHECK YOUR INBOX",
+    "verifying": "VERIFYING...",
+    "verify_error": "ERROR. TRY AGAIN.",
+    "search_placeholder": "SEARCH FOR A GAME SERVER...",
+    "search_button": "FIND",
+    "popular_label": "POPULAR",
+    "popular_tags": ["SURVIVAL", "PVP", "FACTION", "SKYBLOCK", "MINIGAMES"]
   },
   "discover": {
     "server_detail": {

@@ -93,6 +93,8 @@ pnpm --dir packages/database run generate
 - Always merge the target dictionary into English via
   `apps/web/src/lib/get-dictionary.ts`.
 - All user-facing strings must come from dictionaries.
+- Do not hardcode user-facing copy in pages, components, hooks, or view-model
+  builders. English baseline copy also belongs in dictionaries.
 
 ### Design System
 

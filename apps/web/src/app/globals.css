@@ -5,6 +5,7 @@
   --font-family-display: var(--font-display-base, "Press Start 2P"), "Press Start 2P";
   --font-family-ui: var(--font-ui-base, "VT323"), "VT323";
   --font-family-body: var(--font-body-base, "JetBrains Mono"), "JetBrains Mono";
+  --fs-nav-height: 80px;
 }
 
 @theme inline {
