@@ -2,10 +2,11 @@ import { redirect } from "next/navigation";
 import AuthShell from "@/features/auth/components/AuthShell";
 import LoginForm from "@/features/auth/components/LoginForm.client";
 import { resolveCloseHref } from "@/features/auth/lib/resolveCloseHref";
-import type { LoginDictionary } from "@/features/auth/types";
+import { getAuthLoginCopy, getAuthShellCopy } from "@/features/auth/lib/auth-copy";
 import { getAuthState } from "@/lib/auth";
 import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 
 export default async function LoginPage({
   params,
@@ -26,36 +27,26 @@ export default async function LoginPage({
   const showRegisteredBanner = query.registered === "true";
   const closeHref = resolveCloseHref(lang, nextPath);
 
-  const dictionary = (await getDictionary(lang)) as LoginDictionary;
-  const login = dictionary.auth?.login || {};
-  const shared = dictionary.auth?.shared || {};
+  const dictionary = (await getDictionary(lang)) as AppDictionary;
+  const login = getAuthLoginCopy(dictionary);
+  const shellCopy = getAuthShellCopy(dictionary);
 
   return (
     <AuthShell
+      brand={dictionary.common.brand}
       lang={lang}
-      title={login.title || "WELCOME TO FIRSTSPAWN"}
-      subtitle={login.subtitle || "Log in to access your favorite servers and communities."}
-      backLabel={shared.backToHome || "BACK TO BASE"}
+      title={login.page.title}
+      subtitle={login.page.subtitle}
+      backLabel={dictionary.common.actions.backHome}
       closeHref={closeHref}
+      copy={shellCopy}
     >
       <LoginForm
         lang={lang}
         nextPath={nextPath}
         showRegisteredBanner={showRegisteredBanner}
-        registeredMessage={login.registeredSuccess || "Account created! Log in to get started."}
-        copy={{
-          discordCta: login.discordCta || "Sign in with Discord",
-          passkeyCta: login.passkeyCta || "Sign in with Passkey",
-          dividerLabel: login.dividerLabel || "Or",
-          identifierLabel: login.identifierLabel || "EMAIL OR USERNAME",
-          identifierPlaceholder: login.identifierPlaceholder || "steve@craft.com",
-          passwordLabel: login.passwordLabel || "PASSWORD",
-          passwordPlaceholder: login.passwordPlaceholder || "Enter your password",
-          submitLabel: login.submit || "Continue with Email",
-          submitPendingLabel: login.submitPending || "Authenticating...",
-          alternatePrompt: login.alternatePrompt || "New to FirstSpawn?",
-          alternateCta: login.alternateCta || "Sign up",
-        }}
+        registeredMessage={login.page.registeredSuccess}
+        copy={login.form}
       />
     </AuthShell>
   );

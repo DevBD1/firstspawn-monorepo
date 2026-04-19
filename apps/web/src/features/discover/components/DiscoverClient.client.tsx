@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState, useCallback, useDeferredValue, useEffect, useRef } from "react";
 import PixelButton from "@/components/ui/PixelButton";
 import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
+import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
+import type { ServerCardCopy } from "@/features/server/lib/server-copy";
 import type {
   PublicServerGame,
   PublicServerListItem,
@@ -22,7 +24,6 @@ const tierConfig = {
     gradient: "from-gray-500/20 to-gray-600/10",
     border: "border-gray-500/50",
     glow: "shadow-gray-500/20",
-    label: "COMMON",
     icon: "○",
   },
   rare: {
@@ -30,7 +31,6 @@ const tierConfig = {
     gradient: "from-cyan-500/20 to-blue-600/10",
     border: "border-cyan-500/50",
     glow: "shadow-cyan-500/20",
-    label: "RARE",
     icon: "◆",
   },
   epic: {
@@ -38,7 +38,6 @@ const tierConfig = {
     gradient: "from-purple-500/20 to-pink-600/10",
     border: "border-purple-500/50",
     glow: "shadow-purple-500/20",
-    label: "EPIC",
     icon: "★",
   },
   legendary: {
@@ -46,15 +45,17 @@ const tierConfig = {
     gradient: "from-amber-500/30 to-orange-600/20",
     border: "border-amber-500/50",
     glow: "shadow-amber-500/30",
-    label: "LEGENDARY",
     icon: "☀",
   },
 };
 
 interface DiscoverClientProps {
+  copy: DiscoverDictionary["page"];
   lang: string;
   initialServers: PublicServerListItem[];
   initialPagination: { next_cursor: string | null; limit: number };
+  loadMoreLabel: string;
+  serverCardCopy: ServerCardCopy;
 }
 
 type DiscoverGameFilter = "all" | "minecraft" | "hytale";
@@ -63,6 +64,8 @@ const formatSortNumber = (value?: number | null) =>
   typeof value === "number" ? value.toLocaleString() : "0";
 
 const getServerSortHighlight = (
+  copy: ServerCardCopy,
+  rankingCopy: DiscoverDictionary["page"]["ranking"],
   sortBy: PublicServerSort,
   server: PublicServerListItem
 ): ServerCardSortHighlight => {
@@ -70,25 +73,30 @@ const getServerSortHighlight = (
 
   if (sortBy === "ping") {
     return {
-      helper: "LOWER IS BETTER",
-      label: "RANKED BY",
+      helper: rankingCopy.lowerIsBetter,
+      label: rankingCopy.rankedBy,
       tone: "ping",
-      value: `PING ${typeof metrics?.ping_ms === "number" ? `${metrics.ping_ms}MS` : "N/A"}`,
+      value: `${copy.ping} ${
+        typeof metrics?.ping_ms === "number" ? `${metrics.ping_ms}MS` : "N/A"
+      }`,
     };
   }
 
   return {
-    helper: `${metrics?.max_players ? formatSortNumber(metrics.max_players) : "?"} MAX`,
-    label: "RANKED BY",
+    helper: `${metrics?.max_players ? formatSortNumber(metrics.max_players) : "?"} ${copy.maxPlayers}`,
+    label: rankingCopy.rankedBy,
     tone: "players",
-    value: `${formatSortNumber(metrics?.online_players)} ONLINE`,
+    value: `${formatSortNumber(metrics?.online_players)} ${copy.online}`,
   };
 };
 
 export default function DiscoverClient({
+  copy,
   lang,
   initialServers,
   initialPagination,
+  loadMoreLabel,
+  serverCardCopy,
 }: DiscoverClientProps) {
   const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
   const [nextCursor, setNextCursor] = useState<string | null>(initialPagination.next_cursor);
@@ -224,18 +232,20 @@ export default function DiscoverClient({
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
                 <span className="font-ui text-sm tracking-wider text-foreground/70">
-                  {onlineServers} SERVERS ONLINE
+                  {onlineServers} {copy.stats.onlineServers}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-display text-sm text-fs-diamond">
                   {totalPlayers.toLocaleString()}
                 </span>
-                <span className="font-ui text-sm text-foreground/50">PLAYERS ACTIVE</span>
+                <span className="font-ui text-sm text-foreground/50">
+                  {copy.stats.activePlayers}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-ui text-xs text-foreground/40">SERVER DISCOVERY v2.0</span>
+              <span className="font-ui text-xs text-foreground/40">{copy.stats.version}</span>
             </div>
           </motion.div>
 
@@ -249,15 +259,13 @@ export default function DiscoverClient({
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded border border-fs-diamond/30 bg-fs-diamond/5 px-3 py-1">
                 <span className="font-display text-[10px] tracking-wider text-fs-diamond">
-                  MATCHMAKING CORE
+                  {copy.badgeLabel}
                 </span>
               </div>
               <h1 className="font-display text-3xl tracking-wider text-foreground md:text-4xl">
-                DISCOVER WORLDS
+                {copy.title}
               </h1>
-              <p className="mt-2 max-w-xl font-body text-foreground/60">
-                Find your next adventure. Browse verified servers ranked by real player data.
-              </p>
+              <p className="mt-2 max-w-xl font-body text-foreground/60">{copy.subtitle}</p>
             </div>
 
             {/* Search Bar */}
@@ -269,7 +277,7 @@ export default function DiscoverClient({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search servers, descriptions..."
+                placeholder={copy.searchPlaceholder}
                 className="w-full rounded-none border-2 border-foreground/20 bg-background/80 py-3 pl-12 pr-4 font-body text-sm text-foreground placeholder:text-foreground/30 focus:border-fs-diamond focus:outline-none"
               />
             </div>
@@ -283,9 +291,9 @@ export default function DiscoverClient({
             className="mt-6 flex gap-2"
           >
             {[
-              { id: "all", label: "ALL WORLDS", icon: "◈" },
-              { id: "minecraft", label: "MINECRAFT", icon: "■" },
-              { id: "hytale", label: "HYTALE", icon: "●" },
+              { id: "all", label: copy.gameFilters.all, icon: "◈" },
+              { id: "minecraft", label: copy.gameFilters.minecraft, icon: "■" },
+              { id: "hytale", label: copy.gameFilters.hytale, icon: "●" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -326,7 +334,7 @@ export default function DiscoverClient({
                 <div className="mb-4 flex items-center gap-2 border-b border-foreground/10 pb-2">
                   <span className="font-display text-xs text-fs-diamond">◆</span>
                   <span className="font-display text-xs tracking-wider text-foreground">
-                    RARITY FILTER
+                    {copy.rarityFilterTitle}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -354,7 +362,7 @@ export default function DiscoverClient({
                         className="flex-1 text-left font-ui text-sm"
                         style={{ color: selectedTier.includes(tier) ? config.color : undefined }}
                       >
-                        {config.label}
+                        {copy.tiers[tier]}
                       </span>
                       {selectedTier.includes(tier) && (
                         <span className="font-display text-xs" style={{ color: config.color }}>
@@ -371,13 +379,13 @@ export default function DiscoverClient({
                 <div className="mb-4 flex items-center gap-2 border-b border-foreground/10 pb-2">
                   <span className="font-display text-xs text-fs-diamond">⇅</span>
                   <span className="font-display text-xs tracking-wider text-foreground">
-                    SORT BY
+                    {copy.sortTitle}
                   </span>
                 </div>
                 <div className="space-y-2">
                   {[
-                    { id: "players", label: "PLAYER COUNT" },
-                    { id: "ping", label: "PING" },
+                    { id: "players", label: copy.sortOptions.players },
+                    { id: "ping", label: copy.sortOptions.ping },
                   ].map((option) => (
                     <button
                       key={option.id}
@@ -398,15 +406,15 @@ export default function DiscoverClient({
               {/* Stats Panel */}
               <div className="border-2 border-fs-diamond/20 bg-fs-diamond/5 p-4">
                 <div className="mb-3 font-display text-xs tracking-wider text-fs-diamond">
-                  YOUR STATS
+                  {copy.personalStatsTitle}
                 </div>
                 <div className="space-y-2 font-ui text-sm">
                   <div className="flex justify-between text-foreground/60">
-                    <span>Servers Visited</span>
+                    <span>{copy.personalStats.serversVisited}</span>
                     <span className="text-foreground">0</span>
                   </div>
                   <div className="flex justify-between text-foreground/60">
-                    <span>Favorites</span>
+                    <span>{copy.personalStats.favorites}</span>
                     <span className="text-foreground">0</span>
                   </div>
                 </div>
@@ -423,10 +431,12 @@ export default function DiscoverClient({
               className="mb-4 flex items-center justify-between"
             >
               <span className="font-ui text-sm text-foreground/50">
-                FOUND <span className="font-display text-fs-diamond">{servers.length}</span> WORLDS
+                {copy.resultsSummary.split("{count}")[0]}
+                <span className="font-display text-fs-diamond">{servers.length}</span>
+                {copy.resultsSummary.split("{count}")[1]}
               </span>
               {isRefreshing && (
-                <span className="font-ui text-xs text-foreground/40">SYNCING...</span>
+                <span className="font-ui text-xs text-foreground/40">{copy.syncingLabel}</span>
               )}
             </motion.div>
 
@@ -448,6 +458,7 @@ export default function DiscoverClient({
                     className="min-w-0"
                   >
                     <ServerCard
+                      copy={serverCardCopy}
                       variant="discover"
                       lang={lang}
                       slug={server.slug}
@@ -460,14 +471,23 @@ export default function DiscoverClient({
                       isOnline={server.freshness_status === "online"}
                       pingMs={server.latest_metrics?.ping_ms}
                       region={server.region}
-                      sortHighlight={getServerSortHighlight(appliedSortBy, server)}
+                      sortHighlight={getServerSortHighlight(
+                        serverCardCopy,
+                        copy.ranking,
+                        appliedSortBy,
+                        server
+                      )}
                       tags={[
-                        server.catalog_status === "active" ? "ACTIVE" : "ARCHIVED",
-                        server.game === "mc_java" ? "JAVA" : server.game.toUpperCase(),
-                      ]}
+                        server.catalog_status === "active"
+                          ? serverCardCopy.active
+                          : serverCardCopy.archived,
+                        server.game === "mc_java"
+                          ? serverCardCopy.gameLabels.mcJava
+                          : server.game.toUpperCase(),
+                      ].filter(Boolean)}
                       badges={
                         server.freshness_status === "online"
-                          ? [{ label: "VERIFIED", tone: "verified" }]
+                          ? [{ label: serverCardCopy.badges.verified, tone: "verified" }]
                           : []
                       }
                     />
@@ -485,7 +505,7 @@ export default function DiscoverClient({
                   variant="outline"
                   className="w-full md:w-auto"
                 >
-                  {isLoadingMore ? "LOADING..." : "LOAD MORE"}
+                  {isLoadingMore ? copy.loadingMoreLabel : loadMoreLabel}
                 </PixelButton>
               </div>
             )}
@@ -498,9 +518,9 @@ export default function DiscoverClient({
                 className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/20 py-16"
               >
                 <span className="mb-4 font-display text-4xl text-foreground/20">◈</span>
-                <p className="font-display text-sm text-foreground/40">NO WORLDS FOUND</p>
+                <p className="font-display text-sm text-foreground/40">{copy.emptyStateTitle}</p>
                 <p className="mt-2 font-body text-sm text-foreground/30">
-                  Try adjusting your filters
+                  {copy.emptyStateDescription}
                 </p>
               </motion.div>
             )}

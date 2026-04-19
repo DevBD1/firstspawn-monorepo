@@ -2,11 +2,11 @@
 
 import NewsletterCaptcha from "@/features/captcha/components/NewsletterCaptcha.client";
 import { useNewsletterSignup } from "@/features/landing/hooks/useNewsletterSignup";
-import type { LandingDictionary } from "@/features/landing/types";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import LandingNewsletterSection from "./LandingNewsletterSection.client";
 
 interface LandingNewsletterBlockProps {
-  dictionary: LandingDictionary;
+  dictionary: AppDictionary;
   lang: string;
 }
 
@@ -36,6 +36,7 @@ export default function LandingNewsletterBlock({ dictionary, lang }: LandingNews
       />
 
       <NewsletterCaptcha
+        dictionary={dictionary}
         isOpen={showCaptcha}
         onClose={closeCaptcha}
         onVerify={handleVerifySuccess}

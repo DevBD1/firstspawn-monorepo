@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Activity, BadgeCheck, Gamepad2, Globe2, ShieldCheck, Signal, Users } from "lucide-react";
+import type { ServerCardCopy } from "@/features/server/lib/server-copy";
 
 export type ServerCardVariant = "landing" | "discover";
 export type ServerCardBadgeTone = "verified" | "featured" | "trending";
@@ -21,13 +22,11 @@ export interface ServerCardSortHighlight {
 
 export interface ServerCardLabels {
   address?: string;
-  maxPlayers?: string;
   mods?: string;
   offline?: string;
   online?: string;
   ping?: string;
   players?: string;
-  region?: string;
   version?: string;
   view?: string;
 }
@@ -40,6 +39,7 @@ export interface ServerCardProps {
   bannerUrl?: string | null;
   badges?: ServerCardBadge[];
   className?: string;
+  copy: ServerCardCopy;
   description?: string | null;
   game?: string | null;
   gameVersion?: string | null;
@@ -55,19 +55,6 @@ export interface ServerCardProps {
   tags?: string[];
   variant?: ServerCardVariant;
 }
-
-const DEFAULT_LABELS: Required<ServerCardLabels> = {
-  address: "ADDRESS",
-  maxPlayers: "MAX",
-  mods: "MODS",
-  offline: "OFFLINE",
-  online: "ONLINE",
-  ping: "PING",
-  players: "PLAYERS",
-  region: "REGION",
-  version: "VERSION",
-  view: "VIEW WORLD",
-};
 
 const BADGE_TONE_CLASSES: Record<ServerCardBadgeTone, string> = {
   featured: "border-amber-300/50 bg-amber-300/15 text-amber-200",
@@ -94,19 +81,19 @@ const clampTwoLines = {
 const formatNumber = (value?: number | null) =>
   typeof value === "number" ? value.toLocaleString() : "0";
 
-const formatPing = (value?: number | null) => {
+const formatPing = (copy: ServerCardCopy, value?: number | null) => {
   if (typeof value !== "number") {
-    return "N/A";
+    return copy.notAvailable;
   }
 
   return `${value}ms`;
 };
 
-const getGameLabel = (game?: string | null) => {
-  if (game === "mc_java") return "MC JAVA";
-  if (game === "mc_bedrock") return "MC BEDROCK";
-  if (game === "hytale") return "HYTALE";
-  return game?.toUpperCase() ?? "SERVER";
+const getGameLabel = (game: string | null | undefined, copy: ServerCardCopy) => {
+  if (game === "mc_java") return copy.gameLabels.mcJava;
+  if (game === "mc_bedrock") return copy.gameLabels.mcBedrock;
+  if (game === "hytale") return copy.gameLabels.hytale;
+  return game?.toUpperCase() ?? copy.gameLabels.fallback;
 };
 
 const getPlayerRatio = (onlinePlayers?: number | null, maxPlayers?: number | null) => {
@@ -155,7 +142,15 @@ function ServerLogo({
   );
 }
 
-function ServerBanner({ bannerUrl, name }: { bannerUrl?: string | null; name: string }) {
+function ServerBanner({
+  bannerUrl,
+  name,
+  liveDataLabel,
+}: {
+  bannerUrl?: string | null;
+  liveDataLabel: string;
+  name: string;
+}) {
   return (
     <div className="relative h-28 overflow-hidden border-b-2 border-black bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,0.24),transparent_38%),linear-gradient(135deg,rgba(12,31,45,0.98),rgba(3,7,18,0.98))] md:h-32">
       {bannerUrl ? (
@@ -176,7 +171,7 @@ function ServerBanner({ bannerUrl, name }: { bannerUrl?: string | null; name: st
           {name}
         </span>
         <span className="border border-fs-diamond/50 bg-black/55 px-2 py-1 font-ui text-xs uppercase tracking-widest text-fs-diamond">
-          LIVE DATA
+          {liveDataLabel}
         </span>
       </div>
     </div>
@@ -373,6 +368,7 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
     address,
     badges = [],
     bannerUrl,
+    copy,
     description,
     game,
     gameVersion,
@@ -393,7 +389,7 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
 
   return (
     <article className="relative h-full w-full min-w-0 overflow-hidden border-4 border-black bg-bg-panel shadow-[8px_8px_0_0_rgba(0,0,0,1)] transition duration-200 group-hover:-translate-y-1 group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-visible:-translate-y-1 group-focus-visible:shadow-[12px_12px_0_0_rgba(0,0,0,1)]">
-      <ServerBanner bannerUrl={bannerUrl} name={name} />
+      <ServerBanner bannerUrl={bannerUrl} liveDataLabel={copy.liveData} name={name} />
       <div className="space-y-4 p-4 md:p-5">
         <div className="-mt-10 flex items-end justify-between gap-3">
           <ServerLogo logoUrl={logoUrl} name={name} />
@@ -406,7 +402,7 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
               <BadgePill key={`${badge.label}-${badge.tone}`} badge={badge} />
             ))}
             <span className="border border-fs-diamond/30 bg-fs-diamond/10 px-2 py-1 font-ui text-[11px] uppercase tracking-widest text-fs-diamond">
-              {getGameLabel(game)}
+              {getGameLabel(game, copy)}
             </span>
           </div>
           <h3 className="truncate font-display text-lg leading-tight tracking-[0.08em] text-foreground transition-colors group-hover:text-fs-diamond md:text-xl">
@@ -435,18 +431,18 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
           <MetricTile
             icon={<Globe2 className="h-4 w-4" aria-hidden="true" />}
             label={labels.version}
-            value={gameVersion || "—"}
+            value={gameVersion || copy.notAvailable}
           />
           <MetricTile
             highlighted={highlightsPing}
             icon={<Signal className="h-4 w-4" aria-hidden="true" />}
             label={labels.ping}
-            value={region || formatPing(pingMs)}
+            value={region || formatPing(copy, pingMs)}
           />
           <MetricTile
             icon={<Gamepad2 className="h-4 w-4" aria-hidden="true" />}
             label={labels.mods}
-            value={modsRequired ? "YES" : "NO"}
+            value={modsRequired ? copy.modsRequired.yes : copy.modsRequired.no}
           />
         </div>
 
@@ -456,7 +452,7 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
               {labels.address}
             </div>
             <div className="truncate font-body text-xs text-foreground/75">
-              {address || "Profile page"}
+              {address || copy.profilePageFallback}
             </div>
           </div>
           <span className="shrink-0 border-2 border-black bg-fs-diamond px-3 py-2 font-display text-[10px] uppercase tracking-wider text-background shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
@@ -481,6 +477,7 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
     address,
     badges = [],
     bannerUrl,
+    copy,
     description,
     game,
     gameVersion,
@@ -556,15 +553,17 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
             </div>
           ) : null}
 
-          <p
-            className="min-h-[2.75rem] font-body text-sm leading-relaxed text-foreground/62"
-            style={clampTwoLines}
-          >
-            {description || ""}
-          </p>
+          {description ? (
+            <p
+              className="min-h-[2.75rem] font-body text-sm leading-relaxed text-foreground/62"
+              style={clampTwoLines}
+            >
+              {description}
+            </p>
+          ) : null}
 
           <div className="flex h-7 flex-wrap gap-2 overflow-hidden">
-            <TagPill tag={getGameLabel(game)} />
+            <TagPill tag={getGameLabel(game, copy)} />
             {region ? <TagPill tag={region} /> : null}
             {tags.slice(0, 4).map((tag) => (
               <TagPill key={tag} tag={tag} />
@@ -577,7 +576,7 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
                 {labels.address}
               </div>
               <div className="truncate font-body text-foreground/75">
-                {address || "Profile page"}
+                {address || copy.profilePageFallback}
               </div>
             </div>
             <FeatureStat
@@ -589,13 +588,13 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
             <FeatureStat
               icon={<Globe2 className="h-4 w-4" aria-hidden="true" />}
               label={labels.version}
-              value={gameVersion || "—"}
+              value={gameVersion || copy.notAvailable}
             />
             <FeatureStat
               highlighted={highlightsPing}
               icon={<Signal className="h-4 w-4" aria-hidden="true" />}
               label={labels.ping}
-              value={formatPing(pingMs)}
+              value={formatPing(copy, pingMs)}
             />
             <span className="inline-flex h-[3.25rem] items-center justify-center border-2 border-black bg-fs-diamond px-3 font-display text-[10px] uppercase tracking-wider text-background shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
               {labels.view}
@@ -609,11 +608,21 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
 
 export default function ServerCard({
   className,
+  copy,
   labels,
   variant = "landing",
   ...props
 }: ServerCardProps) {
-  const resolvedLabels = { ...DEFAULT_LABELS, ...labels };
+  const resolvedLabels = {
+    address: labels?.address ?? copy.address,
+    mods: labels?.mods ?? copy.mods,
+    offline: labels?.offline ?? copy.offline,
+    online: labels?.online ?? copy.online,
+    ping: labels?.ping ?? copy.ping,
+    players: labels?.players ?? copy.players,
+    version: labels?.version ?? copy.version,
+    view: labels?.view ?? copy.view,
+  };
   const href = `/${props.lang}/server/${props.slug}`;
 
   return (
@@ -626,9 +635,9 @@ export default function ServerCard({
       )}
     >
       {variant === "discover" ? (
-        <DiscoverServerCard {...props} labels={resolvedLabels} />
+        <DiscoverServerCard {...props} copy={copy} labels={resolvedLabels} />
       ) : (
-        <LandingServerCard {...props} labels={resolvedLabels} />
+        <LandingServerCard {...props} copy={copy} labels={resolvedLabels} />
       )}
     </Link>
   );

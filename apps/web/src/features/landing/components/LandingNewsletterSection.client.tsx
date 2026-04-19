@@ -1,14 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { LandingDictionary } from "@/features/landing/types";
 import { SECTION_SURFACE_CLASS } from "@/features/landing/lib/landing-content";
 import { getRevealProps } from "@/features/landing/lib/landing-motion";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import NewsletterSignup from "./NewsletterSignup.client";
 import { PixelCorners, SectionSurface, joinClasses } from "./LandingShared";
 
 interface LandingNewsletterSectionProps {
-  dictionary: LandingDictionary;
+  dictionary: AppDictionary;
   confirmEmailSent: boolean;
   email: string;
   isSubscribed: boolean;

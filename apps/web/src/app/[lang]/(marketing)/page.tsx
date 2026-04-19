@@ -10,6 +10,7 @@ import LandingProofSection from "@/features/landing/components/LandingProofSecti
 import LandingScrollScene from "@/features/landing/components/LandingScrollScene.client";
 import { getLandingContent, SECTION_SURFACE_CLASS } from "@/features/landing/lib/landing-content";
 import { getLandingRealtimeStats } from "@/features/landing/lib/landing-stats";
+import { getServerCardCopy } from "@/features/server/lib/server-copy";
 import {
   PixelCorners,
   SectionSurface,
@@ -24,6 +25,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
     getLandingRealtimeStats(),
   ]);
   const content = getLandingContent(dictionary, realtimeStats);
+  const serverCardCopy = getServerCardCopy(dictionary);
 
   return (
     <main className="relative isolate w-full overflow-hidden">
@@ -52,7 +54,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
         <LandingFeaturesSection content={content} />
         <LandingHowItWorksSection content={content} />
-        <LandingProofSection content={content} lang={lang} />
+        <LandingProofSection content={content} lang={lang} serverCardCopy={serverCardCopy} />
         <LandingFinalCtaSection content={content} lang={lang} />
         <LandingNewsletterBlock dictionary={dictionary} lang={lang} />
       </div>

@@ -1,77 +1,62 @@
 import "server-only";
 import type { Locale } from "./i18n-config";
+import type { AppDictionary } from "./dictionaries/schema";
 
-export interface Dictionary {
-  common: {
-    site_title?: string;
-    brand?: string;
-    tagline?: string;
-    [key: string]: string | undefined;
-  };
-  auth?: {
-    activation?: {
-      title: string;
-      message: string;
-      instruction: string;
-      spam_warning: string;
-      provider_warning: string;
-    };
-    shared?: {
-      backToHome: string;
-    };
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-}
-
-type DictionaryLoader = () => Promise<Dictionary>;
+type DictionaryLoader = () => Promise<AppDictionary>;
 
 const dictionaries: Record<Locale, DictionaryLoader> = {
   en: () =>
-    import("./dictionaries/en.json").then((module) => module.default as unknown as Dictionary),
+    import("./dictionaries/en.json").then((module) => module.default as unknown as AppDictionary),
   tr: () =>
-    import("./dictionaries/tr.json").then((module) => module.default as unknown as Dictionary),
+    import("./dictionaries/tr.json").then((module) => module.default as unknown as AppDictionary),
   de: () =>
-    import("./dictionaries/de.json").then((module) => module.default as unknown as Dictionary),
+    import("./dictionaries/de.json").then((module) => module.default as unknown as AppDictionary),
   ru: () =>
-    import("./dictionaries/ru.json").then((module) => module.default as unknown as Dictionary),
+    import("./dictionaries/ru.json").then((module) => module.default as unknown as AppDictionary),
   es: () =>
-    import("./dictionaries/es.json").then((module) => module.default as unknown as Dictionary),
+    import("./dictionaries/es.json").then((module) => module.default as unknown as AppDictionary),
   fr: () =>
-    import("./dictionaries/fr.json").then((module) => module.default as unknown as Dictionary),
+    import("./dictionaries/fr.json").then((module) => module.default as unknown as AppDictionary),
 };
 
 const isObjectRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 };
 
-function mergeDictionaries(fallback: Dictionary, target: Dictionary): Dictionary {
-  const merged = JSON.parse(JSON.stringify(fallback)) as Dictionary;
+function deepMerge<T>(fallback: T, target: Partial<T>): T {
+  if (Array.isArray(fallback) || Array.isArray(target)) {
+    return ((target as T | undefined) ?? fallback) as T;
+  }
 
-  for (const category in target) {
-    const targetCategory = target[category];
-    const mergedCategory = merged[category];
+  if (!isObjectRecord(fallback) || !isObjectRecord(target)) {
+    return ((target as T | undefined) ?? fallback) as T;
+  }
 
-    if (isObjectRecord(mergedCategory) && isObjectRecord(targetCategory)) {
-      merged[category] = {
-        ...mergedCategory,
-        ...targetCategory,
-      };
+  const merged: Record<string, unknown> = { ...fallback };
+
+  for (const [key, value] of Object.entries(target)) {
+    if (value === undefined) {
       continue;
     }
 
-    merged[category] = targetCategory;
+    const fallbackValue = merged[key];
+    if (isObjectRecord(fallbackValue) && isObjectRecord(value)) {
+      merged[key] = deepMerge(fallbackValue, value);
+      continue;
+    }
+
+    merged[key] = value;
   }
 
-  return merged;
+  return merged as T;
 }
 
-export const getDictionary = async (locale: Locale): Promise<Dictionary> => {
+export const getDictionary = async (locale: Locale): Promise<AppDictionary> => {
   const englishDict = await dictionaries.en();
   if (locale === "en") {
     return englishDict;
   }
 
   const targetDict = await dictionaries[locale]();
-  return mergeDictionaries(englishDict, targetDict);
+  return deepMerge(englishDict, targetDict);
 };

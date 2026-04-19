@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { trackNewsletterFormSubmitted } from "@/features/landing/lib/analytics";
-import type { LandingDictionary } from "@/features/landing/types";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 
 interface UseNewsletterSignupReturn {
   confirmEmailSent: boolean;
@@ -18,14 +18,14 @@ interface UseNewsletterSignupReturn {
 
 export function useNewsletterSignup(
   lang: string,
-  dictionary?: LandingDictionary
+  dictionary?: AppDictionary
 ): UseNewsletterSignupReturn {
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [confirmEmailSent, setConfirmEmailSent] = useState(false);
   const [email, setEmail] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
-  const landing = dictionary?.landing;
+  const newsletter = dictionary?.landing.newsletter;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -42,7 +42,7 @@ export function useNewsletterSignup(
 
   const handleVerifySuccess = async () => {
     setShowCaptcha(false);
-    setStatusMessage(landing?.verifying || "");
+    setStatusMessage(newsletter?.verifying ?? "");
 
     const { subscribeToNewsletter } = await import("@/app/actions/newsletter");
     const result = await subscribeToNewsletter(email);
@@ -53,7 +53,7 @@ export function useNewsletterSignup(
       return;
     }
 
-    setStatusMessage(result.message || landing?.verify_error || "");
+    setStatusMessage(result.message || newsletter?.errorMessage || "");
     setTimeout(() => setStatusMessage(""), 3000);
   };
 

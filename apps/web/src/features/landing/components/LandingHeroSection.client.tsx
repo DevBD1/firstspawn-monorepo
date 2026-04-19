@@ -76,15 +76,15 @@ export default function LandingHeroSection({ content, lang }: LandingHeroSection
           </h1>
 
           <p className="max-w-xl font-body text-base leading-relaxed text-foreground/72 md:text-lg">
-            {landing.hero_subtitle}
+            {landing.hero.subtitle}
           </p>
 
           <div className="mt-8 flex max-w-2xl flex-col items-start gap-4 sm:flex-row sm:flex-wrap">
             <PixelButton href={`/${lang}/discover`} size="lg" variant="primary">
-              {landing.cta_primary}
+              {landing.hero.actions.primaryLabel}
             </PixelButton>
             <PixelButton href={`/${lang}/console`} size="lg" variant="outline" disabled>
-              {landing.cta_secondary}
+              {landing.hero.actions.secondaryLabel}
             </PixelButton>
           </div>
         </div>

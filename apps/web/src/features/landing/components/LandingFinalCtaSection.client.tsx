@@ -30,17 +30,17 @@ export default function LandingFinalCtaSection({ content, lang }: LandingFinalCt
         />
         <div className="relative z-10 mx-auto max-w-3xl">
           <h2 className="font-display text-3xl leading-tight text-foreground sm:text-4xl">
-            {content.landing.cta_section_title}
+            {content.landing.finalCta.title}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl font-body text-base leading-relaxed text-foreground/68 md:text-lg">
-            {content.landing.cta_section_subtitle}
+            {content.landing.finalCta.subtitle}
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <PixelButton href={`/${lang}/discover`} size="lg" variant="success">
-              {content.landing.cta_primary}
+              {content.landing.finalCta.primaryLabel}
             </PixelButton>
             <PixelButton href="#notify-signup" size="lg" variant="diamond">
-              {content.landing.notify_btn}
+              {content.landing.finalCta.secondaryLabel}
             </PixelButton>
           </div>
         </div>

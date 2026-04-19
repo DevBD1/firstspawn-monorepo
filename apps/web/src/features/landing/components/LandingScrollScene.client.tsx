@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import SceneLayer from "@/components/scene/SceneLayer";
 import ScrollCue from "@/components/ui/ScrollCue";
-import type { LandingDictionary } from "@/features/landing/types";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import PixelCloudLayer from "./PixelCloudLayer";
 
 interface LandingScrollSceneProps {
-  dictionary: LandingDictionary;
+  dictionary: AppDictionary;
 }
 
 interface LandingSceneBackdropProps {
@@ -189,7 +189,7 @@ function LandingSceneBackdrop({ progress, isMobile, reduceMotion }: LandingScene
 }
 
 export default function LandingScrollScene({ dictionary }: LandingScrollSceneProps) {
-  const landing = dictionary.landing || {};
+  const landing = dictionary.landing;
   const reduceMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
   const { scrollYProgress } = useScroll();
@@ -213,7 +213,7 @@ export default function LandingScrollScene({ dictionary }: LandingScrollScenePro
     <>
       <div
         aria-hidden="true"
-        data-scene={landing.scene_alt || "FirstSpawn landing scene"}
+        data-scene={landing.scene.alt}
         className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
       >
         <div className="absolute inset-x-0 bottom-0 top-[var(--fs-nav-height)] overflow-hidden">

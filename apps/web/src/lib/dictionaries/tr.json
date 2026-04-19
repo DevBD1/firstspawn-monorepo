@@ -1,18 +1,144 @@
 {
   "common": {
     "brand": "FIRSTSPAWN",
-    "site_title": "FirstSpawn - Onaylanmış Keşif Düğümü",
+    "siteTitle": "FirstSpawn - Onaylanmış Keşif Düğümü",
     "tagline": "Onaylanmış Keşif Düğümü",
-    "source": "Kaynak",
-    "join_newsletter_title": "ARAMIZA KATIL",
-    "join_newsletter_desc": "Spam yok — sadece FirstSpawn.com için proje haberleri, ön izlemeler ve erken erişim fırsatları.",
-    "scribe": "KAYITLA",
-    "enter_email": "E-posta adresinizi girin"
+    "sourceLabel": "Kaynak",
+    "actions": {
+      "addServer": "SUNUCUNU EKLE",
+      "backHome": "BACK TO HOME",
+      "close": "KAPAT",
+      "loadMore": "DAHA FAZLA YÜKLE",
+      "logIn": "LOG IN",
+      "logOut": "LOG OUT",
+      "manageSettings": "AYARLARI YÖNET",
+      "notifyMe": "HABER VER",
+      "reset": "SIFIRLA",
+      "retry": "TEKRAR DENE",
+      "savePreferences": "TERCİHLERİ KAYDET",
+      "send": "GÖNDER",
+      "signUp": "SIGN UP",
+      "startExploring": "KEŞFE BAŞLA",
+      "verify": "DOĞRULA"
+    },
+    "fields": {
+      "confirmPassword": "CONFIRM PASSWORD",
+      "email": "EMAIL",
+      "emailOrUsername": "EMAIL OR USERNAME",
+      "password": "PASSWORD",
+      "username": "USERNAME"
+    },
+    "placeholders": {
+      "confirmPassword": "Repeat your password",
+      "email": "E-posta adresinizi girin",
+      "password": "Enter your password",
+      "username": "blockbuilder"
+    },
+    "status": {
+      "active": "AKTIF",
+      "archived": "ARCHIVED",
+      "offline": "OFFLINE",
+      "online": "ONLINE",
+      "systemsNormal": "Sistemler Normal",
+      "verified": "DOĞRULANMIŞ"
+    }
   },
   "nav": {
+    "console": "KONSOL",
     "discover": "KEŞFET",
+    "languageMenuLabel": "DİL",
+    "logIn": "LOG IN",
+    "logOut": "LOG OUT",
+    "menuLabel": "MENÜ",
     "myLoot": "GANİMETİM",
-    "console": "KONSOL"
+    "signUp": "SIGN UP",
+    "verifyEmail": "E-POSTAYI DOĞRULA",
+    "verifyEmailTitle": "E-posta adresiniz doğrulanmadı"
+  },
+  "auth": {
+    "shell": {
+      "brandStatement": {
+        "title": "DAHA ADİL BİR OYUN",
+        "highlight": "MÜMKÜN.",
+        "description": "Minecraft ve Hytale sunucuları için keşif ekosistemi. Gerçek oyuncular, gerçek güven ve topluluk için kuruldu."
+      },
+      "benefitItems": [
+        {
+          "title": "DOĞRULANMIŞ YORUMLAR",
+          "description": "Oynama süresiyle kilitlenen yorumlar itibar sinyallerini daha güvenilir yapar."
+        },
+        {
+          "title": "VERİ ODAKLI KEŞİF",
+          "description": "Ücretli görünürlük yerine anlamlı sinyallerle sunucu bul."
+        },
+        {
+          "title": "OYUNLAR ARASI POTANSİYEL",
+          "description": "Minecraft, Hytale ve gelecekteki dünyalar için tasarlandı."
+        }
+      ],
+      "legalLine": "Topluluk için üretildi."
+    },
+    "login": {
+      "page": {
+        "title": "WELCOME TO FIRSTSPAWN",
+        "subtitle": "Log in to access your favorite servers and communities.",
+        "registeredSuccess": "Registration complete. You can sign in now."
+      },
+      "form": {
+        "alternateCta": "SIGN UP",
+        "alternatePrompt": "New to FirstSpawn?",
+        "dividerLabel": "OR",
+        "discordCta": "SIGN IN WITH DISCORD",
+        "hidePasswordAriaLabel": "Şifreyi gizle",
+        "identifierLabel": "EMAIL OR USERNAME",
+        "identifierPlaceholder": "steve@craft.com",
+        "passkeyCta": "SIGN IN WITH PASSKEY",
+        "passwordLabel": "PASSWORD",
+        "passwordPlaceholder": "Enter your password",
+        "showPasswordAriaLabel": "Şifreyi göster",
+        "submitLabel": "CONTINUE WITH EMAIL",
+        "submitPendingLabel": "AUTHENTICATING..."
+      }
+    },
+    "register": {
+      "page": {
+        "title": "START YOUR JOURNEY",
+        "subtitle": "Join the verified ecosystem for Minecraft and Hytale."
+      },
+      "form": {
+        "alternateCta": "LOG IN",
+        "alternatePrompt": "Already have an account?",
+        "confirmPasswordLabel": "CONFIRM PASSWORD",
+        "confirmPasswordPlaceholder": "Repeat your password",
+        "discordCta": "CONTINUE WITH DISCORD",
+        "dividerLabel": "OR",
+        "emailLabel": "EMAIL",
+        "emailPlaceholder": "steve@craft.com",
+        "hidePasswordAriaLabel": "Şifreleri gizle",
+        "legalDisclaimer": "By joining, you agree to our Terms of Service and Privacy Policy. We never post to connected accounts without permission.",
+        "marketingConsentLabel": "I want to receive product updates and marketing emails from FirstSpawn.",
+        "passwordLabel": "PASSWORD",
+        "passwordPlaceholder": "At least 8 characters",
+        "privacyLabelCta": "Privacy Policy",
+        "privacyLabelPrefix": "I agree to the",
+        "showPasswordAriaLabel": "Şifreleri göster",
+        "submitLabel": "CONTINUE WITH EMAIL",
+        "submitPendingLabel": "CREATING ACCOUNT...",
+        "termsLabelCta": "Terms of Service",
+        "termsLabelPrefix": "I agree to the",
+        "usernameLabel": "USERNAME",
+        "usernamePlaceholder": "blockbuilder"
+      }
+    },
+    "activation": {
+      "backLabel": "BACK TO HOME",
+      "fallbackEmail": "e-posta adresiniz",
+      "instruction": "Please activate your account by clicking on the link provided in it.",
+      "message": "You will soon receive an email on the following address:",
+      "providerWarning": "Services like Hotmail, Yahoo, AOL often mistakenly identify the activation email as spam!",
+      "spamWarning": "Please remember to check your spam and trash box!!!",
+      "title": "CHECK YOUR INBOX"
+    }
   },
   "footer": {
     "cta": {
@@ -65,7 +191,7 @@
       "crafted": "Özenle hazırlanmıştır."
     }
   },
-  "cookie_consent": {
+  "cookieConsent": {
     "title": "ÇEREZ AYARLARI",
     "introPrefix": "Web sitemiz, FirstSpawn'u güvenli tutmak, oturumunuzu sürdürmek, dil tercihlerinizi hatırlamak ve platformun temel işlevlerini korumak için zorunlu çerezler ve sınırlı teknik veriler kullanır.",
     "introLinkLabel": "Daha fazla bilgi",
@@ -95,98 +221,281 @@
     "stateOn": "AÇIK",
     "stateOff": "KAPALI"
   },
-  "home": {
-    "welcome": "Harika bir şeyler inşa etmeye hazırız."
-  },
   "landing": {
-    "status": "DURUM",
-    "active": "AKTIF",
-    "hero_title": "SONRAKI\nMACERANI KEŞFET",
-    "hero_subtitle": "Minecraft ve Hytale sunucuları için ilk doğrulanmış keşif platformu. Gerçek oyuncular. Gerçek uptime. Gerçek topluluklar.",
-    "cta_primary": "KEŞFE BAŞLA",
-    "cta_secondary": "SUNUCUNU EKLE",
-    "stats_servers": "SUNUCU",
-    "stats_players": "OYUNCU",
-    "stats_verified": "DOĞRULANMIŞ",
-    "explorers_label": "EXPLORERS",
-    "metric_registered_servers": "KAYITLI SUNUCULAR",
-    "metric_registered_explorers": "KAYITLI EXPLORER",
-    "metric_live_players": "CANLI OYUNCULAR",
-    "features_title": "NEDEN FIRSTSPAWN?",
-    "features_subtitle": "Voxel oyun topluluğu için farklı şekilde tasarlandı",
-    "feature_1_title": "DOĞRULANMIŞ UPTIME",
-    "feature_1_desc": "Sahte çevrimiçi sayıları bitti. Botlarımız her sunucunun durumunu gerçek zamanlı doğrular.",
-    "feature_2_title": "OYUN KANITI",
-    "feature_2_desc": "Yorumlar gerçek oyun süresiyle desteklenir. Yalnızca gerçek oyuncular puan verebilir.",
-    "feature_3_title": "ÇAPRAZ PLATFORM KİMLİĞİ",
-    "feature_3_desc": "Minecraft, Hytale ve sonrası için tek kimlik. Yolculuğunu senkronize et.",
-    "feature_4_title": "GUILD SİSTEMİ",
-    "feature_4_desc": "İttifak kur, liderlik tablolarında yarış ve özel ödüllerin kilidini aç.",
-    "how_it_works_title": "NASIL ÇALIŞIR",
-    "step_1_title": "KEŞFET",
-    "step_1_desc": "Gerçek oyuncu yorumları ve canlı uptime verileriyle doğrulanmış sunucuları gez.",
-    "step_2_title": "BAĞLAN",
-    "step_2_desc": "Tek tıkla katıl. Profilin desteklenen tüm oyunlarda senkronize olur.",
-    "step_3_title": "KATKI SAĞLA",
-    "step_3_desc": "Yorum bırak, rozet kazan ve itibar basamaklarında yüksel.",
-    "cta_section_title": "SPAWN'A HAZIR MISIN?",
-    "cta_section_subtitle": "Kalıcı sunucusunu arayan binlerce oyuncuya katıl.",
-    "notify_title": "İLK SPAWN OLAN SEN OL",
-    "notify_desc": "Lansmanı bekleyen binlerce oyuncuya katıl. Erken kaydolanlar özel erişim ve kurucu ayrıcalıkları kazanır.",
-    "notify_btn": "HABER VER",
-    "subscription_verified": "ABONELİK DOĞRULANDI",
-    "check_inbox": "E-POSTANI KONTROL ET",
-    "verifying": "DOĞRULANIYOR...",
-    "verify_error": "HATA. TEKRAR DENE.",
-    "discovery_label": "DISCOVERY CONSOLE",
-    "discovery_demo_prompt": "Bana güçlü bir topluluğu ve stabil aktivitesi olan doğrulanmış bir survival sunucusu bul.",
-    "discovery_demo_response": "Doğrulanmış sinyaller taranıyor. Güvenilir uptime, aktif sohbet döngüsü ve gelişebileceğin bir topluluk isteyen oyuncular için güçlü bir eşleşme buldum.",
-    "discovery_demo_card_title": "Aetheria Prime",
-    "discovery_demo_card_description": "Stabil ekonomisi, aktif moderatörleri ve yoğun saatler sonrası da canlı kalan sosyal oyuncu kitlesi olan bir survival dünyası.",
-    "discovery_demo_card_status": "EN İYİ EŞLEŞME",
-    "discovery_demo_card_match": "%98 EŞLEŞME",
-    "discovery_demo_card_tags": ["SURVIVAL", "EKONOMİ", "TOPLULUK"],
-    "discovery_composer_placeholder": "FirstSpawn'a sonraki dünyanı bulmasını söyle...",
-    "discovery_submit": "GÖNDER",
-    "discovery_pending": "Canlı discovery cevapları çok yakında. Sorgun gerçek chat akışı için hazır.",
-    "search_placeholder": "BİR OYUN SUNUCUSU ARA...",
-    "search_button": "BUL",
-    "popular_label": "POPÜLER",
-    "popular_tags": ["SURVIVAL", "PVP", "FACTION", "SKYBLOCK", "MINIGAMES"],
-    "feature_servers": "MINECRAFT & HYTALE",
-    "feature_verified": "DOĞRULANMIŞ OYUN SÜRESİ",
-    "feature_uptime": "GUILD'LER & ROZETLER",
-    "feature_anticheat": "ÖDÜL KAZAN"
+    "scene": {
+      "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
+    },
+    "hero": {
+      "statusLabel": "DURUM",
+      "statusValue": "AKTIF",
+      "title": "SONRAKI\nMACERANI KEŞFET",
+      "subtitle": "Minecraft ve Hytale sunucuları için ilk doğrulanmış keşif platformu. Gerçek oyuncular. Gerçek uptime. Gerçek topluluklar.",
+      "explorerLabel": "EXPLORERS",
+      "metrics": {
+        "livePlayers": "CANLI OYUNCULAR",
+        "registeredExplorers": "KAYITLI EXPLORER",
+        "registeredServers": "KAYITLI SUNUCULAR"
+      },
+      "actions": {
+        "primaryLabel": "KEŞFE BAŞLA",
+        "secondaryLabel": "SUNUCUNU EKLE"
+      }
+    },
+    "features": {
+      "eyebrow": "TRUST SIGNALS",
+      "title": "NEDEN FIRSTSPAWN?",
+      "subtitle": "Voxel oyun topluluğu için farklı şekilde tasarlandı",
+      "items": [
+        {
+          "title": "DOĞRULANMIŞ UPTIME",
+          "description": "Sahte çevrimiçi sayıları bitti. Botlarımız her sunucunun durumunu gerçek zamanlı doğrular."
+        },
+        {
+          "title": "OYUN KANITI",
+          "description": "Yorumlar gerçek oyun süresiyle desteklenir. Yalnızca gerçek oyuncular puan verebilir."
+        },
+        {
+          "title": "ÇAPRAZ PLATFORM KİMLİĞİ",
+          "description": "Minecraft, Hytale ve sonrası için tek kimlik. Yolculuğunu senkronize et."
+        },
+        {
+          "title": "GUILD SİSTEMİ",
+          "description": "İttifak kur, liderlik tablolarında yarış ve özel ödüllerin kilidini aç."
+        }
+      ]
+    },
+    "howItWorks": {
+      "title": "NASIL ÇALIŞIR",
+      "items": [
+        {
+          "title": "KEŞFET",
+          "description": "Gerçek oyuncu yorumları ve canlı uptime verileriyle doğrulanmış sunucuları gez."
+        },
+        {
+          "title": "BAĞLAN",
+          "description": "Tek tıkla katıl. Profilin desteklenen tüm oyunlarda senkronize olur."
+        },
+        {
+          "title": "KATKI SAĞLA",
+          "description": "Yorum bırak, rozet kazan ve itibar basamaklarında yüksel."
+        }
+      ]
+    },
+    "discovery": {
+      "panelLabel": "DISCOVERY CONSOLE",
+      "pendingMessage": "Canlı discovery cevapları çok yakında. Sorgun gerçek chat akışı için hazır.",
+      "composer": {
+        "placeholder": "FirstSpawn'a sonraki dünyanı bulmasını söyle...",
+        "submitLabel": "GÖNDER"
+      },
+      "demo": {
+        "prompt": "Bana güçlü bir topluluğu ve stabil aktivitesi olan doğrulanmış bir survival sunucusu bul.",
+        "response": "Doğrulanmış sinyaller taranıyor. Güvenilir uptime, aktif sohbet döngüsü ve gelişebileceğin bir topluluk isteyen oyuncular için güçlü bir eşleşme buldum.",
+        "card": {
+          "title": "Aetheria Prime",
+          "description": "Stabil ekonomisi, aktif moderatörleri ve yoğun saatler sonrası da canlı kalan sosyal oyuncu kitlesi olan bir survival dünyası.",
+          "statusLabel": "EN İYİ EŞLEŞME",
+          "matchLabel": "%98 EŞLEŞME",
+          "tags": ["SURVIVAL", "EKONOMİ", "TOPLULUK"]
+        }
+      }
+    },
+    "proof": {
+      "eyebrow": "POPÜLER",
+      "title": "POPÜLER SUNUCU"
+    },
+    "finalCta": {
+      "title": "SPAWN'A HAZIR MISIN?",
+      "subtitle": "Kalıcı sunucusunu arayan binlerce oyuncuya katıl.",
+      "primaryLabel": "KEŞFE BAŞLA",
+      "secondaryLabel": "HABER VER"
+    },
+    "newsletter": {
+      "title": "İLK SPAWN OLAN SEN OL",
+      "description": "Lansmanı bekleyen binlerce oyuncuya katıl. Erken kaydolanlar özel erişim ve kurucu ayrıcalıkları kazanır.",
+      "submitLabel": "HABER VER",
+      "subscriptionVerified": "ABONELİK DOĞRULANDI",
+      "checkInbox": "E-POSTANI KONTROL ET",
+      "verifying": "DOĞRULANIYOR...",
+      "errorMessage": "HATA. TEKRAR DENE."
+    }
   },
   "discover": {
-    "server_detail": {
+    "page": {
+      "badgeLabel": "EŞLEŞTİRME ÇEKİRDEĞİ",
+      "title": "DÜNYALARI KEŞFET",
+      "subtitle": "Sıradaki maceranı bul. Gerçek oyuncu verileriyle sıralanan doğrulanmış sunucuları keşfet.",
+      "searchPlaceholder": "Sunucu veya açıklama ara...",
+      "gameFilters": {
+        "all": "TÜM DÜNYALAR",
+        "minecraft": "MINECRAFT",
+        "hytale": "HYTALE"
+      },
+      "rarityFilterTitle": "NADİRLİK FİLTRESİ",
+      "sortTitle": "SIRALA",
+      "sortOptions": {
+        "players": "OYUNCU SAYISI",
+        "ping": "PING"
+      },
+      "personalStatsTitle": "İSTATİSTİKLERİN",
+      "personalStats": {
+        "serversVisited": "Ziyaret Edilen Sunucu",
+        "favorites": "Favoriler"
+      },
+      "resultsSummary": "{count} DÜNYA BULUNDU",
+      "syncingLabel": "EŞİTLENİYOR...",
+      "loadingMoreLabel": "YÜKLENİYOR...",
+      "emptyStateTitle": "DÜNYA BULUNAMADI",
+      "emptyStateDescription": "Filtreleri değiştirmeyi dene",
+      "stats": {
+        "onlineServers": "SUNUCU AKTİF",
+        "activePlayers": "OYUNCU AKTİF",
+        "version": "SUNUCU KEŞFİ v2.0"
+      },
+      "ranking": {
+        "rankedBy": "SIRALAMA",
+        "lowerIsBetter": "DAHA DÜŞÜK DAHA İYİ"
+      },
+      "tiers": {
+        "common": "YAYGIN",
+        "rare": "NADİR",
+        "epic": "DESTANSI",
+        "legendary": "EFSANEVİ"
+      }
+    }
+  },
+  "serverCatalog": {
+    "badges": {
+      "verified": "DOĞRULANDI",
+      "featured": "ÖNE ÇIKAN",
+      "trending": "YÜKSELEN"
+    },
+    "card": {
+      "liveData": "CANLI VERİ",
+      "address": "ADRES",
+      "maxPlayers": "MAKS",
+      "mods": "MOD",
+      "viewWorld": "DÜNYAYI GÖR",
+      "profilePageFallback": "Profil sayfası"
+    },
+    "sortHighlights": {
+      "rankedBy": "SIRALAMA",
+      "lowerIsBetter": "DAHA DÜŞÜK DAHA İYİ",
+      "trendingNow": "ŞİMDİ YÜKSELEN"
+    },
+    "games": {
+      "mcJava": "MC JAVA",
+      "mcBedrock": "MC BEDROCK",
+      "hytale": "HYTALE",
+      "fallback": "SUNUCU"
+    },
+    "modsRequired": {
+      "yes": "EVET",
+      "no": "HAYIR"
+    }
+  },
+  "serverDetail": {
+    "catalog": {
+      "active": "ACTIVE",
+      "archived": "ARCHIVED"
+    },
+    "labels": {
       "back": "BACK TO DISCOVER",
-      "online_players": "ONLINE PLAYERS",
-      "max_players": "MAX PLAYERS",
-      "version": "VERSION",
-      "ping": "PING",
-      "last_seen": "LAST SEEN",
+      "discord": "DISCORD",
       "host": "HOST",
+      "lastSeen": "LAST SEEN",
+      "maxPlayers": "MAX PLAYERS",
+      "notAvailable": "N/A",
+      "offlineMode": "OFFLINE MODE",
+      "onlineMode": "ONLINE MODE",
+      "onlinePlayers": "ONLINE PLAYERS",
+      "ping": "PING",
       "port": "PORT",
       "region": "REGION",
-      "website": "WEBSITE",
-      "discord": "DISCORD",
-      "online_mode": "ONLINE MODE",
-      "offline_mode": "OFFLINE MODE",
-      "not_available": "N/A",
-      "status_online": "ONLINE",
-      "status_offline": "OFFLINE",
-      "catalog_active": "ACTIVE",
-      "catalog_archived": "ARCHIVED",
-      "relative_time": {
-        "just_now": "az önce",
-        "year": { "one": "{count} yıl önce", "other": "{count} yıl önce" },
-        "month": { "one": "{count} ay önce", "other": "{count} ay önce" },
-        "day": { "one": "{count} gün önce", "other": "{count} gün önce" },
-        "hour": { "one": "{count} saat önce", "other": "{count} saat önce" },
-        "minute": { "one": "{count} dakika önce", "other": "{count} dakika önce" },
-        "second": { "one": "{count} saniye önce", "other": "{count} saniye önce" }
+      "version": "VERSION",
+      "website": "WEBSITE"
+    },
+    "relativeTime": {
+      "justNow": "az önce",
+      "year": {
+        "one": "{count} yıl önce",
+        "other": "{count} yıl önce"
+      },
+      "month": {
+        "one": "{count} ay önce",
+        "other": "{count} ay önce"
+      },
+      "day": {
+        "one": "{count} gün önce",
+        "other": "{count} gün önce"
+      },
+      "hour": {
+        "one": "{count} saat önce",
+        "other": "{count} saat önce"
+      },
+      "minute": {
+        "one": "{count} dakika önce",
+        "other": "{count} dakika önce"
+      },
+      "second": {
+        "one": "{count} saniye önce",
+        "other": "{count} saniye önce"
       }
+    },
+    "status": {
+      "online": "ONLINE",
+      "offline": "OFFLINE"
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Bu Kullanım Şartları sayfası tamamlanıyor. Hesap oluşturarak FirstSpawn platform kullanım kurallarını, hesap sorumluluğunu ve kabul edilebilir davranış politikalarını kabul etmiş olursunuz.",
+      "localeLabel": "Dil"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Bu Gizlilik Politikası sayfası tamamlanıyor. Hesap oluşturarak hesap güvenliği, ürün operasyonları ve iletişim tercihleri için veri işlenmesini kabul etmiş olursunuz.",
+      "localeLabel": "Dil"
+    }
+  },
+  "consolePage": {
+    "badge": "KOMUT TERMİNALİ AKTİF",
+    "title": "KONSOL",
+    "description": "Tekrar hoş geldin, {username}. Kişisel sunucu analitiği, doğrulama kontrolleri ve hesap araçları bu panelde yer alacak.",
+    "fallbackUsername": "Operatör"
+  },
+  "lootPage": {
+    "badge": "OYUNCU ENVANTERİ BAĞLANDI",
+    "title": "GANİMETİM",
+    "description": "{username}, ilerleme envanteri merkezinin kilidi açıldı. Ödül düşüşleri, bulmaca anahtarları ve rozet talepleri burada görünecek.",
+    "fallbackUsername": "Operatör"
+  },
+  "debugPages": {
+    "ogPreviewTitle": "OpenGraph Önizleme",
+    "ogPreviewPathLabel": "Yol",
+    "ogPreviewImageAlt": "Open Graph Önizleme"
+  },
+  "captcha": {
+    "modal": {
+      "subtitle": "AKILLI OL",
+      "title": "GÜVENLİK KONTROLÜ",
+      "successTitle": "ERİŞİM VERİLDİ",
+      "processingLabel": "İŞLENİYOR...",
+      "retryLabel": "TEKRAR DENE",
+      "clearedLabel": "TEMİZ",
+      "verifyLabel": "DOĞRULA",
+      "rotateLabel": "Döndür",
+      "sliderLeftLabel": "S",
+      "sliderRightLabel": "R",
+      "attemptsLabel": "Deneme",
+      "resetLabel": "SIFIRLA",
+      "resetAriaLabel": "Bulmacayı sıfırla",
+      "closeAriaLabel": "Captcha penceresini kapat"
+    },
+    "screw": {
+      "idleMessage": "SOMUNU HİZALA",
+      "verifyingMessage": "ANALİZ EDİLİYOR..."
     }
   }
 }

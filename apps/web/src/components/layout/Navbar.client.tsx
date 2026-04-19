@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import type { Locale } from "@/lib/i18n-config";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import type { AuthCookieUser } from "@/lib/auth";
 import PixelButton from "@/components/ui/PixelButton";
 import LocaleSwitcher from "./LocaleSwitcher.client";
@@ -12,17 +13,7 @@ import LocaleSwitcher from "./LocaleSwitcher.client";
 export interface NavbarProps {
   lang: Locale;
   isAuthenticated: boolean;
-  dictionary: {
-    common: { brand: string; tagline: string };
-    nav: {
-      discover: string;
-      myLoot: string;
-      console: string;
-      register: string;
-      logIn: string;
-      logOut: string;
-    };
-  };
+  dictionary: AppDictionary;
   user?: AuthCookieUser | null;
 }
 
@@ -69,9 +60,9 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
               className={`flex items-center justify-center border-2 border-red-500 bg-red-950/30 px-3 py-1 text-red-400 font-ui text-xs hover:bg-red-900/50 transition-colors ${
                 isMobile ? "w-full py-3" : "h-8"
               }`}
-              title="Your email is not verified"
+              title={dictionary.nav.verifyEmailTitle}
             >
-              <span className="animate-pulse mr-2">!</span> Verify Email
+              <span className="animate-pulse mr-2">!</span> {dictionary.nav.verifyEmail}
             </Link>
           )}
           <PixelButton
@@ -111,7 +102,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
             onClick={() => closeMobileIfOpen(isMobile)}
             disabled
           >
-            {dictionary.nav.register}
+            {dictionary.nav.signUp}
           </PixelButton>
           <PixelButton
             href={loginHref}
@@ -134,7 +125,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
           <button
             onClick={() => setIsOpen((prev) => !prev)}
             className="flex flex-col gap-1.5 border-2 border-black bg-bg-panel p-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none md:hidden"
-            aria-label="Menu"
+            aria-label={dictionary.nav.menuLabel}
             aria-expanded={isOpen}
           >
             <div
@@ -172,7 +163,9 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <div className="font-display text-[8px] text-zinc-200 sm:hidden">FIRSTSPAWN</div>
+          <div className="font-display text-[8px] text-zinc-200 sm:hidden">
+            {dictionary.common.brand}
+          </div>
         </div>
       </div>
 
@@ -205,7 +198,9 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
         </div>
 
         <div className="flex-shrink-0 border-t-4 border-black bg-navbar-bg p-6">
-          <p className="mb-4 font-ui text-[10px] uppercase tracking-wide text-gray-500">Language</p>
+          <p className="mb-4 font-ui text-[10px] uppercase tracking-wide text-gray-500">
+            {dictionary.nav.languageMenuLabel}
+          </p>
           <LocaleSwitcher currentLocale={lang} variant="inline" />
         </div>
       </div>

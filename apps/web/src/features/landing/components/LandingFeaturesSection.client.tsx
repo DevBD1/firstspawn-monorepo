@@ -15,8 +15,8 @@ export default function LandingFeaturesSection({ content }: LandingFeaturesSecti
   return (
     <motion.section {...getRevealProps(reduceMotion)} className="space-y-8">
       <SectionHeader
-        title={content.landing.features_title}
-        subtitle={content.landing.features_subtitle}
+        title={content.landing.features.title}
+        subtitle={content.landing.features.subtitle}
       />
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {content.features.map((feature, index) => (
@@ -37,7 +37,7 @@ export default function LandingFeaturesSection({ content }: LandingFeaturesSecti
                   {feature.title}
                 </h3>
                 <p className="font-body text-sm leading-relaxed text-foreground/68">
-                  {feature.desc}
+                  {feature.description}
                 </p>
               </div>
             </div>

@@ -39,7 +39,7 @@ export default function LoginForm({
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="lang" value={lang} />
-      <input type="hidden" name="next" value={nextPath || ""} />
+      <input type="hidden" name="next" value={nextPath ?? undefined} />
 
       {showRegisteredBanner && registeredMessage ? (
         <div className="flex items-center gap-3 border-2 border-emerald-700 bg-emerald-950/50 px-4 py-3 font-ui text-base text-emerald-300">
@@ -126,7 +126,7 @@ export default function LoginForm({
                 type="button"
                 onClick={toggle}
                 className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-zinc-700 bg-zinc-800 text-zinc-100 transition-colors hover:bg-zinc-700"
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? copy.hidePasswordAriaLabel : copy.showPasswordAriaLabel}
               >
                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>

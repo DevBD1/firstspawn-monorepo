@@ -70,7 +70,7 @@ function SuggestionCard({ content, lang }: { content: LandingContentModel; lang:
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <PixelButton href={`/${lang}/discover`} size="md" variant="primary" className="flex-1">
-          {content.landing.cta_primary}
+          {content.landing.hero.actions.primaryLabel}
         </PixelButton>
         <PixelButton
           href={`/${lang}/console`}
@@ -79,7 +79,7 @@ function SuggestionCard({ content, lang }: { content: LandingContentModel; lang:
           disabled
           className="flex-1"
         >
-          {content.landing.cta_secondary}
+          {content.landing.hero.actions.secondaryLabel}
         </PixelButton>
       </div>
     </div>
