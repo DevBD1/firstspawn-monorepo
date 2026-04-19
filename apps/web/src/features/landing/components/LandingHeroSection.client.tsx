@@ -4,57 +4,82 @@ import { Fragment } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import PixelButton from "@/components/ui/PixelButton";
 import type { LandingContentModel } from "@/features/landing/types";
-import { SECTION_SURFACE_CLASS } from "@/features/landing/lib/landing-content";
 import { getRevealProps } from "@/features/landing/lib/landing-motion";
-import { PixelCorners, SectionSurface, joinClasses } from "./LandingShared";
+import LandingMetricRotator from "./LandingMetricRotator.client";
+import { joinClasses } from "./LandingShared";
 
 interface LandingHeroSectionProps {
   content: LandingContentModel;
   lang: string;
 }
 
-export default function LandingHeroSection({ content, lang }: LandingHeroSectionProps) {
-  const reduceMotion = Boolean(useReducedMotion());
-  const { heroStats, heroStatus, heroTitle, landing } = content;
+const EXPLORER_AVATAR_TILES = [
+  "bg-fs-diamond/30",
+  "bg-fs-gold/30",
+  "bg-success/30",
+  "bg-fs-orange/30",
+] as const;
+
+function ExplorerProof({ count, label, lang }: { count: number; label: string; lang: string }) {
+  const compactCount = new Intl.NumberFormat(lang, {
+    maximumFractionDigits: 1,
+    notation: "compact",
+  }).format(count);
 
   return (
-    <motion.div {...getRevealProps(reduceMotion)} className="mx-auto max-w-5xl">
-      <SectionSurface
-        className={joinClasses(
-          SECTION_SURFACE_CLASS,
-          "bg-background/78 p-6 sm:p-8 md:p-10 lg:p-12"
-        )}
-      >
-        <PixelCorners />
-        <div className="pointer-events-none absolute left-1/2 top-0 h-28 w-72 -translate-x-1/2 rounded-full bg-fs-diamond/15 blur-3xl" />
-        <div className="relative z-10 text-center">
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
-            <span className="inline-flex items-center gap-3 border-2 border-black bg-bg-panel/95 px-4 py-2 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-              <motion.span
-                animate={reduceMotion ? undefined : { opacity: [1, 0.35, 1] }}
-                transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
-                className="h-3 w-3 border-2 border-black bg-success"
-              />
-              <span className="font-ui text-sm uppercase tracking-[0.28em] text-fs-diamond">
-                {heroStatus}
-              </span>
+    <div className="border-4 border-black bg-bg-panel/84 px-4 py-4 shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-2">
+          {EXPLORER_AVATAR_TILES.map((toneClass, index) => (
+            <span
+              key={`${toneClass}-${index}`}
+              aria-hidden="true"
+              className={joinClasses(
+                "inline-flex h-11 w-11 items-center justify-center border-2 border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]",
+                toneClass
+              )}
+            >
+              <span className="h-3 w-3 border border-black bg-background/65" />
             </span>
+          ))}
+        </div>
+        <div className="min-w-0">
+          <div className="font-display text-xl text-foreground sm:text-2xl">{compactCount}</div>
+          <div className="mt-1 font-ui text-[11px] uppercase tracking-[0.34em] text-foreground/58">
+            {label}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-          <h1 className="mb-6 font-display text-4xl leading-tight tracking-[0.08em] text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+export default function LandingHeroSection({ content, lang }: LandingHeroSectionProps) {
+  const reduceMotion = Boolean(useReducedMotion());
+  const { explorerProof, heroMetrics, heroTitle, landing } = content;
+
+  return (
+    <motion.div {...getRevealProps(reduceMotion)} className="relative h-full">
+      <div className="pointer-events-none absolute left-0 top-0 h-32 w-32 rounded-full bg-fs-diamond/12 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-44 w-44 translate-x-1/4 translate-y-1/4 bg-fs-gold/10 blur-3xl" />
+      <div className="relative z-10 flex h-full flex-col">
+        <div className="max-w-2xl">
+          <h1 className="mb-6 max-w-[11ch] font-display text-[clamp(2.9rem,8vw,5.2rem)] leading-[0.98] tracking-[0.02em] text-foreground xl:text-[clamp(3.4rem,4.7vw,5.4rem)] 2xl:text-[clamp(4.1rem,4.3vw,5.9rem)]">
             {heroTitle.map((line, index) => (
               <Fragment key={`${line}-${index}`}>
-                <span className={index === 1 ? "text-fs-diamond" : ""}>{line}</span>
+                <span className={index === heroTitle.length - 1 ? "text-fs-diamond" : ""}>
+                  {line}
+                </span>
                 {index < heroTitle.length - 1 ? <br /> : null}
               </Fragment>
             ))}
           </h1>
 
-          <p className="mx-auto max-w-3xl font-body text-base leading-relaxed text-foreground/72 md:text-lg">
+          <p className="max-w-xl font-body text-base leading-relaxed text-foreground/72 md:text-lg">
             {landing.hero_subtitle}
           </p>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="mt-8 flex max-w-2xl flex-col items-start gap-4 sm:flex-row sm:flex-wrap">
             <PixelButton href={`/${lang}/discover`} size="lg" variant="primary">
               {landing.cta_primary}
             </PixelButton>
@@ -62,24 +87,13 @@ export default function LandingHeroSection({ content, lang }: LandingHeroSection
               {landing.cta_secondary}
             </PixelButton>
           </div>
-
-          <div className="mt-10 grid gap-4 border-t-4 border-black pt-6 md:grid-cols-3">
-            {heroStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="border-2 border-black bg-bg-panel/80 px-5 py-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
-              >
-                <div className="font-display text-2xl text-fs-diamond md:text-3xl">
-                  {stat.value}
-                </div>
-                <div className="mt-2 font-ui text-xs uppercase tracking-[0.28em] text-foreground/55">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
-      </SectionSurface>
+
+        <div className="mt-10 grid gap-5 border-t-4 border-black pt-6 xl:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)] xl:items-end">
+          <ExplorerProof count={explorerProof.count} label={explorerProof.label} lang={lang} />
+          <LandingMetricRotator items={heroMetrics} lang={lang} reduceMotion={reduceMotion} />
+        </div>
+      </div>
     </motion.div>
   );
 }

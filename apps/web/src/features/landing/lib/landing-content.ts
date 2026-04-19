@@ -1,8 +1,10 @@
 import type {
   LandingContentModel,
   LandingDictionary,
+  LandingDiscoveryDemoModel,
   LandingFeatureItem,
   LandingProofServer,
+  LandingRealtimeStats,
   LandingStepItem,
 } from "@/features/landing/types";
 
@@ -128,29 +130,65 @@ const buildSteps = (landing: LandingContentModel["landing"]): LandingStepItem[] 
   { desc: landing.step_3_desc, num: "03", title: landing.step_3_title },
 ];
 
-export const getLandingContent = (dictionary: LandingDictionary): LandingContentModel => {
+const buildDiscoveryDemo = (
+  landing: LandingContentModel["landing"]
+): LandingDiscoveryDemoModel => ({
+  card: {
+    description: landing.discovery_demo_card_description,
+    match: landing.discovery_demo_card_match,
+    status: landing.discovery_demo_card_status,
+    tags: [...landing.discovery_demo_card_tags],
+    title: landing.discovery_demo_card_title,
+  },
+  composerPlaceholder: landing.discovery_composer_placeholder,
+  panelLabel: landing.discovery_label,
+  pendingMessage: landing.discovery_pending,
+  prompt: landing.discovery_demo_prompt,
+  response: landing.discovery_demo_response,
+  submitLabel: landing.discovery_submit,
+});
+
+const buildHeroMetrics = (landing: LandingContentModel["landing"], stats: LandingRealtimeStats) => [
+  {
+    key: "registeredServers" as const,
+    label: landing.metric_registered_servers,
+    tone: "diamond" as const,
+    value: stats.registeredServers,
+  },
+  {
+    key: "registeredExplorers" as const,
+    label: landing.metric_registered_explorers,
+    tone: "gold" as const,
+    value: stats.registeredExplorers,
+  },
+  {
+    key: "totalOnlinePlayers" as const,
+    label: landing.metric_live_players,
+    tone: "success" as const,
+    value: stats.totalOnlinePlayers,
+  },
+];
+
+export const getLandingContent = (
+  dictionary: LandingDictionary,
+  stats: LandingRealtimeStats
+): LandingContentModel => {
   const landing = {
     ...dictionary.landing,
-    popular_tags: [...(dictionary.landing?.popular_tags ?? [])],
+    discovery_demo_card_tags: [...(dictionary.landing?.discovery_demo_card_tags ?? [])],
   } as LandingContentModel["landing"];
   const brand = dictionary.common?.brand ?? "";
   const heroTitle = landing.hero_title.split("\n").filter(Boolean);
-  const heroSignals = [
-    landing.feature_servers,
-    landing.feature_verified,
-    landing.feature_uptime,
-    landing.feature_anticheat,
-  ].filter(Boolean);
 
   return {
     brand,
+    discoveryDemo: buildDiscoveryDemo(landing),
+    explorerProof: {
+      count: stats.registeredExplorers,
+      label: landing.explorers_label,
+    },
     features: buildFeatures(landing),
-    heroSignals,
-    heroStats: [
-      { label: landing.stats_servers, value: "2,400+" },
-      { label: landing.stats_players, value: "140K+" },
-      { label: landing.stats_verified, value: "100%" },
-    ],
+    heroMetrics: buildHeroMetrics(landing, stats),
     heroStatus: `${landing.status} ${landing.active}`,
     heroTitle,
     landing,
