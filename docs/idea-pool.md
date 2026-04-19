@@ -8,6 +8,7 @@ already lives in `README.md` or a service README.
 - Relevance-driven server ranking
 - Search and discovery refinements
 - Geo-based boosting if it ever proves useful
+- Mock chatbot arayüzüne birkaç örnek sohbet koyabiliriz değişimli gösterir
 
 ## Trust
 
