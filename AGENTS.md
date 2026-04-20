@@ -59,6 +59,30 @@ firstspawn-monorepo/
 - If information belongs in the product baseline, put it in `README.md` or the
   relevant service README instead of creating another doc.
 
+## Engineering Rules
+
+- Prefer simple code and simple files over clever abstractions.
+- Follow single responsibility by default. A file, function, or component should
+  have one clear job.
+- Follow SOLID where it improves clarity and maintenance, especially:
+  - single responsibility
+  - explicit interfaces between modules
+  - dependency direction from generic to specific
+- Follow ACID for database mutations and any multi-step write flow that must not
+  leave partial state behind.
+- Keep business rules centralized. Do not duplicate the same rule in multiple
+  routes, components, hooks, or actions.
+- If logic, styling, copy structure, or behavior is used in more than one place
+  or is likely to be reused, move it to a shared layer.
+- If something is specific to one route, one feature, or one domain flow, keep
+  it local to that slice.
+- Shared does not mean global by default:
+  - cross-app primitives belong in `packages/ui`
+  - shared web-only primitives belong in `apps/web/src/components`
+  - domain-aware logic belongs in `apps/web/src/features/<feature>`
+- Avoid page-only wrapper components that only compose other components. Page
+  composition should usually live directly in the route `page.tsx`.
+
 ## Shared Commands
 
 ```bash
@@ -87,6 +111,7 @@ pnpm --dir packages/database run generate
 ### i18n
 
 - Dictionary files live in `apps/web/src/lib/dictionaries/`.
+- Typed schema lives in `apps/web/src/lib/dictionaries/schema.ts`.
 - Supported locales: `en`, `tr`, `de`, `ru`, `es`, `fr`.
 - MVP locales: `en`, `tr`, `de`.
 - Route param is `lang`, not `locale`.
@@ -95,6 +120,41 @@ pnpm --dir packages/database run generate
 - All user-facing strings must come from dictionaries.
 - Do not hardcode user-facing copy in pages, components, hooks, or view-model
   builders. English baseline copy also belongs in dictionaries.
+- Do not add component-level English fallback strings such as `|| "Label"` or
+  `?? "Label"` for user-facing copy.
+- Feature slices should read dictionary data through typed copy selectors or
+  typed view-model builders, not by scattering raw key access everywhere.
+- Run `pnpm --filter @firstspawn/web lint:i18n` after dictionary or copy
+  structure changes.
+- Update `apps/web/scripts/lint-i18n.mjs` when:
+  - a new web source area should be scanned
+  - a new naming rule should be enforced
+  - a new i18n anti-pattern should fail CI
+
+### Dictionary Naming
+
+- Dictionary keys must be semantic and domain-based.
+- Prefer nested structures such as:
+  - `landing.hero.title`
+  - `landing.discovery.demo`
+  - `auth.login.form`
+  - `serverDetail.labels`
+  - `legal.terms`
+- Do not use contextless or numbered key names such as:
+  - `feature_1_title`
+  - `step_2_desc`
+  - `notify_btn`
+  - `popular_label`
+- Prefer stable semantic field names:
+  - `title`
+  - `description`
+  - `label`
+  - `placeholder`
+  - `helperText`
+  - `emptyState`
+  - `actions.primary.label`
+- Repeated content should use arrays or nested objects instead of numbered keys.
+- Shared cross-feature labels should live under `common`.
 
 ### Design System
 
@@ -106,6 +166,10 @@ pnpm --dir packages/database run generate
   - `--font-family-display`
   - `--font-family-ui`
   - `--font-family-body`
+- Prefer shared surface, backdrop, badge, and section primitives over route-local
+  styling copies.
+- Minimize raw hex usage in app code. Prefer existing tokens, utility classes,
+  or shared primitives unless the surface is a true one-off exception.
 
 ### Routing
 
@@ -129,6 +193,20 @@ pnpm --dir packages/database run generate
   missing.
 - Newsletter, analytics, and optional third-party integrations must fail
   safely.
+
+### Web Structure
+
+- `app/[lang]` is for route entrypoints and page-level composition.
+- `components/layout` is for app chrome only.
+- `components/ui` is for generic shared web primitives.
+- `components/scene` is for cross-feature scene primitives.
+- `features/*` is for domain or feature-owned UI and logic.
+- If a component is domain-aware, keep it in its feature instead of moving it to
+  generic shared UI.
+- If the same styling or structure appears in two or more web routes or
+  features, extract it into a shared primitive.
+- If the code is clearly owned by one feature and would make other areas more
+  confusing if shared, keep it local.
 
 ## API Rules
 
@@ -229,14 +307,18 @@ Important env groups:
 
 1. Choose the correct route group.
 2. Add the page with dictionary-driven copy.
-3. Update navigation only if the route is user-facing.
-4. Update `robots.ts` if the page is protected.
+3. Keep page composition in the page file unless there is a real feature entry
+   boundary.
+4. Update navigation only if the route is user-facing.
+5. Update `robots.ts` if the page is protected.
 
 ### Add A Shared Component
 
 1. Put cross-app primitives in `packages/ui/src/`.
 2. Put shared web-only primitives in `apps/web/src/components/`.
 3. Put feature-owned logic in `apps/web/src/features/<feature>/`.
+4. Promote code to shared only when reuse is real or very likely.
+5. Keep one-off route logic local.
 
 ## Current Workspace Status
 
