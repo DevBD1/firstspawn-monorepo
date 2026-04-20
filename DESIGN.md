@@ -1,8 +1,12 @@
 # Design System
 
 ## Overview
-A retro, 8-bit/pixel-art inspired dark interface for a developer productivity tool.
-High-contrast colors, blocky shapes, and monospaced/pixel typography to evoke a classic gaming and coding aesthetic.
+This file is the canonical source for FirstSpawn visual direction.
+
+FirstSpawn uses a retro, 8-bit/pixel-art inspired dark interface for a game
+server discovery and trust platform. High-contrast colors, blocky shapes, and
+monospaced or pixel typography should reinforce a world that feels technical,
+playful, and trustworthy.
 
 ## Colors
 **CRITICAL:** Never hardcode hex values in the generated code. Always use the project's configured Tailwind classes (which map to our CSS variables in `packages/ui/src/styles/brand.css`).

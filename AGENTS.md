@@ -156,20 +156,11 @@ pnpm --dir packages/database run generate
 - Repeated content should use arrays or nested objects instead of numbered keys.
 - Shared cross-feature labels should live under `common`.
 
-### Design System
+### Design
 
-- The site uses a pixel-retro visual language.
-- Global tokens and utility classes live in
-  `apps/web/src/app/globals.css`.
-- Primary accent is `--fs-diamond: #22d3ee`.
-- Typography tokens:
-  - `--font-family-display`
-  - `--font-family-ui`
-  - `--font-family-body`
-- Prefer shared surface, backdrop, badge, and section primitives over route-local
-  styling copies.
-- Minimize raw hex usage in app code. Prefer existing tokens, utility classes,
-  or shared primitives unless the surface is a true one-off exception.
+- All visual direction lives in `DESIGN.md`.
+- Do not duplicate visual rules in `AGENTS.md`. Update `DESIGN.md` when the
+  visual system changes.
 
 ### Routing
 
