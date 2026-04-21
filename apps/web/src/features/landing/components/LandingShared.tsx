@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 interface SectionHeaderProps {
+  className?: string;
   eyebrow?: string;
   subtitle?: string;
   title: string;
@@ -20,9 +21,9 @@ export function PixelCorners() {
   );
 }
 
-export function SectionHeader({ eyebrow, subtitle, title }: SectionHeaderProps) {
+export function SectionHeader({ className, eyebrow, subtitle, title }: SectionHeaderProps) {
   return (
-    <div className="mx-auto max-w-3xl space-y-4 text-center">
+    <div className={joinClasses("mx-auto max-w-3xl space-y-4 text-center", className)}>
       {eyebrow ? (
         <p className="font-ui text-[11px] uppercase tracking-[0.42em] text-fs-diamond/80">
           {eyebrow}

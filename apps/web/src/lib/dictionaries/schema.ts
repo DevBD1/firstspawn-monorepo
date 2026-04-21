@@ -227,6 +227,65 @@ export interface LandingDictionary {
   scene: {
     alt: string;
   };
+  questBoard: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    statusLabel: string;
+    statusValue: string;
+    betaLabel: string;
+    primaryLabel: string;
+    secondaryLabel: string;
+    quests: Array<{
+      title: string;
+      description: string;
+      rewardLabel: string;
+      rewardValue: string;
+      statusLabel: string;
+      statusValue: string;
+    }>;
+  };
+  roadmap: {
+    eyebrow: string;
+    title: string;
+    items: Array<{
+      title: string;
+      statusLabel: string;
+      description: string;
+    }>;
+  };
+  trust: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    items: Array<{
+      title: string;
+      description: string;
+      statusLabel: string;
+    }>;
+  };
+  serverProof: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    liveLabel: string;
+    rankedByLabel: string;
+    playerHelperSuffix: string;
+    viewAllLabel: string;
+    verifiedLabel: string;
+  };
+  progression: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    items: Array<{
+      title: string;
+      description: string;
+      stateLabel: string;
+    }>;
+  };
   hero: {
     statusLabel: string;
     statusValue: string;

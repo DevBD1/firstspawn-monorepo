@@ -274,6 +274,8 @@ export default function DiscoverClient({
                 <span className="font-display text-foreground/40">⌕</span>
               </div>
               <input
+                id="discover-server-search"
+                name="q"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

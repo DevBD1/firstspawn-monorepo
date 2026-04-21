@@ -195,6 +195,119 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
+    "questBoard": {
+      "eyebrow": "TABLEAU DE QUÊTES",
+      "title": "CHOISIS TA PROCHAINE QUÊTE SERVEUR",
+      "subtitle": "Commence avec la discovery Minecraft en direct, un uptime vérifié et un classement juste qui ne vend pas la première place.",
+      "statusLabel": "SYSTÈME",
+      "statusValue": "ONLINE",
+      "betaLabel": "ACCÈS BÊTA",
+      "primaryLabel": "COMMENCER À EXPLORER",
+      "secondaryLabel": "RECEVOIR LES ACTUS",
+      "quests": [
+        {
+          "title": "TROUVE UN MONDE",
+          "description": "Cherche des serveurs actifs par joueurs, ping, région et mode sans bruit de placement payé.",
+          "rewardLabel": "RÉCOMPENSE",
+          "rewardValue": "MATCH PLUS RAPIDE",
+          "statusLabel": "LIVE",
+          "statusValue": "MAINTENANT"
+        },
+        {
+          "title": "VÉRIFIE LE SIGNAL",
+          "description": "Utilise les checks de fraîcheur et d’uptime pour éviter les listings morts avant de rejoindre.",
+          "rewardLabel": "RÉCOMPENSE",
+          "rewardValue": "MOINS DE PERTE",
+          "statusLabel": "LIVE",
+          "statusValue": "MAINTENANT"
+        },
+        {
+          "title": "BÂTIS TA RÉPUTATION",
+          "description": "Avis, favoris, badges et loot loops sont préparés comme prochaine couche de confiance.",
+          "rewardLabel": "RÉCOMPENSE",
+          "rewardValue": "À VENIR",
+          "statusLabel": "PROCHAINE",
+          "statusValue": "PHASE"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "DISPONIBLE / BIENTÔT",
+      "title": "CE QUE LES JOUEURS PEUVENT UTILISER",
+      "items": [
+        {
+          "title": "DISCOVERY SERVEUR",
+          "statusLabel": "DISPONIBLE",
+          "description": "Parcours les listings publics de serveurs Minecraft et ouvre la vue discovery complète."
+        },
+        {
+          "title": "CHECKS UPTIME",
+          "statusLabel": "DISPONIBLE",
+          "description": "Utilise les signaux live de fraîcheur pour éviter les serveurs morts ou dépassés."
+        },
+        {
+          "title": "RÉPUTATION JOUEUR",
+          "statusLabel": "BIENTÔT",
+          "description": "Avis gagnés, favoris, badges et signaux de confiance formeront la prochaine boucle joueur."
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "DISCOVERY JUSTE",
+      "title": "CLASSÉ PAR SIGNAL, PAS PAR DÉPENSE",
+      "subtitle": "La page peut ressembler à un jeu, mais les règles de classement restent sérieuses.",
+      "items": [
+        {
+          "title": "FRAÎCHEUR LIVE",
+          "description": "Le statut serveur vient de l’activité heartbeat récente, pour que les mondes offline ne paraissent pas actifs.",
+          "statusLabel": "ACTIF"
+        },
+        {
+          "title": "AUCUNE VENTE DU TOP SLOT",
+          "description": "FirstSpawn repose sur la pertinence et la confiance, pas sur l’achat du listing le plus visible.",
+          "statusLabel": "RÈGLE"
+        },
+        {
+          "title": "FILTRES PLAYER-FIRST",
+          "description": "Discovery commence avec ce dont les joueurs ont besoin : communautés actives, latence, version et bon fit serveur.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "CATALOGUE LIVE",
+      "title": "PREUVE SERVEUR SANS FAUX HYPE",
+      "subtitle": "Quand les données catalogue existent, le board montre de vrais listings. Sinon, il le dit clairement.",
+      "emptyTitle": "LES SIGNAUX DU CATALOGUE CHAUFFENT",
+      "emptyDescription": "L’API ne renvoie aucun serveur public pour le moment. Discovery reste le chemin principal, et ce panneau se remplira avec les données catalogue live quand les cibles seront online.",
+      "liveLabel": "DONNÉES LIVE",
+      "rankedByLabel": "CLASSÉ PAR",
+      "playerHelperSuffix": "JOUEURS MAX",
+      "viewAllLabel": "VOIR DISCOVER",
+      "verifiedLabel": "CATALOGUE VÉRIFIÉ"
+    },
+    "progression": {
+      "eyebrow": "PROCHAINE BOUCLE DE CONFIANCE",
+      "title": "UNE PROGRESSION QUI MÉRITE LA CONFIANCE",
+      "subtitle": "La gamification est prévue comme preuve d’activité utile, pas comme bruit cosmétique.",
+      "items": [
+        {
+          "title": "BADGES VÉRIFIÉS",
+          "description": "Les futurs badges devraient marquer uptime réel, vérification owner et comportement de communauté.",
+          "stateLabel": "À VENIR"
+        },
+        {
+          "title": "ÉCHELLE DE RÉPUTATION",
+          "description": "Les actions joueur pourront devenir des signaux de confiance quand les gates d’avis et d’activité seront prêtes.",
+          "stateLabel": "PLANIFIÉ"
+        },
+        {
+          "title": "LOOT LOOP",
+          "description": "Les récompenses doivent ramener les joueurs sans déformer l’équité du classement.",
+          "stateLabel": "PLANIFIÉ"
+        }
+      ]
+    },
     "hero": {
       "statusLabel": "STATUT",
       "statusValue": "ACTIF",
@@ -275,14 +388,14 @@
       "title": "POPULAIRE SERVEURS"
     },
     "finalCta": {
-      "title": "PRÊT À SPAWN ?",
-      "subtitle": "Rejoins des milliers de joueurs qui cherchent leur serveur idéal.",
+      "title": "PRÊT À PRENDRE UNE QUÊTE ?",
+      "subtitle": "Ouvre Discover, compare les signaux live et trouve un serveur pour ta prochaine session.",
       "primaryLabel": "COMMENCER À EXPLORER",
-      "secondaryLabel": "PRÉVENEZ-MOI"
+      "secondaryLabel": "RECEVOIR LES ACTUS"
     },
     "newsletter": {
-      "title": "SOIS LE PREMIER À SPAWN",
-      "description": "Rejoins des milliers de joueurs qui attendent le lancement. Les premiers inscrits obtiennent un accès exclusif et des avantages fondateurs.",
+      "title": "REÇOIS LES ACTUS DU LANCEMENT",
+      "description": "Suis la bêta pendant que discovery, réputation et outils owner arrivent en ligne.",
       "submitLabel": "PRÉVENEZ-MOI",
       "subscriptionVerified": "ABONNEMENT VÉRIFIÉ",
       "checkInbox": "VÉRIFIE TA BOÎTE MAIL",

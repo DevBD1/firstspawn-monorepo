@@ -2,9 +2,13 @@ import type {
   LandingContentModel,
   LandingDiscoveryChatDemoModel,
   LandingFeatureItem,
+  LandingProgressionItem,
   LandingProofServer,
+  LandingQuestItem,
   LandingRealtimeStats,
+  LandingRoadmapItem,
   LandingStepItem,
+  LandingTrustItem,
 } from "@/features/landing/types";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 
@@ -14,6 +18,10 @@ export const CARD_SURFACE_CLASS =
   "relative h-full overflow-hidden border-4 border-black bg-bg-panel/72 p-5 shadow-[6px_6px_0_0_rgba(0,0,0,1)] backdrop-blur-[2px]";
 
 const FEATURE_ICONS = ["⚡", "✓", "◆", "★"] as const;
+const QUEST_ICONS: LandingQuestItem["icon"][] = ["search", "shield", "trophy"];
+const QUEST_TONES: LandingQuestItem["tone"][] = ["diamond", "success", "gold"];
+const TRUST_ICONS: LandingTrustItem["icon"][] = ["signal", "ban", "radar"];
+const PROGRESSION_ICONS: LandingProgressionItem["icon"][] = ["badge", "star", "gift"];
 
 export const MOCK_SERVERS: LandingProofServer[] = [
   {
@@ -131,6 +139,41 @@ const buildSteps = (landing: LandingContentModel["landing"]): LandingStepItem[] 
     title: item.title,
   }));
 
+const buildQuests = (landing: LandingContentModel["landing"]): LandingQuestItem[] =>
+  landing.questBoard.quests.map((item, index) => ({
+    description: item.description,
+    icon: QUEST_ICONS[index] ?? QUEST_ICONS[0],
+    rewardLabel: item.rewardLabel,
+    rewardValue: item.rewardValue,
+    statusLabel: item.statusLabel,
+    statusValue: item.statusValue,
+    title: item.title,
+    tone: QUEST_TONES[index] ?? QUEST_TONES[0],
+  }));
+
+const buildRoadmapItems = (landing: LandingContentModel["landing"]): LandingRoadmapItem[] =>
+  landing.roadmap.items.map((item) => ({
+    description: item.description,
+    statusLabel: item.statusLabel,
+    title: item.title,
+  }));
+
+const buildTrustItems = (landing: LandingContentModel["landing"]): LandingTrustItem[] =>
+  landing.trust.items.map((item, index) => ({
+    description: item.description,
+    icon: TRUST_ICONS[index] ?? TRUST_ICONS[0],
+    statusLabel: item.statusLabel,
+    title: item.title,
+  }));
+
+const buildProgressionItems = (landing: LandingContentModel["landing"]): LandingProgressionItem[] =>
+  landing.progression.items.map((item, index) => ({
+    description: item.description,
+    icon: PROGRESSION_ICONS[index] ?? PROGRESSION_ICONS[0],
+    stateLabel: item.stateLabel,
+    title: item.title,
+  }));
+
 // Normalizes dictionary-backed discovery chat copy into the landing view-model expected by the demo widget.
 const buildDiscoveryChatDemo = (
   landing: LandingContentModel["landing"]
@@ -196,7 +239,11 @@ export const getLandingContent = (
     heroStatus: `${landing.hero.statusLabel} ${landing.hero.statusValue}`,
     heroTitle,
     landing,
+    progressionItems: buildProgressionItems(landing),
     proofTitle: landing.proof.title,
+    quests: buildQuests(landing),
+    roadmapItems: buildRoadmapItems(landing),
     steps: buildSteps(landing),
+    trustItems: buildTrustItems(landing),
   };
 };

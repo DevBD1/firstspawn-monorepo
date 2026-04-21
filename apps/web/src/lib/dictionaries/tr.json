@@ -225,6 +225,119 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
+    "questBoard": {
+      "eyebrow": "GÖREV PANOSU",
+      "title": "SONRAKI SUNUCU GÖREVİNİ SEÇ",
+      "subtitle": "Canlı Minecraft keşfi, kontrol edilen uptime ve üst sırayı satmayan adil bir sıralama döngüsüyle başla.",
+      "statusLabel": "SİSTEM",
+      "statusValue": "ONLINE",
+      "betaLabel": "BETA ERİŞİMİ",
+      "primaryLabel": "KEŞFE BAŞLA",
+      "secondaryLabel": "LANSAMAN GÜNCELLEMELERİ",
+      "quests": [
+        {
+          "title": "BİR DÜNYA BUL",
+          "description": "Aktif sunucu listelerini oyuncu sayısı, ping, bölge ve oyun moduna göre ücretli vitrin gürültüsü olmadan ara.",
+          "rewardLabel": "ÖDÜL",
+          "rewardValue": "DAHA HIZLI EŞLEŞME",
+          "statusLabel": "CANLI",
+          "statusValue": "ŞİMDİ"
+        },
+        {
+          "title": "SİNYALİ DOĞRULA",
+          "description": "Katılmadan önce ölü listelerden kaçınmak için tazelik ve uptime kontrollerini kullan.",
+          "rewardLabel": "ÖDÜL",
+          "rewardValue": "DAHA AZ KAYIP",
+          "statusLabel": "CANLI",
+          "statusValue": "ŞİMDİ"
+        },
+        {
+          "title": "İTİBAR KAZAN",
+          "description": "Yorumlar, favoriler, rozetler ve loot döngüleri bir sonraki güven katmanı olarak şekilleniyor.",
+          "rewardLabel": "ÖDÜL",
+          "rewardValue": "SIRADAKİ",
+          "statusLabel": "SONRA",
+          "statusValue": "FAZ"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "ŞİMDİ VAR / YAKINDA",
+      "title": "OYUNCULARIN KULLANABİLECEĞİ ŞEYLER",
+      "items": [
+        {
+          "title": "SUNUCU KEŞFİ",
+          "statusLabel": "ŞİMDİ VAR",
+          "description": "Public Minecraft sunucu listelerini gez ve tam keşif görünümünü aç."
+        },
+        {
+          "title": "UPTIME KONTROLLERİ",
+          "statusLabel": "ŞİMDİ VAR",
+          "description": "Ölü veya bayat sunucu listelerinden kaçınmak için canlı tazelik sinyallerini kullan."
+        },
+        {
+          "title": "OYUNCU İTİBARI",
+          "statusLabel": "YAKINDA",
+          "description": "Kazanılmış yorumlar, favoriler, rozetler ve güven sinyalleri sıradaki oyuncu döngüsü."
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "ADİL KEŞİF",
+      "title": "HARCAMAYA DEĞİL SİNYALE GÖRE",
+      "subtitle": "Sayfa oyun gibi hissettirmeli, ama sıralama kuralları ciddi kalmalı.",
+      "items": [
+        {
+          "title": "CANLI TAZELİK",
+          "description": "Sunucu durumu son heartbeat aktivitesinden türetilir, böylece offline dünyalar aktifmiş gibi görünmez.",
+          "statusLabel": "AKTİF"
+        },
+        {
+          "title": "ÜST SIRA SATIŞI YOK",
+          "description": "FirstSpawn en görünür listeyi satın almaya değil, alaka ve güven döngülerine göre kurulur.",
+          "statusLabel": "POLİTİKA"
+        },
+        {
+          "title": "OYUNCU ÖNCELİKLİ FİLTRELER",
+          "description": "Keşif oyuncuların gerçekten ihtiyaç duyduğu şeylerle başlar: aktif topluluklar, gecikme, sürüm ve sunucu uyumu.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "CANLI KATALOG",
+      "title": "SAHTE HYPE OLMADAN SUNUCU KANITI",
+      "subtitle": "Katalog verisi varsa pano gerçek listeleri gösterir. Yoksa bunu açıkça söyler.",
+      "emptyTitle": "KATALOG SİNYALLERİ ISINIYOR",
+      "emptyDescription": "API şu anda public sunucu döndürmüyor. Keşif hâlâ ana yoldur ve hedefler online oldukça bu panel canlı katalog verisiyle dolacaktır.",
+      "liveLabel": "CANLI VERİ",
+      "rankedByLabel": "SIRALAMA",
+      "playerHelperSuffix": "MAKS OYUNCU",
+      "viewAllLabel": "DISCOVER AÇ",
+      "verifiedLabel": "KATALOG KONTROLLÜ"
+    },
+    "progression": {
+      "eyebrow": "SONRAKİ GÜVEN DÖNGÜSÜ",
+      "title": "GÜVEN KAZANDIRAN İLERLEME",
+      "subtitle": "Gamification kozmetik gürültü değil, faydalı aktivitenin kanıtı olarak planlanıyor.",
+      "items": [
+        {
+          "title": "DOĞRULANMIŞ ROZETLER",
+          "description": "Gelecek rozetler gerçek uptime, sahip doğrulaması ve topluluk davranışını işaretlemeli.",
+          "stateLabel": "SIRADAKİ"
+        },
+        {
+          "title": "İTİBAR MERDİVENİ",
+          "description": "Yorum ve aktivite kapıları hazır olduğunda oyuncu aksiyonları kazanılmış güven sinyallerine dönüşebilir.",
+          "stateLabel": "PLANLI"
+        },
+        {
+          "title": "LOOT DÖNGÜSÜ",
+          "description": "Ödüller sıralama adaletini bozmadan oyuncuları daha iyi topluluklar keşfetmeye geri getirmeli.",
+          "stateLabel": "PLANLI"
+        }
+      ]
+    },
     "hero": {
       "statusLabel": "DURUM",
       "statusValue": "AKTIF",
@@ -305,14 +418,14 @@
       "title": "POPÜLER SUNUCU"
     },
     "finalCta": {
-      "title": "SPAWN'A HAZIR MISIN?",
-      "subtitle": "Kalıcı sunucusunu arayan binlerce oyuncuya katıl.",
+      "title": "GÖREV ALMAYA HAZIR MISIN?",
+      "subtitle": "Discover’ı aç, canlı sinyalleri karşılaştır ve sonraki oturumuna değecek bir sunucu bul.",
       "primaryLabel": "KEŞFE BAŞLA",
-      "secondaryLabel": "HABER VER"
+      "secondaryLabel": "GÜNCELLEME AL"
     },
     "newsletter": {
-      "title": "İLK SPAWN OLAN SEN OL",
-      "description": "Lansmanı bekleyen binlerce oyuncuya katıl. Erken kaydolanlar özel erişim ve kurucu ayrıcalıkları kazanır.",
+      "title": "LANSAMAN GÜNCELLEMELERİ AL",
+      "description": "Keşif, itibar ve sunucu sahibi araçları yayına girerken betayı takip et.",
       "submitLabel": "HABER VER",
       "subscriptionVerified": "ABONELİK DOĞRULANDI",
       "checkInbox": "E-POSTANI KONTROL ET",

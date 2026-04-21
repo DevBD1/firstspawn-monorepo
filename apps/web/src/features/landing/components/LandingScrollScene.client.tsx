@@ -224,7 +224,11 @@ export default function LandingScrollScene({ dictionary }: LandingScrollScenePro
           />
         </div>
       </div>
-      <ScrollCue progress={scrollYProgress} reduceMotion={Boolean(reduceMotion)} />
+      <ScrollCue
+        className="hidden md:flex"
+        progress={scrollYProgress}
+        reduceMotion={Boolean(reduceMotion)}
+      />
     </>
   );
 }

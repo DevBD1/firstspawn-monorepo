@@ -225,6 +225,119 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
+    "questBoard": {
+      "eyebrow": "QUEST BOARD",
+      "title": "PICK YOUR NEXT SERVER QUEST",
+      "subtitle": "Start with live Minecraft discovery, checked uptime, and a fair ranking loop that does not sell the top slot.",
+      "statusLabel": "SYSTEM",
+      "statusValue": "ONLINE",
+      "betaLabel": "BETA ACCESS",
+      "primaryLabel": "START EXPLORING",
+      "secondaryLabel": "GET LAUNCH UPDATES",
+      "quests": [
+        {
+          "title": "FIND A WORLD",
+          "description": "Search active server listings by player count, ping, region, and game mode without paid placement noise.",
+          "rewardLabel": "REWARD",
+          "rewardValue": "FASTER MATCH",
+          "statusLabel": "LIVE",
+          "statusValue": "NOW"
+        },
+        {
+          "title": "VERIFY THE SIGNAL",
+          "description": "Use freshness and uptime checks to avoid dead listings before you spend time joining.",
+          "rewardLabel": "REWARD",
+          "rewardValue": "LESS WASTE",
+          "statusLabel": "LIVE",
+          "statusValue": "NOW"
+        },
+        {
+          "title": "BUILD REPUTATION",
+          "description": "Reviews, favorites, badges, and loot loops are being shaped as the next trust layer.",
+          "rewardLabel": "REWARD",
+          "rewardValue": "COMING NEXT",
+          "statusLabel": "NEXT",
+          "statusValue": "PHASE"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "AVAILABLE NOW / SOON",
+      "title": "WHAT PLAYERS CAN USE",
+      "items": [
+        {
+          "title": "SERVER DISCOVERY",
+          "statusLabel": "AVAILABLE NOW",
+          "description": "Browse public Minecraft server listings and open the full discovery view."
+        },
+        {
+          "title": "UPTIME CHECKS",
+          "statusLabel": "AVAILABLE NOW",
+          "description": "Use live freshness signals to avoid dead or stale server listings."
+        },
+        {
+          "title": "PLAYER REPUTATION",
+          "statusLabel": "COMING SOON",
+          "description": "Earned reviews, favorites, badges, and trust signals are the next player loop."
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "FAIR DISCOVERY",
+      "title": "RANKED BY SIGNAL, NOT SPEND",
+      "subtitle": "The page should feel like a game, but the ranking rules stay serious.",
+      "items": [
+        {
+          "title": "LIVE FRESHNESS",
+          "description": "Server status is derived from recent heartbeat activity, so offline worlds do not pretend to be active.",
+          "statusLabel": "ACTIVE"
+        },
+        {
+          "title": "NO TOP-SLOT SALES",
+          "description": "FirstSpawn is built around relevance and trust loops instead of buying the most visible listing.",
+          "statusLabel": "POLICY"
+        },
+        {
+          "title": "PLAYER-FIRST FILTERS",
+          "description": "Discovery starts with what players actually need: active communities, latency, version, and server fit.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "LIVE CATALOG",
+      "title": "SERVER PROOF WITHOUT FAKE HYPE",
+      "subtitle": "When catalog data is available, the board shows real listings. When it is not, it says so clearly.",
+      "emptyTitle": "CATALOG SIGNALS ARE WARMING UP",
+      "emptyDescription": "No public servers are available from the API right now. Discovery is still the primary path, and this panel will populate from live catalog data as targets come online.",
+      "liveLabel": "LIVE DATA",
+      "rankedByLabel": "RANKED BY",
+      "playerHelperSuffix": "MAX PLAYERS",
+      "viewAllLabel": "VIEW DISCOVER",
+      "verifiedLabel": "CATALOG CHECKED"
+    },
+    "progression": {
+      "eyebrow": "NEXT TRUST LOOP",
+      "title": "PROGRESSION THAT EARNS TRUST",
+      "subtitle": "Gamification is planned as proof of useful activity, not cosmetic noise.",
+      "items": [
+        {
+          "title": "VERIFIED BADGES",
+          "description": "Future badges should mark real uptime, owner verification, and community behavior.",
+          "stateLabel": "COMING NEXT"
+        },
+        {
+          "title": "REPUTATION LADDER",
+          "description": "Player actions can become earned trust signals once review and activity gates are ready.",
+          "stateLabel": "PLANNED"
+        },
+        {
+          "title": "LOOT LOOP",
+          "description": "Rewards should bring players back to discover better communities without distorting ranking fairness.",
+          "stateLabel": "PLANNED"
+        }
+      ]
+    },
     "hero": {
       "statusLabel": "STATUS",
       "statusValue": "ACTIVE",
@@ -305,14 +418,14 @@
       "title": "POPULAR SERVERS"
     },
     "finalCta": {
-      "title": "READY TO SPAWN?",
-      "subtitle": "Join thousands of players finding their forever servers.",
+      "title": "READY TO TAKE A QUEST?",
+      "subtitle": "Open Discover, compare live signals, and find a server worth your next session.",
       "primaryLabel": "START EXPLORING",
-      "secondaryLabel": "NOTIFY ME"
+      "secondaryLabel": "GET UPDATES"
     },
     "newsletter": {
-      "title": "BE FIRST TO SPAWN",
-      "description": "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!",
+      "title": "GET LAUNCH UPDATES",
+      "description": "Follow the beta as discovery, reputation, and server-owner tools come online.",
       "submitLabel": "NOTIFY ME",
       "subscriptionVerified": "SUBSCRIPTION VERIFIED",
       "checkInbox": "CHECK YOUR INBOX",

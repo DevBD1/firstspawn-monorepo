@@ -195,6 +195,119 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
+    "questBoard": {
+      "eyebrow": "QUEST BOARD",
+      "title": "WÄHLE DEINE NÄCHSTE SERVER-QUEST",
+      "subtitle": "Starte mit Live-Minecraft-Discovery, geprüfter Uptime und fairer Sortierung, die keinen Top-Slot verkauft.",
+      "statusLabel": "SYSTEM",
+      "statusValue": "ONLINE",
+      "betaLabel": "BETA-ZUGANG",
+      "primaryLabel": "JETZT ENTDECKEN",
+      "secondaryLabel": "LAUNCH-UPDATES",
+      "quests": [
+        {
+          "title": "WELT FINDEN",
+          "description": "Suche aktive Server nach Spielern, Ping, Region und Modus ohne bezahlten Platzierungs-Lärm.",
+          "rewardLabel": "BELOHNUNG",
+          "rewardValue": "SCHNELLER MATCH",
+          "statusLabel": "LIVE",
+          "statusValue": "JETZT"
+        },
+        {
+          "title": "SIGNAL PRÜFEN",
+          "description": "Nutze Freshness- und Uptime-Prüfungen, um tote Listings vor dem Beitritt zu vermeiden.",
+          "rewardLabel": "BELOHNUNG",
+          "rewardValue": "WENIGER VERLUST",
+          "statusLabel": "LIVE",
+          "statusValue": "JETZT"
+        },
+        {
+          "title": "REPUTATION AUFBAUEN",
+          "description": "Reviews, Favoriten, Badges und Loot-Loops werden als nächste Trust-Schicht vorbereitet.",
+          "rewardLabel": "BELOHNUNG",
+          "rewardValue": "KOMMT ALS NÄCHSTES",
+          "statusLabel": "NÄCHSTE",
+          "statusValue": "PHASE"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "JETZT VERFÜGBAR / BALD",
+      "title": "WAS SPIELER NUTZEN KÖNNEN",
+      "items": [
+        {
+          "title": "SERVER-DISCOVERY",
+          "statusLabel": "JETZT VERFÜGBAR",
+          "description": "Durchsuche öffentliche Minecraft-Server-Listings und öffne die vollständige Discovery-Ansicht."
+        },
+        {
+          "title": "UPTIME-CHECKS",
+          "statusLabel": "JETZT VERFÜGBAR",
+          "description": "Nutze Live-Freshness-Signale, um tote oder veraltete Listings zu vermeiden."
+        },
+        {
+          "title": "SPIELER-REPUTATION",
+          "statusLabel": "KOMMT BALD",
+          "description": "Verdiente Reviews, Favoriten, Badges und Trust-Signale bilden den nächsten Spieler-Loop."
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "FAIRE DISCOVERY",
+      "title": "NACH SIGNAL SORTIERT, NICHT NACH BUDGET",
+      "subtitle": "Die Seite darf spielerisch wirken, aber die Ranking-Regeln bleiben ernst.",
+      "items": [
+        {
+          "title": "LIVE-FRESHNESS",
+          "description": "Der Serverstatus kommt aus aktueller Heartbeat-Aktivität, damit Offline-Welten nicht aktiv wirken.",
+          "statusLabel": "AKTIV"
+        },
+        {
+          "title": "KEIN TOP-SLOT-VERKAUF",
+          "description": "FirstSpawn setzt auf Relevanz und Trust-Loops statt auf gekaufte Sichtbarkeit.",
+          "statusLabel": "RICHTLINIE"
+        },
+        {
+          "title": "PLAYER-FIRST-FILTER",
+          "description": "Discovery startet mit dem, was Spieler brauchen: aktive Communities, Latenz, Version und Server-Fit.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "LIVE-KATALOG",
+      "title": "SERVER-PROOF OHNE FAKE-HYPE",
+      "subtitle": "Wenn Katalogdaten verfügbar sind, zeigt das Board echte Listings. Wenn nicht, sagt es das klar.",
+      "emptyTitle": "KATALOGSIGNALE WERDEN VORBEREITET",
+      "emptyDescription": "Die API liefert gerade keine öffentlichen Server. Discovery bleibt der Hauptpfad, und dieses Panel füllt sich mit Live-Katalogdaten, sobald Ziele online sind.",
+      "liveLabel": "LIVE-DATEN",
+      "rankedByLabel": "SORTIERT NACH",
+      "playerHelperSuffix": "MAX. SPIELER",
+      "viewAllLabel": "DISCOVER ÖFFNEN",
+      "verifiedLabel": "KATALOG GEPRÜFT"
+    },
+    "progression": {
+      "eyebrow": "NÄCHSTER TRUST-LOOP",
+      "title": "FORTSCHRITT, DER VERTRAUEN VERDIENT",
+      "subtitle": "Gamification ist als Beweis nützlicher Aktivität geplant, nicht als kosmetischer Lärm.",
+      "items": [
+        {
+          "title": "VERIFIZIERTE BADGES",
+          "description": "Künftige Badges sollen echte Uptime, Owner-Verifizierung und Community-Verhalten markieren.",
+          "stateLabel": "KOMMT ALS NÄCHSTES"
+        },
+        {
+          "title": "REPUTATIONSLEITER",
+          "description": "Spieleraktionen können zu verdienten Trust-Signalen werden, sobald Review- und Aktivitätsgates bereit sind.",
+          "stateLabel": "GEPLANT"
+        },
+        {
+          "title": "LOOT-LOOP",
+          "description": "Belohnungen sollen Spieler zurückbringen, ohne faire Rankings zu verzerren.",
+          "stateLabel": "GEPLANT"
+        }
+      ]
+    },
     "hero": {
       "statusLabel": "STATUS",
       "statusValue": "AKTIV",
@@ -275,14 +388,14 @@
       "title": "BELIEBT SERVER"
     },
     "finalCta": {
-      "title": "BEREIT ZU SPAWNEN?",
-      "subtitle": "Schließe dich Tausenden Spielern an, die ihren nächsten Heimatserver suchen.",
+      "title": "BEREIT FÜR EINE QUEST?",
+      "subtitle": "Öffne Discover, vergleiche Live-Signale und finde einen Server für deine nächste Session.",
       "primaryLabel": "JETZT ENTDECKEN",
-      "secondaryLabel": "BENACHRICHTIGE MICH"
+      "secondaryLabel": "UPDATES ERHALTEN"
     },
     "newsletter": {
-      "title": "SEI ALS ERSTER DABEI",
-      "description": "Schließe dich Tausenden Spielern an, die auf den Launch warten. Frühe Abonnenten erhalten exklusiven Zugang und Gründer-Vorteile.",
+      "title": "LAUNCH-UPDATES ERHALTEN",
+      "description": "Verfolge die Beta, während Discovery, Reputation und Server-Owner-Tools online gehen.",
       "submitLabel": "BENACHRICHTIGE MICH",
       "subscriptionVerified": "ABO BESTÄTIGT",
       "checkInbox": "POSTEINGANG PRÜFEN",

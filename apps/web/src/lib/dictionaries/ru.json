@@ -195,6 +195,119 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
+    "questBoard": {
+      "eyebrow": "ДОСКА КВЕСТОВ",
+      "title": "ВЫБЕРИ СЛЕДУЮЩИЙ СЕРВЕРНЫЙ КВЕСТ",
+      "subtitle": "Начни с живого Minecraft discovery, проверенного uptime и честной сортировки без продажи верхнего места.",
+      "statusLabel": "СИСТЕМА",
+      "statusValue": "ОНЛАЙН",
+      "betaLabel": "БЕТА-ДОСТУП",
+      "primaryLabel": "НАЧАТЬ ПОИСК",
+      "secondaryLabel": "ПОЛУЧАТЬ НОВОСТИ",
+      "quests": [
+        {
+          "title": "НАЙДИ МИР",
+          "description": "Ищи активные серверы по игрокам, ping, региону и режиму без шума платного продвижения.",
+          "rewardLabel": "НАГРАДА",
+          "rewardValue": "БЫСТРЕЕ СОВПАДЕНИЕ",
+          "statusLabel": "LIVE",
+          "statusValue": "СЕЙЧАС"
+        },
+        {
+          "title": "ПРОВЕРЬ СИГНАЛ",
+          "description": "Используй свежесть и uptime, чтобы не тратить время на мертвые listings перед подключением.",
+          "rewardLabel": "НАГРАДА",
+          "rewardValue": "МЕНЬШЕ ПОТЕРЬ",
+          "statusLabel": "LIVE",
+          "statusValue": "СЕЙЧАС"
+        },
+        {
+          "title": "СТРОЙ РЕПУТАЦИЮ",
+          "description": "Отзывы, избранное, badges и loot loops формируются как следующий слой доверия.",
+          "rewardLabel": "НАГРАДА",
+          "rewardValue": "СКОРО",
+          "statusLabel": "СЛЕД.",
+          "statusValue": "ФАЗА"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "ДОСТУПНО / СКОРО",
+      "title": "ЧТО ИГРОКИ МОГУТ ИСПОЛЬЗОВАТЬ",
+      "items": [
+        {
+          "title": "ПОИСК СЕРВЕРОВ",
+          "statusLabel": "ДОСТУПНО",
+          "description": "Просматривай публичные Minecraft-серверы и открывай полный discovery-раздел."
+        },
+        {
+          "title": "UPTIME-ПРОВЕРКИ",
+          "statusLabel": "ДОСТУПНО",
+          "description": "Используй live-сигналы свежести, чтобы избегать мертвых или устаревших listings."
+        },
+        {
+          "title": "РЕПУТАЦИЯ ИГРОКА",
+          "statusLabel": "СКОРО",
+          "description": "Заработанные отзывы, избранное, badges и trust-сигналы станут следующим player loop."
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "ЧЕСТНЫЙ DISCOVERY",
+      "title": "РАНЖИРОВАНИЕ ПО СИГНАЛУ, НЕ ПО БЮДЖЕТУ",
+      "subtitle": "Страница может ощущаться как игра, но правила ранжирования остаются серьезными.",
+      "items": [
+        {
+          "title": "ЖИВАЯ СВЕЖЕСТЬ",
+          "description": "Статус сервера выводится из недавней heartbeat-активности, поэтому offline-миры не выглядят активными.",
+          "statusLabel": "АКТИВНО"
+        },
+        {
+          "title": "НЕТ ПРОДАЖИ ТОП-СЛОТА",
+          "description": "FirstSpawn строится на релевантности и доверии, а не на покупке самого заметного listing.",
+          "statusLabel": "ПРАВИЛО"
+        },
+        {
+          "title": "ФИЛЬТРЫ ДЛЯ ИГРОКОВ",
+          "description": "Discovery начинается с того, что нужно игрокам: активные сообщества, latency, версия и fit сервера.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "LIVE-КАТАЛОГ",
+      "title": "ДОКАЗАТЕЛЬСТВА СЕРВЕРОВ БЕЗ ФАЛЬШИВОГО HYPE",
+      "subtitle": "Когда данные каталога доступны, доска показывает реальные listings. Когда нет, она говорит об этом прямо.",
+      "emptyTitle": "СИГНАЛЫ КАТАЛОГА ПРОГРЕВАЮТСЯ",
+      "emptyDescription": "API сейчас не возвращает публичные серверы. Discovery остается основным путем, и эта панель заполнится live-данными каталога, когда targets будут online.",
+      "liveLabel": "LIVE-ДАННЫЕ",
+      "rankedByLabel": "РАНЖИРОВАНО ПО",
+      "playerHelperSuffix": "МАКС. ИГРОКОВ",
+      "viewAllLabel": "ОТКРЫТЬ DISCOVER",
+      "verifiedLabel": "КАТАЛОГ ПРОВЕРЕН"
+    },
+    "progression": {
+      "eyebrow": "СЛЕДУЮЩИЙ ЦИКЛ ДОВЕРИЯ",
+      "title": "ПРОГРЕССИЯ, КОТОРАЯ ЗАРАБАТЫВАЕТ ДОВЕРИЕ",
+      "subtitle": "Геймификация планируется как доказательство полезной активности, а не косметический шум.",
+      "items": [
+        {
+          "title": "ПРОВЕРЕННЫЕ BADGES",
+          "description": "Будущие badges должны отмечать реальный uptime, owner verification и поведение сообщества.",
+          "stateLabel": "СКОРО"
+        },
+        {
+          "title": "ЛЕСТНИЦА РЕПУТАЦИИ",
+          "description": "Действия игроков смогут стать earned trust signals, когда будут готовы review и activity gates.",
+          "stateLabel": "ПЛАН"
+        },
+        {
+          "title": "LOOT LOOP",
+          "description": "Награды должны возвращать игроков к лучшим сообществам без искажения честного ранжирования.",
+          "stateLabel": "ПЛАН"
+        }
+      ]
+    },
     "hero": {
       "statusLabel": "СТАТУС",
       "statusValue": "АКТИВНО",
@@ -275,14 +388,14 @@
       "title": "ПОПУЛЯРНОЕ СЕРВЕРЫ"
     },
     "finalCta": {
-      "title": "ГОТОВ К СПАВНУ?",
-      "subtitle": "Присоединяйся к тысячам игроков, которые ищут свой постоянный сервер.",
+      "title": "ГОТОВ ВЗЯТЬ КВЕСТ?",
+      "subtitle": "Открой Discover, сравни live-сигналы и найди сервер для следующей сессии.",
       "primaryLabel": "НАЧАТЬ ПОИСК",
-      "secondaryLabel": "УВЕДОМИТЬ МЕНЯ"
+      "secondaryLabel": "ПОЛУЧАТЬ НОВОСТИ"
     },
     "newsletter": {
-      "title": "БУДЬ ПЕРВЫМ НА СПАВНЕ",
-      "description": "Присоединяйся к тысячам игроков, которые ждут запуск. Ранние подписчики получат ранний доступ и бонусы основателя.",
+      "title": "ПОЛУЧАТЬ НОВОСТИ О ЗАПУСКЕ",
+      "description": "Следи за бетой, пока discovery, репутация и инструменты владельцев серверов выходят онлайн.",
       "submitLabel": "УВЕДОМИТЬ МЕНЯ",
       "subscriptionVerified": "ПОДПИСКА ПОДТВЕРЖДЕНА",
       "checkInbox": "ПРОВЕРЬ ПОЧТУ",

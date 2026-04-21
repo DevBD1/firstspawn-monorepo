@@ -51,6 +51,8 @@ export default function NewsletterSignup({
           onSubmit={onSubmit}
         >
           <input
+            id="landing-newsletter-email"
+            name="email"
             type="email"
             placeholder={dictionary.common.placeholders.email}
             value={email}

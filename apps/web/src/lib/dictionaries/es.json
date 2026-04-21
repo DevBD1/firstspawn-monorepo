@@ -195,6 +195,119 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
+    "questBoard": {
+      "eyebrow": "TABLERO DE MISIONES",
+      "title": "ELIGE TU PRÓXIMA MISIÓN DE SERVIDOR",
+      "subtitle": "Empieza con discovery de Minecraft en vivo, uptime verificado y una clasificación justa que no vende el primer puesto.",
+      "statusLabel": "SISTEMA",
+      "statusValue": "ONLINE",
+      "betaLabel": "ACCESO BETA",
+      "primaryLabel": "EMPEZAR A DESCUBRIR",
+      "secondaryLabel": "RECIBIR NOVEDADES",
+      "quests": [
+        {
+          "title": "ENCUENTRA UN MUNDO",
+          "description": "Busca servidores activos por jugadores, ping, región y modo sin ruido de posicionamiento pagado.",
+          "rewardLabel": "RECOMPENSA",
+          "rewardValue": "MATCH MÁS RÁPIDO",
+          "statusLabel": "EN VIVO",
+          "statusValue": "AHORA"
+        },
+        {
+          "title": "VERIFICA LA SEÑAL",
+          "description": "Usa checks de frescura y uptime para evitar listados muertos antes de entrar.",
+          "rewardLabel": "RECOMPENSA",
+          "rewardValue": "MENOS PÉRDIDA",
+          "statusLabel": "EN VIVO",
+          "statusValue": "AHORA"
+        },
+        {
+          "title": "CONSTRUYE REPUTACIÓN",
+          "description": "Reseñas, favoritos, insignias y loot loops se preparan como la próxima capa de confianza.",
+          "rewardLabel": "RECOMPENSA",
+          "rewardValue": "PRÓXIMAMENTE",
+          "statusLabel": "SIGUIENTE",
+          "statusValue": "FASE"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "DISPONIBLE / PRÓXIMAMENTE",
+      "title": "LO QUE LOS JUGADORES PUEDEN USAR",
+      "items": [
+        {
+          "title": "DISCOVERY DE SERVIDORES",
+          "statusLabel": "DISPONIBLE AHORA",
+          "description": "Explora listados públicos de servidores Minecraft y abre la vista completa de discovery."
+        },
+        {
+          "title": "CHECKS DE UPTIME",
+          "statusLabel": "DISPONIBLE AHORA",
+          "description": "Usa señales de frescura en vivo para evitar servidores muertos o desactualizados."
+        },
+        {
+          "title": "REPUTACIÓN DE JUGADOR",
+          "statusLabel": "PRÓXIMAMENTE",
+          "description": "Reseñas ganadas, favoritos, insignias y señales de confianza serán el próximo loop."
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "DISCOVERY JUSTO",
+      "title": "ORDENADO POR SEÑAL, NO POR GASTO",
+      "subtitle": "La página puede sentirse como un juego, pero las reglas de ranking siguen siendo serias.",
+      "items": [
+        {
+          "title": "FRESCURA EN VIVO",
+          "description": "El estado del servidor se deriva de actividad reciente de heartbeat, para que mundos offline no parezcan activos.",
+          "statusLabel": "ACTIVO"
+        },
+        {
+          "title": "SIN VENTA DE PRIMER PUESTO",
+          "description": "FirstSpawn se basa en relevancia y confianza, no en comprar el listado más visible.",
+          "statusLabel": "POLÍTICA"
+        },
+        {
+          "title": "FILTROS PARA JUGADORES",
+          "description": "Discovery empieza con lo que importa: comunidades activas, latencia, versión y encaje del servidor.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "CATÁLOGO EN VIVO",
+      "title": "PRUEBA DE SERVIDOR SIN HYPE FALSO",
+      "subtitle": "Cuando hay datos de catálogo, el tablero muestra listados reales. Cuando no, lo dice claro.",
+      "emptyTitle": "LAS SEÑALES DEL CATÁLOGO SE ESTÁN PREPARANDO",
+      "emptyDescription": "La API no devuelve servidores públicos ahora mismo. Discovery sigue siendo la ruta principal, y este panel se llenará con datos de catálogo en vivo cuando los objetivos estén online.",
+      "liveLabel": "DATOS EN VIVO",
+      "rankedByLabel": "ORDENADO POR",
+      "playerHelperSuffix": "JUGADORES MÁX.",
+      "viewAllLabel": "VER DISCOVER",
+      "verifiedLabel": "CATÁLOGO CHECKEADO"
+    },
+    "progression": {
+      "eyebrow": "SIGUIENTE BUCLE DE CONFIANZA",
+      "title": "PROGRESIÓN QUE GANA CONFIANZA",
+      "subtitle": "La gamificación se planea como prueba de actividad útil, no como ruido cosmético.",
+      "items": [
+        {
+          "title": "INSIGNIAS VERIFICADAS",
+          "description": "Las futuras insignias deberían marcar uptime real, verificación de dueño y comportamiento de comunidad.",
+          "stateLabel": "PRÓXIMAMENTE"
+        },
+        {
+          "title": "ESCALERA DE REPUTACIÓN",
+          "description": "Las acciones de jugadores pueden convertirse en señales de confianza cuando estén listas las gates de reseñas y actividad.",
+          "stateLabel": "PLANEADO"
+        },
+        {
+          "title": "LOOT LOOP",
+          "description": "Las recompensas deberían traer de vuelta a jugadores sin distorsionar la justicia del ranking.",
+          "stateLabel": "PLANEADO"
+        }
+      ]
+    },
     "hero": {
       "statusLabel": "ESTADO",
       "statusValue": "ACTIVO",
@@ -275,14 +388,14 @@
       "title": "POPULAR SERVIDORES"
     },
     "finalCta": {
-      "title": "¿LISTO PARA SPAWNEAR?",
-      "subtitle": "Únete a miles de jugadores que buscan su servidor ideal.",
+      "title": "¿LISTO PARA TOMAR UNA MISIÓN?",
+      "subtitle": "Abre Discover, compara señales en vivo y encuentra un servidor para tu próxima sesión.",
       "primaryLabel": "EMPEZAR A DESCUBRIR",
-      "secondaryLabel": "AVÍSAME"
+      "secondaryLabel": "RECIBIR NOVEDADES"
     },
     "newsletter": {
-      "title": "SÉ EL PRIMERO EN SPAWNEAR",
-      "description": "Únete a miles de jugadores esperando el lanzamiento. Los suscriptores tempranos obtienen acceso exclusivo y ventajas de fundador.",
+      "title": "RECIBE NOVEDADES DEL LANZAMIENTO",
+      "description": "Sigue la beta mientras discovery, reputación y herramientas para owners se activan.",
       "submitLabel": "AVÍSAME",
       "subscriptionVerified": "SUSCRIPCIÓN VERIFICADA",
       "checkInbox": "REVISA TU BANDEJA",

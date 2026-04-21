@@ -18,6 +18,37 @@ export interface LandingHeroMetric {
   value: number;
 }
 
+export interface LandingQuestItem {
+  description: string;
+  icon: "search" | "shield" | "trophy";
+  rewardLabel: string;
+  rewardValue: string;
+  statusLabel: string;
+  statusValue: string;
+  title: string;
+  tone: "diamond" | "success" | "gold";
+}
+
+export interface LandingRoadmapItem {
+  description: string;
+  statusLabel: string;
+  title: string;
+}
+
+export interface LandingTrustItem {
+  description: string;
+  icon: "signal" | "ban" | "radar";
+  statusLabel: string;
+  title: string;
+}
+
+export interface LandingProgressionItem {
+  description: string;
+  icon: "badge" | "star" | "gift";
+  stateLabel: string;
+  title: string;
+}
+
 export interface LandingFeatureItem {
   description: string;
   icon: string;
@@ -87,6 +118,10 @@ export interface LandingContentModel {
   heroStatus: string;
   heroTitle: string[];
   landing: AppDictionary["landing"];
+  progressionItems: LandingProgressionItem[];
   proofTitle: string;
+  quests: LandingQuestItem[];
+  roadmapItems: LandingRoadmapItem[];
   steps: LandingStepItem[];
+  trustItems: LandingTrustItem[];
 }

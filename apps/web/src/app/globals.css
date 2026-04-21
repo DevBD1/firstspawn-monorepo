@@ -29,6 +29,8 @@
   --color-danger-hover: var(--danger-hover);
   --color-accent-cyan: var(--accent-cyan);
   --color-fs-diamond: var(--fs-diamond);
+  --color-fs-gold: var(--fs-gold);
+  --color-fs-orange: var(--fs-orange);
 }
 
 @layer utilities {
