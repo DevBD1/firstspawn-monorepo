@@ -259,17 +259,17 @@ export interface LandingDictionary {
       title: string;
     }>;
   };
-  discovery: {
-    panelLabel: string;
-    pendingMessage: string;
+  discoveryChat: {
+    title: string;
+    assistantWaitingMessage: string;
     composer: {
       placeholder: string;
       submitLabel: string;
     };
-    demo: {
-      prompt: string;
-      response: string;
-      card: {
+    demoThread: {
+      userPrompt: string;
+      assistantReply: string;
+      recommendationCard: {
         description: string;
         matchLabel: string;
         statusLabel: string;

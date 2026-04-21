@@ -251,17 +251,17 @@
         }
       ]
     },
-    "discovery": {
-      "panelLabel": "DISCOVERY CONSOLE",
-      "pendingMessage": "Las respuestas de discovery en vivo llegarán pronto. Tu consulta ya está lista para el flujo real de chat.",
+    "discoveryChat": {
+      "title": "DISCOVERY CONSOLE",
+      "assistantWaitingMessage": "Las respuestas de discovery en vivo llegarán pronto. Tu consulta ya está lista para el flujo real de chat.",
       "composer": {
         "placeholder": "Pídele a FirstSpawn que encuentre tu próximo mundo...",
         "submitLabel": "ENVIAR"
       },
-      "demo": {
-        "prompt": "Encuéntrame un servidor survival verificado con una comunidad fuerte y actividad constante.",
-        "response": "Escaneando señales verificadas. Encontré una coincidencia fuerte para jugadores que buscan uptime confiable, un chat activo y espacio para crecer.",
-        "card": {
+      "demoThread": {
+        "userPrompt": "Encuéntrame un servidor survival verificado con una comunidad fuerte y actividad constante.",
+        "assistantReply": "Escaneando señales verificadas. Encontré una coincidencia fuerte para jugadores que buscan uptime confiable, un chat activo y espacio para crecer.",
+        "recommendationCard": {
           "title": "Aetheria Prime",
           "description": "Mundo survival con economía estable, moderadores activos y una base social de jugadores que sigue viva después de la hora pico.",
           "statusLabel": "MEJOR COINCIDENCIA",

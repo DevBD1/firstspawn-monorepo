@@ -251,17 +251,17 @@
         }
       ]
     },
-    "discovery": {
-      "panelLabel": "DISCOVERY CONSOLE",
-      "pendingMessage": "Live-Discovery-Antworten kommen bald. Deine Anfrage ist für den echten Chatfluss bereit.",
+    "discoveryChat": {
+      "title": "DISCOVERY CONSOLE",
+      "assistantWaitingMessage": "Live-Discovery-Antworten kommen bald. Deine Anfrage ist für den echten Chatfluss bereit.",
       "composer": {
         "placeholder": "Bitte FirstSpawn, deine nächste Welt zu finden...",
         "submitLabel": "SENDEN"
       },
-      "demo": {
-        "prompt": "Finde mir einen verifizierten Survival-Server mit starker Community und konstanter Aktivität.",
-        "response": "Verifizierte Signale werden gescannt. Ich habe eine starke Übereinstimmung für Spieler gefunden, die verlässliche Uptime, einen aktiven Chat und Raum zum Wachsen wollen.",
-        "card": {
+      "demoThread": {
+        "userPrompt": "Finde mir einen verifizierten Survival-Server mit starker Community und konstanter Aktivität.",
+        "assistantReply": "Verifizierte Signale werden gescannt. Ich habe eine starke Übereinstimmung für Spieler gefunden, die verlässliche Uptime, einen aktiven Chat und Raum zum Wachsen wollen.",
+        "recommendationCard": {
           "title": "Aetheria Prime",
           "description": "Survival-Welt mit stabiler Wirtschaft, aktiven Moderatoren und einer sozialen Spielerschaft, die auch nach der Hauptzeit aktiv bleibt.",
           "statusLabel": "BESTER TREFFER",

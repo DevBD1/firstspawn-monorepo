@@ -24,22 +24,27 @@ export interface LandingFeatureItem {
   title: string;
 }
 
-export interface LandingDiscoveryDemoCard {
+export interface LandingDiscoveryRecommendationCard {
   description: string;
-  match: string;
-  status: string;
+  matchLabel: string;
+  statusLabel: string;
   tags: string[];
   title: string;
 }
 
-export interface LandingDiscoveryDemoModel {
-  card: LandingDiscoveryDemoCard;
-  composerPlaceholder: string;
-  panelLabel: string;
-  pendingMessage: string;
-  prompt: string;
-  response: string;
-  submitLabel: string;
+// UI model for the landing-only chat demo. This is intentionally separate from any future live chat transport model.
+export interface LandingDiscoveryChatDemoModel {
+  assistantWaitingMessage: string;
+  composer: {
+    placeholder: string;
+    submitLabel: string;
+  };
+  demoThread: {
+    assistantReply: string;
+    recommendationCard: LandingDiscoveryRecommendationCard;
+    userPrompt: string;
+  };
+  title: string;
 }
 
 export interface LandingStepItem {
@@ -75,7 +80,7 @@ export interface LandingProofServer {
 
 export interface LandingContentModel {
   brand: string;
-  discoveryDemo: LandingDiscoveryDemoModel;
+  discoveryChatDemo: LandingDiscoveryChatDemoModel;
   explorerProof: LandingHeroExplorerProof;
   features: LandingFeatureItem[];
   heroMetrics: LandingHeroMetric[];

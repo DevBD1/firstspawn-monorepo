@@ -1,6 +1,6 @@
 import type {
   LandingContentModel,
-  LandingDiscoveryDemoModel,
+  LandingDiscoveryChatDemoModel,
   LandingFeatureItem,
   LandingProofServer,
   LandingRealtimeStats,
@@ -131,22 +131,27 @@ const buildSteps = (landing: LandingContentModel["landing"]): LandingStepItem[] 
     title: item.title,
   }));
 
-const buildDiscoveryDemo = (
+// Normalizes dictionary-backed discovery chat copy into the landing view-model expected by the demo widget.
+const buildDiscoveryChatDemo = (
   landing: LandingContentModel["landing"]
-): LandingDiscoveryDemoModel => ({
-  card: {
-    description: landing.discovery.demo.card.description,
-    match: landing.discovery.demo.card.matchLabel,
-    status: landing.discovery.demo.card.statusLabel,
-    tags: [...landing.discovery.demo.card.tags],
-    title: landing.discovery.demo.card.title,
+): LandingDiscoveryChatDemoModel => ({
+  assistantWaitingMessage: landing.discoveryChat.assistantWaitingMessage,
+  composer: {
+    placeholder: landing.discoveryChat.composer.placeholder,
+    submitLabel: landing.discoveryChat.composer.submitLabel,
   },
-  composerPlaceholder: landing.discovery.composer.placeholder,
-  panelLabel: landing.discovery.panelLabel,
-  pendingMessage: landing.discovery.pendingMessage,
-  prompt: landing.discovery.demo.prompt,
-  response: landing.discovery.demo.response,
-  submitLabel: landing.discovery.composer.submitLabel,
+  demoThread: {
+    assistantReply: landing.discoveryChat.demoThread.assistantReply,
+    recommendationCard: {
+      description: landing.discoveryChat.demoThread.recommendationCard.description,
+      matchLabel: landing.discoveryChat.demoThread.recommendationCard.matchLabel,
+      statusLabel: landing.discoveryChat.demoThread.recommendationCard.statusLabel,
+      tags: [...landing.discoveryChat.demoThread.recommendationCard.tags],
+      title: landing.discoveryChat.demoThread.recommendationCard.title,
+    },
+    userPrompt: landing.discoveryChat.demoThread.userPrompt,
+  },
+  title: landing.discoveryChat.title,
 });
 
 const buildHeroMetrics = (landing: LandingContentModel["landing"], stats: LandingRealtimeStats) => [
@@ -174,13 +179,14 @@ export const getLandingContent = (
   dictionary: AppDictionary,
   stats: LandingRealtimeStats
 ): LandingContentModel => {
+  // Central landing view-model builder. Sections consume this shape instead of reading raw dictionary paths inline.
   const landing = dictionary.landing;
   const brand = dictionary.common.brand;
   const heroTitle = landing.hero.title.split("\n").filter(Boolean);
 
   return {
     brand,
-    discoveryDemo: buildDiscoveryDemo(landing),
+    discoveryChatDemo: buildDiscoveryChatDemo(landing),
     explorerProof: {
       count: stats.registeredExplorers,
       label: landing.hero.explorerLabel,

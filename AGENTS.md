@@ -83,6 +83,27 @@ firstspawn-monorepo/
 - Avoid page-only wrapper components that only compose other components. Page
   composition should usually live directly in the route `page.tsx`.
 
+### Code Comments And Docs
+
+- Follow common TypeScript documentation practice:
+  - use short TSDoc or JSDoc style comments for exported reusable APIs when the
+    contract is not obvious
+  - use short line comments above components, classes, helpers, and view-model
+    builders that coordinate behavior or encode non-trivial intent
+- Comments should explain purpose, contract, or reason. Do not write comments
+  that only restate obvious code.
+- Prefer comments in these places:
+  - exported shared components
+  - feature entry components with stateful behavior
+  - helper functions that transform data into UI models
+  - modules with cross-feature reuse or non-obvious constraints
+- Avoid comment noise:
+  - do not comment every JSX block
+  - do not comment simple assignments or prop passing
+  - do not leave stale TODO-style comments without owner or action
+- When a reusable component answers the question "what does this do?", that
+  answer should be visible near the component declaration.
+
 ## Shared Commands
 
 ```bash
