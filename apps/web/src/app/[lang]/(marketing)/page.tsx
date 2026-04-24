@@ -9,6 +9,7 @@ import LandingNewsletterBlock from "@/features/landing/components/LandingNewslet
 import { getLandingContent } from "@/features/landing/lib/landing-content";
 import { fetchServers, type PublicServerListItem } from "@/lib/servers-api";
 import LandingProblemSolution from "@/features/landing/components/LandingProblemSolution.client";
+import LandingVisualsControl from "@/features/landing/components/LandingVisualsControl.client";
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
@@ -26,14 +27,8 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
   return (
     <main className="relative isolate w-full bg-background overflow-hidden">
-      {/* Background System Grid */}
-      <div
-        className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(var(--primary) 1px, transparent 0)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+      {/* Background System - Animated Scene Toggle */}
+      <LandingVisualsControl dictionary={dictionary} />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-col px-4 pb-32 md:px-12">
         {/* SIDE RAILS (The Chassis) */}
