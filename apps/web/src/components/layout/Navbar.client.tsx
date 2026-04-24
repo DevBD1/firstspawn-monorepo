@@ -100,7 +100,6 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
             variant="success"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}
-            disabled
           >
             {dictionary.nav.signUp}
           </PixelButton>
@@ -109,7 +108,6 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
             variant="primary"
             className={navButtonClass(isMobile)}
             onClick={() => closeMobileIfOpen(isMobile)}
-            disabled
           >
             {dictionary.nav.logIn}
           </PixelButton>

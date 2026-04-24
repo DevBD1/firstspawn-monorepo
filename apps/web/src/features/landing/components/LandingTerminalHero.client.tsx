@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { PixelButton, PixelCard } from "@firstspawn/ui";
 import type { LandingContentModel } from "@/features/landing/types";
@@ -10,7 +11,25 @@ interface LandingTerminalHeroProps {
 }
 
 export default function LandingTerminalHero({ content, lang }: LandingTerminalHeroProps) {
+  const [mountedData, setMountedData] = useState<{ isMounted: boolean; voidData: string[][] }>({
+    isMounted: false,
+    voidData: [],
+  });
   const terminalEyebrow = content.landing.questBoard.eyebrow;
+
+  useEffect(() => {
+    // Generate static void data once on mount to avoid re-render loops and hydration issues
+    const data = Array.from({ length: 40 }, () =>
+      Array.from({ length: 100 }, () =>
+        Math.random() > 0.99 ? (Math.random() > 0.5 ? "0" : "1") : " "
+      )
+    );
+
+    // Defer to next frame to satisfy strict 'no-sync-setstate-in-effect' linting
+    requestAnimationFrame(() => {
+      setMountedData({ isMounted: true, voidData: data });
+    });
+  }, []);
 
   return (
     <section
@@ -18,16 +37,14 @@ export default function LandingTerminalHero({ content, lang }: LandingTerminalHe
       className="relative flex min-h-[85svh] flex-col items-center justify-center py-12"
     >
       {/* Background Ambience: The "Void" */}
-      <div className="absolute inset-0 z-0 opacity-5 pointer-events-none">
-        <pre className="text-[10px] leading-none font-body select-none">
-          {Array.from({ length: 100 }, (_, index) => index).map((i) => (
-            <div key={i}>
-              {Array.from({ length: 200 }, (_, index) => index).map((j) => (
-                <span key={j}>{Math.random() > 0.98 ? "0" : Math.random() > 0.98 ? "1" : " "}</span>
-              ))}
-            </div>
-          ))}
-        </pre>
+      <div className="absolute inset-0 z-0 opacity-5 pointer-events-none overflow-hidden">
+        {mountedData.isMounted && (
+          <pre className="text-[10px] leading-none font-body select-none">
+            {mountedData.voidData.map((row, i) => (
+              <div key={i}>{row.join("")}</div>
+            ))}
+          </pre>
+        )}
       </div>
 
       <PixelCard
@@ -100,7 +117,7 @@ export default function LandingTerminalHero({ content, lang }: LandingTerminalHe
               variant="secondary"
               className="border-white/20 text-white"
               onClick={() =>
-                document.getElementById("problem-section")?.scrollIntoView({ behavior: "smooth" })
+                document.getElementById("discovery-fork")?.scrollIntoView({ behavior: "smooth" })
               }
             >
               Analyze The Problem
