@@ -7,17 +7,14 @@ import LandingFeatureBlocks from "@/features/landing/components/LandingFeatureBl
 import LandingActionPrompt from "@/features/landing/components/LandingActionPrompt.client";
 import LandingNewsletterBlock from "@/features/landing/components/LandingNewsletterBlock.client";
 import { getLandingContent } from "@/features/landing/lib/landing-content";
-import { getLandingRealtimeStats } from "@/features/landing/lib/landing-stats";
 import { fetchServers, type PublicServerListItem } from "@/lib/servers-api";
+import LandingProblemSolution from "@/features/landing/components/LandingProblemSolution.client";
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
-  const [dictionary, realtimeStats] = await Promise.all([
-    getDictionary(lang),
-    getLandingRealtimeStats(),
-  ]);
-  const content = getLandingContent(dictionary, realtimeStats);
+  const dictionary = await getDictionary(lang);
+  const content = getLandingContent(dictionary);
   let servers: PublicServerListItem[] = [];
 
   try {
@@ -52,6 +49,13 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
         <div className="relative mx-auto flex w-full max-w-6xl flex-col space-y-48">
           {/* Section Connector 1 - Central Spine */}
           <div className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-px bg-primary/20 -z-10" />
+
+          {/* Module: The Problem and The Vision */}
+          <div className="relative">
+            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
+            <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
+            <LandingProblemSolution />
+          </div>
 
           {/* Module: The Core Shift (Problem vs Solution) */}
           <div className="relative">

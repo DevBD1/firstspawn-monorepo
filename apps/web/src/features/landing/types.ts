@@ -1,86 +1,8 @@
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 
-export interface LandingRealtimeStats {
-  registeredExplorers: number;
-  registeredServers: number;
-  totalOnlinePlayers: number;
-}
-
-export interface LandingHeroExplorerProof {
-  count: number;
-  label: string;
-}
-
-export interface LandingHeroMetric {
-  key: "registeredServers" | "registeredExplorers" | "totalOnlinePlayers";
-  label: string;
-  tone: "diamond" | "gold" | "success";
-  value: number;
-}
-
-export interface LandingQuestItem {
-  description: string;
-  icon: "search" | "shield" | "trophy";
-  rewardLabel: string;
-  rewardValue: string;
-  statusLabel: string;
-  statusValue: string;
-  title: string;
-  tone: "diamond" | "success" | "gold";
-}
-
-export interface LandingRoadmapItem {
-  description: string;
-  statusLabel: string;
-  title: string;
-}
-
-export interface LandingTrustItem {
-  description: string;
-  icon: "signal" | "ban" | "radar";
-  statusLabel: string;
-  title: string;
-}
-
-export interface LandingProgressionItem {
-  description: string;
-  icon: "badge" | "star" | "gift";
-  stateLabel: string;
-  title: string;
-}
-
 export interface LandingFeatureItem {
   description: string;
   icon: string;
-  title: string;
-}
-
-export interface LandingDiscoveryRecommendationCard {
-  description: string;
-  matchLabel: string;
-  statusLabel: string;
-  tags: string[];
-  title: string;
-}
-
-// UI model for the landing-only chat demo. This is intentionally separate from any future live chat transport model.
-export interface LandingDiscoveryChatDemoModel {
-  assistantWaitingMessage: string;
-  composer: {
-    placeholder: string;
-    submitLabel: string;
-  };
-  demoThread: {
-    assistantReply: string;
-    recommendationCard: LandingDiscoveryRecommendationCard;
-    userPrompt: string;
-  };
-  title: string;
-}
-
-export interface LandingStepItem {
-  description: string;
-  number: string;
   title: string;
 }
 
@@ -111,17 +33,6 @@ export interface LandingProofServer {
 
 export interface LandingContentModel {
   brand: string;
-  discoveryChatDemo: LandingDiscoveryChatDemoModel;
-  explorerProof: LandingHeroExplorerProof;
   features: LandingFeatureItem[];
-  heroMetrics: LandingHeroMetric[];
-  heroStatus: string;
-  heroTitle: string[];
   landing: AppDictionary["landing"];
-  progressionItems: LandingProgressionItem[];
-  proofTitle: string;
-  quests: LandingQuestItem[];
-  roadmapItems: LandingRoadmapItem[];
-  steps: LandingStepItem[];
-  trustItems: LandingTrustItem[];
 }
