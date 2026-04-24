@@ -15,6 +15,7 @@ interface LandingNewsletterSectionProps {
   onEmailChange: (value: string) => void;
   onSubmit: (event: React.FormEvent) => void;
   statusMessage: string;
+  id?: string;
 }
 
 export default function LandingNewsletterSection({
@@ -25,10 +26,11 @@ export default function LandingNewsletterSection({
   onEmailChange,
   onSubmit,
   statusMessage,
+  id,
 }: LandingNewsletterSectionProps) {
   const reduceMotion = Boolean(useReducedMotion());
   return (
-    <motion.section {...getRevealProps(reduceMotion)} id="notify-signup">
+    <motion.section {...getRevealProps(reduceMotion)} id={id || "notify-signup"}>
       <SectionSurface className={joinClasses(SECTION_SURFACE_CLASS, "bg-background/94")}>
         <PixelCorners />
         <div className="relative z-10">

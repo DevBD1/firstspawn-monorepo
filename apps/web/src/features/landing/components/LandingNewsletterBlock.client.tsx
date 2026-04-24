@@ -8,9 +8,14 @@ import LandingNewsletterSection from "./LandingNewsletterSection.client";
 interface LandingNewsletterBlockProps {
   dictionary: AppDictionary;
   lang: string;
+  id?: string;
 }
 
-export default function LandingNewsletterBlock({ dictionary, lang }: LandingNewsletterBlockProps) {
+export default function LandingNewsletterBlock({
+  dictionary,
+  lang,
+  id,
+}: LandingNewsletterBlockProps) {
   const {
     confirmEmailSent,
     email,
@@ -26,6 +31,7 @@ export default function LandingNewsletterBlock({ dictionary, lang }: LandingNews
   return (
     <>
       <LandingNewsletterSection
+        id={id}
         dictionary={dictionary}
         confirmEmailSent={confirmEmailSent}
         email={email}
