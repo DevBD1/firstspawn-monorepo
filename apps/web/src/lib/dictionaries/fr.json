@@ -252,6 +252,55 @@
         }
       ]
     },
+    "problemSolution": {
+      "eyebrow": "COMPARAISON SYSTÈME",
+      "title": "DISCOVERY : REDÉFINIE",
+      "subtitle": "Nous n'avons pas seulement créé une meilleure liste de serveurs. Nous avons conçu un protocole clair pour corriger une décennie de stagnation portée par les bots.",
+      "problem": {
+        "statusLabel": "ERR://DÉCLIN_DÉTECTÉ",
+        "title": "LE DÉCLIN\nDU LISTING",
+        "items": [
+          {
+            "title": "VANITÉ SYNTHÉTIQUE",
+            "description": "Des classements bâtis sur les pots-de-vin et les boucles de bots. Des métriques synthétiques qui masquent le vrai pouls d'un serveur."
+          },
+          {
+            "title": "ARCHITECTURE POURRIE",
+            "description": "Des annuaires statiques pour fantômes. Des répertoires déconnectés qui n'ont pas évolué depuis 2012."
+          }
+        ]
+      },
+      "solution": {
+        "statusLabel": "SYS://ORIGINE_ACTIVE",
+        "title": "LE STANDARD\nD'ORIGINE",
+        "items": [
+          {
+            "title": "INTÉGRITÉ DEEP-PULSE",
+            "description": "Réputation appuyée par FSVotifier. Métriques temps réel qui prouvent la santé et la confiance de la communauté."
+          },
+          {
+            "title": "DISCOVERY NEURALE",
+            "description": "Un pont vivant. Nous connectons directement les joueurs aux perles cachées qui comptent."
+          }
+        ]
+      }
+    },
+    "discoveryFork": {
+      "title": "DISCOVERY : REDÉFINIE",
+      "subtitle": "Une plateforme. Deux mondes parallèles. Choisis ton uplink.",
+      "player": {
+        "channelLabel": "[CANAL_01 : JOUEUR]",
+        "title": "DISCOVERY\nNEURALE",
+        "description": "Trouve des perles cachées grâce aux métriques deep-pulse de temps de jeu et à la réputation communautaire.",
+        "actionLabel": "COMMENCER_EXPLORATION"
+      },
+      "host": {
+        "channelLabel": "[CANAL_02 : HÔTE]",
+        "title": "HUB\nINTELLIGENCE",
+        "description": "Accède aux heatmaps de croissance en temps réel et aux démographies joueur précises.",
+        "actionLabel": "ACCÉDER_AU_DASHBOARD"
+      }
+    },
     "trust": {
       "eyebrow": "DISCOVERY JUSTE",
       "title": "CLASSÉ PAR SIGNAL, PAS PAR DÉPENSE",

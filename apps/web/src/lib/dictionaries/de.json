@@ -252,6 +252,55 @@
         }
       ]
     },
+    "problemSolution": {
+      "eyebrow": "SYSTEMVERGLEICH",
+      "title": "DISCOVERY: NEU DEFINIERT",
+      "subtitle": "Wir haben nicht nur eine bessere Serverliste gebaut. Wir haben ein klares Protokoll entwickelt, um ein Jahrzehnt botgetriebener Stagnation zu beenden.",
+      "problem": {
+        "statusLabel": "ERR://VERFALL_ERKANNT",
+        "title": "DER VERFALL\nDER LISTINGS",
+        "items": [
+          {
+            "title": "KÜNSTLICHE EITELKEIT",
+            "description": "Rankings aus Bestechung und Bot-Loops. Künstliche Metriken, die den echten Puls eines Servers verdecken."
+          },
+          {
+            "title": "VERROTTETE ARCHITEKTUR",
+            "description": "Statische Telefonbücher für Geister. Getrennte Verzeichnisse, die sich seit 2012 nicht weiterentwickelt haben."
+          }
+        ]
+      },
+      "solution": {
+        "statusLabel": "SYS://ORIGIN_AKTIV",
+        "title": "DER STANDARD\nDES URSPRUNGS",
+        "items": [
+          {
+            "title": "DEEP-PULSE-INTEGRITÄT",
+            "description": "FSVotifier-gestützte Reputation. Echtzeitmetriken, die Community-Gesundheit und Vertrauen belegen."
+          },
+          {
+            "title": "NEURALE DISCOVERY",
+            "description": "Eine lebendige Brücke. Wir verbinden Spieler direkt mit den versteckten Perlen, die zählen."
+          }
+        ]
+      }
+    },
+    "discoveryFork": {
+      "title": "DISCOVERY: NEU DEFINIERT",
+      "subtitle": "Eine Plattform. Zwei parallele Welten. Wähle deinen Uplink.",
+      "player": {
+        "channelLabel": "[KANAL_01: SPIELER]",
+        "title": "NEURALE\nDISCOVERY",
+        "description": "Finde versteckte Perlen mit Deep-Pulse-Spielzeitmetriken und Community-Reputation.",
+        "actionLabel": "ENTDECKUNG_STARTEN"
+      },
+      "host": {
+        "channelLabel": "[KANAL_02: HOST]",
+        "title": "INTELLIGENCE\nHUB",
+        "description": "Greife auf Echtzeit-Wachstums-Heatmaps und präzise Spielerdemografie zu.",
+        "actionLabel": "DASHBOARD_ÖFFNEN"
+      }
+    },
     "trust": {
       "eyebrow": "FAIRE DISCOVERY",
       "title": "NACH SIGNAL SORTIERT, NICHT NACH BUDGET",

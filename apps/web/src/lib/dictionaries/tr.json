@@ -282,6 +282,55 @@
         }
       ]
     },
+    "problemSolution": {
+      "eyebrow": "SİSTEM KARŞILAŞTIRMASI",
+      "title": "KEŞİF: YENİDEN TANIMLANDI",
+      "subtitle": "Sadece daha iyi bir sunucu listesi kurmadık. Bot odaklı durgun geçen on yılı düzeltmek için net bir protokol tasarladık.",
+      "problem": {
+        "statusLabel": "ERR://ÇÜRÜME_TESPİT_EDİLDİ",
+        "title": "LİSTELEMENİN\nÇÜRÜYÜŞÜ",
+        "items": [
+          {
+            "title": "YAPAY GÖSTERİŞ",
+            "description": "Rüşvet ve bot döngüleriyle kurulan sıralamalar. Bir sunucunun gerçek nabzını gizleyen yapay metrikler."
+          },
+          {
+            "title": "ÇÜRÜYEN MİMARİ",
+            "description": "Hayaletler için statik telefon rehberleri. 2012'den beri gelişmeyen kopuk dizinler."
+          }
+        ]
+      },
+      "solution": {
+        "statusLabel": "SYS://ORIGIN_AKTİF",
+        "title": "KÖKENİN\nSTANDARDI",
+        "items": [
+          {
+            "title": "DERİN NABIZ BÜTÜNLÜĞÜ",
+            "description": "FSVotifier destekli itibar. Topluluk sağlığını ve güveni kanıtlayan gerçek zamanlı metrikler."
+          },
+          {
+            "title": "NÖRAL KEŞİF",
+            "description": "Yaşayan bir köprü. Oyuncuları doğrudan değerli gizli topluluklara bağlarız."
+          }
+        ]
+      }
+    },
+    "discoveryFork": {
+      "title": "KEŞİF: YENİDEN TANIMLANDI",
+      "subtitle": "Tek platform. İki paralel dünya. Bağlantını seç.",
+      "player": {
+        "channelLabel": "[KANAL_01: OYUNCU]",
+        "title": "NÖRAL\nKEŞİF",
+        "description": "Derin nabız oyun süresi metrikleri ve topluluk itibarıyla gizli cevherleri bul.",
+        "actionLabel": "KEŞFE_BAŞLA"
+      },
+      "host": {
+        "channelLabel": "[KANAL_02: HOST]",
+        "title": "İSTİHBARAT\nMERKEZİ",
+        "description": "Gerçek zamanlı büyüme ısı haritalarına ve hassas oyuncu demografilerine eriş.",
+        "actionLabel": "PANOYA_ERİŞ"
+      }
+    },
     "trust": {
       "eyebrow": "ADİL KEŞİF",
       "title": "HARCAMAYA DEĞİL SİNYALE GÖRE",

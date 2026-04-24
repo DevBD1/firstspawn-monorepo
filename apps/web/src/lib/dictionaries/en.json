@@ -282,6 +282,55 @@
         }
       ]
     },
+    "problemSolution": {
+      "eyebrow": "SYSTEM COMPARISON",
+      "title": "DISCOVERY: REDEFINED",
+      "subtitle": "We did not just build a better server list. We engineered a definitive protocol to fix a decade of bot-driven stagnation.",
+      "problem": {
+        "statusLabel": "ERR://DECAY_DETECTED",
+        "title": "THE DECAY\nOF LISTING",
+        "items": [
+          {
+            "title": "SYNTHETIC VANITY",
+            "description": "Rankings built on bribes and bot-loops. Synthetic metrics that mask a server's true pulse."
+          },
+          {
+            "title": "ROTTING ARCHITECTURE",
+            "description": "Static phonebooks for ghosts. Disconnected directories that have not evolved since 2012."
+          }
+        ]
+      },
+      "solution": {
+        "statusLabel": "SYS://ORIGIN_ACTIVE",
+        "title": "THE STANDARD\nOF ORIGIN",
+        "items": [
+          {
+            "title": "DEEP-PULSE INTEGRITY",
+            "description": "FSVotifier-backed reputation. Real-time metrics that prove community health and trust."
+          },
+          {
+            "title": "NEURAL DISCOVERY",
+            "description": "A living bridge. We connect players directly to the hidden gems that matter."
+          }
+        ]
+      }
+    },
+    "discoveryFork": {
+      "title": "DISCOVERY: REDEFINED",
+      "subtitle": "One platform. Two parallel worlds. Choose your uplink.",
+      "player": {
+        "channelLabel": "[CHANNEL_01: PLAYER]",
+        "title": "NEURAL\nDISCOVERY",
+        "description": "Find hidden gems through deep-pulse playtime metrics and community reputation.",
+        "actionLabel": "START_EXPLORING"
+      },
+      "host": {
+        "channelLabel": "[CHANNEL_02: HOST]",
+        "title": "INTELLIGENCE\nHUB",
+        "description": "Access real-time growth heatmaps and precision player demographics.",
+        "actionLabel": "ACCESS_DASHBOARD"
+      }
+    },
     "trust": {
       "eyebrow": "FAIR DISCOVERY",
       "title": "RANKED BY SIGNAL, NOT SPEND",

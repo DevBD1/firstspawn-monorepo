@@ -3,9 +3,16 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { PixelButton } from "@firstspawn/ui";
+import type { LandingContentModel } from "@/features/landing/types";
 
-export default function LandingDiscoveryFork() {
+interface LandingDiscoveryForkProps {
+  content: LandingContentModel;
+  lang: string;
+}
+
+export default function LandingDiscoveryFork({ content, lang }: LandingDiscoveryForkProps) {
   const [activeSide, setActiveSide] = useState<"player" | "host" | null>(null);
+  const copy = content.landing.discoveryFork;
 
   return (
     <motion.section
@@ -15,11 +22,9 @@ export default function LandingDiscoveryFork() {
     >
       <div className="text-center mb-16">
         <h2 className="font-ui text-4xl sm:text-5xl uppercase text-foreground mb-4">
-          Discovery: Redefined
+          {copy.title}
         </h2>
-        <p className="font-body text-muted max-w-2xl mx-auto">
-          One platform. Two parallel worlds. Choose your uplink.
-        </p>
+        <p className="font-body text-muted max-w-2xl mx-auto">{copy.subtitle}</p>
       </div>
 
       <div className="flex flex-col md:flex-row min-h-[900px] md:h-[650px] w-full border-[6px] border-black shadow-[10px_10px_0_0_rgba(0,0,0,1)] md:shadow-[20px_20px_0_0_rgba(0,0,0,1)] bg-black overflow-hidden relative">
@@ -44,19 +49,21 @@ export default function LandingDiscoveryFork() {
 
           <div className="relative z-10 space-y-6">
             <span className="font-display text-[10px] text-primary tracking-widest">
-              [CHANNEL_01: PLAYER]
+              {copy.player.channelLabel}
             </span>
-            <h3 className="font-ui text-4xl md:text-5xl text-white uppercase leading-none">
-              Neural
-              <br />
-              Discovery
+            <h3 className="font-ui text-4xl md:text-5xl text-white uppercase leading-none whitespace-pre-line">
+              {copy.player.title}
             </h3>
             <p className="font-body text-foreground/80 text-sm max-w-xs leading-relaxed">
-              Find hidden gems through deep-pulse playtime metrics and community reputation.
+              {copy.player.description}
             </p>
             <div className="pt-4">
-              <PixelButton variant="primary" size="md">
-                START_EXPLORING
+              <PixelButton
+                variant="primary"
+                size="md"
+                onClick={() => (window.location.href = `/${lang}/discover`)}
+              >
+                {copy.player.actionLabel}
               </PixelButton>
             </div>
           </div>
@@ -83,19 +90,21 @@ export default function LandingDiscoveryFork() {
 
           <div className="relative z-10 space-y-6 text-right flex flex-col items-end">
             <span className="font-display text-[10px] text-fs-gold tracking-widest">
-              [CHANNEL_02: HOST]
+              {copy.host.channelLabel}
             </span>
-            <h3 className="font-ui text-4xl md:text-5xl text-white uppercase leading-none">
-              Intelligence
-              <br />
-              Hub
+            <h3 className="font-ui text-4xl md:text-5xl text-white uppercase leading-none whitespace-pre-line">
+              {copy.host.title}
             </h3>
             <p className="font-body text-foreground/80 text-sm max-w-xs leading-relaxed">
-              Access real-time growth heatmaps and precision player demographics.
+              {copy.host.description}
             </p>
             <div className="pt-4">
-              <PixelButton variant="gold" size="md">
-                ACCESS_DASHBOARD
+              <PixelButton
+                variant="gold"
+                size="md"
+                onClick={() => (window.location.href = `/${lang}/console`)}
+              >
+                {copy.host.actionLabel}
               </PixelButton>
             </div>
           </div>

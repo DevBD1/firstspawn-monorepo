@@ -252,6 +252,55 @@
         }
       ]
     },
+    "problemSolution": {
+      "eyebrow": "COMPARACIÓN DEL SISTEMA",
+      "title": "DISCOVERY: REDEFINIDO",
+      "subtitle": "No solo creamos una mejor lista de servidores. Diseñamos un protocolo claro para corregir una década de estancamiento impulsado por bots.",
+      "problem": {
+        "statusLabel": "ERR://DETERIORO_DETECTADO",
+        "title": "EL DETERIORO\nDEL LISTADO",
+        "items": [
+          {
+            "title": "VANIDAD SINTÉTICA",
+            "description": "Rankings construidos con sobornos y ciclos de bots. Métricas sintéticas que ocultan el pulso real de un servidor."
+          },
+          {
+            "title": "ARQUITECTURA PODRIDA",
+            "description": "Directorios estáticos para fantasmas. Listas desconectadas que no han evolucionado desde 2012."
+          }
+        ]
+      },
+      "solution": {
+        "statusLabel": "SYS://ORIGEN_ACTIVO",
+        "title": "EL ESTÁNDAR\nDE ORIGEN",
+        "items": [
+          {
+            "title": "INTEGRIDAD DEEP-PULSE",
+            "description": "Reputación respaldada por FSVotifier. Métricas en tiempo real que prueban la salud y la confianza de la comunidad."
+          },
+          {
+            "title": "DISCOVERY NEURAL",
+            "description": "Un puente vivo. Conectamos a los jugadores directamente con las joyas ocultas que importan."
+          }
+        ]
+      }
+    },
+    "discoveryFork": {
+      "title": "DISCOVERY: REDEFINIDO",
+      "subtitle": "Una plataforma. Dos mundos paralelos. Elige tu enlace.",
+      "player": {
+        "channelLabel": "[CANAL_01: JUGADOR]",
+        "title": "DISCOVERY\nNEURAL",
+        "description": "Encuentra joyas ocultas con métricas deep-pulse de tiempo de juego y reputación comunitaria.",
+        "actionLabel": "EMPEZAR_A_EXPLORAR"
+      },
+      "host": {
+        "channelLabel": "[CANAL_02: HOST]",
+        "title": "CENTRO DE\nINTELIGENCIA",
+        "description": "Accede a mapas de crecimiento en tiempo real y demografía precisa de jugadores.",
+        "actionLabel": "ACCEDER_AL_PANEL"
+      }
+    },
     "trust": {
       "eyebrow": "DISCOVERY JUSTO",
       "title": "ORDENADO POR SEÑAL, NO POR GASTO",

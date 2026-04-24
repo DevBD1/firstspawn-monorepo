@@ -79,7 +79,7 @@ export default function LandingActionPrompt({ content, lang }: LandingActionProm
             size="lg"
             variant="primary"
             className="flex-1"
-            onClick={() => (window.location.href = `/${lang}/auth/register`)}
+            onClick={() => (window.location.href = `/${lang}/signup`)}
           >
             {cta.secondaryLabel}
           </PixelButton>

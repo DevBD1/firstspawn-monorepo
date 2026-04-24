@@ -254,6 +254,43 @@ export interface LandingDictionary {
       description: string;
     }>;
   };
+  problemSolution: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    problem: {
+      statusLabel: string;
+      title: string;
+      items: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    solution: {
+      statusLabel: string;
+      title: string;
+      items: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+  };
+  discoveryFork: {
+    title: string;
+    subtitle: string;
+    player: {
+      channelLabel: string;
+      title: string;
+      description: string;
+      actionLabel: string;
+    };
+    host: {
+      channelLabel: string;
+      title: string;
+      description: string;
+      actionLabel: string;
+    };
+  };
   trust: {
     eyebrow: string;
     title: string;

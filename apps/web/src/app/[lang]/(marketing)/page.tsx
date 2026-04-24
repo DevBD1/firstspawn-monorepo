@@ -49,14 +49,14 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           <div className="relative">
             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
             <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <LandingProblemSolution />
+            <LandingProblemSolution content={content} />
           </div>
 
           {/* Module: The Core Shift (Problem vs Solution) */}
           <div className="relative">
             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
             <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <LandingDiscoveryFork />
+            <LandingDiscoveryFork content={content} lang={lang} />
           </div>
 
           {/* Module: The Data Grid */}

@@ -1,8 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { LandingContentModel } from "@/features/landing/types";
 
-export default function LandingProblemSolution() {
+interface LandingProblemSolutionProps {
+  content: LandingContentModel;
+}
+
+export default function LandingProblemSolution({ content }: LandingProblemSolutionProps) {
+  const copy = content.landing.problemSolution;
+
   const itemVariants = {
     initial: { opacity: 0, x: -10 },
     whileInView: { opacity: 1, x: 0 },
@@ -28,13 +35,12 @@ export default function LandingProblemSolution() {
     <section className="py-24">
       <div className="text-center mb-20">
         <span className="font-ui text-xs uppercase tracking-[0.5em] text-primary mb-4 block">
-          System Comparison
+          {copy.eyebrow}
         </span>
-        <h2 className="font-ui text-5xl uppercase text-foreground mb-6">Discovery: Redefined</h2>
+        <h2 className="font-ui text-5xl uppercase text-foreground mb-6">{copy.title}</h2>
         <div className="h-1 w-24 bg-primary mx-auto mb-8 opacity-50" />
         <p className="font-body text-foreground/80 text-lg max-w-2xl mx-auto leading-relaxed">
-          We didn&apos;t just build a better server list. We engineered a definitive protocol to fix
-          a decade of bot-driven stagnation.
+          {copy.subtitle}
         </p>
       </div>
 
@@ -54,32 +60,22 @@ export default function LandingProblemSolution() {
             <div className="flex items-center gap-3">
               <div className="h-3 w-3 bg-[#E28C8C] animate-pulse" />
               <span className="font-display text-[9px] uppercase text-[#E28C8C] tracking-tighter">
-                ERR://DECAY_DETECTED
+                {copy.problem.statusLabel}
               </span>
             </div>
           </div>
 
           <motion.h3
             variants={glitchVariants}
-            className="font-ui text-4xl uppercase text-foreground mb-10 leading-none tracking-tight relative z-10"
+            className="font-ui text-4xl uppercase text-foreground mb-10 leading-none tracking-tight relative z-10 whitespace-pre-line"
           >
-            The Decay <br />
-            of Listing
+            {copy.problem.title}
           </motion.h3>
 
           <div className="space-y-10 relative z-10">
-            {[
-              {
-                title: "Synthetic Vanity",
-                desc: "Rankings built on bribes and bot-loops. Synthetic metrics that mask a server's true pulse.",
-              },
-              {
-                title: "Rotting Architecture",
-                desc: "Static phonebooks for ghosts. Disconnected directories that haven't evolved since 2012.",
-              },
-            ].map((item, i) => (
+            {copy.problem.items.map((item, i) => (
               <motion.div
-                key={i}
+                key={item.title}
                 variants={itemVariants}
                 initial="initial"
                 whileInView="whileInView"
@@ -94,7 +90,7 @@ export default function LandingProblemSolution() {
                     {item.title}
                   </h4>
                   <p className="font-body text-sm text-foreground/80 leading-relaxed max-w-sm">
-                    {item.desc}
+                    {item.description}
                   </p>
                 </div>
               </motion.div>
@@ -124,32 +120,22 @@ export default function LandingProblemSolution() {
             <div className="flex items-center gap-3">
               <div className="h-3 w-3 bg-primary animate-retro-pulse" />
               <span className="font-display text-[9px] uppercase text-primary tracking-tighter">
-                SYS://ORIGIN_ACTIVE
+                {copy.solution.statusLabel}
               </span>
             </div>
           </div>
 
           <motion.h3
             variants={glitchVariants}
-            className="font-ui text-4xl uppercase text-foreground mb-10 leading-none tracking-tight relative z-10"
+            className="font-ui text-4xl uppercase text-foreground mb-10 leading-none tracking-tight relative z-10 whitespace-pre-line"
           >
-            The Standard <br />
-            of Origin
+            {copy.solution.title}
           </motion.h3>
 
           <div className="space-y-10 relative z-10">
-            {[
-              {
-                title: "Deep-Pulse Integrity",
-                desc: "FSVotifier-backed reputation. Real-time metrics that prove community health and trust.",
-              },
-              {
-                title: "Neural Discovery",
-                desc: "A living bridge. We connect players directly to the hidden gems that matter.",
-              },
-            ].map((item, i) => (
+            {copy.solution.items.map((item, i) => (
               <motion.div
-                key={i}
+                key={item.title}
                 variants={itemVariants}
                 initial="initial"
                 whileInView="whileInView"
@@ -164,7 +150,7 @@ export default function LandingProblemSolution() {
                     {item.title}
                   </h4>
                   <p className="font-body text-sm text-foreground/80 leading-relaxed max-w-sm">
-                    {item.desc}
+                    {item.description}
                   </p>
                 </div>
               </motion.div>
