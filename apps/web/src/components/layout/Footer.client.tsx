@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import {
   ShieldCheck,
@@ -55,6 +56,14 @@ function FooterSection({ children, id, isOpen, onToggle, title }: FooterSectionP
 }
 
 export default function Footer({ dictionary }: FooterProps) {
+  const pathname = usePathname();
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  // Hide footer on Discover page to avoid bad UX with infinite scrolling
+  if (pathname?.includes("/discover")) {
+    return null;
+  }
+
   const socialLinks = [
     { platform: "Discord", href: SOCIAL_DATA.discord, icon: MessageCircle },
     { platform: "Twitter", href: SOCIAL_DATA.twitter, icon: Twitter },
@@ -62,8 +71,6 @@ export default function Footer({ dictionary }: FooterProps) {
     { platform: "YouTube", href: SOCIAL_DATA.youtube, icon: Youtube },
     { platform: "Twitch", href: SOCIAL_DATA.twitch, icon: Twitch },
   ];
-
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (section: string) => {
     setOpenSections((previous) => ({
