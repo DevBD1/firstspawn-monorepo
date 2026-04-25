@@ -19,14 +19,18 @@ export default function LandingVisualsControl({ dictionary }: LandingVisualsCont
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsEnabled(true);
     }
-     
+
     setIsMounted(true);
   }, []);
 
   const toggleVisuals = () => {
     const newState = !isEnabled;
     setIsEnabled(newState);
-    localStorage.setItem("fs-visuals-enabled", String(newState));
+    try {
+      localStorage.setItem("fs-visuals-enabled", String(newState));
+    } catch (error) {
+      console.warn("Failed to save visual effects preference to localStorage:", error);
+    }
   };
 
   if (!isMounted) return null;
