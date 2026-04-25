@@ -4,7 +4,7 @@ import type { AppDictionary } from "@/lib/dictionaries/schema";
 import DiscoverClient from "@/features/discover/components/DiscoverClient.client";
 import { getDiscoverCopy } from "@/features/discover/lib/discover-copy";
 import { getServerCardCopy } from "@/features/server/lib/server-copy";
-import { fetchServers, type PublicServerListItem } from "@/lib/servers-api";
+import { fetchServers, fetchServerStats, type PublicServerListItem } from "@/lib/servers-api";
 
 export const revalidate = 60;
 
@@ -20,13 +20,18 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
     next_cursor: null,
     limit: 24,
   };
+  let globalStats = { total_active_servers: 0, total_online_players: 0 };
 
   try {
-    const data = await fetchServers({ limit: 24, sort: "players" });
-    initialServers = data.servers;
-    initialPagination = data.pagination;
+    const [serversData, statsData] = await Promise.all([
+      fetchServers({ limit: 24, sort: "players" }),
+      fetchServerStats(),
+    ]);
+    initialServers = serversData.servers;
+    initialPagination = serversData.pagination;
+    globalStats = statsData;
   } catch (err) {
-    console.error("Failed to fetch initial servers for discover page:", err);
+    console.error("Failed to fetch initial data for discover page:", err);
   }
 
   return (
@@ -35,6 +40,7 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
       lang={lang}
       initialServers={initialServers}
       initialPagination={initialPagination}
+      initialGlobalStats={globalStats}
       loadMoreLabel={dictionary.common.actions.loadMore}
       serverCardCopy={serverCardCopy}
     />

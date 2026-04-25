@@ -117,6 +117,30 @@ export async function fetchServers(
   return payload.data;
 }
 
+export interface PublicServerStats {
+  total_active_servers: number;
+  total_online_players: number;
+}
+
+export async function fetchServerStats(
+  init: FetchInit = defaultFetchInit()
+): Promise<PublicServerStats> {
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}/servers/stats`;
+
+  const response = await fetch(url, {
+    headers: getHeaders(),
+    ...init,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch server stats: ${response.status} ${response.statusText}`);
+  }
+
+  const payload = await response.json();
+  return payload.data;
+}
+
 export async function fetchServerDetail(
   slug: string,
   init: FetchInit = defaultFetchInit()

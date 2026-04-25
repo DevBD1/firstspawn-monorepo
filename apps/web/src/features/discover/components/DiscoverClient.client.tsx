@@ -9,9 +9,10 @@ import type {
   PublicServerGame,
   PublicServerListItem,
   PublicServerSort,
+  PublicServerStats,
   PublicServerTier,
 } from "@/lib/servers-api";
-import { loadMoreServers } from "@/app/actions/servers";
+import { loadMoreServers, getServerStats } from "@/app/actions/servers";
 
 const PAGE_SIZE = 24;
 
@@ -55,6 +56,7 @@ interface DiscoverClientProps {
   lang: string;
   initialServers: PublicServerListItem[];
   initialPagination: { next_cursor: string | null; limit: number };
+  initialGlobalStats: PublicServerStats;
   loadMoreLabel: string;
   serverCardCopy: ServerCardCopy;
 }
@@ -107,11 +109,13 @@ export default function DiscoverClient({
   lang,
   initialServers,
   initialPagination,
+  initialGlobalStats,
   loadMoreLabel,
   serverCardCopy,
 }: DiscoverClientProps) {
   const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
   const [nextCursor, setNextCursor] = useState<string | null>(initialPagination.next_cursor);
+  const [globalStats, setGlobalStats] = useState<PublicServerStats>(initialGlobalStats);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -218,20 +222,24 @@ export default function DiscoverClient({
 
     startTransition(async () => {
       try {
-        const data = await loadMoreServers({
-          q: deferredSearchQuery || undefined,
-          game: gameFilter,
-          tier: tierFilter,
-          sort: sortBy,
-          limit: PAGE_SIZE,
-        });
+        const [serversData, statsData] = await Promise.all([
+          loadMoreServers({
+            q: deferredSearchQuery || undefined,
+            game: gameFilter,
+            tier: tierFilter,
+            sort: sortBy,
+            limit: PAGE_SIZE,
+          }),
+          getServerStats(),
+        ]);
 
         if (refreshRequestIdRef.current !== requestId) {
           return;
         }
 
-        setServers(data.servers);
-        setNextCursor(data.pagination.next_cursor);
+        setServers(serversData.servers);
+        setNextCursor(serversData.pagination.next_cursor);
+        setGlobalStats(statsData);
         setAppliedSortBy(sortBy);
       } catch (err) {
         if (refreshRequestIdRef.current !== requestId) {
@@ -252,9 +260,6 @@ export default function DiscoverClient({
       prev.includes(tier) ? prev.filter((t) => t !== tier) : [...prev, tier]
     );
   };
-
-  const onlineServers = servers.filter((s) => s.freshness_status === "online").length;
-  const totalPlayers = servers.reduce((acc, s) => acc + (s.latest_metrics?.online_players ?? 0), 0);
 
   return (
     <div className="relative flex flex-col lg:flex-row min-h-screen bg-background">
@@ -316,14 +321,14 @@ export default function DiscoverClient({
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
                   <span className="font-ui text-xs tracking-wider text-foreground/70">
-                    {onlineServers} {copy.stats.onlineServers}
+                    {globalStats.total_active_servers} {copy.stats.onlineServers}
                   </span>
                 </div>
                 <span className="font-ui text-[10px] text-foreground/40">{copy.stats.version}</span>
               </div>
               <div className="flex items-center gap-2 border-t border-foreground/5 pt-2">
                 <span className="font-display text-xs text-fs-diamond">
-                  {totalPlayers.toLocaleString()}
+                  {globalStats.total_online_players.toLocaleString()}
                 </span>
                 <span className="font-ui text-[10px] text-foreground/50">
                   {copy.stats.activePlayers}

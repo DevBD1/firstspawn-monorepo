@@ -181,6 +181,13 @@ const publicDetailResponseSchema = envelopeSchema(
   })
 );
 
+const publicStatsResponseSchema = envelopeSchema(
+  z.object({
+    total_active_servers: z.number().int().nonnegative(),
+    total_online_players: z.number().int().nonnegative(),
+  })
+);
+
 const toNullable = (value?: string | null): string | null => {
   if (!value) {
     return null;
@@ -421,6 +428,75 @@ const requireFound = <T>(value: T | null | undefined): NonNullable<T> => {
 
 export const registerServerRoutes = (fastify: FastifyInstance): void => {
   const app = fastify.withTypeProvider<ZodTypeProvider>();
+
+  // Simple in-memory cache for stats to reduce DB load
+  let cachedStats: {
+    total_active_servers: number;
+    total_online_players: number;
+    last_fetched_at: number;
+  } | null = null;
+  const STATS_CACHE_TTL_MS = 60 * 1000; // 1 minute
+
+  app.get(
+    "/api/v1/servers/stats",
+    {
+      schema: {
+        response: {
+          200: publicStatsResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      const now = Date.now();
+      if (cachedStats && now - cachedStats.last_fetched_at < STATS_CACHE_TTL_MS) {
+        return successEnvelope(
+          {
+            total_active_servers: cachedStats.total_active_servers,
+            total_online_players: cachedStats.total_online_players,
+          },
+          request.id
+        );
+      }
+
+      const threshold = new Date(now - ONLINE_WINDOW_MS);
+
+      const rankedHeartbeats = app.db.db
+        .select({
+          serverId: serverHeartbeats.serverId,
+          onlinePlayers: serverHeartbeats.onlinePlayers,
+          rn: sql<number>`row_number() over (
+            partition by ${serverHeartbeats.serverId}
+            order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
+          )`.as("rn"),
+        })
+        .from(serverHeartbeats)
+        .as("ranked_heartbeats");
+
+      const [counts] = await app.db.db
+        .select({
+          total_active_servers: sql<number>`count(${servers.id})::integer`,
+          total_online_players: sql<number>`coalesce(sum(case when ${servers.lastPingAt} >= ${threshold} then ${rankedHeartbeats.onlinePlayers} else 0 end), 0)::integer`,
+        })
+        .from(servers)
+        .leftJoin(
+          rankedHeartbeats,
+          and(eq(servers.id, rankedHeartbeats.serverId), eq(rankedHeartbeats.rn, 1))
+        )
+        .where(eq(servers.status, "active"));
+
+      const stats = {
+        total_active_servers: counts?.total_active_servers ?? 0,
+        total_online_players: counts?.total_online_players ?? 0,
+      };
+
+      cachedStats = {
+        ...stats,
+        last_fetched_at: now,
+      };
+
+      return successEnvelope(stats, request.id);
+    }
+  );
 
   app.get(
     "/api/v1/admin/servers",
@@ -922,6 +998,75 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         },
         request.id
       );
+    }
+  );
+
+  // Simple in-memory cache for stats to reduce DB load
+  let cachedStats: {
+    total_active_servers: number;
+    total_online_players: number;
+    last_fetched_at: number;
+  } | null = null;
+  const STATS_CACHE_TTL_MS = 60 * 1000; // 1 minute
+
+  app.get(
+    "/api/v1/servers/stats",
+    {
+      schema: {
+        response: {
+          200: publicStatsResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      const now = Date.now();
+      if (cachedStats && now - cachedStats.last_fetched_at < STATS_CACHE_TTL_MS) {
+        return successEnvelope(
+          {
+            total_active_servers: cachedStats.total_active_servers,
+            total_online_players: cachedStats.total_online_players,
+          },
+          request.id
+        );
+      }
+
+      const threshold = new Date(now - ONLINE_WINDOW_MS);
+
+      const rankedHeartbeats = app.db.db
+        .select({
+          serverId: serverHeartbeats.serverId,
+          onlinePlayers: serverHeartbeats.onlinePlayers,
+          rn: sql<number>`row_number() over (
+            partition by ${serverHeartbeats.serverId}
+            order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
+          )`.as("rn"),
+        })
+        .from(serverHeartbeats)
+        .as("ranked_heartbeats");
+
+      const [counts] = await app.db.db
+        .select({
+          total_active_servers: sql<number>`count(${servers.id})::integer`,
+          total_online_players: sql<number>`coalesce(sum(case when ${servers.lastPingAt} >= ${threshold} then ${rankedHeartbeats.onlinePlayers} else 0 end), 0)::integer`,
+        })
+        .from(servers)
+        .leftJoin(
+          rankedHeartbeats,
+          and(eq(servers.id, rankedHeartbeats.serverId), eq(rankedHeartbeats.rn, 1))
+        )
+        .where(eq(servers.status, "active"));
+
+      const stats = {
+        total_active_servers: counts?.total_active_servers ?? 0,
+        total_online_players: counts?.total_online_players ?? 0,
+      };
+
+      cachedStats = {
+        ...stats,
+        last_fetched_at: now,
+      };
+
+      return successEnvelope(stats, request.id);
     }
   );
 };
