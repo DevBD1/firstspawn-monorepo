@@ -58,11 +58,7 @@ export default function LandingDiscoveryFork({ content, lang }: LandingDiscovery
               {copy.player.description}
             </p>
             <div className="pt-4">
-              <PixelButton
-                variant="primary"
-                size="md"
-                onClick={() => (window.location.href = `/${lang}/discover`)}
-              >
+              <PixelButton variant="primary" size="md" href={`/${lang}/discover`}>
                 {copy.player.actionLabel}
               </PixelButton>
             </div>
@@ -99,11 +95,7 @@ export default function LandingDiscoveryFork({ content, lang }: LandingDiscovery
               {copy.host.description}
             </p>
             <div className="pt-4">
-              <PixelButton
-                variant="gold"
-                size="md"
-                onClick={() => (window.location.href = `/${lang}/console`)}
-              >
+              <PixelButton variant="gold" size="md" href={`/${lang}/console`}>
                 {copy.host.actionLabel}
               </PixelButton>
             </div>

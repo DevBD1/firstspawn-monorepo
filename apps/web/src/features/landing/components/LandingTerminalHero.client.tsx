@@ -108,7 +108,7 @@ export default function LandingTerminalHero({ content, lang }: LandingTerminalHe
               size="lg"
               variant="primary"
               className="animate-retro-pulse"
-              onClick={() => (window.location.href = `/${lang}/discover`)}
+              href={`/${lang}/discover`}
             >
               Initialize Search
             </PixelButton>

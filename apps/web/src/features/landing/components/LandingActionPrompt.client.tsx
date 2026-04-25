@@ -67,20 +67,10 @@ export default function LandingActionPrompt({ content, lang }: LandingActionProm
         </div>
 
         <div className="flex flex-col sm:flex-row gap-6">
-          <PixelButton
-            size="lg"
-            variant="success"
-            className="flex-1"
-            onClick={() => (window.location.href = `/${lang}/discover`)}
-          >
+          <PixelButton size="lg" variant="success" className="flex-1" href={`/${lang}/discover`}>
             {cta.primaryLabel}
           </PixelButton>
-          <PixelButton
-            size="lg"
-            variant="primary"
-            className="flex-1"
-            onClick={() => (window.location.href = `/${lang}/signup`)}
-          >
+          <PixelButton size="lg" variant="primary" className="flex-1" href={`/${lang}/signup`}>
             {cta.secondaryLabel}
           </PixelButton>
         </div>

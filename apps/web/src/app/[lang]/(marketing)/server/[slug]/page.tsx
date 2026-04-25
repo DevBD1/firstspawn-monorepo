@@ -8,7 +8,7 @@ import type {
   ServerDetailDictionary,
 } from "@/lib/dictionaries/schema";
 import { getServerDetailCopy } from "@/features/server/lib/server-copy";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import Link from "next/link";
 import { Metadata } from "next";
 

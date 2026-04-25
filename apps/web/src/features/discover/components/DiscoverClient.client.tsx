@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useCallback, useDeferredValue, useEffect, useRef } from "react";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
 import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";

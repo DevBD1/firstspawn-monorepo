@@ -5,7 +5,7 @@ import { resolveLocaleParam } from "@/lib/resolve-locale";
 import { getAuthActivationCopy } from "@/features/auth/lib/auth-copy";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import PixelCard from "@/components/ui/PixelCard";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 
 interface ActivationPageProps {
   params: Promise<{ lang: string }>;

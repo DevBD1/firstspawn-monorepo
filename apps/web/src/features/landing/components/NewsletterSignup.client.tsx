@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { FormEvent } from "react";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 
 interface NewsletterSignupProps {

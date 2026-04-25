@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import PixelCard from "@/components/ui/PixelCard";
 import { useScrewCaptcha } from "@/features/captcha/hooks/useScrewCaptcha";
 import { CaptchaState } from "@/features/captcha/types";

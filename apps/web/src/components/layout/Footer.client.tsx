@@ -16,7 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { EXTERNAL_LINKS, SOCIAL_LINKS as SOCIAL_DATA } from "@/lib/links";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 
 export interface FooterProps {
   dictionary: AppDictionary;

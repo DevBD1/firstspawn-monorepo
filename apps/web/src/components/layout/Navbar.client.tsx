@@ -7,7 +7,7 @@ import { logoutAction } from "@/app/actions/auth";
 import type { Locale } from "@/lib/i18n-config";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import type { AuthCookieUser } from "@/lib/auth";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import LocaleSwitcher from "./LocaleSwitcher.client";
 
 export interface NavbarProps {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { registerAction } from "@/app/actions/auth";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
 import { usePasswordVisibility } from "@/features/auth/hooks/usePasswordVisibility";

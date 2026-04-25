@@ -23,11 +23,7 @@ export default function LandingServerGrid({ content, servers, lang }: LandingSer
           </span>
           <h2 className="font-ui text-4xl uppercase text-foreground">{copy.title}</h2>
         </div>
-        <PixelButton
-          variant="primary"
-          size="md"
-          onClick={() => (window.location.href = `/${lang}/discover`)}
-        >
+        <PixelButton variant="primary" size="md" href={`/${lang}/discover`}>
           {copy.viewAllLabel}
         </PixelButton>
       </div>
