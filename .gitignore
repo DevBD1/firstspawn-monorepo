@@ -58,3 +58,6 @@ tmp
 .infras/nginx/certs/firstspawn.crt
 .infras/nginx/certs/firstspawn.key
 .infras/ops/backup_debug.log
+
+# local Docker service state and generated secrets
+docker-data/

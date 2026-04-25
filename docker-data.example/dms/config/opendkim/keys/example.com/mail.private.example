@@ -1,0 +1,3 @@
+# Do not commit a real DKIM private key.
+# Generate the live key on the deployment host and store it at:
+# docker-data/dms/config/opendkim/keys/<domain>/mail.private
