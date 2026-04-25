@@ -18,11 +18,11 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
   let initialServers: PublicServerListItem[] = [];
   let initialPagination: { next_cursor: string | null; limit: number } = {
     next_cursor: null,
-    limit: 100,
+    limit: 24,
   };
 
   try {
-    const data = await fetchServers({ limit: 100, sort: "players" });
+    const data = await fetchServers({ limit: 24, sort: "players" });
     initialServers = data.servers;
     initialPagination = data.pagination;
   } catch (err) {

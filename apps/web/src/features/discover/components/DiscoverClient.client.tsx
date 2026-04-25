@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useCallback, useDeferredValue, useEffect, useRef, useTransition } from "react";
-import { PixelButton } from "@firstspawn/ui";
 import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
 import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";
@@ -14,7 +13,7 @@ import type {
 } from "@/lib/servers-api";
 import { loadMoreServers } from "@/app/actions/servers";
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 24;
 
 /**
  * Tier configurations defining the visual style, colors, and icons
@@ -117,6 +116,7 @@ export default function DiscoverClient({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const refreshRequestIdRef = useRef(0);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const hasHydratedRef = useRef(false);
 
   const [selectedGame, setSelectedGame] = useState<DiscoverGameFilter>("all");
@@ -175,6 +175,32 @@ export default function DiscoverClient({
     nextCursor,
     tierFilter,
   ]);
+
+  /**
+   * Intersection Observer to trigger loadMore when the target element enters the viewport.
+   * This provides a "modern" infinite scroll experience.
+   */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && nextCursor && !isLoadingMore && !isRefreshing) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [nextCursor, isLoadingMore, isRefreshing, loadMore]);
 
   /**
    * Effect that triggers a server refresh whenever search, game, sort, or tier filters change.
@@ -537,19 +563,21 @@ export default function DiscoverClient({
             </AnimatePresence>
           </div>
 
-          {/* Load More Button */}
-          {nextCursor && (
-            <div className="mt-8 flex justify-center">
-              <PixelButton
-                onClick={loadMore}
-                disabled={isLoadingMore || isRefreshing}
-                variant="outline"
-                className="w-full md:w-auto"
-              >
-                {isLoadingMore ? copy.loadingMoreLabel : loadMoreLabel}
-              </PixelButton>
-            </div>
-          )}
+          {/* Infinite Scroll Observer Target & Loading State */}
+          <div ref={observerTarget} className="mt-8 flex justify-center pb-12">
+            {nextCursor ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-fs-diamond border-t-transparent" />
+                <span className="font-ui text-xs text-foreground/40">{copy.loadingMoreLabel}</span>
+              </div>
+            ) : servers.length > 0 ? (
+              <span className="font-ui text-xs text-foreground/20">
+                — {copy.resultsSummary.split("{count}")[0]}
+                {servers.length}
+                {copy.resultsSummary.split("{count}")[1]} —
+              </span>
+            ) : null}
+          </div>
 
           {/* Empty State */}
           {servers.length === 0 && (
