@@ -504,7 +504,7 @@
         "serversVisited": "Ziyaret Edilen Sunucu",
         "favorites": "Favoriler"
       },
-      "resultsSummary": "{count} DÜNYA BULUNDU",
+      "resultsSummary": "{total} sunucudan {count} tanesi listeleniyor",
       "syncingLabel": "EŞİTLENİYOR...",
       "loadingMoreLabel": "YÜKLENİYOR...",
       "emptyStateTitle": "DÜNYA BULUNAMADI",

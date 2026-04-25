@@ -69,6 +69,13 @@ type DiscoverGameFilter = "all" | "minecraft" | "hytale";
 const formatSortNumber = (value?: number | null) =>
   typeof value === "number" ? value.toLocaleString() : "0";
 
+const formatResultsSummary = (template: string, count: number, total: number) => {
+  const formattedCount = count.toLocaleString();
+  const formattedTotal = total.toLocaleString();
+
+  return template.replace("{count}", formattedCount).replace("{total}", formattedTotal);
+};
+
 /**
  * Generates the highlight data for the ServerCard based on the current sort criteria.
  * This determines what metric (Ping, Players, etc.) is prominently displayed.
@@ -497,9 +504,11 @@ export default function DiscoverClient({
             className="mb-4 flex items-center justify-between"
           >
             <span className="font-ui text-sm text-foreground/50">
-              {copy.resultsSummary.split("{count}")[0]}
-              <span className="font-display text-fs-diamond">{servers.length}</span>
-              {copy.resultsSummary.split("{count}")[1]}
+              {formatResultsSummary(
+                copy.resultsSummary,
+                servers.length,
+                globalStats.total_active_servers
+              )}
             </span>
             {(isRefreshing || isPending) && (
               <span className="font-ui text-xs text-foreground/40">{copy.syncingLabel}</span>
@@ -577,9 +586,13 @@ export default function DiscoverClient({
               </div>
             ) : servers.length > 0 ? (
               <span className="font-ui text-xs text-foreground/20">
-                — {copy.resultsSummary.split("{count}")[0]}
-                {servers.length}
-                {copy.resultsSummary.split("{count}")[1]} —
+                —{" "}
+                {formatResultsSummary(
+                  copy.resultsSummary,
+                  servers.length,
+                  globalStats.total_active_servers
+                )}{" "}
+                —
               </span>
             ) : null}
           </div>
