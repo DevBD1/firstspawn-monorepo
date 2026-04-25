@@ -54,3 +54,7 @@ output
 tmp
 .temp
 .superpowers
+
+.infras/nginx/certs/firstspawn.crt
+.infras/nginx/certs/firstspawn.key
+.infras/ops/backup_debug.log
