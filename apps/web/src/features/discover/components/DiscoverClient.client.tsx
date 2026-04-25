@@ -57,7 +57,6 @@ interface DiscoverClientProps {
   initialServers: PublicServerListItem[];
   initialPagination: { next_cursor: string | null; limit: number };
   initialGlobalStats: PublicServerStats;
-  loadMoreLabel: string;
   serverCardCopy: ServerCardCopy;
 }
 
@@ -117,7 +116,6 @@ export default function DiscoverClient({
   initialServers,
   initialPagination,
   initialGlobalStats,
-  loadMoreLabel,
   serverCardCopy,
 }: DiscoverClientProps) {
   const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
@@ -137,19 +135,6 @@ export default function DiscoverClient({
   const [sortBy, setSortBy] = useState<PublicServerSort>("players");
   const [appliedSortBy, setAppliedSortBy] = useState<PublicServerSort>("players");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  /**
-   * isMobile state tracks the viewport width to handle responsive layout changes.
-   * Initialized to true to prevent hydration mismatch (server assumes mobile/default).
-   */
-  const [isMobile, setIsMobile] = useState(true);
-
-  useEffect(() => {
-    // Update isMobile state on mount and window resize
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   const gameFilter: PublicServerGame | undefined =
     selectedGame === "minecraft" ? "mc_java" : selectedGame === "hytale" ? "hytale" : undefined;
@@ -286,13 +271,10 @@ export default function DiscoverClient({
       </div>
 
       {/* Unified Sticky Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{
-          width: isMobile ? "100%" : isSidebarCollapsed ? 64 : 320,
-        }}
-        transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="relative z-20 w-full lg:shrink-0 overflow-hidden lg:overflow-visible"
+      <aside
+        className={`relative z-20 w-full overflow-hidden lg:shrink-0 lg:overflow-visible lg:transition-[width] lg:duration-200 lg:ease-in-out ${
+          isSidebarCollapsed ? "lg:w-16" : "lg:w-80"
+        }`}
       >
         <div className="sticky top-[80px] flex h-auto flex-col bg-bg-panel/50 lg:h-[calc(100vh-80px)] lg:border-r-2 lg:border-foreground/10">
           {/* Toggle Button */}
@@ -308,15 +290,10 @@ export default function DiscoverClient({
             </button>
           </div>
 
-          <motion.div
-            initial={false}
-            animate={{
-              opacity: !isMobile && isSidebarCollapsed ? 0 : 1,
-              x: !isMobile && isSidebarCollapsed ? -20 : 0,
-              display: !isMobile && isSidebarCollapsed ? "none" : "flex",
-            }}
-            transition={{ duration: 0.15 }}
-            className="flex h-auto flex-col gap-6 p-6 pt-0 lg:h-full lg:overflow-y-auto lg:pt-0"
+          <div
+            className={`h-auto flex-col gap-6 p-6 pt-0 lg:h-full lg:overflow-y-auto lg:pt-0 ${
+              isSidebarCollapsed ? "flex lg:hidden" : "flex"
+            }`}
           >
             {/* Top Stats Bar */}
             <motion.div
@@ -473,9 +450,9 @@ export default function DiscoverClient({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </motion.aside>
+      </aside>
 
       {/* Main Content Area */}
       <section className="relative z-10 flex-1 min-w-0 px-4 py-8 lg:px-8">

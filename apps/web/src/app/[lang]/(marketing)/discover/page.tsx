@@ -41,7 +41,6 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
       initialServers={initialServers}
       initialPagination={initialPagination}
       initialGlobalStats={globalStats}
-      loadMoreLabel={dictionary.common.actions.loadMore}
       serverCardCopy={serverCardCopy}
     />
   );
