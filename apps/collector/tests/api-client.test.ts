@@ -142,4 +142,41 @@ describe("ApiClient", () => {
       })
     );
   });
+
+  it("includes api rejection details in heartbeat ingest errors", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: null,
+          meta: { request_id: "req-1" },
+          error: {
+            code: "validation_error",
+            message: "Request validation failed",
+            details: { body: ["Expected integer"] },
+          },
+        }),
+        { status: 422 }
+      )
+    );
+
+    const client = new ApiClient({
+      baseUrl: "http://localhost:8000/api/v1",
+      collectorKey: "secret",
+      pageSize: 1,
+      fetchImpl: fetchMock,
+    });
+
+    await expect(
+      client.ingestHeartbeat({
+        server_id: "srv-a",
+        occurred_at: "2026-04-10T08:00:00.000Z",
+        idempotency_key: "srv-a:2026-04-10T08:00:00.000Z",
+        ping_ms: 24,
+        online_players: 100.25,
+        max_players: 200,
+        protocol_version: 765,
+        minecraft_version: "1.20.4",
+      })
+    ).rejects.toThrow("Expected integer");
+  });
 });

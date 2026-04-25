@@ -10,8 +10,11 @@ type StatusFn = (
   options: { timeout: number; enableSRV: boolean }
 ) => Promise<Record<string, unknown>>;
 
-const toNumberOrNull = (value: unknown): number | null =>
-  typeof value === "number" && Number.isFinite(value) ? value : null;
+const toNonnegativeIntegerOrNull = (value: unknown): number | null =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : null;
+
+const toIntegerOrNull = (value: unknown): number | null =>
+  typeof value === "number" && Number.isInteger(value) ? value : null;
 
 const toStringOrNull = (value: unknown): string | null =>
   typeof value === "string" ? value : null;
@@ -40,11 +43,17 @@ export class MinecraftServerUtilProbeClient implements MinecraftProbeClient {
     });
     const pingMs = Math.max(0, Date.now() - startedAt);
 
-    const playersOnline = toNumberOrNull(
+    const playersOnline = toNonnegativeIntegerOrNull(
       (response as { players?: { online?: unknown } }).players?.online
     );
-    const playersMax = toNumberOrNull((response as { players?: { max?: unknown } }).players?.max);
-    const protocolVersion = toNumberOrNull(
+    const rawPlayersMax = toNonnegativeIntegerOrNull(
+      (response as { players?: { max?: unknown } }).players?.max
+    );
+    const playersMax =
+      playersOnline != null && rawPlayersMax != null && playersOnline > rawPlayersMax
+        ? null
+        : rawPlayersMax;
+    const protocolVersion = toIntegerOrNull(
       (response as { version?: { protocol?: unknown } }).version?.protocol
     );
     const minecraftVersion = toStringOrNull(

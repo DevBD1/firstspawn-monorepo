@@ -41,4 +41,32 @@ describe("MinecraftServerUtilProbeClient", () => {
       enableSRV: true,
     });
   });
+
+  it("drops heartbeat metrics that would fail api validation", async () => {
+    const status = vi.fn().mockResolvedValue({
+      players: { online: 42, max: 20 },
+      version: { protocol: 765.5, name: "1.20.4" },
+    });
+    const client = new MinecraftServerUtilProbeClient(status);
+
+    const result = await client.probe(baseTarget, 5000);
+
+    expect(result.onlinePlayers).toBe(42);
+    expect(result.maxPlayers).toBeNull();
+    expect(result.protocolVersion).toBeNull();
+  });
+
+  it("drops non-integer and negative player counts", async () => {
+    const status = vi.fn().mockResolvedValue({
+      players: { online: -1, max: 100.25 },
+      version: { protocol: 765, name: "1.20.4" },
+    });
+    const client = new MinecraftServerUtilProbeClient(status);
+
+    const result = await client.probe(baseTarget, 5000);
+
+    expect(result.onlinePlayers).toBeNull();
+    expect(result.maxPlayers).toBeNull();
+    expect(result.protocolVersion).toBe(765);
+  });
 });

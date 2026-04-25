@@ -36,6 +36,11 @@ const toUrl = (baseUrl: string, path: string): URL => {
   return new URL(`${normalized}${path}`);
 };
 
+const readErrorBody = async (response: Response): Promise<string> => {
+  const body = await response.text();
+  return body.length > 0 ? `: ${body.slice(0, 500)}` : "";
+};
+
 export class ApiClient {
   private readonly baseUrl: string;
   private readonly collectorKey: string;
@@ -64,7 +69,7 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Target fetch failed with status ${response.status}`);
+      throw new Error(`Target fetch failed with status ${response.status}${await readErrorBody(response)}`);
     }
 
     const payload = (await response.json()) as Envelope<{
@@ -133,7 +138,9 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Heartbeat ingest failed with status ${response.status}`);
+      throw new Error(
+        `Heartbeat ingest failed with status ${response.status}${await readErrorBody(response)}`
+      );
     }
 
     const payload = (await response.json()) as Envelope<{
@@ -161,7 +168,9 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Probe attempt ingest failed with status ${response.status}`);
+      throw new Error(
+        `Probe attempt ingest failed with status ${response.status}${await readErrorBody(response)}`
+      );
     }
 
     const payload = (await response.json()) as Envelope<{
