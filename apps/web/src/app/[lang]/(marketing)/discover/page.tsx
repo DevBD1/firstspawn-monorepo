@@ -30,15 +30,13 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
   }
 
   return (
-    <main className="w-full">
-      <DiscoverClient
-        copy={copy.page}
-        lang={lang}
-        initialServers={initialServers}
-        initialPagination={initialPagination}
-        loadMoreLabel={dictionary.common.actions.loadMore}
-        serverCardCopy={serverCardCopy}
-      />
-    </main>
+    <DiscoverClient
+      copy={copy.page}
+      lang={lang}
+      initialServers={initialServers}
+      initialPagination={initialPagination}
+      loadMoreLabel={dictionary.common.actions.loadMore}
+      serverCardCopy={serverCardCopy}
+    />
   );
 }

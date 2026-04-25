@@ -440,7 +440,7 @@ export default function DiscoverClient({
       </motion.aside>
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 min-w-0 px-4 py-8 lg:px-8">
+      <section className="relative z-10 flex-1 min-w-0 px-4 py-8 lg:px-8">
         <div className="mx-auto max-w-7xl">
           {/* Header Title/Subtitle */}
           <motion.div
@@ -566,7 +566,7 @@ export default function DiscoverClient({
             </motion.div>
           )}
         </div>
-      </main>
+      </section>
 
       {/* Footer spacer */}
       <div className="h-8" />
