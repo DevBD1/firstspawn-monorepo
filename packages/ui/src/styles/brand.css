@@ -25,6 +25,11 @@
   --fs-gold: #ffd700;
   --fs-diamond: #3b82f6;
 
+  /* Narrative / Specialized */
+  --error-glow: #e28c8c;
+  --bg-host-panel: #1e1a0a;
+  --scanline-color: #121010;
+
   /* Secondary / Misc */
   --secondary: #1e293b;
   --secondary-hover: #334155;

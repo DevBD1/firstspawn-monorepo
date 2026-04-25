@@ -37,7 +37,7 @@ export default function LandingDiscoveryFork({ content, lang }: LandingDiscovery
           className="bg-bg-panel p-8 md:p-12 relative flex flex-col justify-center border-b-[6px] md:border-b-0 md:border-r-[6px] border-black cursor-crosshair group overflow-hidden min-h-[450px] md:min-h-0"
         >
           {/* Scanlines Overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-20" />
+          <div className="absolute inset-0 bg-[linear-gradient(color-mix(in_srgb,var(--scanline-color),transparent_100%)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-20" />
 
           {/* Hover Glow Effect */}
           <motion.div
@@ -71,10 +71,10 @@ export default function LandingDiscoveryFork({ content, lang }: LandingDiscovery
           transition={{ duration: 0.2, ease: "circIn" }}
           onHoverStart={() => setActiveSide("host")}
           onHoverEnd={() => setActiveSide(null)}
-          className="bg-[#1E1A0A] p-8 md:p-12 relative flex flex-col justify-center cursor-pointer group overflow-hidden min-h-[400px] md:min-h-0"
+          className="bg-[var(--bg-host-panel)] p-8 md:p-12 relative flex flex-col justify-center cursor-pointer group overflow-hidden min-h-[400px] md:min-h-0"
         >
           {/* Scanlines Overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-20" />
+          <div className="absolute inset-0 bg-[linear-gradient(color-mix(in_srgb,var(--scanline-color),transparent_100%)_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none z-20" />
 
           {/* Hover Glow Effect */}
           <motion.div
