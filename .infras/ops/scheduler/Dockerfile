@@ -2,10 +2,11 @@ FROM alpine:3.20
 
 ARG SUPERCRONIC_VERSION=v0.2.31
 
-RUN apk add --no-cache bash postgresql-client ca-certificates tzdata wget \
-  && wget -q -O /usr/local/bin/supercronic "https://github.com/aptible/supercronic/releases/download/${SUPERCRONIC_VERSION}/supercronic-linux-amd64" \
-  && chmod +x /usr/local/bin/supercronic \
-  && mkdir -p /work/.infras/ops/cron /work/.infras/ops/scheduler /work/packages/database/jobs
+COPY .infras/ops/scheduler/bin/supercronic /usr/local/bin/supercronic
+
+RUN chmod +x /usr/local/bin/supercronic \
+ && apk add --no-cache bash postgresql-client ca-certificates tzdata \
+ && mkdir -p /work/.infras/ops/cron /work/.infras/ops/scheduler /work/packages/database/jobs
 
 WORKDIR /work
 

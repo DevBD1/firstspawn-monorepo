@@ -148,4 +148,4 @@ volumes:
 networks:
   firstspawn-network:
     driver: bridge
-    enable_ipv6: false # if true -> Docker daemon.json file must be set to "ipv6": true
+    enable_ipv6: true # if true -> Docker daemon.json file must be set to "ipv6": true
