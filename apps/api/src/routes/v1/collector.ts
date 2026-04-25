@@ -27,17 +27,17 @@ const heartbeatBodySchema = z
     occurred_at: z.string().datetime(),
     idempotency_key: z.string().trim().min(1).max(255),
     ping_ms: z.number().int().nonnegative(),
-    online_players: z.number().int().nonnegative().optional(),
-    max_players: z.number().int().nonnegative().optional(),
-    uptime_seconds: z.number().int().nonnegative().optional(),
-    protocol_version: z.number().int().optional(),
-    minecraft_version: z.string().trim().max(50).optional(),
+    online_players: z.number().int().nonnegative().nullish(),
+    max_players: z.number().int().nonnegative().nullish(),
+    uptime_seconds: z.number().int().nonnegative().nullish(),
+    protocol_version: z.number().int().nullish(),
+    minecraft_version: z.string().trim().max(50).nullish(),
     payload: z.unknown().optional(),
   })
   .superRefine((value, ctx) => {
     if (
-      value.online_players !== undefined &&
-      value.max_players !== undefined &&
+      value.online_players != null &&
+      value.max_players != null &&
       value.online_players > value.max_players
     ) {
       ctx.addIssue({
@@ -194,11 +194,11 @@ const insertHeartbeat = async (
           collectedAt: now,
           idempotencyKey: input.idempotency_key,
           pingMs: input.ping_ms,
-          onlinePlayers: input.online_players,
-          maxPlayers: input.max_players,
-          uptimeSeconds: input.uptime_seconds,
-          protocolVersion: input.protocol_version,
-          minecraftVersion: input.minecraft_version,
+          onlinePlayers: input.online_players ?? null,
+          maxPlayers: input.max_players ?? null,
+          uptimeSeconds: input.uptime_seconds ?? null,
+          protocolVersion: input.protocol_version ?? null,
+          minecraftVersion: input.minecraft_version ?? null,
           payload: input.payload,
           updatedAt: now,
         })
@@ -302,30 +302,31 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
       const limit = request.query.limit;
 
       const baseWhere = and(eq(servers.status, "active"), eq(servers.game, "mc_java"));
+      const createdAtCursorExpr = sql<Date>`date_trunc('milliseconds', ${servers.createdAt})`;
       const whereCondition = cursor
         ? and(
             baseWhere,
             or(
-              gt(servers.createdAt, cursor.createdAt),
-              and(eq(servers.createdAt, cursor.createdAt), gt(servers.id, cursor.id))
+              sql`${createdAtCursorExpr} > ${cursor.createdAt}`,
+              and(sql`${createdAtCursorExpr} = ${cursor.createdAt}`, gt(servers.id, cursor.id))
             )
           )
         : baseWhere;
 
-      const rows = await app.db.db.query.servers.findMany({
-        where: whereCondition,
-        orderBy: [asc(servers.createdAt), asc(servers.id)],
-        limit: limit + 1,
-        columns: {
-          id: true,
-          slug: true,
-          host: true,
-          port: true,
-          game: true,
-          region: true,
-          createdAt: true,
-        },
-      });
+      const rows = await app.db.db
+        .select({
+          id: servers.id,
+          slug: servers.slug,
+          host: servers.host,
+          port: servers.port,
+          game: servers.game,
+          region: servers.region,
+          createdAt: servers.createdAt,
+        })
+        .from(servers)
+        .where(whereCondition)
+        .orderBy(asc(createdAtCursorExpr), asc(servers.id))
+        .limit(limit + 1);
 
       const hasMore = rows.length > limit;
       const pageRows = hasMore ? rows.slice(0, limit) : rows;

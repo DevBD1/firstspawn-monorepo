@@ -106,6 +106,56 @@ describe("collector integration", () => {
     expect(pageTwo.json().data.next_cursor).toBeNull();
   });
 
+  it("does not duplicate targets when multiple rows share a cursor timestamp", async () => {
+    const createdAt = new Date("2026-04-10T00:00:00.000Z");
+    const first = await createServer({
+      slug: "same-time-first",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const second = await createServer({
+      slug: "same-time-second",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const third = await createServer({
+      slug: "same-time-third",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const expectedIds = [first.id, second.id, third.id].sort();
+
+    const pageOne = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/collector/targets?limit=2",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(pageOne.statusCode).toBe(200);
+    expect(pageOne.json().data.targets).toHaveLength(2);
+    expect(pageOne.json().data.next_cursor).toBeTruthy();
+
+    const pageTwo = await getContext().app.inject({
+      method: "GET",
+      url: `/api/v1/collector/targets?limit=2&cursor=${encodeURIComponent(pageOne.json().data.next_cursor)}`,
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(pageTwo.statusCode).toBe(200);
+    expect(pageTwo.json().data.targets).toHaveLength(1);
+    expect(pageTwo.json().data.next_cursor).toBeNull();
+
+    const actualIds = [
+      ...pageOne.json().data.targets.map((target: { id: string }) => target.id),
+      ...pageTwo.json().data.targets.map((target: { id: string }) => target.id),
+    ].sort();
+    expect(actualIds).toEqual(expectedIds);
+  });
+
   it("keeps old never-probed active servers in collector targets", async () => {
     const oldActive = await createServer({
       slug: "old-never-probed",
@@ -176,6 +226,31 @@ describe("collector integration", () => {
 
     expect(duplicate.statusCode).toBe(200);
     expect(duplicate.json().data.duplicate).toBe(true);
+  });
+
+  it("accepts explicit null optional heartbeat metrics", async () => {
+    const server = await createServer();
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "null-metrics",
+        ping_ms: 42,
+        online_players: null,
+        max_players: null,
+        uptime_seconds: null,
+        protocol_version: null,
+        minecraft_version: null,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
   });
 
   it("accepts out-of-order samples but keeps last_ping_at monotonic", async () => {
