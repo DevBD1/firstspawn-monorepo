@@ -38,6 +38,9 @@ API_DATABASE_URL=postgresql://... ARCHIVE_AFTER_HOURS=168 \
   ./.infras/ops/cron/archive-inactive-servers.sh
 ```
 
+This job is currently a no-op safety guard. Collector silence, failed probes,
+DNS failures, and stale `last_ping_at` must not archive catalog rows.
+
 Purge deleted users:
 
 ```bash

@@ -99,6 +99,12 @@ erDiagram
         varchar discord_url
 
         timestamptz last_ping_at
+        timestamptz last_probe_attempt_at
+        timestamptz last_probe_success_at
+        timestamptz last_probe_failure_at
+        int consecutive_probe_failures
+        varchar last_probe_error_code
+        varchar probe_status "online | offline | unknown | unreachable"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -170,14 +176,17 @@ erDiagram
 - `users.username` is DB-constrained to `^[A-Za-z0-9_]{3,32}$`.
 - `servers.slug` is globally unique and never reused.
 - `server_heartbeats` dedupe uniqueness is scoped by `(server_id, idempotency_key)`.
-- `servers.status = 'active'` is the only state targeted by collectors/jobs.
+- `servers.status` is catalog/moderation state only: `active`, `suspended`, or `archived`.
+- Collectors target active `mc_java` rows regardless of heartbeat freshness or probe confidence.
+- Probe confidence is tracked separately with `servers.probe_status` and the `last_probe_*` columns.
 - `users.status = 'deleted'` means pending purge, not yet hard-deleted.
 
 ## Retention And Lifecycle
 
 - Raw `server_heartbeats` retention: 14 days for all servers.
-- Auto archive server policy:
-  - Transition `active -> archived` when `coalesce(last_ping_at, created_at)` is older than 7 days.
+- Server archive policy:
+  - Archive only from explicit catalog/admin evidence.
+  - Collector silence, stale `last_ping_at`, failed probes, DNS failures, or network reachability failures must not archive rows.
 - User soft-delete policy:
   - Default purge window: 30 days.
   - Expedite request window: 24 hours.

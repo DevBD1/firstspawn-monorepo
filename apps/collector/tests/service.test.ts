@@ -28,6 +28,7 @@ describe("CollectorService", () => {
     const ingestHeartbeat = vi
       .fn<(payload: HeartbeatPayload) => Promise<IngestResult>>()
       .mockResolvedValue({ accepted: true, duplicate: false });
+    const recordProbeFailure = vi.fn<ApiClient["recordProbeFailure"]>().mockResolvedValue();
     const fetchAllTargets = vi
       .fn<() => Promise<CollectorTarget[]>>()
       .mockResolvedValue([targetA, targetB]);
@@ -35,6 +36,7 @@ describe("CollectorService", () => {
     const apiClient = {
       fetchAllTargets,
       ingestHeartbeat,
+      recordProbeFailure,
     } as unknown as ApiClient;
 
     const probe = vi
@@ -101,11 +103,13 @@ describe("CollectorService", () => {
     const ingestHeartbeat = vi
       .fn<(payload: HeartbeatPayload) => Promise<IngestResult>>()
       .mockResolvedValue({ accepted: true, duplicate: false });
+    const recordProbeFailure = vi.fn<ApiClient["recordProbeFailure"]>().mockResolvedValue();
     const fetchAllTargets = vi.fn<() => Promise<CollectorTarget[]>>().mockResolvedValue([targetA]);
 
     const apiClient = {
       fetchAllTargets,
       ingestHeartbeat,
+      recordProbeFailure,
     } as unknown as ApiClient;
 
     const probe = vi
@@ -135,6 +139,12 @@ describe("CollectorService", () => {
     expect(result.probeSuccess).toBe(0);
     expect(result.probeFailure).toBe(1);
     expect(probe).toHaveBeenCalledTimes(1);
+    expect(recordProbeFailure).toHaveBeenCalledWith({
+      server_id: "srv-a",
+      occurred_at: "2026-04-10T08:00:00.000Z",
+      result: "failure",
+      error_code: "timeout",
+    });
     expect(ingestHeartbeat).not.toHaveBeenCalled();
   });
 });

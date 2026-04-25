@@ -72,11 +72,19 @@ CREATE TABLE "servers" (
 	"website_url" varchar(2048),
 	"discord_url" varchar(2048),
 	"last_ping_at" timestamp with time zone,
+	"last_probe_attempt_at" timestamp with time zone,
+	"last_probe_success_at" timestamp with time zone,
+	"last_probe_failure_at" timestamp with time zone,
+	"consecutive_probe_failures" integer DEFAULT 0 NOT NULL,
+	"last_probe_error_code" varchar(80),
+	"probe_status" varchar(20) DEFAULT 'unknown' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "chk_servers_port" CHECK ("servers"."port" between 1 and 65535),
 	CONSTRAINT "chk_servers_game" CHECK ("servers"."game" in ('mc_java', 'mc_bedrock', 'hytale')),
-	CONSTRAINT "chk_servers_status" CHECK ("servers"."status" in ('active', 'suspended', 'archived'))
+	CONSTRAINT "chk_servers_status" CHECK ("servers"."status" in ('active', 'suspended', 'archived')),
+	CONSTRAINT "chk_servers_probe_status" CHECK ("servers"."probe_status" in ('online', 'offline', 'unknown', 'unreachable')),
+	CONSTRAINT "chk_servers_consecutive_probe_failures" CHECK ("servers"."consecutive_probe_failures" >= 0)
 );
 --> statement-breakpoint
 CREATE TABLE "user_deletion_requests" (
@@ -156,6 +164,7 @@ CREATE UNIQUE INDEX "idx_server_heartbeats_server_idempotency" ON "server_heartb
 CREATE UNIQUE INDEX "servers_slug_unique" ON "servers" USING btree ("slug");--> statement-breakpoint
 CREATE INDEX "idx_servers_status" ON "servers" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "idx_servers_game" ON "servers" USING btree ("game");--> statement-breakpoint
+CREATE INDEX "idx_servers_probe_status" ON "servers" USING btree ("probe_status");--> statement-breakpoint
 CREATE INDEX "idx_user_deletion_requests_user_id" ON "user_deletion_requests" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_user_deletion_requests_purge_after" ON "user_deletion_requests" USING btree ("purge_after");--> statement-breakpoint
 CREATE UNIQUE INDEX "idx_user_deletion_requests_active_user" ON "user_deletion_requests" USING btree ("user_id") WHERE "user_deletion_requests"."cancelled_at" is null and "user_deletion_requests"."purged_at" is null;--> statement-breakpoint

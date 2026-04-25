@@ -34,8 +34,8 @@ and database migrations managed from `packages/database`.
 - DB-backed integration and concurrency tests for auth flows
 - Admin server catalog endpoints (`mc_java`)
 - Public server list/detail endpoints (slug detail)
-- Collector target + heartbeat ingestion endpoints
-- Freshness derived from `servers.last_ping_at` (15 minute online window)
+- Collector target, heartbeat ingestion, and probe-failure ingestion endpoints
+- Freshness derived from probe state plus `servers.last_ping_at` (15 minute online window)
 - Heartbeat idempotency by `(server_id, idempotency_key)`
 
 ### Not Implemented Yet

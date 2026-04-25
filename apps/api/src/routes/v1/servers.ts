@@ -19,7 +19,7 @@ type HeartbeatRecord = typeof serverHeartbeats.$inferSelect;
 
 const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
-const freshnessStatusSchema = z.enum(["online", "offline"]);
+const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
 const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
 const publicListSortSchema = z.enum(["players", "ping"]);
 const publicTierSchema = z.enum(["common", "rare", "epic", "legendary"]);
@@ -211,8 +211,19 @@ const buildTemporarySlug = (name: string): string => {
   return `${base.slice(0, 100)}-${randomSlugSuffix()}`;
 };
 
-const freshnessFromServer = (server: ServerRecord, nowMs: number): "online" | "offline" => {
-  if (server.status !== "active" || !server.lastPingAt) {
+const freshnessFromServer = (
+  server: ServerRecord,
+  nowMs: number
+): "online" | "offline" | "unknown" => {
+  if (server.status !== "active") {
+    return "offline";
+  }
+
+  if (!server.lastProbeAttemptAt || server.probeStatus === "unknown") {
+    return "unknown";
+  }
+
+  if (!server.lastPingAt) {
     return "offline";
   }
 
@@ -268,7 +279,7 @@ const normalizeServerPayload = (
   port: number;
   game: "mc_java" | "mc_bedrock" | "hytale";
   catalog_status: "active" | "suspended" | "archived";
-  freshness_status: "online" | "offline";
+  freshness_status: "online" | "offline" | "unknown";
   online_mode: boolean;
   region: string | null;
   website_url: string | null;
@@ -734,8 +745,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         filters.push(
           or(
             eq(servers.status, "archived"),
-            isNull(servers.lastPingAt),
-            lt(servers.lastPingAt, threshold)
+            and(eq(servers.status, "active"), lt(servers.lastPingAt, threshold)),
+            and(eq(servers.status, "active"), eq(servers.probeStatus, "unreachable")),
+            and(eq(servers.status, "active"), eq(servers.probeStatus, "offline"))
+          )!
+        );
+      } else if (query.freshness_status === "unknown") {
+        filters.push(
+          and(
+            eq(servers.status, "active"),
+            or(isNull(servers.lastProbeAttemptAt), eq(servers.probeStatus, "unknown"))!
           )!
         );
       }

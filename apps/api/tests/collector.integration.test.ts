@@ -106,6 +106,27 @@ describe("collector integration", () => {
     expect(pageTwo.json().data.next_cursor).toBeNull();
   });
 
+  it("keeps old never-probed active servers in collector targets", async () => {
+    const oldActive = await createServer({
+      slug: "old-never-probed",
+      createdAt: new Date("2026-04-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-04-01T00:00:00.000Z"),
+      lastPingAt: null,
+    });
+
+    const response = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/collector/targets?limit=10",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const ids = response.json().data.targets.map((target: { id: string }) => target.id);
+    expect(ids).toContain(oldActive.id);
+  });
+
   it("rejects requests with bad collector key", async () => {
     const response = await getContext().app.inject({
       method: "GET",
@@ -198,6 +219,90 @@ describe("collector integration", () => {
     });
 
     expect(updated?.lastPingAt?.toISOString()).toBe("2026-04-10T11:00:00.000Z");
+  });
+
+  it("persists probe failure state without changing catalog status", async () => {
+    const server = await createServer();
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/probe-attempts",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T12:00:00.000Z",
+        result: "failure",
+        error_code: "network_unreachable",
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const updated = await getContext().app.db.db.query.servers.findFirst({
+      where: (table, { eq }) => eq(table.id, server.id),
+      columns: {
+        status: true,
+        lastProbeAttemptAt: true,
+        lastProbeFailureAt: true,
+        consecutiveProbeFailures: true,
+        lastProbeErrorCode: true,
+        probeStatus: true,
+      },
+    });
+
+    expect(updated).toMatchObject({
+      status: "active",
+      consecutiveProbeFailures: 1,
+      lastProbeErrorCode: "network_unreachable",
+      probeStatus: "unreachable",
+    });
+    expect(updated?.lastProbeAttemptAt?.toISOString()).toBe("2026-04-10T12:00:00.000Z");
+    expect(updated?.lastProbeFailureAt?.toISOString()).toBe("2026-04-10T12:00:00.000Z");
+  });
+
+  it("resets probe failure state on successful heartbeat", async () => {
+    const server = await createServer({
+      consecutiveProbeFailures: 3,
+      lastProbeErrorCode: "timeout",
+      probeStatus: "unreachable",
+      lastProbeAttemptAt: new Date("2026-04-10T09:00:00.000Z"),
+      lastProbeFailureAt: new Date("2026-04-10T09:00:00.000Z"),
+    });
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T13:00:00.000Z",
+        idempotency_key: "success-after-failure",
+        ping_ms: 21,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const updated = await getContext().app.db.db.query.servers.findFirst({
+      where: (table, { eq }) => eq(table.id, server.id),
+      columns: {
+        lastProbeAttemptAt: true,
+        lastProbeSuccessAt: true,
+        consecutiveProbeFailures: true,
+        lastProbeErrorCode: true,
+        probeStatus: true,
+      },
+    });
+
+    expect(updated?.lastProbeAttemptAt?.toISOString()).toBe("2026-04-10T13:00:00.000Z");
+    expect(updated?.lastProbeSuccessAt?.toISOString()).toBe("2026-04-10T13:00:00.000Z");
+    expect(updated?.consecutiveProbeFailures).toBe(0);
+    expect(updated?.lastProbeErrorCode).toBeNull();
+    expect(updated?.probeStatus).toBe("online");
   });
 
   it("returns 409 for archived or suspended targets", async () => {

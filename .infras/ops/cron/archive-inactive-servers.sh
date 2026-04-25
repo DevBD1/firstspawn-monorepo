@@ -6,7 +6,7 @@ if [[ -z "${API_DATABASE_URL:-}" ]]; then
   exit 1
 fi
 
-ARCHIVE_AFTER_HOURS="${ARCHIVE_AFTER_HOURS:-168}"
+ARCHIVE_AFTER_HOURS="${ARCHIVE_AFTER_HOURS:-168}" # Kept for CLI compatibility; SQL is a no-op guard.
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 

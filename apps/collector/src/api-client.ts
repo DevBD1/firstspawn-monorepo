@@ -3,6 +3,7 @@ import type {
   CollectorTargetsPage,
   HeartbeatPayload,
   IngestResult,
+  ProbeFailurePayload,
 } from "./types.js";
 
 interface ApiClientOptions {
@@ -145,5 +146,30 @@ export class ApiClient {
     }
 
     return payload.data;
+  }
+
+  public async recordProbeFailure(payloadBody: ProbeFailurePayload): Promise<void> {
+    const url = toUrl(this.baseUrl, "/collector/probe-attempts");
+
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-collector-key": this.collectorKey,
+      },
+      body: JSON.stringify(payloadBody),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Probe attempt ingest failed with status ${response.status}`);
+    }
+
+    const payload = (await response.json()) as Envelope<{
+      accepted: boolean;
+    }>;
+
+    if (payload.error) {
+      throw new Error(`Probe attempt ingest failed: ${payload.error.code}`);
+    }
   }
 }

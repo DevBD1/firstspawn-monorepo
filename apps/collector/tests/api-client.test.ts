@@ -102,4 +102,44 @@ describe("ApiClient", () => {
     expect(sleep).toHaveBeenCalledTimes(1);
     expect(logger.info).toHaveBeenCalledWith("[collector] waiting for api readiness: fetch failed");
   });
+
+  it("records probe failure attempts", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(
+        JSON.stringify(
+          envelope({
+            accepted: true,
+          })
+        ),
+        { status: 200 }
+      )
+    );
+
+    const client = new ApiClient({
+      baseUrl: "http://localhost:8000/api/v1",
+      collectorKey: "secret",
+      pageSize: 1,
+      fetchImpl: fetchMock,
+    });
+
+    await client.recordProbeFailure({
+      server_id: "srv-a",
+      occurred_at: "2026-04-10T08:00:00.000Z",
+      result: "failure",
+      error_code: "network_unreachable",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      new URL("http://localhost:8000/api/v1/collector/probe-attempts"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          server_id: "srv-a",
+          occurred_at: "2026-04-10T08:00:00.000Z",
+          result: "failure",
+          error_code: "network_unreachable",
+        }),
+      })
+    );
+  });
 });

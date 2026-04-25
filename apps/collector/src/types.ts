@@ -25,6 +25,13 @@ export interface HeartbeatPayload {
   payload?: Record<string, unknown>;
 }
 
+export interface ProbeFailurePayload {
+  server_id: string;
+  occurred_at: string;
+  result: "failure";
+  error_code: string;
+}
+
 export interface IngestResult {
   accepted: boolean;
   duplicate: boolean;

@@ -48,6 +48,13 @@ const heartbeatBodySchema = z
     }
   });
 
+const probeAttemptBodySchema = z.object({
+  server_id: z.string().uuid(),
+  occurred_at: z.string().datetime(),
+  result: z.literal("failure"),
+  error_code: z.string().trim().min(1).max(80),
+});
+
 const collectorTargetSchema = z.object({
   id: z.string().uuid(),
   slug: z.string(),
@@ -81,6 +88,14 @@ const heartbeatResponseSchema = envelopeSchema(
     server_id: z.string().uuid(),
     occurred_at: z.string().datetime(),
     collected_at: z.string().datetime(),
+  })
+);
+
+const probeAttemptResponseSchema = envelopeSchema(
+  z.object({
+    accepted: z.literal(true),
+    server_id: z.string().uuid(),
+    occurred_at: z.string().datetime(),
   })
 );
 
@@ -196,6 +211,11 @@ const insertHeartbeat = async (
         .update(servers)
         .set({
           lastPingAt: sql`greatest(coalesce(${servers.lastPingAt}, ${occurredAt}), ${occurredAt})`,
+          lastProbeAttemptAt: sql`greatest(coalesce(${servers.lastProbeAttemptAt}, ${occurredAt}), ${occurredAt})`,
+          lastProbeSuccessAt: sql`greatest(coalesce(${servers.lastProbeSuccessAt}, ${occurredAt}), ${occurredAt})`,
+          consecutiveProbeFailures: 0,
+          lastProbeErrorCode: null,
+          probeStatus: "online",
           updatedAt: now,
         })
         .where(eq(servers.id, input.server_id));
@@ -234,6 +254,32 @@ const insertHeartbeat = async (
       duplicate: true,
     };
   }
+};
+
+const recordProbeFailure = async (
+  app: FastifyInstance,
+  input: z.infer<typeof probeAttemptBodySchema>
+): Promise<void> => {
+  const now = new Date();
+  const occurredAt = new Date(input.occurred_at);
+
+  await app.db.db
+    .update(servers)
+    .set({
+      lastProbeAttemptAt: sql`greatest(coalesce(${servers.lastProbeAttemptAt}, ${occurredAt}), ${occurredAt})`,
+      lastProbeFailureAt: sql`greatest(coalesce(${servers.lastProbeFailureAt}, ${occurredAt}), ${occurredAt})`,
+      consecutiveProbeFailures: sql`${servers.consecutiveProbeFailures} + 1`,
+      lastProbeErrorCode: input.error_code,
+      probeStatus: "unreachable",
+      updatedAt: now,
+    })
+    .where(
+      and(
+        eq(servers.id, input.server_id),
+        eq(servers.status, "active"),
+        eq(servers.game, "mc_java")
+      )
+    );
 };
 
 export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
@@ -332,6 +378,33 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
           server_id: request.body.server_id,
           occurred_at: result.occurredAt.toISOString(),
           collected_at: result.collectedAt.toISOString(),
+        },
+        request.id
+      );
+    }
+  );
+
+  app.post(
+    "/probe-attempts",
+    {
+      schema: {
+        body: probeAttemptBodySchema,
+        response: {
+          200: probeAttemptResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      requireCollectorKey(app, request.headers["x-collector-key"]);
+
+      await ensureCollectableServer(app, request.body.server_id);
+      await recordProbeFailure(app, request.body);
+
+      return successEnvelope(
+        {
+          accepted: true as const,
+          server_id: request.body.server_id,
+          occurred_at: new Date(request.body.occurred_at).toISOString(),
         },
         request.id
       );

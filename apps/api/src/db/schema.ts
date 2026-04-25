@@ -176,15 +176,27 @@ export const servers = pgTable(
     websiteUrl: varchar("website_url", { length: 2048 }),
     discordUrl: varchar("discord_url", { length: 2048 }),
     lastPingAt: timestamp("last_ping_at", { withTimezone: true, mode: "date" }),
+    lastProbeAttemptAt: timestamp("last_probe_attempt_at", { withTimezone: true, mode: "date" }),
+    lastProbeSuccessAt: timestamp("last_probe_success_at", { withTimezone: true, mode: "date" }),
+    lastProbeFailureAt: timestamp("last_probe_failure_at", { withTimezone: true, mode: "date" }),
+    consecutiveProbeFailures: integer("consecutive_probe_failures").notNull().default(0),
+    lastProbeErrorCode: varchar("last_probe_error_code", { length: 80 }),
+    probeStatus: varchar("probe_status", { length: 20 }).notNull().default("unknown"),
     ...timestamps,
   },
   (table) => [
     uniqueIndex("servers_slug_unique").on(table.slug),
     index("idx_servers_status").on(table.status),
     index("idx_servers_game").on(table.game),
+    index("idx_servers_probe_status").on(table.probeStatus),
     check("chk_servers_port", sql`${table.port} between 1 and 65535`),
     check("chk_servers_game", sql`${table.game} in ('mc_java', 'mc_bedrock', 'hytale')`),
     check("chk_servers_status", sql`${table.status} in ('active', 'suspended', 'archived')`),
+    check(
+      "chk_servers_probe_status",
+      sql`${table.probeStatus} in ('online', 'offline', 'unknown', 'unreachable')`
+    ),
+    check("chk_servers_consecutive_probe_failures", sql`${table.consecutiveProbeFailures} >= 0`),
   ]
 );
 

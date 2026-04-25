@@ -50,6 +50,28 @@ const runWithConcurrency = async <T>(
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()));
 };
 
+const probeErrorCode = (error: unknown): string => {
+  const code = (error as { code?: unknown; cause?: { code?: unknown } }).code;
+  const causeCode = (error as { cause?: { code?: unknown } }).cause?.code;
+  const rawCode = typeof code === "string" ? code : typeof causeCode === "string" ? causeCode : "";
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+
+  if (rawCode.includes("TIMEOUT") || message.includes("timeout")) {
+    return "timeout";
+  }
+  if (rawCode.includes("ENOTFOUND") || rawCode.includes("EAI_AGAIN")) {
+    return "dns";
+  }
+  if (rawCode.includes("ECONNREFUSED")) {
+    return "connection_refused";
+  }
+  if (rawCode.includes("ENETUNREACH") || rawCode.includes("EHOSTUNREACH")) {
+    return "network_unreachable";
+  }
+
+  return "probe_failed";
+};
+
 export class CollectorService {
   private readonly apiClient: ApiClient;
   private readonly probeClient: MinecraftProbeClient;
@@ -135,6 +157,21 @@ export class CollectorService {
     } catch (error) {
       this.metrics.observeProbeFailure();
       result.probeFailure += 1;
+      try {
+        await this.apiClient.recordProbeFailure({
+          server_id: target.id,
+          occurred_at: occurredAtIso,
+          result: "failure",
+          error_code: probeErrorCode(error),
+        });
+      } catch (ingestError) {
+        this.metrics.observeIngestFailure();
+        result.ingestFailure += 1;
+        this.logger.error(
+          `[collector] probe failure ingest failed server=${target.id}`,
+          ingestError
+        );
+      }
       this.logger.error(`[collector] probe failed server=${target.id} host=${target.host}`, error);
       return;
     }
