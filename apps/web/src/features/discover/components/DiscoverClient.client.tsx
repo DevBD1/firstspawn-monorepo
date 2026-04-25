@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useCallback, useDeferredValue, useEffect, useRef } from "react";
+import { useState, useCallback, useDeferredValue, useEffect, useRef, useTransition } from "react";
 import { PixelButton } from "@firstspawn/ui";
 import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
 import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
@@ -15,7 +15,6 @@ import type {
 import { loadMoreServers } from "@/app/actions/servers";
 
 const PAGE_SIZE = 100;
-const LIST_EXIT_DELAY_MS = 160;
 
 // Tier configurations - like item rarities
 const tierConfig = {
@@ -102,6 +101,7 @@ export default function DiscoverClient({
   const [nextCursor, setNextCursor] = useState<string | null>(initialPagination.next_cursor);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const refreshRequestIdRef = useRef(0);
   const hasHydratedRef = useRef(false);
 
@@ -153,17 +153,9 @@ export default function DiscoverClient({
     const requestId = refreshRequestIdRef.current + 1;
     refreshRequestIdRef.current = requestId;
     setIsRefreshing(true);
-    setServers([]);
-    setNextCursor(null);
 
-    void (async () => {
+    startTransition(async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, LIST_EXIT_DELAY_MS));
-
-        if (refreshRequestIdRef.current !== requestId) {
-          return;
-        }
-
         const data = await loadMoreServers({
           q: deferredSearchQuery || undefined,
           game: gameFilter,
@@ -190,7 +182,7 @@ export default function DiscoverClient({
           setIsRefreshing(false);
         }
       }
-    })();
+    });
   }, [deferredSearchQuery, gameFilter, sortBy, tierFilter]);
 
   const toggleTier = (tier: PublicServerTier) => {
@@ -437,13 +429,19 @@ export default function DiscoverClient({
                 <span className="font-display text-fs-diamond">{servers.length}</span>
                 {copy.resultsSummary.split("{count}")[1]}
               </span>
-              {isRefreshing && (
+              {(isRefreshing || isPending) && (
                 <span className="font-ui text-xs text-foreground/40">{copy.syncingLabel}</span>
               )}
             </motion.div>
 
             {/* Server Cards Grid */}
-            <div aria-busy={isRefreshing} className="grid gap-4 overflow-hidden">
+            <div
+              aria-busy={isRefreshing || isPending}
+              className="grid gap-4 overflow-hidden relative"
+            >
+              {isPending && (
+                <div className="absolute inset-0 z-10 bg-background/10 backdrop-blur-[1px] pointer-events-none transition-opacity" />
+              )}
               <AnimatePresence initial={false} mode="popLayout">
                 {servers.map((server, index) => (
                   <motion.div
