@@ -28,12 +28,16 @@ const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T
   ]);
 };
 
-export const verifyHumanityWithWit = async (success: boolean, delta: number): Promise<string> => {
+export const verifyHumanityWithWit = async (
+  success: boolean,
+  delta: number,
+  fallbackMessage: string
+): Promise<string> => {
   const prompt = success
     ? `The user successfully solved a pixel-art screw captcha. They were off by only ${delta.toFixed(1)} degrees. Write a very short, funny, retro-futuristic "Access Granted" message (max 10 words). Tone: Cyberpunk or 8-bit RPG.`
     : `The user failed a pixel-art screw captcha. They were off by ${delta.toFixed(1)} degrees. Write a very short, sarcastic, retro-futuristic "Access Denied" message (max 10 words). Tone: Cyberpunk or 8-bit RPG helper bot.`;
 
-  const fallback = success ? "ACCESS GRANTED" : "ACCESS DENIED";
+  const fallback = fallbackMessage;
 
   // 1. Try Gemini
   const geminiClient = getGeminiClient();

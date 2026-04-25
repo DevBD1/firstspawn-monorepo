@@ -1,8 +1,8 @@
 import { getAuthState } from "@/lib/auth";
 import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import MarketingChrome from "@/components/layout/MarketingChrome";
-import type { MarketingChromeDictionary } from "@/components/layout/MarketingChrome";
 
 export default async function MarketingLayout({
   children,
@@ -13,7 +13,7 @@ export default async function MarketingLayout({
 }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
-  const dictionary = (await getDictionary(lang)) as unknown as MarketingChromeDictionary;
+  const dictionary = (await getDictionary(lang)) as AppDictionary;
   const authState = await getAuthState();
 
   return (

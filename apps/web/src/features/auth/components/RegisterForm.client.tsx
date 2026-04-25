@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { registerAction } from "@/app/actions/auth";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
 import { usePasswordVisibility } from "@/features/auth/hooks/usePasswordVisibility";
@@ -31,7 +31,7 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
   return (
     <form action={action} className="space-y-4" autoComplete="on">
       <input type="hidden" name="lang" value={lang} />
-      <input type="hidden" name="next" value={nextPath || ""} />
+      <input type="hidden" name="next" value={nextPath ?? undefined} />
 
       <div className="space-y-4">
         <PixelButton
@@ -132,7 +132,7 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
                 type="button"
                 onClick={toggle}
                 className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-zinc-700 bg-zinc-800 text-zinc-100 transition-colors hover:bg-zinc-700"
-                aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+                aria-label={showPasswords ? copy.hidePasswordAriaLabel : copy.showPasswordAriaLabel}
               >
                 {showPasswords ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>

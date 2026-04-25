@@ -1,28 +1,37 @@
 :root {
-  --background: #050505;
-  --foreground: #f0f0f0;
+  /* Main Canvas */
+  --background: #05070a;
+  --foreground: #e0e6ed;
+  --muted: #64748b;
   --border: #000000;
 
-  --fs-diamond: #22d3ee;
-  --fs-navy-900: #0b131a;
-  --fs-navy-800: #0f161c;
-  --fs-gold: #ffd700;
-  --fs-orange: #cc5500;
+  /* Surfaces */
+  --bg-panel: #0f172a;
+  --navbar-bg: #0f172a;
+  --footer-bg: #05070a;
+  --footer-border: #1e293b;
+  --footer-grid: #0f172a;
+  --fs-navy-900: #0f172a;
+  --fs-navy-800: #1e293b;
 
-  --navbar-bg: #333333;
-  --footer-bg: #111111;
-  --footer-border: #3d3d3d;
-  --footer-grid: #333333;
-  --bg-panel: #222222;
-
+  /* Brand Accents - Switched Cyan to Retro Blue */
   --primary: #3b82f6;
   --primary-hover: #2563eb;
-  --secondary: #333333;
-  --secondary-hover: #52525b;
-  --success: #4ade80;
-  --success-hover: #22c55e;
-  --danger: #dc2626;
-  --danger-hover: #ef4444;
+  --success: #39ff14;
+  --success-hover: #32e612;
+  --danger: #ff3131;
+  --danger-hover: #e62c2c;
+  --fs-orange: #ff9500;
+  --fs-gold: #ffd700;
+  --fs-diamond: #3b82f6;
 
-  --accent-cyan: #22d3ee;
+  /* Narrative / Specialized */
+  --error-glow: #e28c8c;
+  --bg-host-panel: #1e1a0a;
+  --scanline-color: #121010;
+
+  /* Secondary / Misc */
+  --secondary: #1e293b;
+  --secondary-hover: #334155;
+  --accent-cyan: #3b82f6;
 }

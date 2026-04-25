@@ -1,45 +1,38 @@
+import type { AppDictionary } from "@/lib/dictionaries/schema";
+import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
+import {
+  PageBackdrop,
+  PageContainer,
+  PageSectionHeader,
+  PageSurface,
+} from "@/components/ui/PagePrimitives";
 
 export default async function DebugOG({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
+  const dictionary = (await getDictionary(lang)) as AppDictionary;
+  const copy = dictionary.debugPages;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        backgroundColor: "#111",
-        color: "white",
-        gap: "2rem",
-        padding: "2rem",
-      }}
-    >
-      <h1 style={{ fontFamily: '"JetBrains Mono"', fontSize: "1.5rem" }}>
-        OpenGraph Preview: <span style={{ color: "#22d3ee" }}>{lang}</span>
-      </h1>
-      <div
-        style={{
-          border: "2px dashed #333",
-          padding: "1rem",
-          maxWidth: "100%",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- raw OG endpoint preview */}
-        <img
-          src={`/${lang}/opengraph-image`}
-          alt="Open Graph Preview"
-          style={{
-            maxWidth: "100%",
-            height: "auto",
-            display: "block",
-          }}
-        />
-      </div>
-      <p style={{ fontFamily: '"JetBrains Mono"', color: "#666" }}>Path: /{lang}/opengraph-image</p>
-    </div>
+    <main className="relative min-h-screen overflow-hidden bg-background py-12">
+      <PageBackdrop />
+      <PageContainer className="relative z-10">
+        <PageSurface className="mx-auto flex max-w-5xl flex-col gap-6 p-6 md:p-10">
+          <PageSectionHeader
+            title={`${copy.ogPreviewTitle}: ${lang.toUpperCase()}`}
+            subtitle={`${copy.ogPreviewPathLabel}: /${lang}/opengraph-image`}
+          />
+          <div className="border-2 border-dashed border-foreground/25 bg-background/55 p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element -- raw OG endpoint preview */}
+            <img
+              src={`/${lang}/opengraph-image`}
+              alt={copy.ogPreviewImageAlt}
+              className="block h-auto max-w-full"
+            />
+          </div>
+        </PageSurface>
+      </PageContainer>
+    </main>
   );
 }

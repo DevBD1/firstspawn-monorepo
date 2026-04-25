@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import {
   ShieldCheck,
   Activity,
@@ -15,62 +16,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { EXTERNAL_LINKS, SOCIAL_LINKS as SOCIAL_DATA } from "@/lib/links";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 
 export interface FooterProps {
-  dictionary: {
-    footer: {
-      cta: {
-        title: string;
-        titleHighlight: string;
-        subtitle: string;
-        getStarted: string;
-        owners: string;
-      };
-      stats: {
-        title: string;
-        fakeVotes: string;
-        fakeVotesValue: string;
-        uptime: string;
-        uptimeValue: string;
-        filters: string;
-        filtersValue: string;
-      };
-      brand: {
-        name: string;
-        description: string;
-      };
-      columns: {
-        platform: {
-          title: string;
-          about: string;
-          trust: string;
-          badges: string;
-          api: string;
-        };
-        resources: {
-          title: string;
-          help: string;
-          api: string;
-          community: string;
-          partners: string;
-        };
-        legal: {
-          title: string;
-          terms: string;
-          privacy: string;
-          cookie: string;
-          acceptable: string;
-        };
-      };
-      bottom: {
-        copyright: string;
-        systemsNormal: string;
-        version: string;
-        crafted: string;
-      };
-    };
-  };
+  dictionary: AppDictionary;
 }
 
 interface FooterSectionProps {
@@ -185,7 +134,7 @@ export default function Footer({ dictionary }: FooterProps) {
             <div className="mb-6 flex items-center">
               <Image
                 src="/favicon.ico"
-                alt="FirstSpawn Logo"
+                alt={dictionary.footer.brand.name}
                 width={32}
                 height={32}
                 className="mr-3 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"

@@ -1,71 +1,143 @@
 {
   "common": {
     "brand": "FIRSTSPAWN",
-    "site_title": "FirstSpawn - Verified Discovery Node",
+    "siteTitle": "FirstSpawn - Verified Discovery Node",
     "tagline": "Verified Discovery Node",
-    "source": "Source",
-    "join_newsletter_title": "JOIN THE EXPEDITION",
-    "join_newsletter_desc": "No spam — just launch news, previews, and early access opportunities for FirstSpawn.com.",
-    "scribe": "SCRIBE",
-    "enter_email": "Enter your email"
+    "sourceLabel": "Source",
+    "actions": {
+      "addServer": "ADD YOUR SERVER",
+      "backHome": "BACK TO HOME",
+      "close": "CLOSE",
+      "loadMore": "LOAD MORE",
+      "logIn": "LOG IN",
+      "logOut": "LOG OUT",
+      "manageSettings": "MANAGE SETTINGS",
+      "notifyMe": "NOTIFY ME",
+      "reset": "RESET",
+      "retry": "RETRY",
+      "savePreferences": "SAVE PREFERENCES",
+      "send": "SEND",
+      "signUp": "SIGN UP",
+      "startExploring": "START EXPLORING",
+      "verify": "VERIFY"
+    },
+    "fields": {
+      "confirmPassword": "CONFIRM PASSWORD",
+      "email": "EMAIL",
+      "emailOrUsername": "EMAIL OR USERNAME",
+      "password": "PASSWORD",
+      "username": "USERNAME"
+    },
+    "placeholders": {
+      "confirmPassword": "Repeat your password",
+      "email": "Enter your email",
+      "password": "Enter your password",
+      "username": "blockbuilder"
+    },
+    "status": {
+      "active": "ACTIVE",
+      "archived": "ARCHIVED",
+      "offline": "OFFLINE",
+      "online": "ONLINE",
+      "systemsNormal": "Systems Normal",
+      "verified": "VERIFIED"
+    }
   },
   "nav": {
-    "discover": "DISCOVER",
-    "myLoot": "MY LOOT",
     "console": "CONSOLE",
-    "register": "SIGN UP",
+    "discover": "DISCOVER",
+    "languageMenuLabel": "LANGUAGE",
     "logIn": "LOG IN",
-    "logOut": "LOG OUT"
+    "logOut": "LOG OUT",
+    "menuLabel": "MENU",
+    "myLoot": "MY LOOT",
+    "signUp": "SIGN UP",
+    "verifyEmail": "VERIFY EMAIL",
+    "verifyEmailTitle": "Your email is not verified"
   },
   "auth": {
-    "shared": {
-      "backToHome": "BACK TO HOME"
+    "shell": {
+      "brandStatement": {
+        "title": "A FAIRER GAME",
+        "highlight": "IS POSSIBLE.",
+        "description": "The discovery ecosystem for Minecraft and Hytale servers. Built for real players, real trust, and the community."
+      },
+      "benefitItems": [
+        {
+          "title": "VERIFIED REVIEWS",
+          "description": "Playtime-gated reviews make reputation signals more reliable."
+        },
+        {
+          "title": "DATA-DRIVEN DISCOVERY",
+          "description": "Find servers by meaningful signals instead of paid placement."
+        },
+        {
+          "title": "CROSS-GAME POTENTIAL",
+          "description": "Designed for Minecraft, Hytale, and future worlds."
+        }
+      ],
+      "legalLine": "Built for the community."
     },
     "login": {
-      "title": "WELCOME TO FIRSTSPAWN",
-      "subtitle": "Log in to access your favorite servers and communities.",
-      "discordCta": "SIGN IN WITH DISCORD",
-      "passkeyCta": "SIGN IN WITH PASSKEY",
-      "dividerLabel": "OR",
-      "identifierLabel": "EMAIL OR USERNAME",
-      "identifierPlaceholder": "steve@craft.com",
-      "passwordLabel": "PASSWORD",
-      "passwordPlaceholder": "Enter your password",
-      "submit": "CONTINUE WITH EMAIL",
-      "submitPending": "AUTHENTICATING...",
-      "alternatePrompt": "New to FirstSpawn?",
-      "alternateCta": "SIGN UP"
+      "page": {
+        "title": "WELCOME TO FIRSTSPAWN",
+        "subtitle": "Log in to access your favorite servers and communities.",
+        "registeredSuccess": "Registration complete. You can sign in now."
+      },
+      "form": {
+        "alternateCta": "SIGN UP",
+        "alternatePrompt": "New to FirstSpawn?",
+        "dividerLabel": "OR",
+        "discordCta": "SIGN IN WITH DISCORD",
+        "hidePasswordAriaLabel": "Hide password",
+        "identifierLabel": "EMAIL OR USERNAME",
+        "identifierPlaceholder": "steve@craft.com",
+        "passkeyCta": "SIGN IN WITH PASSKEY",
+        "passwordLabel": "PASSWORD",
+        "passwordPlaceholder": "Enter your password",
+        "showPasswordAriaLabel": "Show password",
+        "submitLabel": "CONTINUE WITH EMAIL",
+        "submitPendingLabel": "AUTHENTICATING..."
+      }
     },
     "register": {
-      "title": "START YOUR JOURNEY",
-      "subtitle": "Join the verified ecosystem for Minecraft and Hytale.",
-      "discordCta": "CONTINUE WITH DISCORD",
-      "dividerLabel": "OR",
-      "emailLabel": "EMAIL",
-      "emailPlaceholder": "steve@craft.com",
-      "usernameLabel": "USERNAME",
-      "usernamePlaceholder": "blockbuilder",
-      "passwordLabel": "PASSWORD",
-      "passwordPlaceholder": "At least 8 characters",
-      "confirmPasswordLabel": "CONFIRM PASSWORD",
-      "confirmPasswordPlaceholder": "Repeat your password",
-      "submit": "CONTINUE WITH EMAIL",
-      "submitPending": "CREATING ACCOUNT...",
-      "alternatePrompt": "Already have an account?",
-      "alternateCta": "LOG IN",
-      "termsLabelPrefix": "I agree to the",
-      "termsLabelCta": "Terms of Service",
-      "privacyLabelPrefix": "I agree to the",
-      "privacyLabelCta": "Privacy Policy",
-      "marketingConsentLabel": "I want to receive product updates and marketing emails from FirstSpawn.",
-      "legalDisclaimer": "By joining, you agree to our Terms of Service and Privacy Policy. We never post to connected accounts without permission."
+      "page": {
+        "title": "START YOUR JOURNEY",
+        "subtitle": "Join the verified ecosystem for Minecraft and Hytale."
+      },
+      "form": {
+        "alternateCta": "LOG IN",
+        "alternatePrompt": "Already have an account?",
+        "confirmPasswordLabel": "CONFIRM PASSWORD",
+        "confirmPasswordPlaceholder": "Repeat your password",
+        "discordCta": "CONTINUE WITH DISCORD",
+        "dividerLabel": "OR",
+        "emailLabel": "EMAIL",
+        "emailPlaceholder": "steve@craft.com",
+        "hidePasswordAriaLabel": "Hide passwords",
+        "legalDisclaimer": "By joining, you agree to our Terms of Service and Privacy Policy. We never post to connected accounts without permission.",
+        "marketingConsentLabel": "I want to receive product updates and marketing emails from FirstSpawn.",
+        "passwordLabel": "PASSWORD",
+        "passwordPlaceholder": "At least 8 characters",
+        "privacyLabelCta": "Privacy Policy",
+        "privacyLabelPrefix": "I agree to the",
+        "showPasswordAriaLabel": "Show passwords",
+        "submitLabel": "CONTINUE WITH EMAIL",
+        "submitPendingLabel": "CREATING ACCOUNT...",
+        "termsLabelCta": "Terms of Service",
+        "termsLabelPrefix": "I agree to the",
+        "usernameLabel": "USERNAME",
+        "usernamePlaceholder": "blockbuilder"
+      }
     },
     "activation": {
-      "title": "CHECK YOUR INBOX",
-      "message": "You will soon receive an email on the following address:",
+      "backLabel": "BACK TO HOME",
+      "fallbackEmail": "your email address",
       "instruction": "Please activate your account by clicking on the link provided in it.",
-      "spam_warning": "Please remember to check your spam and trash box!!!",
-      "provider_warning": "Services like Hotmail, Yahoo, AOL often mistakenly identify the activation email as spam!"
+      "message": "You will soon receive an email on the following address:",
+      "providerWarning": "Services like Hotmail, Yahoo, AOL often mistakenly identify the activation email as spam!",
+      "spamWarning": "Please remember to check your spam and trash box!!!",
+      "title": "CHECK YOUR INBOX"
     }
   },
   "footer": {
@@ -119,7 +191,7 @@
       "crafted": "Crafted with care."
     }
   },
-  "cookie_consent": {
+  "cookieConsent": {
     "title": "COOKIE SETTINGS",
     "introPrefix": "Our website uses essential cookies and limited technical data to keep FirstSpawn secure, maintain your session, remember language preferences, and protect core platform functionality.",
     "introLinkLabel": "Learn more",
@@ -149,83 +221,443 @@
     "stateOn": "ON",
     "stateOff": "OFF"
   },
-  "home": {
-    "welcome": "Ready to build something amazing."
-  },
   "landing": {
-    "under_construction": "UNDER CONSTRUCTION",
-    "building_title": "BUILDING THE ULTIMATE DISCOVERY ECOSYSTEM",
-    "status": "STATUS",
-    "active": "ACTIVE",
-    "building_desc": "More than just a server list — FirstSpawn is a social network for Minecraft & Hytale players. Sync your cross-platform identity, leave reviews backed by verified playtime, solve puzzles to win prizes, form Guilds, and earn reputation badges.",
-    "progress": "PROGRESS",
-    "feature_servers": "MINECRAFT & HYTALE",
-    "feature_verified": "VERIFIED PLAYTIME",
-    "feature_uptime": "GUILDS & BADGES",
-    "feature_anticheat": "WIN PRIZES",
-    "notify_title": "BE FIRST TO SPAWN",
-    "notify_desc": "Join thousands of players waiting for launch. Early subscribers get exclusive access & founding member perks!",
-    "notify_btn": "NOTIFY ME",
-    "subscription_verified": "SUBSCRIPTION VERIFIED",
-    "check_inbox": "CHECK YOUR INBOX"
-  },
-  "prototype": {
-    "hero_title": "DISCOVER YOUR NEXT\nADVENTURE",
-    "hero_subtitle": "The first verified discovery platform for Minecraft and Hytale servers. Real players. Real uptime. Real communities.",
-    "cta_primary": "START EXPLORING",
-    "cta_secondary": "ADD YOUR SERVER",
-    "stats_servers": "SERVERS",
-    "stats_players": "PLAYERS",
-    "stats_verified": "VERIFIED",
-    "features_title": "WHY FIRSTSPAWN?",
-    "features_subtitle": "Built differently for the voxel gaming community",
-    "feature_1_title": "VERIFIED UPTIME",
-    "feature_1_desc": "No more fake online counts. Our bots verify every server's status in real-time.",
-    "feature_2_title": "PROOF OF PLAY",
-    "feature_2_desc": "Reviews backed by actual playtime. Only real players can leave ratings.",
-    "feature_3_title": "CROSS-PLATFORM ID",
-    "feature_3_desc": "One identity across Minecraft, Hytale, and beyond. Sync your journey.",
-    "feature_4_title": "GUILD SYSTEM",
-    "feature_4_desc": "Form alliances, compete on leaderboards, and unlock exclusive rewards.",
-    "how_it_works_title": "HOW IT WORKS",
-    "step_1_title": "DISCOVER",
-    "step_1_desc": "Browse verified servers with real player reviews and live uptime data.",
-    "step_2_title": "CONNECT",
-    "step_2_desc": "Join with one click. Your profile syncs across all supported games.",
-    "step_3_title": "CONTRIBUTE",
-    "step_3_desc": "Leave reviews, earn badges, and climb the reputation ladder.",
-    "cta_section_title": "READY TO SPAWN?",
-    "cta_section_subtitle": "Join thousands of players finding their forever servers."
+    "scene": {
+      "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
+    },
+    "questBoard": {
+      "eyebrow": "QUEST BOARD",
+      "title": "PICK YOUR NEXT SERVER QUEST",
+      "subtitle": "Start with live Minecraft discovery, checked uptime, and a fair ranking loop that does not sell the top slot.",
+      "statusLabel": "SYSTEM",
+      "statusValue": "ONLINE",
+      "betaLabel": "BETA ACCESS",
+      "primaryLabel": "START EXPLORING",
+      "secondaryLabel": "GET LAUNCH UPDATES",
+      "quests": [
+        {
+          "title": "FIND A WORLD",
+          "description": "Search active server listings by player count, ping, region, and game mode without paid placement noise.",
+          "rewardLabel": "REWARD",
+          "rewardValue": "FASTER MATCH",
+          "statusLabel": "LIVE",
+          "statusValue": "NOW"
+        },
+        {
+          "title": "VERIFY THE SIGNAL",
+          "description": "Use freshness and uptime checks to avoid dead listings before you spend time joining.",
+          "rewardLabel": "REWARD",
+          "rewardValue": "LESS WASTE",
+          "statusLabel": "LIVE",
+          "statusValue": "NOW"
+        },
+        {
+          "title": "BUILD REPUTATION",
+          "description": "Reviews, favorites, badges, and loot loops are being shaped as the next trust layer.",
+          "rewardLabel": "REWARD",
+          "rewardValue": "COMING NEXT",
+          "statusLabel": "NEXT",
+          "statusValue": "PHASE"
+        }
+      ]
+    },
+    "roadmap": {
+      "eyebrow": "AVAILABLE NOW / SOON",
+      "title": "WHAT PLAYERS CAN USE",
+      "items": [
+        {
+          "title": "SERVER DISCOVERY",
+          "statusLabel": "AVAILABLE NOW",
+          "description": "Browse public Minecraft server listings and open the full discovery view."
+        },
+        {
+          "title": "UPTIME CHECKS",
+          "statusLabel": "AVAILABLE NOW",
+          "description": "Use live freshness signals to avoid dead or stale server listings."
+        },
+        {
+          "title": "PLAYER REPUTATION",
+          "statusLabel": "COMING SOON",
+          "description": "Earned reviews, favorites, badges, and trust signals are the next player loop."
+        }
+      ]
+    },
+    "problemSolution": {
+      "eyebrow": "SYSTEM COMPARISON",
+      "title": "DISCOVERY: REDEFINED",
+      "subtitle": "We did not just build a better server list. We engineered a definitive protocol to fix a decade of bot-driven stagnation.",
+      "problem": {
+        "statusLabel": "ERR://DECAY_DETECTED",
+        "title": "THE DECAY\nOF LISTING",
+        "items": [
+          {
+            "title": "SYNTHETIC VANITY",
+            "description": "Rankings built on bribes and bot-loops. Synthetic metrics that mask a server's true pulse."
+          },
+          {
+            "title": "ROTTING ARCHITECTURE",
+            "description": "Static phonebooks for ghosts. Disconnected directories that have not evolved since 2012."
+          }
+        ]
+      },
+      "solution": {
+        "statusLabel": "SYS://ORIGIN_ACTIVE",
+        "title": "THE STANDARD\nOF ORIGIN",
+        "items": [
+          {
+            "title": "DEEP-PULSE INTEGRITY",
+            "description": "FSVotifier-backed reputation. Real-time metrics that prove community health and trust."
+          },
+          {
+            "title": "NEURAL DISCOVERY",
+            "description": "A living bridge. We connect players directly to the hidden gems that matter."
+          }
+        ]
+      }
+    },
+    "discoveryFork": {
+      "title": "DISCOVERY: REDEFINED",
+      "subtitle": "One platform. Two parallel worlds. Choose your uplink.",
+      "player": {
+        "channelLabel": "[CHANNEL_01: PLAYER]",
+        "title": "NEURAL\nDISCOVERY",
+        "description": "Find hidden gems through deep-pulse playtime metrics and community reputation.",
+        "actionLabel": "START_EXPLORING"
+      },
+      "host": {
+        "channelLabel": "[CHANNEL_02: HOST]",
+        "title": "INTELLIGENCE\nHUB",
+        "description": "Access real-time growth heatmaps and precision player demographics.",
+        "actionLabel": "ACCESS_DASHBOARD"
+      }
+    },
+    "trust": {
+      "eyebrow": "FAIR DISCOVERY",
+      "title": "RANKED BY SIGNAL, NOT SPEND",
+      "subtitle": "The page should feel like a game, but the ranking rules stay serious.",
+      "items": [
+        {
+          "title": "LIVE FRESHNESS",
+          "description": "Server status is derived from recent heartbeat activity, so offline worlds do not pretend to be active.",
+          "statusLabel": "ACTIVE"
+        },
+        {
+          "title": "NO TOP-SLOT SALES",
+          "description": "FirstSpawn is built around relevance and trust loops instead of buying the most visible listing.",
+          "statusLabel": "POLICY"
+        },
+        {
+          "title": "PLAYER-FIRST FILTERS",
+          "description": "Discovery starts with what players actually need: active communities, latency, version, and server fit.",
+          "statusLabel": "MVP"
+        }
+      ]
+    },
+    "serverProof": {
+      "eyebrow": "LIVE CATALOG",
+      "title": "SERVER PROOF WITHOUT FAKE HYPE",
+      "subtitle": "When catalog data is available, the board shows real listings. When it is not, it says so clearly.",
+      "emptyTitle": "CATALOG SIGNALS ARE WARMING UP",
+      "emptyDescription": "No public servers are available from the API right now. Discovery is still the primary path, and this panel will populate from live catalog data as targets come online.",
+      "liveLabel": "LIVE DATA",
+      "rankedByLabel": "RANKED BY",
+      "playerHelperSuffix": "MAX PLAYERS",
+      "viewAllLabel": "VIEW DISCOVER",
+      "verifiedLabel": "CATALOG CHECKED"
+    },
+    "progression": {
+      "eyebrow": "NEXT TRUST LOOP",
+      "title": "PROGRESSION THAT EARNS TRUST",
+      "subtitle": "Gamification is planned as proof of useful activity, not cosmetic noise.",
+      "items": [
+        {
+          "title": "VERIFIED BADGES",
+          "description": "Future badges should mark real uptime, owner verification, and community behavior.",
+          "stateLabel": "COMING NEXT"
+        },
+        {
+          "title": "REPUTATION LADDER",
+          "description": "Player actions can become earned trust signals once review and activity gates are ready.",
+          "stateLabel": "PLANNED"
+        },
+        {
+          "title": "LOOT LOOP",
+          "description": "Rewards should bring players back to discover better communities without distorting ranking fairness.",
+          "stateLabel": "PLANNED"
+        }
+      ]
+    },
+    "hero": {
+      "statusLabel": "STATUS",
+      "statusValue": "ACTIVE",
+      "title": "DISCOVER YOUR NEXT\nADVENTURE",
+      "subtitle": "The first verified discovery platform for Minecraft and Hytale servers. Real players. Real uptime. Real communities.",
+      "explorerLabel": "EXPLORERS",
+      "metrics": {
+        "livePlayers": "LIVE PLAYERS",
+        "registeredExplorers": "REGISTERED EXPLORERS",
+        "registeredServers": "REGISTERED SERVERS"
+      },
+      "actions": {
+        "primaryLabel": "START EXPLORING",
+        "secondaryLabel": "ADD YOUR SERVER"
+      }
+    },
+    "features": {
+      "eyebrow": "TRUST SIGNALS",
+      "title": "WHY FIRSTSPAWN?",
+      "subtitle": "Built differently for the voxel gaming community",
+      "items": [
+        {
+          "title": "VERIFIED UPTIME",
+          "description": "No more fake online counts. Our bots verify every server's status in real-time."
+        },
+        {
+          "title": "PROOF OF PLAY",
+          "description": "Reviews backed by actual playtime. Only real players can leave ratings."
+        },
+        {
+          "title": "CROSS-PLATFORM ID",
+          "description": "One identity across Minecraft, Hytale, and beyond. Sync your journey."
+        },
+        {
+          "title": "GUILD SYSTEM",
+          "description": "Form alliances, compete on leaderboards, and unlock exclusive rewards."
+        }
+      ]
+    },
+    "howItWorks": {
+      "title": "HOW IT WORKS",
+      "items": [
+        {
+          "title": "DISCOVER",
+          "description": "Browse verified servers with real player reviews and live uptime data."
+        },
+        {
+          "title": "CONNECT",
+          "description": "Join with one click. Your profile syncs across all supported games."
+        },
+        {
+          "title": "CONTRIBUTE",
+          "description": "Leave reviews, earn badges, and climb the reputation ladder."
+        }
+      ]
+    },
+    "discoveryChat": {
+      "title": "DISCOVERY CONSOLE",
+      "assistantWaitingMessage": "Live discovery replies are coming soon. Your query is ready for the real chat flow.",
+      "composer": {
+        "placeholder": "Ask FirstSpawn to find your next world...",
+        "submitLabel": "SEND"
+      },
+      "demoThread": {
+        "userPrompt": "Find me a verified survival server with a strong community and steady activity.",
+        "assistantReply": "Scanning verified signals. I found one strong match for players who want reliable uptime, an active chat loop, and room to grow.",
+        "recommendationCard": {
+          "title": "Aetheria Prime",
+          "description": "Survival world with a stable economy, active moderators, and a social player base that stays busy after peak hours.",
+          "statusLabel": "BEST MATCH",
+          "matchLabel": "98% MATCH",
+          "tags": ["SURVIVAL", "ECONOMY", "COMMUNITY"]
+        }
+      }
+    },
+    "proof": {
+      "eyebrow": "POPULAR",
+      "title": "POPULAR SERVERS"
+    },
+    "finalCta": {
+      "title": "READY TO TAKE A QUEST?",
+      "subtitle": "Open Discover, compare live signals, and find a server worth your next session.",
+      "primaryLabel": "START EXPLORING",
+      "secondaryLabel": "GET UPDATES"
+    },
+    "newsletter": {
+      "title": "GET LAUNCH UPDATES",
+      "description": "Follow the beta as discovery, reputation, and server-owner tools come online.",
+      "submitLabel": "NOTIFY ME",
+      "subscriptionVerified": "SUBSCRIPTION VERIFIED",
+      "checkInbox": "CHECK YOUR INBOX",
+      "verifying": "VERIFYING...",
+      "errorMessage": "ERROR. TRY AGAIN."
+    }
   },
   "discover": {
-    "server_detail": {
+    "page": {
+      "badgeLabel": "MATCHMAKING CORE",
+      "title": "DISCOVER WORLDS",
+      "subtitle": "Find your next adventure. Browse verified servers ranked by real player data.",
+      "searchPlaceholder": "Search servers, descriptions...",
+      "gameFilters": {
+        "all": "ALL WORLDS",
+        "minecraft": "MINECRAFT",
+        "hytale": "HYTALE"
+      },
+      "rarityFilterTitle": "RARITY FILTER",
+      "sortTitle": "SORT BY",
+      "sortOptions": {
+        "players": "PLAYER COUNT",
+        "ping": "PING"
+      },
+      "personalStatsTitle": "YOUR STATS",
+      "personalStats": {
+        "serversVisited": "Servers Visited",
+        "favorites": "Favorites"
+      },
+      "resultsSummary": "FOUND {count} WORLDS",
+      "syncingLabel": "SYNCING...",
+      "loadingMoreLabel": "LOADING...",
+      "emptyStateTitle": "NO WORLDS FOUND",
+      "emptyStateDescription": "Try adjusting your filters",
+      "stats": {
+        "onlineServers": "SERVERS ONLINE",
+        "activePlayers": "PLAYERS ACTIVE",
+        "version": "SERVER DISCOVERY v2.0"
+      },
+      "ranking": {
+        "rankedBy": "RANKED BY",
+        "lowerIsBetter": "LOWER IS BETTER"
+      },
+      "tiers": {
+        "common": "COMMON",
+        "rare": "RARE",
+        "epic": "EPIC",
+        "legendary": "LEGENDARY"
+      }
+    }
+  },
+  "serverCatalog": {
+    "badges": {
+      "verified": "VERIFIED",
+      "featured": "FEATURED",
+      "trending": "TRENDING"
+    },
+    "card": {
+      "liveData": "LIVE DATA",
+      "address": "ADDRESS",
+      "maxPlayers": "MAX",
+      "mods": "MODS",
+      "viewWorld": "VIEW WORLD",
+      "profilePageFallback": "Profile page"
+    },
+    "sortHighlights": {
+      "rankedBy": "RANKED BY",
+      "lowerIsBetter": "LOWER IS BETTER",
+      "trendingNow": "TRENDING NOW"
+    },
+    "games": {
+      "mcJava": "MC JAVA",
+      "mcBedrock": "MC BEDROCK",
+      "hytale": "HYTALE",
+      "fallback": "SERVER"
+    },
+    "modsRequired": {
+      "yes": "YES",
+      "no": "NO"
+    }
+  },
+  "serverDetail": {
+    "catalog": {
+      "active": "ACTIVE",
+      "archived": "ARCHIVED"
+    },
+    "labels": {
       "back": "BACK TO DISCOVER",
-      "online_players": "ONLINE PLAYERS",
-      "max_players": "MAX PLAYERS",
-      "version": "VERSION",
-      "ping": "PING",
-      "last_seen": "LAST SEEN",
+      "discord": "DISCORD",
       "host": "HOST",
+      "lastSeen": "LAST SEEN",
+      "maxPlayers": "MAX PLAYERS",
+      "notAvailable": "N/A",
+      "offlineMode": "OFFLINE MODE",
+      "onlineMode": "ONLINE MODE",
+      "onlinePlayers": "ONLINE PLAYERS",
+      "ping": "PING",
       "port": "PORT",
       "region": "REGION",
-      "website": "WEBSITE",
-      "discord": "DISCORD",
-      "online_mode": "ONLINE MODE",
-      "offline_mode": "OFFLINE MODE",
-      "not_available": "N/A",
-      "status_online": "ONLINE",
-      "status_offline": "OFFLINE",
-      "catalog_active": "ACTIVE",
-      "catalog_archived": "ARCHIVED",
-      "relative_time": {
-        "just_now": "just now",
-        "year": { "one": "{count} year ago", "other": "{count} years ago" },
-        "month": { "one": "{count} month ago", "other": "{count} months ago" },
-        "day": { "one": "{count} day ago", "other": "{count} days ago" },
-        "hour": { "one": "{count} hour ago", "other": "{count} hours ago" },
-        "minute": { "one": "{count} minute ago", "other": "{count} minutes ago" },
-        "second": { "one": "{count} second ago", "other": "{count} seconds ago" }
+      "version": "VERSION",
+      "website": "WEBSITE"
+    },
+    "relativeTime": {
+      "justNow": "just now",
+      "year": {
+        "one": "{count} year ago",
+        "other": "{count} years ago"
+      },
+      "month": {
+        "one": "{count} month ago",
+        "other": "{count} months ago"
+      },
+      "day": {
+        "one": "{count} day ago",
+        "other": "{count} days ago"
+      },
+      "hour": {
+        "one": "{count} hour ago",
+        "other": "{count} hours ago"
+      },
+      "minute": {
+        "one": "{count} minute ago",
+        "other": "{count} minutes ago"
+      },
+      "second": {
+        "one": "{count} second ago",
+        "other": "{count} seconds ago"
       }
+    },
+    "status": {
+      "online": "ONLINE",
+      "offline": "OFFLINE"
+    }
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "description": "This Terms of Service page is being finalized. By creating an account, you agree to FirstSpawn platform usage rules, account responsibility, and acceptable conduct policies.",
+      "localeLabel": "Locale"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "This Privacy Policy page is being finalized. By creating an account, you acknowledge data processing for account security, product operations, and communications preferences.",
+      "localeLabel": "Locale"
+    }
+  },
+  "consolePage": {
+    "badge": "COMMAND TERMINAL ONLINE",
+    "title": "CONSOLE",
+    "description": "Welcome back, {username}. Personal server analytics, verification controls, and account command tools will live in this panel.",
+    "fallbackUsername": "Operator"
+  },
+  "lootPage": {
+    "badge": "PLAYER INVENTORY LINKED",
+    "title": "MY LOOT",
+    "description": "{username}, your progression inventory hub is now unlocked. Reward drops, puzzle keys, and badge claims will appear here.",
+    "fallbackUsername": "Operator"
+  },
+  "debugPages": {
+    "ogPreviewTitle": "OpenGraph Preview",
+    "ogPreviewPathLabel": "Path",
+    "ogPreviewImageAlt": "Open Graph Preview"
+  },
+  "captcha": {
+    "modal": {
+      "subtitle": "BE SMART",
+      "title": "SECURITY CHECK",
+      "successTitle": "ACCESS GRANTED",
+      "processingLabel": "PROCESSING...",
+      "retryLabel": "RETRY",
+      "clearedLabel": "CLEARED",
+      "verifyLabel": "VERIFY",
+      "rotateLabel": "Rotate",
+      "sliderLeftLabel": "L",
+      "sliderRightLabel": "R",
+      "attemptsLabel": "Attempts",
+      "resetLabel": "RESET",
+      "resetAriaLabel": "Reset puzzle",
+      "closeAriaLabel": "Close captcha"
+    },
+    "screw": {
+      "idleMessage": "ALIGN THE NUT",
+      "verifyingMessage": "ANALYZING..."
     }
   }
 }

@@ -263,5 +263,7 @@ export const config = {
   // Matcher: match everything EXCEPT static files and images.
   // Matcher: match everything EXCEPT static files, images, and SEO files.
   // We removed 'api' from exclusion to protect it with rate limiting.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|llms.txt|sitemap.xml).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|llms.txt|sitemap.xml|hero/|landing-scene/|images/).*)",
+  ],
 };

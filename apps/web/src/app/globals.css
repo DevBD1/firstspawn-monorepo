@@ -5,11 +5,13 @@
   --font-family-display: var(--font-display-base, "Press Start 2P"), "Press Start 2P";
   --font-family-ui: var(--font-ui-base, "VT323"), "VT323";
   --font-family-body: var(--font-body-base, "JetBrains Mono"), "JetBrains Mono";
+  --fs-nav-height: 80px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
   --color-bg-panel: var(--bg-panel);
   --color-border: var(--border);
 
@@ -28,29 +30,43 @@
   --color-danger-hover: var(--danger-hover);
   --color-accent-cyan: var(--accent-cyan);
   --color-fs-diamond: var(--fs-diamond);
+  --color-fs-gold: var(--fs-gold);
+  --color-fs-orange: var(--fs-orange);
 }
 
 @layer utilities {
   .pixel-border {
     border: 4px solid black;
-    box-shadow:
-      inset -4px -4px 0px 0px #333,
-      inset 4px 4px 0px 0px #eee;
-    background: #ccc;
-    color: black;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+    background: var(--bg-panel);
   }
 
-  .pixel-border-dark {
-    border: 4px solid black;
-    box-shadow:
-      inset -4px -4px 0px 0px #000,
-      inset 4px 4px 0px 0px #444;
-    background: #222;
-    color: white;
+  .pixel-border-sm {
+    border: 2px solid black;
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  /* Mechanical Pulse Animation */
+  .animate-retro-pulse {
+    animation: retro-pulse 1s steps(4) infinite;
+  }
+
+  @keyframes retro-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
   }
 
   .pixel-shadow {
     box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .pixel-shadow-sm {
+    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
   }
 
   .pixel-shadow-none {
@@ -64,13 +80,26 @@
     width: 100%;
     height: 100%;
     background:
-      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
     background-size:
-      100% 3px,
-      3px 100%;
+      100% 4px,
+      4px 100%;
     pointer-events: none;
     z-index: 1000;
+    animation: crt-flicker 0.15s infinite;
+  }
+
+  @keyframes crt-flicker {
+    0% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.12;
+    }
+    100% {
+      opacity: 0.15;
+    }
   }
 }
 
@@ -80,7 +109,7 @@ body {
   font-family: var(--font-family-body);
   image-rendering: pixelated;
   margin: 0;
-  min-height: screen;
+  min-height: 100dvh;
 }
 
 .font-display {

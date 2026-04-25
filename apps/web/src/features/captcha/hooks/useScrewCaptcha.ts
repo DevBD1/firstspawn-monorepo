@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { verifyHumanityWithWit } from "@/app/actions/captcha";
 import {
-  CAPTCHA_MESSAGES,
   CAPTCHA_MIN_DISTANCE,
   CAPTCHA_RANDOM_BASE,
   CAPTCHA_RANDOM_RANGE,
@@ -11,6 +10,7 @@ import {
   CAPTCHA_SUCCESS_DELAY_MS,
   CAPTCHA_VERIFY_DELAY_MS,
 } from "@/features/captcha/lib/constants";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 import {
   trackCaptchaOpened,
   trackCaptchaReset,
@@ -21,6 +21,7 @@ import {
 import { CaptchaState } from "@/features/captcha/types";
 
 interface UseScrewCaptchaParams {
+  dictionary: AppDictionary;
   isOpen: boolean;
   onVerify: () => void;
 }
@@ -40,13 +41,15 @@ const randomRotation = (): number =>
   Math.floor(Math.random() * CAPTCHA_RANDOM_RANGE) + CAPTCHA_RANDOM_BASE;
 
 export function useScrewCaptcha({
+  dictionary,
   isOpen,
   onVerify,
 }: UseScrewCaptchaParams): UseScrewCaptchaReturn {
+  const copy = dictionary.captcha;
   const [rotation, setRotation] = useState(50);
   const [targetRotation, setTargetRotation] = useState(0);
   const [captchaState, setCaptchaState] = useState<CaptchaState>(CaptchaState.IDLE);
-  const [statusMessage, setStatusMessage] = useState<string>(CAPTCHA_MESSAGES.idle);
+  const [statusMessage, setStatusMessage] = useState<string>(copy.screw.idleMessage);
   const [attempts, setAttempts] = useState(0);
 
   const resetCaptcha = useCallback(() => {
@@ -60,8 +63,8 @@ export function useScrewCaptcha({
     setTargetRotation(nextTarget);
     setRotation(start);
     setCaptchaState(CaptchaState.IDLE);
-    setStatusMessage(CAPTCHA_MESSAGES.idle);
-  }, []);
+    setStatusMessage(copy.screw.idleMessage);
+  }, [copy.screw.idleMessage]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -98,14 +101,18 @@ export function useScrewCaptcha({
     trackCaptchaVerificationAttempted(attemptNumber);
 
     setCaptchaState(CaptchaState.VERIFYING);
-    setStatusMessage(CAPTCHA_MESSAGES.verifying);
+    setStatusMessage(copy.screw.verifyingMessage);
 
     const delta = Math.abs(rotation - targetRotation);
     const isSuccess = delta <= CAPTCHA_ROTATION_TOLERANCE;
 
     await new Promise((resolve) => setTimeout(resolve, CAPTCHA_VERIFY_DELAY_MS));
 
-    const message = await verifyHumanityWithWit(isSuccess, delta);
+    const message = await verifyHumanityWithWit(
+      isSuccess,
+      delta,
+      isSuccess ? copy.modal.successTitle : copy.modal.title
+    );
     setStatusMessage(message);
     setCaptchaState(isSuccess ? CaptchaState.SUCCESS : CaptchaState.FAILURE);
 

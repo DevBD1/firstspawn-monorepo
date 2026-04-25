@@ -8,6 +8,7 @@ import { resolveLocaleParam } from "@/lib/resolve-locale";
 import { PostHogProvider } from "@/components/providers/PostHogProvider.client";
 import PostHogPageView from "@/components/providers/PostHogPageView.client";
 import { getPublicConfig } from "@/lib/config";
+import type { AppDictionary } from "@/lib/dictionaries/schema";
 
 const vt323 = VT323({
   weight: "400",
@@ -33,10 +34,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
-  const dict = await getDictionary(lang);
-  const brand = dict.common.brand || "FirstSpawn";
-  const siteTitle = dict.common.site_title || brand;
-  const tagline = dict.common.tagline || "FirstSpawn";
+  const dict = (await getDictionary(lang)) as AppDictionary;
+  const brand = dict.common.brand;
+  const siteTitle = dict.common.siteTitle;
+  const tagline = dict.common.tagline;
 
   const { NEXT_PUBLIC_SITE_URL: baseUrl } = getPublicConfig();
 
@@ -100,9 +101,9 @@ export default async function RootLayout({
 }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
-  const dictionary = await getDictionary(lang);
-  const brand = dictionary.common.brand || "FirstSpawn";
-  const tagline = dictionary.common.tagline || "FirstSpawn";
+  const dictionary = (await getDictionary(lang)) as AppDictionary;
+  const brand = dictionary.common.brand;
+  const tagline = dictionary.common.tagline;
   const { NEXT_PUBLIC_SITE_URL: siteUrl } = getPublicConfig();
 
   return (

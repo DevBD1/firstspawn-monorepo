@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { useFormStatus } from "react-dom";
-import PixelButton from "@/components/ui/PixelButton";
+import { PixelButton } from "@firstspawn/ui";
 
 interface AuthSubmitButtonProps {
   label: string;
