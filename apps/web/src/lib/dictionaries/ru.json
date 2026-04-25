@@ -474,7 +474,7 @@
         "serversVisited": "Servers Visited",
         "favorites": "Favorites"
       },
-      "resultsSummary": "FOUND {count} WORLDS",
+      "resultsSummary": "Показано {count} серверов из {total}",
       "syncingLabel": "SYNCING...",
       "loadingMoreLabel": "LOADING...",
       "emptyStateTitle": "NO WORLDS FOUND",
