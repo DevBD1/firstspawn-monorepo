@@ -313,13 +313,13 @@ export default function DiscoverClient({
         />
       </div>
 
-      {/* CSS owns the responsive width so desktop does not animate from the mobile layout after hydration. */}
+      {/* Desktop uses a fixed rail plus matching content offset so filters stay visible while browsing long result lists. */}
       <aside
-        className={`relative z-20 w-full overflow-hidden lg:shrink-0 lg:transition-[width] lg:duration-200 lg:ease-in-out ${
+        className={`relative z-20 w-full overflow-hidden lg:fixed lg:bottom-0 lg:left-0 lg:top-[80px] lg:shrink-0 lg:transition-[width] lg:duration-200 lg:ease-in-out ${
           isSidebarCollapsed ? "lg:w-16" : "lg:w-80"
         }`}
       >
-        <div className="sticky top-[80px] flex h-auto flex-col bg-bg-panel/50 lg:h-[calc(100vh-80px)] lg:border-r-2 lg:border-foreground/10">
+        <div className="flex h-auto flex-col bg-bg-panel/50 lg:h-full lg:border-r-2 lg:border-foreground/10">
           {/* Toggle Button */}
           <div className="hidden lg:flex justify-end p-4">
             <button
@@ -512,7 +512,11 @@ export default function DiscoverClient({
       </aside>
 
       {/* Main Content Area */}
-      <section className="relative z-10 flex-1 min-w-0 px-4 py-8 lg:px-8">
+      <section
+        className={`relative z-10 min-w-0 flex-1 px-4 py-8 transition-[margin-left] duration-200 ease-in-out lg:px-8 ${
+          isSidebarCollapsed ? "lg:ml-16" : "lg:ml-80"
+        }`}
+      >
         <div className="mx-auto max-w-7xl">
           {/* Header Title/Subtitle */}
           <motion.div
