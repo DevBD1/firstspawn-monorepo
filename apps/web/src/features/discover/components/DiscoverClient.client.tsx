@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   type ReactNode,
+  Fragment,
   useState,
   useCallback,
   useDeferredValue,
@@ -78,7 +79,6 @@ const formatSortNumber = (value?: number | null) =>
 
 /**
  * Builds the localized results summary while preserving emphasis on the loaded count.
- * The regex pass avoids chained replacement edge cases when templates include multiple tokens.
  */
 const formatResultsSummary = (
   template: string,
@@ -86,36 +86,19 @@ const formatResultsSummary = (
   total: number,
   locale: string
 ): ReactNode[] => {
-  const replacements = {
-    count: count.toLocaleString(locale),
-    total: total.toLocaleString(locale),
-  };
-  const parts: ReactNode[] = [];
-  let lastIndex = 0;
-
-  template.replace(/\{(count|total)\}/g, (match, key: "count" | "total", offset) => {
-    if (offset > lastIndex) {
-      parts.push(template.slice(lastIndex, offset));
-    }
-
-    parts.push(
-      key === "count" ? (
-        <span key={`${key}-${offset}`} className="font-display text-fs-diamond">
-          {replacements[key]}
+  return template.split(/(\{(?:count|total)\})/g).map((part, i) => {
+    if (part === "{count}") {
+      return (
+        <span key={`count-${i}`} className="font-display text-fs-diamond">
+          {count.toLocaleString(locale)}
         </span>
-      ) : (
-        replacements[key]
-      )
-    );
-    lastIndex = offset + match.length;
-    return match;
+      );
+    }
+    if (part === "{total}") {
+      return <Fragment key={`total-${i}`}>{total.toLocaleString(locale)}</Fragment>;
+    }
+    return <Fragment key={`text-${part}-${i}`}>{part}</Fragment>;
   });
-
-  if (lastIndex < template.length) {
-    parts.push(template.slice(lastIndex));
-  }
-
-  return parts;
 };
 
 /**
