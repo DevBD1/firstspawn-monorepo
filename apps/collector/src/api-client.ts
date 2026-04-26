@@ -69,7 +69,9 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Target fetch failed with status ${response.status}${await readErrorBody(response)}`);
+      throw new Error(
+        `Target fetch failed with status ${response.status}${await readErrorBody(response)}`
+      );
     }
 
     const payload = (await response.json()) as Envelope<{
