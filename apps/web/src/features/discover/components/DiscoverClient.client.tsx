@@ -1,7 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useCallback, useDeferredValue, useEffect, useRef, useTransition } from "react";
+import {
+  type ReactNode,
+  Fragment,
+  useState,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useTransition,
+} from "react";
 import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
 import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";
@@ -68,11 +77,28 @@ type DiscoverGameFilter = "all" | "minecraft" | "hytale";
 const formatSortNumber = (value?: number | null) =>
   typeof value === "number" ? value.toLocaleString() : "0";
 
-const formatResultsSummary = (template: string, count: number, total: number) => {
-  const formattedCount = count.toLocaleString();
-  const formattedTotal = total.toLocaleString();
-
-  return template.replace("{count}", formattedCount).replace("{total}", formattedTotal);
+/**
+ * Builds the localized results summary while preserving emphasis on the loaded count.
+ */
+const formatResultsSummary = (
+  template: string,
+  count: number,
+  total: number,
+  locale: string
+): ReactNode[] => {
+  return template.split(/(\{(?:count|total)\})/g).map((part, i) => {
+    if (part === "{count}") {
+      return (
+        <span key={`count-${i}`} className="font-display text-fs-diamond">
+          {count.toLocaleString(locale)}
+        </span>
+      );
+    }
+    if (part === "{total}") {
+      return <Fragment key={`total-${i}`}>{total.toLocaleString(locale)}</Fragment>;
+    }
+    return <Fragment key={`text-${part}-${i}`}>{part}</Fragment>;
+  });
 };
 
 /**
@@ -270,13 +296,13 @@ export default function DiscoverClient({
         />
       </div>
 
-      {/* Unified Sticky Sidebar */}
+      {/* Desktop uses a fixed rail plus matching content offset so filters stay visible while browsing long result lists. */}
       <aside
-        className={`relative z-20 w-full overflow-hidden lg:shrink-0 lg:overflow-visible lg:transition-[width] lg:duration-200 lg:ease-in-out ${
+        className={`relative z-20 w-full overflow-hidden lg:fixed lg:bottom-0 lg:left-0 lg:top-[80px] lg:shrink-0 lg:transition-[width] lg:duration-200 lg:ease-in-out ${
           isSidebarCollapsed ? "lg:w-16" : "lg:w-80"
         }`}
       >
-        <div className="sticky top-[80px] flex h-auto flex-col bg-bg-panel/50 lg:h-[calc(100vh-80px)] lg:border-r-2 lg:border-foreground/10">
+        <div className="flex h-auto flex-col bg-bg-panel/50 lg:h-full lg:border-r-2 lg:border-foreground/10">
           {/* Toggle Button */}
           <div className="hidden lg:flex justify-end p-4">
             <button
@@ -290,10 +316,24 @@ export default function DiscoverClient({
             </button>
           </div>
 
-          <div
-            className={`h-auto flex-col gap-6 p-6 pt-0 lg:h-full lg:overflow-y-auto lg:pt-0 ${
-              isSidebarCollapsed ? "flex lg:hidden" : "flex"
-            }`}
+          {/* The content fades before desktop display removal; mobile forces it visible because the rail toggle is hidden there. */}
+          <motion.div
+            initial={false}
+            animate={
+              isSidebarCollapsed
+                ? {
+                    opacity: 0,
+                    x: -12,
+                    transitionEnd: { display: "none" },
+                  }
+                : {
+                    display: "flex",
+                    opacity: 1,
+                    x: 0,
+                  }
+            }
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="h-auto flex-col gap-6 p-6 pt-0 max-lg:!flex max-lg:!translate-x-0 max-lg:!opacity-100 lg:h-full lg:w-80 lg:overflow-y-auto lg:pt-0"
           >
             {/* Top Stats Bar */}
             <motion.div
@@ -450,12 +490,16 @@ export default function DiscoverClient({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <section className="relative z-10 flex-1 min-w-0 px-4 py-8 lg:px-8">
+      <section
+        className={`relative z-10 min-w-0 flex-1 px-4 py-8 transition-[margin-left] duration-200 ease-in-out lg:px-8 ${
+          isSidebarCollapsed ? "lg:ml-16" : "lg:ml-80"
+        }`}
+      >
         <div className="mx-auto max-w-7xl">
           {/* Header Title/Subtitle */}
           <motion.div
@@ -484,7 +528,8 @@ export default function DiscoverClient({
               {formatResultsSummary(
                 copy.resultsSummary,
                 servers.length,
-                globalStats.total_active_servers
+                globalStats.total_active_servers,
+                lang
               )}
             </span>
             {(isRefreshing || isPending) && (
@@ -567,7 +612,8 @@ export default function DiscoverClient({
                 {formatResultsSummary(
                   copy.resultsSummary,
                   servers.length,
-                  globalStats.total_active_servers
+                  globalStats.total_active_servers,
+                  lang
                 )}{" "}
                 —
               </span>
