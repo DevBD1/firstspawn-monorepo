@@ -1,7 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useCallback, useDeferredValue, useEffect, useRef, useTransition } from "react";
+import {
+  type ReactNode,
+  useState,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useTransition,
+} from "react";
 import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
 import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";
@@ -68,11 +76,46 @@ type DiscoverGameFilter = "all" | "minecraft" | "hytale";
 const formatSortNumber = (value?: number | null) =>
   typeof value === "number" ? value.toLocaleString() : "0";
 
-const formatResultsSummary = (template: string, count: number, total: number) => {
-  const formattedCount = count.toLocaleString();
-  const formattedTotal = total.toLocaleString();
+/**
+ * Builds the localized results summary while preserving emphasis on the loaded count.
+ * The regex pass avoids chained replacement edge cases when templates include multiple tokens.
+ */
+const formatResultsSummary = (
+  template: string,
+  count: number,
+  total: number,
+  locale: string
+): ReactNode[] => {
+  const replacements = {
+    count: count.toLocaleString(locale),
+    total: total.toLocaleString(locale),
+  };
+  const parts: ReactNode[] = [];
+  let lastIndex = 0;
 
-  return template.replace("{count}", formattedCount).replace("{total}", formattedTotal);
+  template.replace(/\{(count|total)\}/g, (match, key: "count" | "total", offset) => {
+    if (offset > lastIndex) {
+      parts.push(template.slice(lastIndex, offset));
+    }
+
+    parts.push(
+      key === "count" ? (
+        <span key={`${key}-${offset}`} className="font-display text-fs-diamond">
+          {replacements[key]}
+        </span>
+      ) : (
+        replacements[key]
+      )
+    );
+    lastIndex = offset + match.length;
+    return match;
+  });
+
+  if (lastIndex < template.length) {
+    parts.push(template.slice(lastIndex));
+  }
+
+  return parts;
 };
 
 /**
@@ -270,9 +313,9 @@ export default function DiscoverClient({
         />
       </div>
 
-      {/* Unified Sticky Sidebar */}
+      {/* CSS owns the responsive width so desktop does not animate from the mobile layout after hydration. */}
       <aside
-        className={`relative z-20 w-full overflow-hidden lg:shrink-0 lg:overflow-visible lg:transition-[width] lg:duration-200 lg:ease-in-out ${
+        className={`relative z-20 w-full overflow-hidden lg:shrink-0 lg:transition-[width] lg:duration-200 lg:ease-in-out ${
           isSidebarCollapsed ? "lg:w-16" : "lg:w-80"
         }`}
       >
@@ -290,10 +333,24 @@ export default function DiscoverClient({
             </button>
           </div>
 
-          <div
-            className={`h-auto flex-col gap-6 p-6 pt-0 lg:h-full lg:overflow-y-auto lg:pt-0 ${
-              isSidebarCollapsed ? "flex lg:hidden" : "flex"
-            }`}
+          {/* The content fades before display is removed so the rail width transition does not feel abrupt. */}
+          <motion.div
+            initial={false}
+            animate={
+              isSidebarCollapsed
+                ? {
+                    opacity: 0,
+                    x: -12,
+                    transitionEnd: { display: "none" },
+                  }
+                : {
+                    display: "flex",
+                    opacity: 1,
+                    x: 0,
+                  }
+            }
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="h-auto flex-col gap-6 p-6 pt-0 lg:h-full lg:w-80 lg:overflow-y-auto lg:pt-0"
           >
             {/* Top Stats Bar */}
             <motion.div
@@ -450,7 +507,7 @@ export default function DiscoverClient({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </aside>
 
@@ -484,7 +541,8 @@ export default function DiscoverClient({
               {formatResultsSummary(
                 copy.resultsSummary,
                 servers.length,
-                globalStats.total_active_servers
+                globalStats.total_active_servers,
+                lang
               )}
             </span>
             {(isRefreshing || isPending) && (
@@ -567,7 +625,8 @@ export default function DiscoverClient({
                 {formatResultsSummary(
                   copy.resultsSummary,
                   servers.length,
-                  globalStats.total_active_servers
+                  globalStats.total_active_servers,
+                  lang
                 )}{" "}
                 —
               </span>

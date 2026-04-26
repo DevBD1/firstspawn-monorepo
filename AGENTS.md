@@ -97,6 +97,15 @@ firstspawn-monorepo/
   - feature entry components with stateful behavior
   - helper functions that transform data into UI models
   - modules with cross-feature reuse or non-obvious constraints
+- Before finishing code changes, do a comment pass on touched files:
+  - add or update a short TSDoc/JSDoc comment for new reusable helpers,
+    exported APIs, and formatter/view-model functions whose contract is not
+    obvious from the name alone
+  - add a short line comment above non-obvious UI behavior, hydration
+    safeguards, responsive layout decisions, concurrency handling, cache
+    behavior, or review-driven fixes
+  - if no comments are needed, be ready to explain that the touched code is
+    self-explanatory and does not encode hidden intent
 - Avoid comment noise:
   - do not comment every JSX block
   - do not comment simple assignments or prop passing
