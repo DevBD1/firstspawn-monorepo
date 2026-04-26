@@ -316,7 +316,7 @@ export default function DiscoverClient({
             </button>
           </div>
 
-          {/* The content fades before display is removed so the rail width transition does not feel abrupt. */}
+          {/* The content fades before desktop display removal; mobile forces it visible because the rail toggle is hidden there. */}
           <motion.div
             initial={false}
             animate={
@@ -333,7 +333,7 @@ export default function DiscoverClient({
                   }
             }
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="h-auto flex-col gap-6 p-6 pt-0 lg:h-full lg:w-80 lg:overflow-y-auto lg:pt-0"
+            className="h-auto flex-col gap-6 p-6 pt-0 max-lg:!flex max-lg:!translate-x-0 max-lg:!opacity-100 lg:h-full lg:w-80 lg:overflow-y-auto lg:pt-0"
           >
             {/* Top Stats Bar */}
             <motion.div
