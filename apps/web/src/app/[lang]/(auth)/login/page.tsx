@@ -42,6 +42,9 @@ export default async function LoginPage({
       copy={shellCopy}
       layoutOrientation="sidebar-left"
       themeColor="primary"
+      alternateAuthPrompt={login.form.alternatePrompt}
+      alternateAuthCta={login.form.alternateCta}
+      alternateAuthHref={`/${lang}/signup${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
     >
       <LoginForm
         lang={lang}

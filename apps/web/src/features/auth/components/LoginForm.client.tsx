@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import { CheckCircle, Eye, EyeOff, Key, Mail } from "lucide-react";
 import { loginAction } from "@/app/actions/auth";
@@ -20,6 +19,10 @@ interface LoginFormProps {
   copy: LoginFormCopy;
 }
 
+/**
+ * LoginForm - A functional terminal input module for user authentication.
+ * Uses React 19's `useActionState` for seamless server action integration.
+ */
 export default function LoginForm({
   lang,
   nextPath,
@@ -32,9 +35,6 @@ export default function LoginForm({
 
   const fieldErrors = state?.fieldErrors ?? {};
   const message = state?.message ?? null;
-  const registerHref = nextPath
-    ? `/${lang}/signup?next=${encodeURIComponent(nextPath)}`
-    : `/${lang}/signup`;
 
   return (
     <form action={action} className="space-y-4">
@@ -153,18 +153,6 @@ export default function LoginForm({
 
           <AuthSubmitButton label={copy.submitLabel} pendingLabel={copy.submitPendingLabel} />
         </div>
-      </div>
-
-      <div className="mt-8 border-t-2 border-muted/10 pt-6">
-        <p className="font-body text-sm text-muted">
-          {copy.alternatePrompt}{" "}
-          <Link
-            href={registerHref}
-            className="font-ui text-base font-bold uppercase tracking-wide text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:text-primary-hover"
-          >
-            {copy.alternateCta}
-          </Link>
-        </p>
       </div>
     </form>
   );

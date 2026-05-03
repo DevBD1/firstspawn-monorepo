@@ -17,6 +17,12 @@ interface AuthShellProps {
   layoutOrientation?: "sidebar-left" | "sidebar-right";
   /** The semantic color theme for highlights (logo, status text, icons). Defaults to "success". */
   themeColor?: "primary" | "success";
+  /** The prompt for the alternate auth action (e.g., "New to FirstSpawn?"). */
+  alternateAuthPrompt?: string;
+  /** The label for the alternate auth action (e.g., "SIGN UP"). */
+  alternateAuthCta?: string;
+  /** The destination for the alternate auth action. */
+  alternateAuthHref?: string;
 }
 
 interface FeatureItemProps {
@@ -59,6 +65,9 @@ export default function AuthShell({
   children,
   layoutOrientation = "sidebar-left",
   themeColor = "success",
+  alternateAuthPrompt,
+  alternateAuthCta,
+  alternateAuthHref,
 }: AuthShellProps) {
   const [primaryBenefit, secondaryBenefit, tertiaryBenefit] = copy.benefitItems;
 
@@ -68,7 +77,16 @@ export default function AuthShell({
     layoutOrientation === "sidebar-right" ? "lg:order-last border-l-4 border-r-0" : "border-r-4";
 
   return (
-    <section className="min-h-screen bg-background">
+    <section className="relative min-h-screen bg-background">
+      {/* Global Close Button - Always top-left */}
+      <Link
+        href={closeHref}
+        aria-label={backLabel}
+        className="fixed left-6 top-6 z-50 border-2 border-black bg-bg-panel p-2 text-foreground/60 transition-colors hover:bg-background hover:text-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+      >
+        <X className="h-5 w-5" />
+      </Link>
+
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
         <aside
           className={joinClasses(
@@ -130,14 +148,26 @@ export default function AuthShell({
           </p>
         </aside>
 
-        <main className="relative flex items-center justify-center p-6 sm:p-10 lg:p-12">
-          <Link
-            href={closeHref}
-            aria-label={backLabel}
-            className="absolute right-6 top-6 border-2 border-black bg-bg-panel p-2 text-foreground/60 transition-colors hover:bg-background hover:text-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
-          >
-            <X className="h-5 w-5" />
-          </Link>
+        <main className="relative flex flex-col items-center justify-center p-6 sm:p-10 lg:p-12">
+          {/* Top Area Contextual Navigation */}
+          {alternateAuthPrompt && alternateAuthCta && alternateAuthHref && (
+            <div className="absolute top-10 flex w-full max-w-md justify-end px-6 md:px-8">
+              <p className="font-body text-sm text-muted">
+                {alternateAuthPrompt}{" "}
+                <Link
+                  href={alternateAuthHref}
+                  className={joinClasses(
+                    "font-ui text-base font-bold uppercase tracking-wide underline decoration-current/30 underline-offset-4 transition-colors",
+                    themeColor === "primary"
+                      ? "text-success hover:text-success/80"
+                      : "text-primary hover:text-primary/80"
+                  )}
+                >
+                  {alternateAuthCta}
+                </Link>
+              </p>
+            </div>
+          )}
 
           <div className="w-full max-w-md">
             <div className="mb-12 flex items-center gap-3 lg:hidden">

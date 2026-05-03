@@ -41,6 +41,9 @@ export default async function SignupPage({
       copy={shellCopy}
       layoutOrientation="sidebar-right"
       themeColor="success"
+      alternateAuthPrompt={register.form.alternatePrompt}
+      alternateAuthCta={register.form.alternateCta}
+      alternateAuthHref={`/${lang}/login${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
     >
       <RegisterForm lang={lang} nextPath={nextPath} copy={register.form} />
     </AuthShell>

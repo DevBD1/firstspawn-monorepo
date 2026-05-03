@@ -18,6 +18,10 @@ interface RegisterFormProps {
   copy: RegisterFormCopy;
 }
 
+/**
+ * RegisterForm - A functional terminal input module for new account creation.
+ * Features multi-step validation and agreement checkboxes within the mechanical HUD.
+ */
 export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps) {
   const [state, action] = useActionState(registerAction, AUTH_ACTION_INITIAL_STATE);
   const { isVisible: showPasswords, toggle } = usePasswordVisibility();
@@ -258,16 +262,7 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
       </div>
 
       <div className="mt-8 border-t-2 border-muted/10 pt-6">
-        <p className="font-body text-sm text-muted">
-          {copy.alternatePrompt}{" "}
-          <Link
-            href={loginHref}
-            className="font-ui text-base font-bold uppercase tracking-wide text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:text-primary-hover"
-          >
-            {copy.alternateCta}
-          </Link>
-        </p>
-        <p className="mt-3 font-body text-xs text-muted/60">{copy.legalDisclaimer}</p>
+        <p className="font-body text-xs text-muted/60">{copy.legalDisclaimer}</p>
       </div>
     </form>
   );
