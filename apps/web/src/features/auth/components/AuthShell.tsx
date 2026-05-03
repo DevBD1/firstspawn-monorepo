@@ -13,19 +13,26 @@ interface AuthShellProps {
   closeHref: string;
   copy: AuthShellCopy;
   children: React.ReactNode;
+  /** The physical placement of the informational sidebar. Defaults to "sidebar-left". */
+  layoutOrientation?: "sidebar-left" | "sidebar-right";
+  /** The semantic color theme for highlights (logo, status text, icons). Defaults to "success". */
+  themeColor?: "primary" | "success";
 }
 
 interface FeatureItemProps {
   icon: ComponentType<{ className?: string }>;
   title: string;
   description: string;
+  themeColor: "primary" | "success";
 }
 
-function FeatureItem({ icon: Icon, title, description }: FeatureItemProps) {
+function FeatureItem({ icon: Icon, title, description, themeColor }: FeatureItemProps) {
+  const iconColorClass = themeColor === "primary" ? "text-primary" : "text-success";
+
   return (
     <div className="flex items-start gap-4">
       <div className="mt-1 border-2 border-black bg-secondary p-2">
-        <Icon className="h-5 w-5 text-success" />
+        <Icon className={joinClasses("h-5 w-5", iconColorClass)} />
       </div>
       <div>
         <h3 className="font-ui text-lg font-bold uppercase tracking-wide text-foreground">
@@ -37,6 +44,10 @@ function FeatureItem({ icon: Icon, title, description }: FeatureItemProps) {
   );
 }
 
+/**
+ * AuthShell - A mechanical layout wrapper for auth-related pages (login, signup).
+ * Supports mirrored layouts and semantic color shifts to create visual rhythm.
+ */
 export default function AuthShell({
   brand,
   lang,
@@ -46,13 +57,25 @@ export default function AuthShell({
   closeHref,
   copy,
   children,
+  layoutOrientation = "sidebar-left",
+  themeColor = "success",
 }: AuthShellProps) {
   const [primaryBenefit, secondaryBenefit, tertiaryBenefit] = copy.benefitItems;
+
+  const bgHighlightClass = themeColor === "primary" ? "bg-primary" : "bg-success";
+  const textHighlightClass = themeColor === "primary" ? "text-primary" : "text-success";
+  const asideOrderClass =
+    layoutOrientation === "sidebar-right" ? "lg:order-last border-l-4 border-r-0" : "border-r-4";
 
   return (
     <section className="min-h-screen bg-background">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-        <aside className="relative hidden overflow-hidden border-r-4 border-black bg-bg-panel px-10 py-12 lg:flex lg:flex-col lg:justify-between">
+        <aside
+          className={joinClasses(
+            "relative hidden overflow-hidden border-black bg-bg-panel px-10 py-12 lg:flex lg:flex-col lg:justify-between",
+            asideOrderClass
+          )}
+        >
           <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(to_right,var(--foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--foreground)_1px,transparent_1px)] [background-size:24px_24px]" />
 
           <div className="relative z-10">
@@ -60,7 +83,12 @@ export default function AuthShell({
               href={`/${lang}`}
               className="mb-16 inline-flex items-center gap-3 transition-opacity hover:opacity-80"
             >
-              <div className="flex h-10 w-10 items-center justify-center border-2 border-black bg-success shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div
+                className={joinClasses(
+                  "flex h-10 w-10 items-center justify-center border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+                  bgHighlightClass
+                )}
+              >
                 <div className="h-4 w-4 bg-background" />
               </div>
               <span className="font-display text-xl uppercase text-foreground">{brand}</span>
@@ -69,7 +97,7 @@ export default function AuthShell({
             <h2 className="mb-6 font-display text-2xl uppercase leading-tight text-foreground xl:text-3xl">
               {copy.brandStatement.title}
               <br />
-              <span className="text-success">{copy.brandStatement.highlight}</span>
+              <span className={textHighlightClass}>{copy.brandStatement.highlight}</span>
             </h2>
             <p className="mb-12 max-w-md font-body text-base text-foreground/70">
               {copy.brandStatement.description}
@@ -80,16 +108,19 @@ export default function AuthShell({
                 icon={ShieldCheck}
                 title={primaryBenefit.title}
                 description={primaryBenefit.description}
+                themeColor={themeColor}
               />
               <FeatureItem
                 icon={Database}
                 title={secondaryBenefit.title}
                 description={secondaryBenefit.description}
+                themeColor={themeColor}
               />
               <FeatureItem
                 icon={Gamepad2}
                 title={tertiaryBenefit.title}
                 description={tertiaryBenefit.description}
+                themeColor={themeColor}
               />
             </div>
           </div>
@@ -110,7 +141,12 @@ export default function AuthShell({
 
           <div className="w-full max-w-md">
             <div className="mb-12 flex items-center gap-3 lg:hidden">
-              <div className="flex h-8 w-8 items-center justify-center border-2 border-black bg-success shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <div
+                className={joinClasses(
+                  "flex h-8 w-8 items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+                  bgHighlightClass
+                )}
+              >
                 <div className="h-3 w-3 bg-background" />
               </div>
               <span className="font-display text-lg uppercase text-foreground">{brand}</span>

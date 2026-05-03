@@ -40,6 +40,8 @@ export default async function LoginPage({
       backLabel={dictionary.common.actions.backHome}
       closeHref={closeHref}
       copy={shellCopy}
+      layoutOrientation="sidebar-left"
+      themeColor="primary"
     >
       <LoginForm
         lang={lang}

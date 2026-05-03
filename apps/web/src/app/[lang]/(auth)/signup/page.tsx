@@ -39,6 +39,8 @@ export default async function SignupPage({
       backLabel={dictionary.common.actions.backHome}
       closeHref={closeHref}
       copy={shellCopy}
+      layoutOrientation="sidebar-right"
+      themeColor="success"
     >
       <RegisterForm lang={lang} nextPath={nextPath} copy={register.form} />
     </AuthShell>
