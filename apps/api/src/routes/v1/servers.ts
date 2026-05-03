@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNull, ilike, lt, or, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, ilike, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
@@ -16,6 +16,34 @@ const PUBLIC_PLAYERS_NULL_SORT_VALUE = -1;
 
 type ServerRecord = typeof servers.$inferSelect;
 type HeartbeatRecord = typeof serverHeartbeats.$inferSelect;
+type FreshnessServerFields = Pick<
+  ServerRecord,
+  "status" | "lastProbeAttemptAt" | "probeStatus" | "lastPingAt"
+>;
+type PublicServerListRow = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  game: "mc_java" | "mc_bedrock" | "hytale";
+  status: "active" | "suspended" | "archived";
+  region: string | null;
+  lastPingAt: Date | null;
+  lastProbeAttemptAt: Date | null;
+  probeStatus: "online" | "offline" | "unknown" | "unreachable";
+  latestId: string | null;
+  pingMs: number | null;
+  onlinePlayers: number | null;
+  maxPlayers: number | null;
+  minecraftVersion: string | null;
+  occurredAt: Date | null;
+  sortPrimary: number;
+  sortSecondary: number;
+};
+type PublicStatsRow = {
+  total_active_servers: number;
+  total_online_players: number;
+};
 
 const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
@@ -219,7 +247,7 @@ const buildTemporarySlug = (name: string): string => {
 };
 
 const freshnessFromServer = (
-  server: ServerRecord,
+  server: FreshnessServerFields,
   nowMs: number
 ): "online" | "offline" | "unknown" => {
   if (server.status !== "active") {
@@ -331,6 +359,25 @@ const normalizeMetricsPayload = (
   minecraft_version: heartbeat?.minecraftVersion ?? null,
   occurred_at: heartbeat?.occurredAt.toISOString() ?? null,
 });
+
+const latestHeartbeatFromPublicRow = (
+  row: PublicServerListRow
+): Pick<
+  HeartbeatRecord,
+  "pingMs" | "onlinePlayers" | "maxPlayers" | "minecraftVersion" | "occurredAt"
+> | null => {
+  if (!row.latestId || !row.occurredAt) {
+    return null;
+  }
+
+  return {
+    pingMs: row.pingMs,
+    onlinePlayers: row.onlinePlayers,
+    maxPlayers: row.maxPlayers,
+    minecraftVersion: row.minecraftVersion,
+    occurredAt: row.occurredAt,
+  };
+};
 
 type PublicListSort = z.infer<typeof publicListSortSchema>;
 type PublicListCursorPayload = {
@@ -460,29 +507,32 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
       const threshold = new Date(now - ONLINE_WINDOW_MS);
 
-      const rankedHeartbeats = app.db.db
-        .select({
-          serverId: serverHeartbeats.serverId,
-          onlinePlayers: serverHeartbeats.onlinePlayers,
-          rn: sql<number>`row_number() over (
-            partition by ${serverHeartbeats.serverId}
-            order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
-          )`.as("rn"),
-        })
-        .from(serverHeartbeats)
-        .as("ranked_heartbeats");
-
-      const [counts] = await app.db.db
-        .select({
-          total_active_servers: sql<number>`count(${servers.id})::integer`,
-          total_online_players: sql<number>`coalesce(sum(case when ${servers.lastPingAt} >= ${threshold} then ${rankedHeartbeats.onlinePlayers} else 0 end), 0)::integer`,
-        })
-        .from(servers)
-        .leftJoin(
-          rankedHeartbeats,
-          and(eq(servers.id, rankedHeartbeats.serverId), eq(rankedHeartbeats.rn, 1))
-        )
-        .where(eq(servers.status, "active"));
+      const countsResult = await app.db.pool.query<PublicStatsRow>(
+        `
+          select
+            count(s.id)::integer as total_active_servers,
+            coalesce(
+              sum(
+                case
+                  when s.last_ping_at >= $1 then latest.online_players
+                  else 0
+                end
+              ),
+              0
+            )::integer as total_online_players
+          from servers s
+          left join lateral (
+            select hb.online_players
+            from server_heartbeats hb
+            where hb.server_id = s.id
+            order by hb.occurred_at desc, hb.created_at desc, hb.id desc
+            limit 1
+          ) latest on true
+          where s.status = 'active'
+        `,
+        [threshold]
+      );
+      const counts = countsResult.rows[0];
 
       const stats = {
         total_active_servers: counts?.total_active_servers ?? 0,
@@ -802,160 +852,164 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const statuses = query.include_archived
         ? (["active", "archived"] as const)
         : (["active"] as const);
+      const queryParams: unknown[] = [];
       const filters = [
-        eq(servers.game, query.game ?? "mc_java"),
-        inArray(servers.status, statuses),
+        `s.game = ${addQueryParam(queryParams, query.game ?? "mc_java")}`,
+        `s.status = any(${addQueryParam(queryParams, statuses)}::text[])`,
       ];
       if (query.q) {
-        const q = `%${query.q}%`;
-        filters.push(
-          or(ilike(servers.name, q), ilike(servers.slug, q), ilike(servers.description, q))!
-        );
+        const q = addQueryParam(queryParams, `%${query.q}%`);
+        filters.push(`(s.name ilike ${q} or s.slug::text ilike ${q} or s.description ilike ${q})`);
       }
 
       const threshold = new Date(Date.now() - ONLINE_WINDOW_MS);
       if (query.freshness_status === "online") {
-        filters.push(eq(servers.status, "active"));
-        filters.push(gte(servers.lastPingAt, threshold));
+        filters.push("s.status = 'active'");
+        filters.push(`s.last_ping_at >= ${addQueryParam(queryParams, threshold)}`);
       } else if (query.freshness_status === "offline") {
         filters.push(
-          or(
-            eq(servers.status, "archived"),
-            and(eq(servers.status, "active"), lt(servers.lastPingAt, threshold)),
-            and(eq(servers.status, "active"), eq(servers.probeStatus, "unreachable")),
-            and(eq(servers.status, "active"), eq(servers.probeStatus, "offline"))
-          )!
+          `(
+            s.status = 'archived'
+            or (s.status = 'active' and s.last_ping_at < ${addQueryParam(queryParams, threshold)})
+            or (s.status = 'active' and s.probe_status = 'unreachable')
+            or (s.status = 'active' and s.probe_status = 'offline')
+          )`
         );
       } else if (query.freshness_status === "unknown") {
         filters.push(
-          and(
-            eq(servers.status, "active"),
-            or(isNull(servers.lastProbeAttemptAt), eq(servers.probeStatus, "unknown"))!
-          )!
+          "(s.status = 'active' and (s.last_probe_attempt_at is null or s.probe_status = 'unknown'))"
         );
       }
 
-      const rankedHeartbeats = app.db.db
-        .select({
-          id: serverHeartbeats.id,
-          serverId: serverHeartbeats.serverId,
-          pingMs: serverHeartbeats.pingMs,
-          onlinePlayers: serverHeartbeats.onlinePlayers,
-          maxPlayers: serverHeartbeats.maxPlayers,
-          minecraftVersion: serverHeartbeats.minecraftVersion,
-          occurredAt: serverHeartbeats.occurredAt,
-          createdAt: serverHeartbeats.createdAt,
-          rn: sql<number>`row_number() over (
-            partition by ${serverHeartbeats.serverId}
-            order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
-          )`.as("rn"),
-        })
-        .from(serverHeartbeats)
-        .as("ranked_heartbeats");
-
-      const sortPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})::integer`;
-      const sortPingExpr = sql<number>`coalesce(${rankedHeartbeats.pingMs}::integer, ${PUBLIC_PING_NULL_SORT_VALUE})`;
-      const tierPlayersExpr = sql<number>`coalesce(${rankedHeartbeats.onlinePlayers}, 0)`;
+      const sortPlayersExpr = `coalesce(latest.online_players, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})::integer`;
+      const sortPingExpr = `coalesce(latest.ping_ms::integer, ${PUBLIC_PING_NULL_SORT_VALUE})`;
+      const tierPlayersExpr = "coalesce(latest.online_players, 0)";
       if (query.tier && query.tier.length > 0) {
         const tierFilters = query.tier.map((tier) => {
           if (tier === "common") {
-            return sql`${tierPlayersExpr} < 100`;
+            return `${tierPlayersExpr} < 100`;
           }
           if (tier === "rare") {
-            return sql`${tierPlayersExpr} >= 100 and ${tierPlayersExpr} < 1000`;
+            return `${tierPlayersExpr} >= 100 and ${tierPlayersExpr} < 1000`;
           }
           if (tier === "epic") {
-            return sql`${tierPlayersExpr} >= 1000 and ${tierPlayersExpr} < 10000`;
+            return `${tierPlayersExpr} >= 1000 and ${tierPlayersExpr} < 10000`;
           }
-          return sql`${tierPlayersExpr} >= 10000`;
+          return `${tierPlayersExpr} >= 10000`;
         });
-        filters.push(or(...tierFilters)!);
+        filters.push(`(${tierFilters.join(" or ")})`);
       }
       const cursorFilter =
         cursor && query.sort === "players"
-          ? sql`(
-              ${sortPlayersExpr} < ${cursor.primary}
-              or (${sortPlayersExpr} = ${cursor.primary} and ${sortPingExpr} > ${cursor.secondary})
+          ? (() => {
+              const primary = addQueryParam(queryParams, cursor.primary);
+              const secondary = addQueryParam(queryParams, cursor.secondary);
+              const id = addQueryParam(queryParams, cursor.id);
+              return `(
+              ${sortPlayersExpr} < ${primary}
+              or (${sortPlayersExpr} = ${primary} and ${sortPingExpr} > ${secondary})
               or (
-                ${sortPlayersExpr} = ${cursor.primary}
-                and ${sortPingExpr} = ${cursor.secondary}
-                and ${servers.id} > ${cursor.id}::uuid
+                ${sortPlayersExpr} = ${primary}
+                and ${sortPingExpr} = ${secondary}
+                and s.id > ${id}::uuid
               )
-            )`
+            )`;
+            })()
           : cursor && query.sort === "ping"
-            ? sql`(
-                ${sortPingExpr} > ${cursor.primary}
-                or (${sortPingExpr} = ${cursor.primary} and ${sortPlayersExpr} < ${cursor.secondary})
+            ? (() => {
+                const primary = addQueryParam(queryParams, cursor.primary);
+                const secondary = addQueryParam(queryParams, cursor.secondary);
+                const id = addQueryParam(queryParams, cursor.id);
+                return `(
+                ${sortPingExpr} > ${primary}
+                or (${sortPingExpr} = ${primary} and ${sortPlayersExpr} < ${secondary})
                 or (
-                  ${sortPingExpr} = ${cursor.primary}
-                  and ${sortPlayersExpr} = ${cursor.secondary}
-                  and ${servers.id} > ${cursor.id}::uuid
+                  ${sortPingExpr} = ${primary}
+                  and ${sortPlayersExpr} = ${secondary}
+                  and s.id > ${id}::uuid
                 )
-              )`
+              )`;
+              })()
             : undefined;
       if (cursorFilter) {
         filters.push(cursorFilter);
       }
 
-      const rows = await app.db.db
-        .select({
-          server: servers,
-          latest: {
-            id: rankedHeartbeats.id,
-            pingMs: rankedHeartbeats.pingMs,
-            onlinePlayers: rankedHeartbeats.onlinePlayers,
-            maxPlayers: rankedHeartbeats.maxPlayers,
-            minecraftVersion: rankedHeartbeats.minecraftVersion,
-            occurredAt: rankedHeartbeats.occurredAt,
-            createdAt: rankedHeartbeats.createdAt,
-            serverId: rankedHeartbeats.serverId,
-          },
-        })
-        .from(servers)
-        .leftJoin(
-          rankedHeartbeats,
-          and(eq(servers.id, rankedHeartbeats.serverId), eq(rankedHeartbeats.rn, 1))
-        )
-        .where(and(...filters))
-        .orderBy(
-          query.sort === "players" ? desc(sortPlayersExpr) : asc(sortPingExpr),
-          query.sort === "players" ? asc(sortPingExpr) : desc(sortPlayersExpr),
-          asc(servers.id)
-        )
-        .limit(query.limit + 1);
+      const sortPrimaryExpr = query.sort === "players" ? sortPlayersExpr : sortPingExpr;
+      const sortSecondaryExpr = query.sort === "players" ? sortPingExpr : sortPlayersExpr;
+      const orderClause =
+        query.sort === "players"
+          ? `${sortPlayersExpr} desc, ${sortPingExpr} asc, s.id asc`
+          : `${sortPingExpr} asc, ${sortPlayersExpr} desc, s.id asc`;
+      const limit = addQueryParam(queryParams, query.limit + 1);
+      const rowsResult = await app.db.pool.query<PublicServerListRow>(
+        `
+          select
+            s.id,
+            s.slug::text as slug,
+            s.name,
+            s.description,
+            s.game,
+            s.status,
+            s.region,
+            s.last_ping_at as "lastPingAt",
+            s.last_probe_attempt_at as "lastProbeAttemptAt",
+            s.probe_status as "probeStatus",
+            latest.id as "latestId",
+            latest.ping_ms as "pingMs",
+            latest.online_players as "onlinePlayers",
+            latest.max_players as "maxPlayers",
+            latest.minecraft_version as "minecraftVersion",
+            latest.occurred_at as "occurredAt",
+            ${sortPrimaryExpr} as "sortPrimary",
+            ${sortSecondaryExpr} as "sortSecondary"
+          from servers s
+          left join lateral (
+            select
+              hb.id,
+              hb.ping_ms,
+              hb.online_players,
+              hb.max_players,
+              hb.minecraft_version,
+              hb.occurred_at,
+              hb.created_at
+            from server_heartbeats hb
+            where hb.server_id = s.id
+            order by hb.occurred_at desc, hb.created_at desc, hb.id desc
+            limit 1
+          ) latest on true
+          where ${filters.join("\n            and ")}
+          order by ${orderClause}
+          limit ${limit}
+        `,
+        queryParams
+      );
+      const rows = rowsResult.rows;
 
       const nowMs = Date.now();
       const sliced = rows.slice(0, query.limit);
       const tail = sliced[sliced.length - 1];
-      const tailPrimary =
-        tail && query.sort === "players"
-          ? (tail.latest?.onlinePlayers ?? PUBLIC_PLAYERS_NULL_SORT_VALUE)
-          : (tail?.latest?.pingMs ?? PUBLIC_PING_NULL_SORT_VALUE);
-      const tailSecondary =
-        tail && query.sort === "players"
-          ? (tail.latest?.pingMs ?? PUBLIC_PING_NULL_SORT_VALUE)
-          : (tail?.latest?.onlinePlayers ?? PUBLIC_PLAYERS_NULL_SORT_VALUE);
       const nextCursor =
         rows.length > query.limit && tail
           ? encodePublicListCursor({
               sort: query.sort,
-              id: tail.server.id,
-              primary: tailPrimary,
-              secondary: tailSecondary,
+              id: tail.id,
+              primary: tail.sortPrimary,
+              secondary: tail.sortSecondary,
             })
           : null;
       return successEnvelope(
         {
-          servers: sliced.map(({ server, latest }) => ({
-            slug: server.slug,
-            name: server.name,
-            description: server.description,
-            game: server.game as "mc_java" | "mc_bedrock" | "hytale",
-            catalog_status: server.status as "active" | "suspended" | "archived",
-            freshness_status: freshnessFromServer(server, nowMs),
-            region: server.region ?? null,
-            last_ping_at: server.lastPingAt ? server.lastPingAt.toISOString() : null,
-            latest_metrics: normalizeMetricsPayload(latest),
+          servers: sliced.map((row) => ({
+            slug: row.slug,
+            name: row.name,
+            description: row.description,
+            game: row.game,
+            catalog_status: row.status,
+            freshness_status: freshnessFromServer(row, nowMs),
+            region: row.region ?? null,
+            last_ping_at: row.lastPingAt ? row.lastPingAt.toISOString() : null,
+            latest_metrics: normalizeMetricsPayload(latestHeartbeatFromPublicRow(row)),
           })),
           pagination: {
             next_cursor: nextCursor,
@@ -1003,3 +1057,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 };
 
 const gtId = (cursor: string) => sql`${servers.id} > ${cursor}::uuid`;
+
+const addQueryParam = (params: unknown[], value: unknown): string => {
+  params.push(value);
+  return `$${params.length}`;
+};

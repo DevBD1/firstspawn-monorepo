@@ -227,6 +227,12 @@ export const serverHeartbeats = pgTable(
     index("idx_server_heartbeats_server_id").on(table.serverId),
     index("idx_server_heartbeats_occurred_at").on(table.occurredAt),
     index("idx_server_heartbeats_server_occurred").on(table.serverId, table.occurredAt),
+    index("idx_server_heartbeats_server_latest").on(
+      table.serverId,
+      table.occurredAt.desc(),
+      table.createdAt.desc(),
+      table.id.desc()
+    ),
     uniqueIndex("idx_server_heartbeats_server_idempotency").on(
       table.serverId,
       table.idempotencyKey

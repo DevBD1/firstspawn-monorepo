@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { inArray } from "drizzle-orm";
 
-import { serverHeartbeats } from "../src/db/schema.js";
+import { serverHeartbeats, servers } from "../src/db/schema.js";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("servers integration", () => {
@@ -306,6 +307,75 @@ describe("servers integration", () => {
       max_players: 60,
       minecraft_version: "1.20.4",
       occurred_at: "2026-04-10T11:00:00.000Z",
+    });
+  });
+
+  it("uses latest heartbeat metrics in public stats", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_stats",
+    });
+
+    const first = await createServerAsAdmin(admin.accessToken, {
+      slug: "stats-one",
+      name: "Stats One",
+    });
+    const second = await createServerAsAdmin(admin.accessToken, {
+      slug: "stats-two",
+      name: "Stats Two",
+    });
+
+    const now = new Date();
+    await getContext()
+      .app.db.db.update(servers)
+      .set({
+        lastPingAt: now,
+        lastProbeAttemptAt: now,
+        probeStatus: "online",
+      })
+      .where(inArray(servers.id, [first.id, second.id]));
+
+    await getContext()
+      .app.db.db.insert(serverHeartbeats)
+      .values([
+        {
+          serverId: first.id,
+          occurredAt: new Date("2026-04-10T09:00:00.000Z"),
+          collectedAt: now,
+          onlinePlayers: 2,
+          idempotencyKey: "stats-one-old",
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          serverId: first.id,
+          occurredAt: new Date("2026-04-10T10:00:00.000Z"),
+          collectedAt: now,
+          onlinePlayers: 7,
+          idempotencyKey: "stats-one-new",
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          serverId: second.id,
+          occurredAt: new Date("2026-04-10T11:00:00.000Z"),
+          collectedAt: now,
+          onlinePlayers: 11,
+          idempotencyKey: "stats-two-new",
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]);
+
+    const response = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/servers/stats",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data).toEqual({
+      total_active_servers: 2,
+      total_online_players: 18,
     });
   });
 

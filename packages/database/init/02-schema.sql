@@ -160,6 +160,7 @@ CREATE INDEX "idx_server_heartbeat_hourly_bucket_start" ON "server_heartbeat_hou
 CREATE INDEX "idx_server_heartbeats_server_id" ON "server_heartbeats" USING btree ("server_id");--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeats_occurred_at" ON "server_heartbeats" USING btree ("occurred_at");--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeats_server_occurred" ON "server_heartbeats" USING btree ("server_id","occurred_at");--> statement-breakpoint
+CREATE INDEX "idx_server_heartbeats_server_latest" ON "server_heartbeats" USING btree ("server_id","occurred_at" DESC,"created_at" DESC,"id" DESC);--> statement-breakpoint
 CREATE UNIQUE INDEX "idx_server_heartbeats_server_idempotency" ON "server_heartbeats" USING btree ("server_id","idempotency_key");--> statement-breakpoint
 CREATE UNIQUE INDEX "servers_slug_unique" ON "servers" USING btree ("slug");--> statement-breakpoint
 CREATE INDEX "idx_servers_status" ON "servers" USING btree ("status");--> statement-breakpoint
