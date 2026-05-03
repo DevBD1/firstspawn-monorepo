@@ -22,7 +22,9 @@
     "./src/styles/brand.css"
   ],
   "scripts": {
-    "lint": "eslint src/",
+    "generate:styles": "node scripts/generate-brand-css.cjs",
+    "check:styles": "node scripts/generate-brand-css.cjs --check",
+    "lint": "pnpm run check:styles && eslint src/",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf node_modules"
   },

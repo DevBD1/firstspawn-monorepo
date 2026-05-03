@@ -38,7 +38,7 @@ function FooterSection({ children, id, isOpen, onToggle, title }: FooterSectionP
         onClick={() => onToggle(id)}
         className="group flex w-full items-center justify-between gap-2 py-2 md:cursor-default md:justify-start md:py-0"
       >
-        <h3 className="font-display text-xs uppercase text-white transition-colors group-hover:text-accent-cyan">
+        <h3 className="font-display text-xs uppercase text-white transition-colors group-hover:text-fs-diamond">
           {title}
         </h3>
         <ChevronDown
@@ -80,11 +80,11 @@ export default function Footer({ dictionary }: FooterProps) {
   };
 
   return (
-    <footer className="relative overflow-hidden border-t-8 border-footer-border bg-footer-bg">
+    <footer className="relative overflow-hidden border-t-8 border-secondary bg-background">
       <div
         className="pointer-events-none absolute inset-0 opacity-5"
         style={{
-          backgroundImage: "radial-gradient(var(--footer-grid) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(var(--bg-panel) 1px, transparent 1px)",
           backgroundSize: "20px 20px",
         }}
       />
@@ -95,7 +95,7 @@ export default function Footer({ dictionary }: FooterProps) {
             <h2 className="mb-4 font-display text-xl leading-relaxed text-white md:text-2xl">
               {dictionary.footer.cta.title}
               <br />
-              <span className="text-accent-cyan">{dictionary.footer.cta.titleHighlight}</span>
+              <span className="text-fs-diamond">{dictionary.footer.cta.titleHighlight}</span>
             </h2>
             <p className="mb-6 max-w-md font-ui text-xl text-gray-400">
               {dictionary.footer.cta.subtitle}
@@ -129,7 +129,7 @@ export default function Footer({ dictionary }: FooterProps) {
                 </div>
                 <div className="flex justify-between">
                   <span>{dictionary.footer.stats.filters}</span>
-                  <span className="text-accent-cyan">{dictionary.footer.stats.filtersValue}</span>
+                  <span className="text-fs-diamond">{dictionary.footer.stats.filtersValue}</span>
                 </div>
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function Footer({ dictionary }: FooterProps) {
                   <a
                     key={link.platform}
                     href={link.href}
-                    className="text-gray-400 transition-transform hover:-translate-y-1 hover:text-accent-cyan"
+                    className="text-gray-400 transition-transform hover:-translate-y-1 hover:text-fs-diamond"
                     aria-label={link.platform}
                   >
                     <Icon size={24} />

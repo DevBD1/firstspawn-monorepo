@@ -117,7 +117,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
   );
 
   return (
-    <nav className="sticky top-0 z-[100] min-h-[80px] border-b-4 border-black bg-navbar-bg/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-[100] min-h-[80px] border-b-4 border-black bg-bg-panel/95 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -179,7 +179,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
           isOpen ? "translate-x-0" : ""
         }`}
       >
-        <div className="flex flex-shrink-0 items-center justify-between border-b-4 border-black bg-navbar-bg p-5">
+        <div className="flex flex-shrink-0 items-center justify-between border-b-4 border-black bg-bg-panel p-5">
           <div className="font-ui text-sm font-semibold uppercase tracking-wider text-primary">
             Menu
           </div>
@@ -195,7 +195,7 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
           <div className="pr-1 pb-4">{renderNavLinks(true)}</div>
         </div>
 
-        <div className="flex-shrink-0 border-t-4 border-black bg-navbar-bg p-6">
+        <div className="flex-shrink-0 border-t-4 border-black bg-bg-panel p-6">
           <p className="mb-4 font-ui text-[10px] uppercase tracking-wide text-gray-500">
             {dictionary.nav.languageMenuLabel}
           </p>

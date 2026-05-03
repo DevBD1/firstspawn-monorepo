@@ -41,7 +41,7 @@ const VARIANT_CLASSES: Record<PixelButtonVariant, string> = {
   success:
     "font-display tracking-wider bg-success hover:bg-success-hover text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
   outline:
-    "font-display tracking-wider bg-transparent border-fs-diamond text-accent-cyan shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-accent-cyan/10",
+    "font-display tracking-wider bg-transparent border-fs-diamond text-fs-diamond shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-fs-diamond/10",
   authPrimary:
     "font-body text-lg font-bold tracking-[0.12em] border-emerald-700 bg-emerald-500 text-zinc-950 shadow-[4px_4px_0px_0px_#047857] hover:bg-emerald-400",
   authSecondary:

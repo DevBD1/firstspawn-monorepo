@@ -85,22 +85,29 @@ firstspawn-monorepo/
 
 ### Code Comments And Docs
 
-- Follow common TypeScript documentation practice:
-  - use short TSDoc or JSDoc style comments for exported reusable APIs when the
-    contract is not obvious
-  - use short line comments above components, classes, helpers, and view-model
-    builders that coordinate behavior or encode non-trivial intent
+- Follow a TSDoc-first default for TypeScript and JavaScript:
+  - add short TSDoc/JSDoc comments above exported reusable APIs, shared
+    components, hooks, services, classes, schemas, token maps, generator scripts,
+    and view-model/formatter builders
+  - use TSDoc/JSDoc even when the name is clear if the API is shared across
+    files, packages, apps, or future mobile/web consumers
+  - use short line comments above local components, classes, helpers, and
+    orchestration blocks that coordinate behavior or encode non-trivial intent
 - Comments should explain purpose, contract, or reason. Do not write comments
   that only restate obvious code.
 - Prefer comments in these places:
   - exported shared components
+  - exported token maps, configuration objects, schemas, and generated-artifact
+    sources of truth
   - feature entry components with stateful behavior
   - helper functions that transform data into UI models
+  - API route helpers, service modules, collector jobs, and database mutation
+    helpers with business or consistency rules
   - modules with cross-feature reuse or non-obvious constraints
 - Before finishing code changes, do a comment pass on touched files:
-  - add or update a short TSDoc/JSDoc comment for new reusable helpers,
-    exported APIs, and formatter/view-model functions whose contract is not
-    obvious from the name alone
+  - add or update short TSDoc/JSDoc for new or changed exported APIs, reusable
+    helpers, shared components, hooks, schemas, tokens, service functions, and
+    formatter/view-model functions
   - add a short line comment above non-obvious UI behavior, hydration
     safeguards, responsive layout decisions, concurrency handling, cache
     behavior, or review-driven fixes
@@ -109,6 +116,8 @@ firstspawn-monorepo/
 - Avoid comment noise:
   - do not comment every JSX block
   - do not comment simple assignments or prop passing
+  - do not add TSDoc to one-off local functions whose purpose and contract are
+    obvious and not reused
   - do not leave stale TODO-style comments without owner or action
 - When a reusable component answers the question "what does this do?", that
   answer should be visible near the component declaration.

@@ -1,37 +1,38 @@
+/* This file is generated from packages/ui/src/branding/tokens.ts. */
+/* Run `pnpm --filter @firstspawn/ui generate:styles` to update it. */
+
 :root {
-  /* Main Canvas */
+  /* Canvas */
   --background: #05070a;
   --foreground: #e0e6ed;
   --muted: #64748b;
   --border: #000000;
 
-  /* Surfaces */
+  /* Surfaces and Supporting Fills */
   --bg-panel: #0f172a;
-  --navbar-bg: #0f172a;
-  --footer-bg: #05070a;
-  --footer-border: #1e293b;
-  --footer-grid: #0f172a;
-  --fs-navy-900: #0f172a;
-  --fs-navy-800: #1e293b;
+  --bg-host-panel: #1e1a0a;
+  --secondary: #1e293b;
+  --secondary-hover: #334155;
 
-  /* Brand Accents - Switched Cyan to Retro Blue */
+  /* Brand and Primary Actions */
   --primary: #3b82f6;
   --primary-hover: #2563eb;
+  --fs-diamond: #3b82f6;
+
+  /* State and Signal Colors */
   --success: #39ff14;
   --success-hover: #32e612;
   --danger: #ff3131;
   --danger-hover: #e62c2c;
   --fs-orange: #ff9500;
   --fs-gold: #ffd700;
-  --fs-diamond: #3b82f6;
 
-  /* Narrative / Specialized */
+  /* Atmospheric Effects */
   --error-glow: #e28c8c;
-  --bg-host-panel: #1e1a0a;
   --scanline-color: #121010;
 
-  /* Secondary / Misc */
-  --secondary: #1e293b;
-  --secondary-hover: #334155;
-  --accent-cyan: #3b82f6;
+  /* Typography */
+  --font-family-display: var(--font-display-base, "Press Start 2P"), "Press Start 2P";
+  --font-family-ui: var(--font-ui-base, "VT323"), "VT323";
+  --font-family-body: var(--font-body-base, "JetBrains Mono"), "JetBrains Mono";
 }

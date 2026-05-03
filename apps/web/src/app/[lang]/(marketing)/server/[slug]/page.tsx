@@ -139,7 +139,7 @@ export default async function ServerDetailPage({
         </div>
 
         {/* Server Header */}
-        <div className="border-4 border-foreground/80 bg-panel p-6 shadow-[8px_8px_0_rgba(0,0,0,0.5)] mb-8 flex flex-col md:flex-row md:items-start justify-between gap-6">
+        <div className="mb-8 flex flex-col gap-6 border-4 border-foreground/80 bg-bg-panel p-6 shadow-[8px_8px_0_rgba(0,0,0,0.5)] md:flex-row md:items-start md:justify-between">
           <div>
             <h1 className="font-display text-4xl text-fs-diamond tracking-wider mb-2">
               {server.name}
