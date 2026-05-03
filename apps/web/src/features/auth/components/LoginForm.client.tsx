@@ -42,8 +42,8 @@ export default function LoginForm({
       <input type="hidden" name="next" value={nextPath ?? undefined} />
 
       {showRegisteredBanner && registeredMessage ? (
-        <div className="flex items-center gap-3 border-2 border-emerald-700 bg-emerald-950/50 px-4 py-3 font-ui text-base text-emerald-300">
-          <CheckCircle className="h-5 w-5 shrink-0 text-emerald-400" />
+        <div className="flex items-center gap-3 border-2 border-success/50 bg-success/10 px-4 py-3 font-ui text-base text-success">
+          <CheckCircle className="h-5 w-5 shrink-0 text-success" />
           <span>{registeredMessage}</span>
         </div>
       ) : null}
@@ -60,7 +60,7 @@ export default function LoginForm({
 
         <PixelButton
           type="button"
-          variant="authSecondary"
+          variant="secondary"
           className="flex w-full items-center justify-center gap-3"
         >
           <Key className="h-4 w-4" />
@@ -69,10 +69,10 @@ export default function LoginForm({
 
         <div className="relative py-4">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t-2 border-zinc-800" />
+            <div className="w-full border-t-2 border-muted/20" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-zinc-950 px-4 font-ui text-base uppercase text-zinc-500">
+            <span className="bg-background px-4 font-ui text-base uppercase text-muted">
               {copy.dividerLabel}
             </span>
           </div>
@@ -81,13 +81,13 @@ export default function LoginForm({
         <div className="space-y-4">
           <div className="space-y-2">
             <label
-              className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
+              className="block font-ui text-lg font-bold uppercase tracking-wide text-foreground"
               htmlFor="login-identifier"
             >
               {copy.identifierLabel}
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+              <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
               <input
                 id="login-identifier"
                 name="identifier"
@@ -96,17 +96,17 @@ export default function LoginForm({
                 minLength={3}
                 autoComplete="username"
                 placeholder={copy.identifierPlaceholder}
-                className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full border-2 border-black bg-bg-panel px-10 py-3 font-ui text-xl leading-none text-foreground outline-none transition-colors placeholder:text-muted/50 focus:border-primary focus:ring-1 focus:ring-primary"
               />
             </div>
             {fieldErrors.identifier ? (
-              <p className="font-ui text-base text-red-400">{fieldErrors.identifier}</p>
+              <p className="font-ui text-base text-danger">{fieldErrors.identifier}</p>
             ) : null}
           </div>
 
           <div className="space-y-2">
             <label
-              className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
+              className="block font-ui text-lg font-bold uppercase tracking-wide text-foreground"
               htmlFor="login-password"
             >
               {copy.passwordLabel}
@@ -120,24 +120,24 @@ export default function LoginForm({
                 minLength={8}
                 autoComplete="current-password"
                 placeholder={copy.passwordPlaceholder}
-                className="w-full border-2 border-zinc-800 bg-zinc-900 px-4 py-3 pr-12 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className="w-full border-2 border-black bg-bg-panel px-4 py-3 pr-12 font-ui text-xl leading-none text-foreground outline-none transition-colors placeholder:text-muted/50 focus:border-primary focus:ring-1 focus:ring-primary"
               />
               <button
                 type="button"
                 onClick={toggle}
-                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-zinc-700 bg-zinc-800 text-zinc-100 transition-colors hover:bg-zinc-700"
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-black bg-secondary text-foreground transition-colors hover:bg-secondary-hover"
                 aria-label={showPassword ? copy.hidePasswordAriaLabel : copy.showPasswordAriaLabel}
               >
                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
             {fieldErrors.password ? (
-              <p className="font-ui text-base text-red-400">{fieldErrors.password}</p>
+              <p className="font-ui text-base text-danger">{fieldErrors.password}</p>
             ) : null}
           </div>
 
           {message ? (
-            <div className="border-2 border-red-800 bg-red-950/50 px-4 py-3 font-ui text-base text-red-300">
+            <div className="border-2 border-danger/50 bg-danger/10 px-4 py-3 font-ui text-base text-danger">
               {message}
             </div>
           ) : null}
@@ -155,12 +155,12 @@ export default function LoginForm({
         </div>
       </div>
 
-      <div className="mt-8 border-t-2 border-zinc-800/50 pt-6">
-        <p className="font-body text-sm text-zinc-500">
+      <div className="mt-8 border-t-2 border-muted/10 pt-6">
+        <p className="font-body text-sm text-muted">
           {copy.alternatePrompt}{" "}
           <Link
             href={registerHref}
-            className="font-ui text-base font-bold uppercase tracking-wide text-emerald-500 underline decoration-emerald-500/30 underline-offset-4 transition-colors hover:text-emerald-400"
+            className="font-ui text-base font-bold uppercase tracking-wide text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:text-primary-hover"
           >
             {copy.alternateCta}
           </Link>

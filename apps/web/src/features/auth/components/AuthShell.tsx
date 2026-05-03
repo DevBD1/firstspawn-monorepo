@@ -24,12 +24,14 @@ interface FeatureItemProps {
 function FeatureItem({ icon: Icon, title, description }: FeatureItemProps) {
   return (
     <div className="flex items-start gap-4">
-      <div className="mt-1 border-2 border-zinc-700 bg-zinc-800 p-2">
-        <Icon className="h-5 w-5 text-emerald-500" />
+      <div className="mt-1 border-2 border-black bg-secondary p-2">
+        <Icon className="h-5 w-5 text-success" />
       </div>
       <div>
-        <h3 className="font-ui text-lg font-bold uppercase tracking-wide text-zinc-200">{title}</h3>
-        <p className="font-body text-sm text-zinc-400">{description}</p>
+        <h3 className="font-ui text-lg font-bold uppercase tracking-wide text-foreground">
+          {title}
+        </h3>
+        <p className="font-body text-sm text-muted">{description}</p>
       </div>
     </div>
   );
@@ -51,7 +53,7 @@ export default function AuthShell({
     <section className="min-h-screen bg-background">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
         <aside className="relative hidden overflow-hidden border-r-4 border-black bg-bg-panel px-10 py-12 lg:flex lg:flex-col lg:justify-between">
-          <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
+          <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(to_right,var(--foreground)_1px,transparent_1px),linear-gradient(to_bottom,var(--foreground)_1px,transparent_1px)] [background-size:24px_24px]" />
 
           <div className="relative z-10">
             <Link
@@ -101,7 +103,7 @@ export default function AuthShell({
           <Link
             href={closeHref}
             aria-label={backLabel}
-            className="absolute right-6 top-6 border-2 border-black bg-bg-panel p-2 text-foreground/60 transition-colors hover:bg-background hover:text-foreground"
+            className="absolute right-6 top-6 border-2 border-black bg-bg-panel p-2 text-foreground/60 transition-colors hover:bg-background hover:text-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
           >
             <X className="h-5 w-5" />
           </Link>

@@ -42,7 +42,7 @@ export default function NewsletterSignup({
           {newsletter.subscriptionVerified}
         </div>
       ) : confirmEmailSent ? (
-        <div className="border-4 border-black bg-fs-diamond/10 p-4 text-center font-display text-sm tracking-wider text-fs-diamond shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+        <div className="border-4 border-black bg-primary/15 p-4 text-center font-display text-sm tracking-wider text-primary shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
           {newsletter.checkInbox}
         </div>
       ) : (
@@ -62,7 +62,7 @@ export default function NewsletterSignup({
           />
           <PixelButton
             type="submit"
-            variant="diamond"
+            variant="primary"
             className="!m-0 min-h-14 !border-0 text-center"
           >
             {newsletter.submitLabel}
@@ -74,7 +74,7 @@ export default function NewsletterSignup({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="font-ui text-sm tracking-wide text-fs-diamond"
+          className="font-ui text-sm tracking-wide text-primary"
         >
           {statusMessage}
         </motion.div>

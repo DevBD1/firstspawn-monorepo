@@ -15,7 +15,7 @@ export default function AuthSubmitButton({ label, pendingLabel }: AuthSubmitButt
   return (
     <PixelButton
       type="submit"
-      variant="authPrimary"
+      variant="success"
       disabled={pending}
       className="mt-2 flex w-full items-center justify-center gap-2"
     >
