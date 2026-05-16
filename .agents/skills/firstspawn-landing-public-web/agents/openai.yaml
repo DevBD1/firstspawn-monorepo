@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Landing Public Web"
+  short_description: "Build landing and public web flows"
+  default_prompt: "Use $firstspawn-landing-public-web to update landing, marketing routes, CTAs, or public assets."
+policy:
+  allow_implicit_invocation: true

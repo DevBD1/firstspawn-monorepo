@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Git Release Flow"
+  short_description: "Manage branches, commits, and hooks"
+  default_prompt: "Use $firstspawn-git-release-flow to preserve work while branching, committing, or fixing hooks."
+policy:
+  allow_implicit_invocation: true

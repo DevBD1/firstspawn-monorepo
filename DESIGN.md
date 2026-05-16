@@ -2,7 +2,8 @@
 
 ## 1. Source Of Truth
 
-This file is the product UI/UX baseline for FirstSpawn.
+This file is the only product UI/UX source of truth for FirstSpawn.
+Skills may reference it, but must not define competing UI/UX truth.
 
 Implementation tokens live in:
 
@@ -23,8 +24,8 @@ Rules:
 - Do not hardcode hex values in app UI.
 - Hardcoded hex values are allowed only inside token files or renderer surfaces
   that cannot consume CSS variables, such as generated OG images or email HTML.
-- When code and this file disagree, update both. Do not let this file become a
-  mood board.
+- When code and this file disagree, update the code or update this file in the
+  same change. Do not let this file become a mood board.
 
 ## 2. Visual Theme And Atmosphere
 

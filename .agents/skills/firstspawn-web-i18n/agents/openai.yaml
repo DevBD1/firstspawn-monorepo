@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Web I18n"
+  short_description: "Handle FirstSpawn web localization"
+  default_prompt: "Use $firstspawn-web-i18n to add localized copy without hardcoded UI strings."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Product UX"
+  short_description: "Guide FirstSpawn product flow"
+  default_prompt: "Use $firstspawn-product-ux to decide page structure, feature placement, and user flow."
+policy:
+  allow_implicit_invocation: true

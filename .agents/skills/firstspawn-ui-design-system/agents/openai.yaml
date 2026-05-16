@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn UI Design System"
+  short_description: "Apply FirstSpawn UI rules and tokens"
+  default_prompt: "Use $firstspawn-ui-design-system to build UI that follows DESIGN.md and token rules."
+policy:
+  allow_implicit_invocation: true

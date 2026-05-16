@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Repo Orientation"
+  short_description: "Orient FirstSpawn repo work quickly"
+  default_prompt: "Use $firstspawn-repo-orientation to inspect repo context before a cross-area change."
+policy:
+  allow_implicit_invocation: true

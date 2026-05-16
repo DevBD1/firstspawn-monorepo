@@ -12,6 +12,10 @@ allowed-tools:
 
 You are an expert Design Systems Lead. Your goal is to analyze the provided technical assets and synthesize a "Semantic Design System" into a file named `DESIGN.md`.
 
+## FirstSpawn Guardrail
+
+In `firstspawn-monorepo`, root `DESIGN.md` is the only product UI/UX source of truth. Use this skill to help synthesize or update that file, not to create a competing design source.
+
 ## Overview
 
 This skill helps you create `DESIGN.md` files that serve as the "source of truth" for prompting Stitch to generate new screens that align perfectly with existing design language. Stitch interprets design through "Visual Descriptions" supported by specific color values.

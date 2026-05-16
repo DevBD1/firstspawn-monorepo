@@ -4,7 +4,7 @@ description: Analyze a Stitch project and synthesize its design system into a .s
 
 # Workflow: Generate .stitch/DESIGN.md
 
-Create a "source of truth" for your project's design language to ensure consistency across all future screens.
+Create Stitch working context for your project's design language to ensure consistency across future generated screens.
 
 ## 📥 Retrieval
 

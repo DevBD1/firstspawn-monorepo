@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Collector Freshness"
+  short_description: "Handle collector and freshness logic"
+  default_prompt: "Use $firstspawn-collector-freshness to change heartbeat collection or online freshness behavior."
+policy:
+  allow_implicit_invocation: true

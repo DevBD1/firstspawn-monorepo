@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Database Migrations"
+  short_description: "Manage schema and migration work"
+  default_prompt: "Use $firstspawn-database-migrations to align schema design, Drizzle schema, and SQL migrations."
+policy:
+  allow_implicit_invocation: true

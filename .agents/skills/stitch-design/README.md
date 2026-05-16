@@ -13,7 +13,7 @@ npx skills add google-labs-code/stitch-skills --skill stitch-design --global
 Enables professional-grade UI/UX design workflows through Stitch MCP:
 
 1. **Prompt Enhancement**: Transforms rough intent into structured, high-fidelity prompts with professional terminology and design system context.
-2. **Design System Synthesis**: Analyzes existing Stitch projects to create and maintain a `.stitch/DESIGN.md` "source of truth".
+2. **Design System Synthesis**: Analyzes existing Stitch projects to create and maintain `.stitch/DESIGN.md` working context.
 3. **Iterative Generation**: Selects the best generation or editing workflow (`edit_screens`, `generate_variants`) based on user intent.
 4. **Asset Management**: Synchronizes remote designs by downloading HTML and screenshots to the project's `.stitch/designs` directory.
 
@@ -42,7 +42,7 @@ stitch-design/
 ## Works With
 
 - **`react:components` skill**: Hand-off generated designs for frontend implementation.
-- **`stitch-loop` skill**: Provides the `DESIGN.md` context for autonomous building loops.
+- **`stitch-loop` skill**: Provides design context for autonomous building loops.
 - **Multi-agent workflows**: Refines prompts before passing design tasks to specialized agents.
 
 ## Learn More

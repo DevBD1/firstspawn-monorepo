@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Component Lab"
+  short_description: "Run dev-only component experiments"
+  default_prompt: "Use $firstspawn-component-lab to evaluate or build dev-only UI component experiments."
+policy:
+  allow_implicit_invocation: true

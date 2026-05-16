@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Web App Patterns"
+  short_description: "Guide FirstSpawn web implementation"
+  default_prompt: "Use $firstspawn-web-app-patterns to implement React and Next.js web behavior correctly."
+policy:
+  allow_implicit_invocation: true

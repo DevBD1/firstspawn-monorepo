@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn API Catalog Auth"
+  short_description: "Work on API catalog and auth logic"
+  default_prompt: "Use $firstspawn-api-catalog-auth to change Fastify API routes, auth, or catalog behavior."
+policy:
+  allow_implicit_invocation: true
