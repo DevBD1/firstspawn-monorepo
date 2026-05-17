@@ -28,14 +28,14 @@ Retention + rollup SQL:
 
 ```bash
 API_DATABASE_URL=postgresql://... RETENTION_DAYS=14 \
-  ./.infras/ops/cron/aggregate-retention.sh
+  ./infrastructure/ops/cron/aggregate-retention.sh
 ```
 
 Archive inactive servers:
 
 ```bash
 API_DATABASE_URL=postgresql://... ARCHIVE_AFTER_HOURS=168 \
-  ./.infras/ops/cron/archive-inactive-servers.sh
+  ./infrastructure/ops/cron/archive-inactive-servers.sh
 ```
 
 This job is currently a no-op safety guard. Collector silence, failed probes,
@@ -45,7 +45,7 @@ Purge deleted users:
 
 ```bash
 API_DATABASE_URL=postgresql://... \
-  ./.infras/ops/cron/purge-deleted-users.sh
+  ./infrastructure/ops/cron/purge-deleted-users.sh
 ```
 
 Collector target query (active servers only):

@@ -17,9 +17,9 @@ purge_schedule="${SCHEDULE_PURGE_DELETED_USERS:-0 3 * * *}"
 crontab_file="/tmp/scheduler.crontab"
 
 cat >"${crontab_file}" <<EOF
-${archive_schedule} /work/.infras/ops/scheduler/job-runner.sh archive-inactive /work/.infras/ops/cron/archive-inactive-servers.sh
-${rollup_schedule} /work/.infras/ops/scheduler/job-runner.sh rollup-retention /work/.infras/ops/cron/aggregate-retention.sh
-${purge_schedule} /work/.infras/ops/scheduler/job-runner.sh purge-deleted-users /work/.infras/ops/cron/purge-deleted-users.sh
+${archive_schedule} /work/infrastructure/ops/scheduler/job-runner.sh archive-inactive /work/infrastructure/ops/cron/archive-inactive-servers.sh
+${rollup_schedule} /work/infrastructure/ops/scheduler/job-runner.sh rollup-retention /work/infrastructure/ops/cron/aggregate-retention.sh
+${purge_schedule} /work/infrastructure/ops/scheduler/job-runner.sh purge-deleted-users /work/infrastructure/ops/cron/purge-deleted-users.sh
 EOF
 
 echo "scheduler_timezone=UTC"

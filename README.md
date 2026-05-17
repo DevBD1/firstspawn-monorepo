@@ -216,7 +216,7 @@ firstspawn-monorepo/
 │   └── web/
 ├── docs/
 │   └── implementation-history/
-├── .infras/
+├── infrastructure/
 └── packages/
     ├── config/
     ├── database/

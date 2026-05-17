@@ -44,7 +44,7 @@ firstspawn-monorepo/
 │   └── typescript-config/# Shared TS configs
 ├── docs/
 │   └── implementation-history/   # Completed or accepted implementation notes
-└── .infras/              # Operational scripts and infra notes
+└── infrastructure/       # Operational scripts and infra notes
 ```
 
 ## Engineering Invariants

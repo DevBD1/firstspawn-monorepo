@@ -95,7 +95,7 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: .infras/ops/scheduler/Dockerfile
+      dockerfile: infrastructure/ops/scheduler/Dockerfile
     restart: always
     environment:
       DB_HOST: postgres
@@ -132,8 +132,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./.infras/nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./.infras/nginx/generate-htpasswd.sh:/docker-entrypoint.d/40-generate-htpasswd.sh:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infrastructure/nginx/generate-htpasswd.sh:/docker-entrypoint.d/40-generate-htpasswd.sh:ro
     networks:
       - firstspawn-network
     depends_on:
