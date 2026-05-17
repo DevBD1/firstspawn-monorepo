@@ -1,0 +1,10 @@
+set -eu
+
+if [ "${HUSKY_SKIP_PRE_PUSH:-0}" = "1" ]; then
+  echo "Skipping pre-push checks because HUSKY_SKIP_PRE_PUSH=1."
+  exit 0
+fi
+
+echo "🚦 Running pre-push typecheck..."
+pnpm run typecheck
+echo "✅ Pre-push checks passed!"

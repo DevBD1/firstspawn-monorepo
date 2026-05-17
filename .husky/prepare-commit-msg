@@ -1,15 +1,30 @@
+set -eu
+
 echo "📝 Preparing commit message..."
 
-# Get the branch name
-BRANCH_NAME=$(git symbolic-ref --short HEAD)
+COMMIT_MSG_FILE="${1:?commit message file is required}"
+COMMIT_SOURCE="${2:-}"
+
+case "$COMMIT_SOURCE" in
+  merge | squash | commit)
+    exit 0
+    ;;
+esac
+
+# Git can be detached in CI, bisect, or worktree edge cases.
+BRANCH_NAME=$(git symbolic-ref --quiet --short HEAD || true)
+if [ -z "$BRANCH_NAME" ]; then
+  exit 0
+fi
+
 BRANCH_NAME="${BRANCH_NAME##*/}"
 
 # Extract issue number from branch name (e.g., feature/123-description -> 123)
-ISSUE_NUMBER=$(echo "$BRANCH_NAME" | grep -oE '^[0-9]+' || true)
+ISSUE_NUMBER=$(printf "%s" "$BRANCH_NAME" | grep -oE '^[0-9]+' || true)
 
 # If we have an issue number and the commit message doesn't already reference it
-if [ -n "$ISSUE_NUMBER" ] && ! grep -qE "^\[$ISSUE_NUMBER\]|^$ISSUE_NUMBER:|#$ISSUE_NUMBER" "$1"; then
+if [ -n "$ISSUE_NUMBER" ] && ! grep -qE "^\[$ISSUE_NUMBER\]|^$ISSUE_NUMBER:|#$ISSUE_NUMBER" "$COMMIT_MSG_FILE"; then
   # Prepend issue reference to commit message
-  sed -i.bak -e "1s/^/[$ISSUE_NUMBER] /" "$1"
-  rm -f "$1.bak"
+  sed -i.bak -e "1s/^/[$ISSUE_NUMBER] /" "$COMMIT_MSG_FILE"
+  rm -f "$COMMIT_MSG_FILE.bak"
 fi

@@ -1,27 +1,22 @@
+set -eu
+
 echo "🔍 Running pre-commit checks..."
 
 # Run lint-staged
 pnpm exec lint-staged --concurrent false
 
 # Check for potential secrets in added lines only.
-SECRET_PATTERN="API_KEY|SECRET|PASSWORD|TOKEN"
-if git diff --cached --no-color --unified=0 | grep -E "^\+.*($SECRET_PATTERN)" >/dev/null 2>&1; then
+SENSITIVE_NAME_PATTERN="API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY|DATABASE_URL"
+if git diff --cached --no-color --unified=0 | grep -E "^\+[[:space:]]*[A-Za-z_][A-Za-z0-9_ -]*($SENSITIVE_NAME_PATTERN)[A-Z0-9_ -]*[=:]" >/dev/null 2>&1; then
   echo "⚠️  Warning: Potential secrets found in staged added lines."
   echo "Review staged diff before pushing."
 
-  if [ "${HUSKY_BLOCK_SECRETS:-0}" = "1" ]; then
-    if [ -t 0 ]; then
-      printf "Strict mode on. Continue anyway? (y/N) "
-      read -r REPLY
-      if ! printf "%s" "$REPLY" | grep -Eq "^[Yy]$"; then
-        exit 1
-      fi
-    else
-      echo "Strict mode on and non-interactive shell. Blocking commit."
-      exit 1
-    fi
+  if [ "${HUSKY_BLOCK_SECRETS:-1}" = "1" ]; then
+    echo "Strict mode on. Blocking commit."
+    echo "Use HUSKY_BLOCK_SECRETS=0 only after manually verifying the staged diff."
+    exit 1
   else
-    echo "Continuing. Set HUSKY_BLOCK_SECRETS=1 to enforce blocking."
+    echo "Continuing because HUSKY_BLOCK_SECRETS=0."
   fi
 fi
 
