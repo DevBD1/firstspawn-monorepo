@@ -20,8 +20,10 @@ When files disagree, use this order:
 1. `DESIGN.md`: only product UI/UX source of truth.
 2. Service READMEs: service runtime, setup, commands, and endpoint state.
 3. `packages/database/schema-design.md`: canonical database design.
-4. `.agents/skills/*`: task workflows and checklists only.
-5. Root `README.md`: repo overview and shared setup.
+4. `PRODUCT.md`: product scope, users, non-goals, and success criteria.
+5. `PLAN.md`: roadmap and recommended next standards.
+6. `.agents/skills/*`: task workflows and checklists only.
+7. Root `README.md`: repo overview and shared setup.
 
 Keep this file as a router. Do not add detailed UI/UX, API, database,
 collector, or i18n rulebooks here.
@@ -41,7 +43,7 @@ firstspawn-monorepo/
 │   ├── config/           # Shared ESLint config
 │   └── typescript-config/# Shared TS configs
 ├── docs/
-│   └── idea-pool.md      # Parked future ideas only
+│   └── implementation-history/   # Completed or accepted implementation notes
 └── .infras/              # Operational scripts and infra notes
 ```
 
@@ -74,7 +76,9 @@ firstspawn-monorepo/
 ## Documentation And Secrets
 
 - Keep `docs/` minimal.
-- Use `docs/idea-pool.md` only for parked future ideas.
+- Use `docs/implementation-history/` for completed or accepted implementation
+  notes that should survive cleanup.
+- Put product scope and future product ideas in `PRODUCT.md`.
 - Put service-specific runtime details in the nearest service README.
 - Put product UI/UX baseline changes only in `DESIGN.md`.
 - Never commit `.env` files.
