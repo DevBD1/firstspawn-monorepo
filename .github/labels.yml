@@ -1,6 +1,6 @@
 # GitHub Labels Configuration
 # Apply these labels using: gh label create -f < name > < color > < description >
-# Or use the GitHub CLI script in scripts/setup-labels.sh
+# Apply these labels with the GitHub CLI or the repository label importer.
 
 # Priority
 - name: priority/critical
@@ -27,6 +27,10 @@
 - name: type/feature
   color: a2eeef
   description: New feature or request
+
+- name: type/roadmap
+  color: 5319e7
+  description: Roadmap or future planning item
 
 - name: type/docs
   color: 0075ca

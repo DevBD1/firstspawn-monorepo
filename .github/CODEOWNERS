@@ -7,6 +7,15 @@
 # Global fallback - if no other pattern matches
 * @firstspawn/maintainers
 
+# Package configurations
+/packages/ @firstspawn/maintainers
+/pnpm-workspace.yaml @firstspawn/maintainers
+/package.json @firstspawn/maintainers
+
+# Documentation
+*.md @firstspawn/docs-team
+/docs/ @firstspawn/docs-team
+
 # Web app
 /apps/web/ @firstspawn/web-team
 /apps/web/src/app/ @firstspawn/web-team
@@ -14,22 +23,10 @@
 
 # API
 /apps/api/ @firstspawn/api-team
-/apps/api/src/models/ @firstspawn/api-team
 /packages/database/ @firstspawn/api-team
 
 # Infrastructure and DevOps
 /infrastructure/ @firstspawn/devops
 /docker-compose.yml @firstspawn/devops
+/.github/ @firstspawn/devops
 /.github/workflows/ @firstspawn/devops
-
-# Documentation
-/docs/ @firstspawn/docs-team
-*.md @firstspawn/docs-team
-
-# Package configurations
-/packages/ @firstspawn/platform-team
-
-# CI/CD
-/.github/ @firstspawn/platform-team
-/pnpm-workspace.yaml @firstspawn/platform-team
-/package.json @firstspawn/platform-team

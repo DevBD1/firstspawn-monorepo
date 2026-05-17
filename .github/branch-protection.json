@@ -5,7 +5,7 @@
       { "context": "Lint & Format Check", "app_id": null },
       { "context": "Type Check", "app_id": null },
       { "context": "Build", "app_id": null },
-      { "context": "Python Lint & Format", "app_id": null }
+      { "context": "Test", "app_id": null }
     ]
   },
   "enforce_admins": false,

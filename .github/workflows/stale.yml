@@ -21,13 +21,13 @@ jobs:
             This issue has been automatically marked as stale because it has not had
             recent activity. It will be closed if no further activity occurs within 7 days.
 
-            If this is still relevant, please comment or add the `keep-open` label.
+            If this is still relevant, please comment or add the `status/keep-open` label.
           close-issue-message: |
             This issue has been automatically closed due to inactivity.
             If you believe this is still relevant, please reopen or create a new issue.
           days-before-issue-stale: 60
           days-before-issue-close: 7
-          exempt-issue-labels: "keep-open,bug,critical,roadmap"
+          exempt-issue-labels: "status/keep-open,type/bug,priority/critical,type/roadmap"
 
           # Pull Requests
           stale-pr-message: |
@@ -40,7 +40,7 @@ jobs:
             If you're still working on this, please reopen or create a new PR.
           days-before-pr-stale: 30
           days-before-pr-close: 14
-          exempt-pr-labels: "wip,blocked,keep-open"
+          exempt-pr-labels: "status/wip,status/blocked,status/keep-open"
 
           # Operations
           operations-per-run: 100
@@ -48,5 +48,5 @@ jobs:
           delete-branch: false
 
           # Labels
-          stale-issue-label: "stale"
-          stale-pr-label: "stale"
+          stale-issue-label: "status/stale"
+          stale-pr-label: "status/stale"
