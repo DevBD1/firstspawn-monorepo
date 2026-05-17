@@ -39,6 +39,6 @@ indent_style = tab
 [*.{cmd,bat}]
 end_of_line = crlf
 
-# Database migrations (keep as-is)
-[src/api/migrations/**/*]
+# Database migrations and generated SQL jobs (keep as-is)
+[packages/database/{migrations,jobs}/**/*]
 max_line_length = off
