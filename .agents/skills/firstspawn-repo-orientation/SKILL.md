@@ -15,7 +15,7 @@ Use this skill before broad or ambiguous work in this repo. Keep it short, then 
    - Web: root `README.md` plus `apps/web/package.json`
    - API: `apps/api/README.md`
    - Database: `packages/database/README.md`
-   - Collector: `apps/collector/package.json`
+   - Collector: `apps/collector/README.md` plus `apps/collector/package.json`
 4. Check current state:
    - `git status --short`
    - `git branch --show-current`
@@ -26,8 +26,10 @@ Use this skill before broad or ambiguous work in this repo. Keep it short, then 
 1. `DESIGN.md`: only product UI/UX source of truth.
 2. Service READMEs: service runtime, setup, commands, and endpoint state.
 3. `packages/database/schema-design.md`: canonical database design.
-4. `.agents/skills/*`: task workflows and checklists.
-5. Root `README.md`: repo overview and shared setup.
+4. `PRODUCT.md`: product scope, users, non-goals, and success criteria.
+5. `PLAN.md`: roadmap and recommended next standards.
+6. `.agents/skills/*`: task workflows and checklists.
+7. Root `README.md`: repo overview and shared setup.
 
 ## Repo Boundaries
 
