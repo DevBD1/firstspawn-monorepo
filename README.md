@@ -55,7 +55,7 @@ Pending for MVP completion:
 
 ### Prerequisites
 
-- Node.js `>=18`
+- Node.js `>=20.9.0`
 - pnpm `>=10`
 - Docker CLI + Docker Compose
 - Docker daemon running (Docker Desktop or alternative)
@@ -196,9 +196,12 @@ pnpm --dir packages/database run generate
 
 ## Documentation
 
-- [`docs/idea-pool.md`](docs/idea-pool.md): parked future ideas only
+- [`docs/implementation-history/`](docs/implementation-history): completed or accepted implementation notes
+- [`PRODUCT.md`](PRODUCT.md): product scope, users, non-goals, and success criteria
+- [`PLAN.md`](PLAN.md): roadmap and recommended next standards
 - [`DESIGN.md`](DESIGN.md): UI/UX design system baseline (visual language, tokens, component style)
 - [`apps/api/README.md`](apps/api/README.md): API runtime, endpoints, and tests
+- [`apps/collector/README.md`](apps/collector/README.md): collector runtime, env, and validation
 - [`packages/database/README.md`](packages/database/README.md): database
   migration workflow
 
@@ -208,10 +211,11 @@ pnpm --dir packages/database run generate
 firstspawn-monorepo/
 ├── apps/
 │   ├── api/
+│   ├── collector/
 │   ├── mobile/
 │   └── web/
 ├── docs/
-│   └── idea-pool.md
+│   └── implementation-history/
 ├── .infras/
 └── packages/
     ├── config/
