@@ -1,51 +1,65 @@
-## Description
+## Summary
 
-Brief description of the changes in this PR.
+<!-- What changed and why? Link issues if relevant. -->
 
-Fixes #(issue number)
+Fixes #
 
-## Type of Change
+## Change Type
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to
-      not work as expected)
-- [ ] Documentation update
-- [ ] Refactoring / Code cleanup
-- [ ] Performance improvement
-- [ ] Build / CI improvement
+- [ ] Bug fix
+- [ ] Feature
+- [ ] Breaking change
+- [ ] Documentation
+- [ ] Refactor / cleanup
+- [ ] Performance
+- [ ] Build / CI
+- [ ] Design / UI
+- [ ] Database / migration
+- [ ] API / contract
+- [ ] Collector / freshness
 
-## How Has This Been Tested?
+## Validation
 
-Please describe the tests that you ran to verify your changes:
+<!-- Check the commands you ran. Leave unchecked if not relevant. -->
 
-- [ ] Unit tests pass (`pnpm test`)
-- [ ] Integration tests pass
-- [ ] Manual testing performed
-- [ ] Build succeeds (`pnpm build`)
-- [ ] Lint checks pass (`pnpm lint`)
-- [ ] Format checks pass (`pnpm format:check`)
+- [ ] `pnpm run format:check`
+- [ ] `pnpm run lint`
+- [ ] `pnpm run typecheck`
+- [ ] `pnpm run test`
+- [ ] `pnpm run build`
+- [ ] `pnpm ci`
+- [ ] Targeted checks:
 
-## Test Configuration
+Environment, if relevant:
 
 - OS:
-- Node version:
+- Node:
+- pnpm:
 
-## Checklist
+## Docs / Source Of Truth
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published
+<!-- Check every source of truth affected by this PR. -->
 
-## Screenshots (if applicable)
+- [ ] No docs/source-of-truth changes needed
+- [ ] `DESIGN.md`
+- [ ] Service README
+- [ ] `packages/database/schema-design.md`
+- [ ] `PRODUCT.md`
+- [ ] `PLAN.md`
+- [ ] `docs/implementation-history/`
+- [ ] `.agents/skills/*`
 
-<!-- Add screenshots here if this is a UI change -->
+Repo hygiene:
 
-## Additional Context
+- [ ] I did a self-review.
+- [ ] I did a comment pass and avoided obvious comments.
+- [ ] I did not commit secrets or `.env` files.
+- [ ] I used server-only secrets unless the value is safe for `NEXT_PUBLIC_`.
 
-<!-- Add any other context about the PR here -->
+## Screenshots
+
+<!-- Required for UI changes. Add desktop and mobile when layout is affected. -->
+
+## Risk / Follow-up
+
+<!-- Note known risks, migrations, rollout steps, or follow-up work. -->
