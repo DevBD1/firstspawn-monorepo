@@ -14,7 +14,7 @@ Use this for work under `packages/database` or DB-backed API changes.
 - Migration history: `packages/database/migrations/`
 - Drizzle config: `packages/database/drizzle.config.ts`
 - SQL jobs: `packages/database/jobs/`
-- Operational scripts: `.infras/ops/cron/`
+- Operational scripts: `infrastructure/ops/cron/`
 
 ## Rules
 
@@ -26,7 +26,7 @@ Use this for work under `packages/database` or DB-backed API changes.
 - Use transactions for multi-step database writes that must not leave partial state.
 - Keep business rules centralized. Do not duplicate DB rules across routes and jobs.
 - Raw heartbeat retention and rollup jobs stay in `packages/database/jobs/`.
-- Scheduler container runs existing SQL-backed archive, rollup, and purge scripts from `.infras/ops/cron/`.
+- Scheduler container runs existing SQL-backed archive, rollup, and purge scripts from `infrastructure/ops/cron/`.
 
 ## Migration Workflow
 

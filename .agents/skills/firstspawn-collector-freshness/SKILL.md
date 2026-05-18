@@ -15,7 +15,7 @@ Use this for collector and freshness behavior across `apps/collector`, API colle
 - API catalog freshness logic: `apps/api/src/routes/v1/servers.ts`
 - Runtime schema: `apps/api/src/db/schema.ts`
 - DB jobs: `packages/database/jobs/`
-- Ops cron scripts: `.infras/ops/cron/`
+- Ops cron scripts: `infrastructure/ops/cron/`
 
 ## Collector Rules
 

@@ -1,0 +1,6 @@
+interface:
+  display_name: "FirstSpawn Local Docker"
+  short_description: "Handle local Docker runtime"
+  default_prompt: "Use $firstspawn-local-runtime-docker to change Docker compose, containers, or local runtime behavior."
+policy:
+  allow_implicit_invocation: true
