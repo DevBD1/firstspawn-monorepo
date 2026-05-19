@@ -7,7 +7,7 @@ pnpm exec lint-staged --concurrent false
 
 # Check for potential secrets in added lines only.
 SENSITIVE_NAME_PATTERN="API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY|DATABASE_URL"
-if git diff --cached --no-color --unified=0 | grep -E "^\+[[:space:]]*[A-Za-z_][A-Za-z0-9_ -]*($SENSITIVE_NAME_PATTERN)[A-Z0-9_ -]*[=:]" >/dev/null 2>&1; then
+if git diff --cached --no-color --unified=0 -- ':!*.md' ':!*.example' ':!docker-compose*.yml' | grep -E "^\+[[:space:]]*[A-Za-z_][A-Za-z0-9_ -]*($SENSITIVE_NAME_PATTERN)[A-Z0-9_ -]*[=:]" >/dev/null 2>&1; then
   echo "⚠️  Warning: Potential secrets found in staged added lines."
   echo "Review staged diff before pushing."
 

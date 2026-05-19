@@ -101,6 +101,7 @@ Use the narrowest relevant skill:
 | Database schema, Drizzle, migrations, SQL jobs | `firstspawn-database-migrations` |
 | Collector, heartbeats, freshness behavior | `firstspawn-collector-freshness` |
 | Local Docker, compose services, runtime debugging | `firstspawn-local-runtime-docker` |
+| Implementation history and continuation notes | `firstspawn-implementation-history` |
 | Dev-only component experiments | `firstspawn-component-lab` |
 | Branches, worktrees, commits, hook fixes | `firstspawn-git-release-flow` |
 | Focused Next.js performance review | `vercel-react-best-practices` |
