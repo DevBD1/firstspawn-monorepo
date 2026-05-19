@@ -82,6 +82,14 @@ API_REFRESH_TOKEN_EXPIRE_DAYS=30
 API_TEST_DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}
 API_ADMIN_EMAIL_ALLOWLIST=admin@firstspawn.com
 API_COLLECTOR_KEY=change_me_collector_key
+MAIL_SERVER=mail.firstspawn.com
+MAIL_PORT=587
+MAIL_USERNAME=admin@firstspawn.com
+MAIL_PASSWORD=change_me_mail_password
+MAIL_FROM=admin@firstspawn.com
+MAIL_STARTTLS=True
+MAIL_SSL_TLS=False
+FRONTEND_URL=https://firstspawn.com
 ```
 
 `DB_USER`, `DB_PASSWORD`, and `DB_NAME` are shared with `docker-compose.yml`.
@@ -97,6 +105,10 @@ Collector and scheduler companion env values are documented in root `.env.exampl
 - `SCHEDULE_ARCHIVE_INACTIVE`
 - `SCHEDULE_ROLLUP_RETENTION`
 - `SCHEDULE_PURGE_DELETED_USERS`
+
+`MAIL_PASSWORD` controls whether the API uses SMTP. If it is empty, auth and
+restore emails are no-ops. In the two-server setup, point `MAIL_SERVER` at the
+mail VPS hostname instead of a local Compose service.
 
 ## Contract Sources
 

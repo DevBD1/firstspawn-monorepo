@@ -17,6 +17,23 @@ const parseCommaSeparatedList = (value: string): string[] =>
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
 
+const stringBoolean = z.preprocess((value) => {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return value;
+}, z.boolean());
+
 const configSchema = z.object({
   API_ENV: z.string().default("development"),
   API_HOST: z.string().default("0.0.0.0"),
@@ -42,8 +59,8 @@ const configSchema = z.object({
   MAIL_FROM: z.string().default("admin@firstspawn.com"),
   MAIL_PORT: z.coerce.number().int().positive().default(587),
   MAIL_SERVER: z.string().default("mailserver"),
-  MAIL_STARTTLS: z.coerce.boolean().default(true),
-  MAIL_SSL_TLS: z.coerce.boolean().default(false),
+  MAIL_STARTTLS: stringBoolean.default(true),
+  MAIL_SSL_TLS: stringBoolean.default(false),
   FRONTEND_URL: z.string().default("http://localhost:3000"),
 });
 

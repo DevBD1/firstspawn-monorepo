@@ -32,6 +32,7 @@ class SmtpMailer implements Mailer {
       host: this.config.MAIL_SERVER,
       port: this.config.MAIL_PORT,
       secure: this.config.MAIL_SSL_TLS,
+      requireTLS: this.config.MAIL_STARTTLS,
       auth: this.config.MAIL_PASSWORD
         ? {
             user: this.config.MAIL_USERNAME,

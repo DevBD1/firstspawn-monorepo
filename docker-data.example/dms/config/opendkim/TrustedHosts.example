@@ -1,3 +1,4 @@
 127.0.0.1
 localhost
 example.com
+# Add the live mail domain and trusted relay hosts in docker-data/.

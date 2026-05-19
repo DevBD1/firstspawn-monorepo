@@ -1,1 +1,2 @@
+# Replace example.com with the live mail domain in docker-data/.
 *@example.com mail._domainkey.example.com

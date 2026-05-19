@@ -1,1 +1,2 @@
-
+# Optional Dovecot quota rules for docker-mailserver.
+# Leave the live file empty when no per-mailbox quota is needed.

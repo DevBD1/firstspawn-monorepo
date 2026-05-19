@@ -1,16 +1,20 @@
 services:
   dozzle:
     image: amir20/dozzle:latest
+    # Default service (no profile)
     environment:
       - DOZZLE_USERNAME=${DOZZLE_USERNAME:-admin}
       - DOZZLE_PASSWORD=${DOZZLE_PASSWORD:-admin}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - firstspawn-network
+      - backend-net
     restart: always
+
   postgres:
     image: postgres:16-alpine
+    profiles:
+      - backend
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-firstspawn}
@@ -27,9 +31,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - firstspawn-network
+      - backend-net
+
   pgadmin:
     image: dpage/pgadmin4:8
+    profiles:
+      - backend # Merged with backend
     restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@firstspawn.com
@@ -42,13 +49,18 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
-      - postgres
+      postgres:
+        condition: service_started
+        required: false
     networks:
-      - firstspawn-network
+      - backend-net
+
   api:
     build:
-      context: . # Monorepo root (important for shared packages)
+      context: .
       dockerfile: apps/api/Dockerfile
+    profiles:
+      - backend
     restart: always
     environment:
       API_ENV: ${API_ENV}
@@ -59,23 +71,31 @@ services:
       API_REDIS_URL: redis://redis:6379/0
       API_ADMIN_EMAIL_ALLOWLIST: ${API_ADMIN_EMAIL_ALLOWLIST:-}
       API_COLLECTOR_KEY: ${API_COLLECTOR_KEY:-change_me}
-    # ports:
-    #   - "80:8000"  <-- Remove/comment out this line; we will not expose the port externally
+      MAIL_USERNAME: ${MAIL_USERNAME:-admin@firstspawn.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-admin@firstspawn.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_SERVER: ${MAIL_SERVER:-mailserver}
+      MAIL_STARTTLS: ${MAIL_STARTTLS:-true}
+      MAIL_SSL_TLS: ${MAIL_SSL_TLS:-false}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     expose:
-      - "8000" # Accessible only within Docker's internal network (firstspawn-network)
-    # In production, code is not mounted; it is read from the image
+      - "8000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    # Use [::] for IPv6 support
     networks:
-      - firstspawn-network
+      - backend-net
+      - mail-net
+
   collector:
     build:
       context: .
       dockerfile: apps/collector/Dockerfile
+    profiles:
+      - workers
     restart: always
     environment:
       COLLECTOR_API_BASE_URL: ${COLLECTOR_API_BASE_URL:-http://api:8000/api/v1}
@@ -86,16 +106,23 @@ services:
       COLLECTOR_TARGET_PAGE_SIZE: ${COLLECTOR_TARGET_PAGE_SIZE:-100}
       COLLECTOR_PROBE_TIMEOUT_MS: ${COLLECTOR_PROBE_TIMEOUT_MS:-5000}
     depends_on:
-      - api
-      - postgres
+      api:
+        condition: service_started
+        required: false
+      postgres:
+        condition: service_started
+        required: false
     expose:
       - "8081"
     networks:
-      - firstspawn-network
+      - backend-net
+
   scheduler:
     build:
       context: .
       dockerfile: infrastructure/ops/scheduler/Dockerfile
+    profiles:
+      - workers
     restart: always
     environment:
       DB_HOST: postgres
@@ -110,10 +137,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+        required: false
     networks:
-      - firstspawn-network
+      - backend-net
+
   redis:
     image: redis:7-alpine
+    profiles:
+      - backend
     restart: always
     volumes:
       - redis_data:/data
@@ -123,22 +154,111 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - firstspawn-network
-  nginx:
+      - backend-net
+
+  nginx-private:
     image: nginx:latest
+    profiles:
+      - backend
     environment:
       NGINX_AUTH_USER: ${NGINX_AUTH_USER:-admin}
       NGINX_AUTH_PASS: ${NGINX_AUTH_PASS:-admin}
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
-      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infrastructure/nginx/private/conf.d:/etc/nginx/conf.d:ro
       - ./infrastructure/nginx/generate-htpasswd.sh:/docker-entrypoint.d/40-generate-htpasswd.sh:ro
     networks:
-      - firstspawn-network
+      - backend-net
     depends_on:
       - api
-      - pgadmin
+      - dozzle
+
+  nginx-public:
+    image: nginx:latest
+    profiles:
+      - frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./infrastructure/nginx/public/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - frontend-net
+    depends_on:
+      - public-webapp
+      - admin-webapp
+
+  public-webapp:
+    image: nginx:alpine
+    profiles:
+      - frontend
+    networks:
+      - frontend-net
+
+  admin-webapp:
+    image: nginx:alpine
+    profiles:
+      - frontend
+    networks:
+      - frontend-net
+
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: ${MAILSERVER_HOSTNAME:-mail.firstspawn.com}
+    profiles:
+      - mail
+    ports:
+      - "${MAILSERVER_SMTP_PORT:-25}:25"
+      - "${MAILSERVER_SUBMISSION_PORT:-587}:587"
+      - "${MAILSERVER_SMTPS_PORT:-465}:465"
+      - "${MAILSERVER_IMAPS_PORT:-993}:993"
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      ENABLE_RSPAMD: ${MAILSERVER_ENABLE_RSPAMD:-1}
+      ENABLE_CLAMAV: ${MAILSERVER_ENABLE_CLAMAV:-0}
+      ENABLE_FAIL2BAN: ${MAILSERVER_ENABLE_FAIL2BAN:-1}
+      POSTMASTER_ADDRESS: ${MAILSERVER_POSTMASTER_ADDRESS:-postmaster@firstspawn.com}
+      SPOOF_PROTECTION: ${MAILSERVER_SPOOF_PROTECTION:-1}
+      SSL_TYPE: ${MAILSERVER_SSL_TYPE:-}
+      TZ: ${TZ:-UTC}
+    cap_add:
+      - NET_ADMIN
+    restart: always
+    networks:
+      - mail-net
+
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    profiles:
+      - mail
+    environment:
+      - ROUNDCUBEMAIL_DB_TYPE=sqlite
+      - ROUNDCUBEMAIL_SKIN=elastic
+      - ROUNDCUBEMAIL_DEFAULT_HOST=tls://mailserver
+      - ROUNDCUBEMAIL_SMTP_SERVER=tls://mailserver
+    networks:
+      - mail-net
+    depends_on:
+      - mailserver
+
+  nginx-mail:
+    image: nginx:latest
+    profiles:
+      - mail
+    ports:
+      - "8081:80"
+    volumes:
+      - ./infrastructure/nginx/mail/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - mail-net
+    depends_on:
+      - roundcube
 
 volumes:
   postgres_data:
@@ -146,6 +266,9 @@ volumes:
   pgadmin_data:
 
 networks:
-  firstspawn-network:
+  frontend-net:
     driver: bridge
-    enable_ipv6: true # if true -> Docker daemon.json file must be set to "ipv6": true
+  backend-net:
+    driver: bridge
+  mail-net:
+    driver: bridge

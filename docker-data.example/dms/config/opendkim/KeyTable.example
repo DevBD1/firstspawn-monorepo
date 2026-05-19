@@ -1,1 +1,2 @@
+# Replace example.com with the live mail domain in docker-data/.
 mail._domainkey.example.com example.com:mail:/etc/opendkim/keys/example.com/mail.private

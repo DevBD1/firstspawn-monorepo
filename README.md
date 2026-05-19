@@ -88,37 +88,53 @@ docker ps
 
 Local endpoints:
 
-- Web: `http://localhost:3000`
-- API: `http://localhost:8000`
-- API docs: `http://localhost:8000/docs`
+- Public Web (Placeholder): `http://localhost`
+- Private Gateway (API/DB/Logs): `http://localhost:8080`
+- Mail Gateway (Webmail): `http://localhost:8081`
 
-Run all containers (including API, collector, scheduler, and edge tools):
+Run services by profile:
 
 ```bash
-docker compose up -d
+docker compose --profile backend up -d
+docker compose --profile frontend up -d
+docker compose --profile workers up -d
+docker compose --profile mail up -d
 ```
+
+Profiles:
+
+- `backend`: `postgres`, `redis`, `api`, `pgadmin`, `nginx-private`
+- `frontend`: `public-webapp`, `admin-webapp`, `nginx-public`
+- `mail`: `mailserver`, `roundcube`, `nginx-mail`
+- `workers`: `collector`, `scheduler`
+
+`dozzle` is a default service and starts without a profile.
 
 ### Local Docker Stack (Browser)
 
-If you run full stack with Docker (`docker compose up -d`), use these URLs:
+The stack uses three separate Nginx gateways for isolation:
 
-- Nginx entrypoint: `http://localhost`
-- API (via Nginx): `http://api.localhost`
-- pgAdmin (via Nginx): `http://db.localhost`
-- Dozzle logs (via Nginx): `http://logs.localhost`
-- pgAdmin direct port: `http://localhost:5050`
-- PostgreSQL direct port: `localhost:5432`
+**1. Public Gateway (`http://localhost`)**
+- Main Web: `http://firstspawn.com` (mapped via `/etc/hosts`)
+- Admin Web: `http://admin.firstspawn.com`
+
+**2. Private Gateway (`http://localhost:8080`)**
+- API: `http://api.localhost` or `http://api.firstspawn.com`
+- pgAdmin: `http://db.localhost`
+- Dozzle logs: `http://logs.localhost`
+
+**3. Mail Gateway (`http://localhost:8081`)**
+- Roundcube Webmail: `http://webmail.firstspawn.com`
 
 Notes:
 
-- `api.localhost` and `logs.localhost` are protected with Basic Auth.
+- `api.localhost` and `logs.localhost` are protected with Basic Auth via `nginx-private`.
 - `api.localhost` has one exception: `/api/v1/auth/me` skips Basic Auth because it must use Bearer auth in `Authorization` header.
 - Nginx reads `NGINX_AUTH_USER` and `NGINX_AUTH_PASS` from `.env` and
   auto-generates `.htpasswd` on container start.
 - In Docker mode, API is **not** published on `localhost:8000`; it is internal and
-  exposed through Nginx.
-- Collector and scheduler run on the internal Docker network and are not exposed on host ports by default.
-- In this mode set `API_BASE_URL=http://api.localhost/api/v1` in `.env` for web -> API calls.
+  exposed through `nginx-private`.
+- Collector and scheduler run on the internal `backend-net` and are not exposed on host ports by default.
 
 Set up Basic Auth once on your machine:
 
@@ -128,7 +144,7 @@ NGINX_AUTH_USER=admin
 NGINX_AUTH_PASS=change_me
 
 # apply
-docker compose up -d --force-recreate nginx
+docker compose up -d --force-recreate nginx-private
 ```
 
 Quick checks:
@@ -158,6 +174,36 @@ New backend MVP services require the following environment values in `.env`:
   - `COLLECTOR_CONCURRENCY`
   - `COLLECTOR_TARGET_PAGE_SIZE`
   - `COLLECTOR_PROBE_TIMEOUT_MS`
+
+### Optional Mail Server Profile
+
+The app stack and mail stack can run on separate servers. Services are grouped
+behind Compose profiles, so plain `docker compose up -d` does not start them.
+
+On the app server:
+
+```bash
+MAIL_SERVER=mail.firstspawn.com
+MAIL_PORT=587
+MAIL_STARTTLS=True
+MAIL_SSL_TLS=False
+docker compose --profile backend --profile workers up -d
+```
+
+On the mail server:
+
+```bash
+docker compose --profile mail up -d mailserver
+```
+
+You can also target only a profiled service:
+
+```bash
+docker compose up -d mailserver
+```
+
+Keep live mail data in ignored `docker-data/`. Use `docker-data.example/` only
+as a publish-safe template.
 
 ### Backend VPS IPv6 (Step By Step)
 

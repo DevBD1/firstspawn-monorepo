@@ -1,6 +1,6 @@
 # Format:
 # email@example.com|{SHA512-CRYPT}$6$ROUNDS_AND_SALT$PASSWORD_HASH
 #
-# Generate this with the mail service account tooling. Do not paste a live hash
-# into this example file.
+# Generate the live file with the mail service account tooling.
+# Do not paste a live hash into this example file.
 admin@example.com|{SHA512-CRYPT}$6$example_salt$example_hash

@@ -1,1 +1,2 @@
+# Publish this TXT value in DNS after generating the live DKIM key.
 mail._domainkey IN TXT ("v=DKIM1; h=sha256; k=rsa; p=PUBLIC_KEY_GOES_HERE")

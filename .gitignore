@@ -47,6 +47,8 @@ next-env.d.ts
 
 # nginx
 .htpasswd
+infrastructure/nginx/certs/firstspawn.crt
+infrastructure/nginx/certs/firstspawn.key
 
 # local workspace
 *.mjs
@@ -55,9 +57,7 @@ tmp
 .temp
 .superpowers
 
-.infras/nginx/certs/firstspawn.crt
-.infras/nginx/certs/firstspawn.key
-.infras/ops/backup_debug.log
+infrastructure/ops/backup_debug.log
 
 # local Docker service state and generated secrets
 docker-data/
