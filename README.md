@@ -119,9 +119,9 @@ The stack uses three separate Nginx gateways for isolation:
 - Admin Web: `http://admin.firstspawn.com`
 
 **2. Private Gateway (`http://localhost:8080`)**
-- API: `http://api.localhost` or `http://api.firstspawn.com`
-- pgAdmin: `http://db.localhost`
-- Dozzle logs: `http://logs.localhost`
+- API: `http://api.localhost:8080` or `http://api.firstspawn.com`
+- pgAdmin: `http://db.localhost:8080`
+- Dozzle logs: `http://logs.localhost:8080`
 
 **3. Mail Gateway (`http://localhost:8081`)**
 - Roundcube Webmail: `http://webmail.firstspawn.com`
@@ -151,9 +151,10 @@ Quick checks:
 
 ```bash
 curl -I http://localhost
-curl -I http://api.localhost/healthz
-curl -I http://db.localhost
-curl -I http://logs.localhost
+curl -I http://localhost:8080
+curl -I http://api.localhost:8080/healthz
+curl -I http://db.localhost:8080
+curl -I http://logs.localhost:8080
 ```
 
 ## MVP Runtime Environment
