@@ -101,10 +101,28 @@ docker compose --profile workers up -d
 docker compose --profile mail up -d
 ```
 
+Run all Docker profiles on one local machine with non-conflicting gateway ports:
+
+```bash
+NGINX_PUBLIC_HOST_PORT=8082 \
+NGINX_PRIVATE_HOST_PORT=8080 \
+NGINX_MAIL_HOST_PORT=8081 \
+docker compose --profile backend --profile frontend --profile workers --profile mail up -d
+```
+
+PowerShell:
+
+```powershell
+$env:NGINX_PUBLIC_HOST_PORT='8082'
+$env:NGINX_PRIVATE_HOST_PORT='8080'
+$env:NGINX_MAIL_HOST_PORT='8081'
+docker compose --profile backend --profile frontend --profile workers --profile mail up -d
+```
+
 Profiles:
 
 - `backend`: `postgres`, `redis`, `api`, `pgadmin`, `nginx-private`
-- `frontend`: `public-webapp`, `admin-webapp`, `nginx-public`
+- `frontend`: `public-webapp` (Next.js app), `nginx-public`
 - `mail`: `mailserver`, `roundcube`, `nginx-mail`
 - `workers`: `collector`, `scheduler`
 
@@ -115,8 +133,8 @@ Profiles:
 The stack uses three separate Nginx gateways for isolation:
 
 **1. Public Gateway (`http://localhost`)**
-- Main Web: `http://firstspawn.com` (mapped via `/etc/hosts`)
-- Admin Web: `http://admin.firstspawn.com`
+- Main Web: `http://web.localhost` locally, `http://firstspawn.com` in production-style routing
+- Admin Web: reserved as `http://admin.localhost` locally and `http://admin.firstspawn.com` in production-style routing. It returns `503` until an admin webapp service exists.
 
 **2. Private Gateway (`http://localhost:8080`)**
 - API: `http://api.localhost:8080` or `http://api.firstspawn.com`
@@ -125,6 +143,16 @@ The stack uses three separate Nginx gateways for isolation:
 
 **3. Mail Gateway (`http://localhost:8081`)**
 - Roundcube Webmail: `http://webmail.firstspawn.com`
+
+When overriding local gateway ports, include the chosen port in browser URLs.
+For example, with `NGINX_PUBLIC_HOST_PORT=8082`, use
+`http://web.localhost:8082`.
+
+The frontend profile serves `apps/web` through the `public-webapp` Next.js
+container. Admin aliases are reserved and intentionally do not route to the
+public app. In Docker, the web container uses `WEB_DOCKER_API_BASE_URL` and
+`WEB_DOCKER_SITE_URL` overrides so host-only `.env` values do not leak into
+container networking.
 
 Notes:
 
