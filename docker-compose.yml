@@ -9,13 +9,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - backend-net
-    restart: always
+    restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
     profiles:
       - backend
-    restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-firstspawn}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -32,12 +31,12 @@ services:
       retries: 5
     networks:
       - backend-net
+    restart: on-failure
 
   pgadmin:
     image: dpage/pgadmin4:8
     profiles:
       - backend # Merged with backend
-    restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@firstspawn.com
       - PGADMIN_DEFAULT_PASSWORD=${DB_PASSWORD:-admin}
@@ -54,6 +53,7 @@ services:
         required: false
     networks:
       - backend-net
+    restart: no
 
   api:
     build:
@@ -61,7 +61,6 @@ services:
       dockerfile: apps/api/Dockerfile
     profiles:
       - backend
-    restart: always
     environment:
       API_ENV: ${API_ENV}
       DB_HOST: postgres
@@ -89,6 +88,7 @@ services:
     networks:
       - backend-net
       - mail-net
+    restart: on-failure
 
   collector:
     build:
@@ -96,7 +96,6 @@ services:
       dockerfile: apps/collector/Dockerfile
     profiles:
       - workers
-    restart: always
     environment:
       COLLECTOR_API_BASE_URL: ${COLLECTOR_API_BASE_URL:-http://api:8000/api/v1}
       API_COLLECTOR_KEY: ${API_COLLECTOR_KEY:-change_me}
@@ -116,6 +115,7 @@ services:
       - "8081"
     networks:
       - backend-net
+    restart: on-failure
 
   scheduler:
     build:
@@ -123,7 +123,6 @@ services:
       dockerfile: infrastructure/ops/scheduler/Dockerfile
     profiles:
       - workers
-    restart: always
     environment:
       DB_HOST: postgres
       DB_USER: ${DB_USER:-firstspawn}
@@ -140,12 +139,12 @@ services:
         required: false
     networks:
       - backend-net
+    restart: on-failure
 
   redis:
     image: redis:7-alpine
     profiles:
       - backend
-    restart: always
     volumes:
       - redis_data:/data
     healthcheck:
@@ -155,6 +154,7 @@ services:
       retries: 5
     networks:
       - backend-net
+    restart: on-failure
 
   nginx-private:
     image: nginx:latest
@@ -173,6 +173,7 @@ services:
     depends_on:
       - api
       - dozzle
+    restart: unless-stopped
 
   nginx-public:
     image: nginx:latest
@@ -186,6 +187,7 @@ services:
       - frontend-net
     depends_on:
       - public-webapp
+    restart: unless-stopped
 
   public-webapp:
     build:
@@ -209,6 +211,7 @@ services:
     networks:
       - frontend-net
       - backend-net
+    restart: no
 
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
@@ -237,9 +240,9 @@ services:
       TZ: ${TZ:-UTC}
     cap_add:
       - NET_ADMIN
-    restart: always
     networks:
       - mail-net
+    restart: on-failure
 
   roundcube:
     image: roundcube/roundcubemail:latest
@@ -254,6 +257,7 @@ services:
       - mail-net
     depends_on:
       - mailserver
+    restart: no
 
   nginx-mail:
     image: nginx:latest
@@ -267,6 +271,7 @@ services:
       - mail-net
     depends_on:
       - roundcube
+    restart: unless-stopped
 
 volumes:
   postgres_data:
