@@ -118,6 +118,7 @@ export async function fetchServers(
 }
 
 export interface PublicServerStats {
+  checked_recently: number;
   total_active_servers: number;
   total_online_players: number;
 }
@@ -138,7 +139,11 @@ export async function fetchServerStats(
   }
 
   const payload = await response.json();
-  return payload.data;
+  return {
+    checked_recently: payload.data.checked_recently ?? 0,
+    total_active_servers: payload.data.total_active_servers,
+    total_online_players: payload.data.total_online_players,
+  };
 }
 
 export async function fetchServerDetail(

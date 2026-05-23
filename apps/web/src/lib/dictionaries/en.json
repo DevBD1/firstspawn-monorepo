@@ -225,67 +225,35 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
-    "questBoard": {
-      "eyebrow": "QUEST BOARD",
-      "title": "PICK YOUR NEXT SERVER QUEST",
-      "subtitle": "Start with live Minecraft discovery, checked uptime, and a fair ranking loop that does not sell the top slot.",
-      "statusLabel": "SYSTEM",
-      "statusValue": "ONLINE",
-      "betaLabel": "BETA ACCESS",
-      "primaryLabel": "START EXPLORING",
-      "secondaryLabel": "GET LAUNCH UPDATES",
-      "quests": [
-        {
-          "title": "FIND A WORLD",
-          "description": "Search active server listings by player count, ping, region, and game mode without paid placement noise.",
-          "rewardLabel": "REWARD",
-          "rewardValue": "FASTER MATCH",
-          "statusLabel": "LIVE",
-          "statusValue": "NOW"
-        },
-        {
-          "title": "VERIFY THE SIGNAL",
-          "description": "Use freshness and uptime checks to avoid dead listings before you spend time joining.",
-          "rewardLabel": "REWARD",
-          "rewardValue": "LESS WASTE",
-          "statusLabel": "LIVE",
-          "statusValue": "NOW"
-        },
-        {
-          "title": "BUILD REPUTATION",
-          "description": "Reviews, favorites, badges, and loot loops are being shaped as the next trust layer.",
-          "rewardLabel": "REWARD",
-          "rewardValue": "COMING NEXT",
-          "statusLabel": "NEXT",
-          "statusValue": "PHASE"
-        }
-      ]
-    },
-    "roadmap": {
-      "eyebrow": "AVAILABLE NOW / SOON",
-      "title": "WHAT PLAYERS CAN USE",
-      "items": [
-        {
-          "title": "SERVER DISCOVERY",
-          "statusLabel": "AVAILABLE NOW",
-          "description": "Browse public Minecraft server listings and open the full discovery view."
-        },
-        {
-          "title": "UPTIME CHECKS",
-          "statusLabel": "AVAILABLE NOW",
-          "description": "Use live freshness signals to avoid dead or stale server listings."
-        },
-        {
-          "title": "PLAYER REPUTATION",
-          "statusLabel": "COMING SOON",
-          "description": "Earned reviews, favorites, badges, and trust signals are the next player loop."
-        }
-      ]
+    "discoveryConsole": {
+      "eyebrow": "DISCOVERY CONSOLE",
+      "title": "FIND A SERVER WORTH JOINING",
+      "subtitle": "Search live Minecraft and Hytale listings by real activity, freshness, region, and fit. FirstSpawn opens on discovery because the useful signal should come before the pitch.",
+      "searchLabel": "Search active servers",
+      "searchPlaceholder": "Survival, low ping, economy, community...",
+      "searchSubmitLabel": "Search",
+      "browseAllLabel": "Browse all servers",
+      "ownerLabel": "Run a community? Claim your path through the owner console.",
+      "ownerCtaLabel": "List your server",
+      "stats": {
+        "activeServers": "Active servers",
+        "onlinePlayers": "Online players",
+        "checkedRecently": "Checked recently"
+      },
+      "serverPreview": {
+        "emptyTitle": "Catalog signals are warming up",
+        "emptyDescription": "No public servers are available from the API right now. Discovery stays the primary path, and this console will populate from live catalog data as targets come online.",
+        "liveLabel": "online",
+        "offlineLabel": "offline",
+        "rankedByLabel": "Ranked by",
+        "maxPlayersLabel": "max players",
+        "verifiedLabel": "Catalog checked"
+      }
     },
     "problemSolution": {
       "eyebrow": "SYSTEM COMPARISON",
       "title": "DISCOVERY: REDEFINED",
-      "subtitle": "We did not just build a better server list. We engineered a definitive protocol to fix a decade of bot-driven stagnation.",
+      "subtitle": "Compare servers by real activity, freshness, and fit instead of paid placement noise.",
       "problem": {
         "statusLabel": "ERR://DECAY_DETECTED",
         "title": "THE DECAY\nOF LISTING",
@@ -315,98 +283,13 @@
         ]
       }
     },
-    "discoveryFork": {
-      "title": "DISCOVERY: REDEFINED",
-      "subtitle": "One platform. Two parallel worlds. Choose your uplink.",
-      "player": {
-        "channelLabel": "[CHANNEL_01: PLAYER]",
-        "title": "NEURAL\nDISCOVERY",
-        "description": "Find hidden gems through deep-pulse playtime metrics and community reputation.",
-        "actionLabel": "START_EXPLORING"
-      },
-      "host": {
-        "channelLabel": "[CHANNEL_02: HOST]",
-        "title": "INTELLIGENCE\nHUB",
-        "description": "Access real-time growth heatmaps and precision player demographics.",
-        "actionLabel": "ACCESS_DASHBOARD"
-      }
-    },
-    "trust": {
-      "eyebrow": "FAIR DISCOVERY",
-      "title": "RANKED BY SIGNAL, NOT SPEND",
-      "subtitle": "The page should feel like a game, but the ranking rules stay serious.",
-      "items": [
-        {
-          "title": "LIVE FRESHNESS",
-          "description": "Server status is derived from recent heartbeat activity, so offline worlds do not pretend to be active.",
-          "statusLabel": "ACTIVE"
-        },
-        {
-          "title": "NO TOP-SLOT SALES",
-          "description": "FirstSpawn is built around relevance and trust loops instead of buying the most visible listing.",
-          "statusLabel": "POLICY"
-        },
-        {
-          "title": "PLAYER-FIRST FILTERS",
-          "description": "Discovery starts with what players actually need: active communities, latency, version, and server fit.",
-          "statusLabel": "MVP"
-        }
-      ]
-    },
-    "serverProof": {
-      "eyebrow": "LIVE CATALOG",
-      "title": "SERVER PROOF WITHOUT FAKE HYPE",
-      "subtitle": "When catalog data is available, the board shows real listings. When it is not, it says so clearly.",
-      "emptyTitle": "CATALOG SIGNALS ARE WARMING UP",
-      "emptyDescription": "No public servers are available from the API right now. Discovery is still the primary path, and this panel will populate from live catalog data as targets come online.",
-      "liveLabel": "LIVE DATA",
-      "rankedByLabel": "RANKED BY",
-      "playerHelperSuffix": "MAX PLAYERS",
-      "viewAllLabel": "VIEW DISCOVER",
-      "verifiedLabel": "CATALOG CHECKED"
-    },
-    "progression": {
-      "eyebrow": "NEXT TRUST LOOP",
-      "title": "PROGRESSION THAT EARNS TRUST",
-      "subtitle": "Gamification is planned as proof of useful activity, not cosmetic noise.",
-      "items": [
-        {
-          "title": "VERIFIED BADGES",
-          "description": "Future badges should mark real uptime, owner verification, and community behavior.",
-          "stateLabel": "COMING NEXT"
-        },
-        {
-          "title": "REPUTATION LADDER",
-          "description": "Player actions can become earned trust signals once review and activity gates are ready.",
-          "stateLabel": "PLANNED"
-        },
-        {
-          "title": "LOOT LOOP",
-          "description": "Rewards should bring players back to discover better communities without distorting ranking fairness.",
-          "stateLabel": "PLANNED"
-        }
-      ]
-    },
-    "hero": {
-      "statusLabel": "STATUS",
-      "statusValue": "ACTIVE",
-      "title": "DISCOVER YOUR NEXT\nADVENTURE",
-      "subtitle": "The first verified discovery platform for Minecraft and Hytale servers. Real players. Real uptime. Real communities.",
-      "explorerLabel": "EXPLORERS",
-      "metrics": {
-        "livePlayers": "LIVE PLAYERS",
-        "registeredExplorers": "REGISTERED EXPLORERS",
-        "registeredServers": "REGISTERED SERVERS"
-      },
-      "actions": {
-        "primaryLabel": "START EXPLORING",
-        "secondaryLabel": "ADD YOUR SERVER"
-      }
+    "returnCta": {
+      "label": "GO TO TOP"
     },
     "features": {
       "eyebrow": "TRUST SIGNALS",
       "title": "WHY FIRSTSPAWN?",
-      "subtitle": "Built differently for the voxel gaming community",
+      "subtitle": "Built differently for players who want fresh signals, real activity, and server fit before hype.",
       "items": [
         {
           "title": "VERIFIED UPTIME",
@@ -425,52 +308,6 @@
           "description": "Form alliances, compete on leaderboards, and unlock exclusive rewards."
         }
       ]
-    },
-    "howItWorks": {
-      "title": "HOW IT WORKS",
-      "items": [
-        {
-          "title": "DISCOVER",
-          "description": "Browse verified servers with real player reviews and live uptime data."
-        },
-        {
-          "title": "CONNECT",
-          "description": "Join with one click. Your profile syncs across all supported games."
-        },
-        {
-          "title": "CONTRIBUTE",
-          "description": "Leave reviews, earn badges, and climb the reputation ladder."
-        }
-      ]
-    },
-    "discoveryChat": {
-      "title": "DISCOVERY CONSOLE",
-      "assistantWaitingMessage": "Live discovery replies are coming soon. Your query is ready for the real chat flow.",
-      "composer": {
-        "placeholder": "Ask FirstSpawn to find your next world...",
-        "submitLabel": "SEND"
-      },
-      "demoThread": {
-        "userPrompt": "Find me a verified survival server with a strong community and steady activity.",
-        "assistantReply": "Scanning verified signals. I found one strong match for players who want reliable uptime, an active chat loop, and room to grow.",
-        "recommendationCard": {
-          "title": "Aetheria Prime",
-          "description": "Survival world with a stable economy, active moderators, and a social player base that stays busy after peak hours.",
-          "statusLabel": "BEST MATCH",
-          "matchLabel": "98% MATCH",
-          "tags": ["SURVIVAL", "ECONOMY", "COMMUNITY"]
-        }
-      }
-    },
-    "proof": {
-      "eyebrow": "POPULAR",
-      "title": "POPULAR SERVERS"
-    },
-    "finalCta": {
-      "title": "READY TO TAKE A QUEST?",
-      "subtitle": "Open Discover, compare live signals, and find a server worth your next session.",
-      "primaryLabel": "START EXPLORING",
-      "secondaryLabel": "GET UPDATES"
     },
     "newsletter": {
       "title": "GET LAUNCH UPDATES",

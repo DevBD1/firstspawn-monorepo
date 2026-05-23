@@ -1,0 +1,754 @@
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+node:internal/modules/cjs/loader:1424
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Repository\Projects\DevBD1\firstspawn-monorepo\node_modules\next\dist\bin\next'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1059:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1064:22)
+    at Module._load (node:internal/modules/cjs/loader:1227:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.13.0
+[wrapper] next dev exited code=1 signal=null
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:30:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}
+Failed to fetch landing discovery console data: TypeError: fetch failed
+    at async fetchServers (src\lib\servers-api.ts:107:20)
+    at async Home (src\app\[lang]\(marketing)\page.tsx:31:38)
+  105 |   if (params.cursor) url.searchParams.set("cursor", params.cursor);
+  106 |
+> 107 |   const response = await fetch(url.toString(), {
+      |                    ^
+  108 |     headers: getHeaders(),
+  109 |     ...init,
+  110 |   }); {
+  [cause]: AggregateError: 
+      at ignore-listed frames {
+    code: 'ECONNREFUSED'
+  }
+}

@@ -227,32 +227,30 @@ export interface LandingDictionary {
   scene: {
     alt: string;
   };
-  questBoard: {
+  discoveryConsole: {
     eyebrow: string;
     title: string;
     subtitle: string;
-    statusLabel: string;
-    statusValue: string;
-    betaLabel: string;
-    primaryLabel: string;
-    secondaryLabel: string;
-    quests: Array<{
-      title: string;
-      description: string;
-      rewardLabel: string;
-      rewardValue: string;
-      statusLabel: string;
-      statusValue: string;
-    }>;
-  };
-  roadmap: {
-    eyebrow: string;
-    title: string;
-    items: Array<{
-      title: string;
-      statusLabel: string;
-      description: string;
-    }>;
+    searchLabel: string;
+    searchPlaceholder: string;
+    searchSubmitLabel: string;
+    browseAllLabel: string;
+    ownerLabel: string;
+    ownerCtaLabel: string;
+    stats: {
+      activeServers: string;
+      checkedRecently: string;
+      onlinePlayers: string;
+    };
+    serverPreview: {
+      emptyTitle: string;
+      emptyDescription: string;
+      liveLabel: string;
+      offlineLabel: string;
+      rankedByLabel: string;
+      maxPlayersLabel: string;
+      verifiedLabel: string;
+    };
   };
   problemSolution: {
     eyebrow: string;
@@ -275,69 +273,8 @@ export interface LandingDictionary {
       }>;
     };
   };
-  discoveryFork: {
-    title: string;
-    subtitle: string;
-    player: {
-      channelLabel: string;
-      title: string;
-      description: string;
-      actionLabel: string;
-    };
-    host: {
-      channelLabel: string;
-      title: string;
-      description: string;
-      actionLabel: string;
-    };
-  };
-  trust: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    items: Array<{
-      title: string;
-      description: string;
-      statusLabel: string;
-    }>;
-  };
-  serverProof: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    emptyTitle: string;
-    emptyDescription: string;
-    liveLabel: string;
-    rankedByLabel: string;
-    playerHelperSuffix: string;
-    viewAllLabel: string;
-    verifiedLabel: string;
-  };
-  progression: {
-    eyebrow: string;
-    title: string;
-    subtitle: string;
-    items: Array<{
-      title: string;
-      description: string;
-      stateLabel: string;
-    }>;
-  };
-  hero: {
-    statusLabel: string;
-    statusValue: string;
-    title: string;
-    subtitle: string;
-    explorerLabel: string;
-    metrics: {
-      livePlayers: string;
-      registeredExplorers: string;
-      registeredServers: string;
-    };
-    actions: {
-      primaryLabel: string;
-      secondaryLabel: string;
-    };
+  returnCta: {
+    label: string;
   };
   features: {
     eyebrow: string;
@@ -347,42 +284,6 @@ export interface LandingDictionary {
       description: string;
       title: string;
     }>;
-  };
-  howItWorks: {
-    title: string;
-    items: Array<{
-      description: string;
-      title: string;
-    }>;
-  };
-  discoveryChat: {
-    title: string;
-    assistantWaitingMessage: string;
-    composer: {
-      placeholder: string;
-      submitLabel: string;
-    };
-    demoThread: {
-      userPrompt: string;
-      assistantReply: string;
-      recommendationCard: {
-        description: string;
-        matchLabel: string;
-        statusLabel: string;
-        tags: string[];
-        title: string;
-      };
-    };
-  };
-  proof: {
-    eyebrow: string;
-    title: string;
-  };
-  finalCta: {
-    title: string;
-    subtitle: string;
-    primaryLabel: string;
-    secondaryLabel: string;
   };
   newsletter: {
     title: string;

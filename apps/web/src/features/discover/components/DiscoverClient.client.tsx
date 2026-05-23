@@ -66,6 +66,7 @@ interface DiscoverClientProps {
   initialServers: PublicServerListItem[];
   initialPagination: { next_cursor: string | null; limit: number };
   initialGlobalStats: PublicServerStats;
+  initialQuery?: string;
   serverCardCopy: ServerCardCopy;
 }
 
@@ -142,6 +143,7 @@ export default function DiscoverClient({
   initialServers,
   initialPagination,
   initialGlobalStats,
+  initialQuery = "",
   serverCardCopy,
 }: DiscoverClientProps) {
   const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
@@ -156,7 +158,7 @@ export default function DiscoverClient({
 
   const [selectedGame, setSelectedGame] = useState<DiscoverGameFilter>("all");
   const [selectedTier, setSelectedTier] = useState<PublicServerTier[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const deferredSearchQuery = useDeferredValue(searchQuery.trim());
   const [sortBy, setSortBy] = useState<PublicServerSort>("players");
   const [appliedSortBy, setAppliedSortBy] = useState<PublicServerSort>("players");

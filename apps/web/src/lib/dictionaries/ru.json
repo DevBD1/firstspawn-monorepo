@@ -195,67 +195,35 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
-    "questBoard": {
-      "eyebrow": "ДОСКА КВЕСТОВ",
-      "title": "ВЫБЕРИ СЛЕДУЮЩИЙ СЕРВЕРНЫЙ КВЕСТ",
-      "subtitle": "Начни с живого Minecraft discovery, проверенного uptime и честной сортировки без продажи верхнего места.",
-      "statusLabel": "СИСТЕМА",
-      "statusValue": "ОНЛАЙН",
-      "betaLabel": "БЕТА-ДОСТУП",
-      "primaryLabel": "НАЧАТЬ ПОИСК",
-      "secondaryLabel": "ПОЛУЧАТЬ НОВОСТИ",
-      "quests": [
-        {
-          "title": "НАЙДИ МИР",
-          "description": "Ищи активные серверы по игрокам, ping, региону и режиму без шума платного продвижения.",
-          "rewardLabel": "НАГРАДА",
-          "rewardValue": "БЫСТРЕЕ СОВПАДЕНИЕ",
-          "statusLabel": "LIVE",
-          "statusValue": "СЕЙЧАС"
-        },
-        {
-          "title": "ПРОВЕРЬ СИГНАЛ",
-          "description": "Используй свежесть и uptime, чтобы не тратить время на мертвые listings перед подключением.",
-          "rewardLabel": "НАГРАДА",
-          "rewardValue": "МЕНЬШЕ ПОТЕРЬ",
-          "statusLabel": "LIVE",
-          "statusValue": "СЕЙЧАС"
-        },
-        {
-          "title": "СТРОЙ РЕПУТАЦИЮ",
-          "description": "Отзывы, избранное, badges и loot loops формируются как следующий слой доверия.",
-          "rewardLabel": "НАГРАДА",
-          "rewardValue": "СКОРО",
-          "statusLabel": "СЛЕД.",
-          "statusValue": "ФАЗА"
-        }
-      ]
-    },
-    "roadmap": {
-      "eyebrow": "ДОСТУПНО / СКОРО",
-      "title": "ЧТО ИГРОКИ МОГУТ ИСПОЛЬЗОВАТЬ",
-      "items": [
-        {
-          "title": "ПОИСК СЕРВЕРОВ",
-          "statusLabel": "ДОСТУПНО",
-          "description": "Просматривай публичные Minecraft-серверы и открывай полный discovery-раздел."
-        },
-        {
-          "title": "UPTIME-ПРОВЕРКИ",
-          "statusLabel": "ДОСТУПНО",
-          "description": "Используй live-сигналы свежести, чтобы избегать мертвых или устаревших listings."
-        },
-        {
-          "title": "РЕПУТАЦИЯ ИГРОКА",
-          "statusLabel": "СКОРО",
-          "description": "Заработанные отзывы, избранное, badges и trust-сигналы станут следующим player loop."
-        }
-      ]
+    "discoveryConsole": {
+      "eyebrow": "DISCOVERY CONSOLE",
+      "title": "FIND A SERVER WORTH JOINING",
+      "subtitle": "Search live Minecraft and Hytale listings by real activity, freshness, region, and fit. FirstSpawn opens on discovery because the useful signal should come before the pitch.",
+      "searchLabel": "Search active servers",
+      "searchPlaceholder": "Survival, low ping, economy, community...",
+      "searchSubmitLabel": "Search",
+      "browseAllLabel": "Browse all servers",
+      "ownerLabel": "Run a community? Claim your path through the owner console.",
+      "ownerCtaLabel": "List your server",
+      "stats": {
+        "activeServers": "Active servers",
+        "onlinePlayers": "Online players",
+        "checkedRecently": "Недавно проверены"
+      },
+      "serverPreview": {
+        "emptyTitle": "Catalog signals are warming up",
+        "emptyDescription": "No public servers are available from the API right now. Discovery stays the primary path, and this console will populate from live catalog data as targets come online.",
+        "liveLabel": "online",
+        "offlineLabel": "offline",
+        "rankedByLabel": "Ranked by",
+        "maxPlayersLabel": "max players",
+        "verifiedLabel": "Catalog checked"
+      }
     },
     "problemSolution": {
       "eyebrow": "СРАВНЕНИЕ СИСТЕМ",
       "title": "DISCOVERY: ПЕРЕОПРЕДЕЛЕН",
-      "subtitle": "Мы не просто создали лучший список серверов. Мы разработали понятный протокол, чтобы исправить десятилетие стагнации, вызванной ботами.",
+      "subtitle": "Сравнивай серверы по реальной активности, свежести и соответствию, а не по шуму платного размещения.",
       "problem": {
         "statusLabel": "ERR://РАСПАД_ОБНАРУЖЕН",
         "title": "РАСПАД\nЛИСТИНГОВ",
@@ -285,98 +253,13 @@
         ]
       }
     },
-    "discoveryFork": {
-      "title": "DISCOVERY: ПЕРЕОПРЕДЕЛЕН",
-      "subtitle": "Одна платформа. Два параллельных мира. Выбери свой uplink.",
-      "player": {
-        "channelLabel": "[КАНАЛ_01: ИГРОК]",
-        "title": "НЕЙРОННЫЙ\nDISCOVERY",
-        "description": "Находи скрытые жемчужины через deep-pulse метрики игрового времени и репутацию сообщества.",
-        "actionLabel": "НАЧАТЬ_ПОИСК"
-      },
-      "host": {
-        "channelLabel": "[КАНАЛ_02: ХОСТ]",
-        "title": "ЦЕНТР\nАНАЛИТИКИ",
-        "description": "Получай heatmap роста в реальном времени и точную демографию игроков.",
-        "actionLabel": "ОТКРЫТЬ_ПАНЕЛЬ"
-      }
-    },
-    "trust": {
-      "eyebrow": "ЧЕСТНЫЙ DISCOVERY",
-      "title": "РАНЖИРОВАНИЕ ПО СИГНАЛУ, НЕ ПО БЮДЖЕТУ",
-      "subtitle": "Страница может ощущаться как игра, но правила ранжирования остаются серьезными.",
-      "items": [
-        {
-          "title": "ЖИВАЯ СВЕЖЕСТЬ",
-          "description": "Статус сервера выводится из недавней heartbeat-активности, поэтому offline-миры не выглядят активными.",
-          "statusLabel": "АКТИВНО"
-        },
-        {
-          "title": "НЕТ ПРОДАЖИ ТОП-СЛОТА",
-          "description": "FirstSpawn строится на релевантности и доверии, а не на покупке самого заметного listing.",
-          "statusLabel": "ПРАВИЛО"
-        },
-        {
-          "title": "ФИЛЬТРЫ ДЛЯ ИГРОКОВ",
-          "description": "Discovery начинается с того, что нужно игрокам: активные сообщества, latency, версия и fit сервера.",
-          "statusLabel": "MVP"
-        }
-      ]
-    },
-    "serverProof": {
-      "eyebrow": "LIVE-КАТАЛОГ",
-      "title": "ДОКАЗАТЕЛЬСТВА СЕРВЕРОВ БЕЗ ФАЛЬШИВОГО HYPE",
-      "subtitle": "Когда данные каталога доступны, доска показывает реальные listings. Когда нет, она говорит об этом прямо.",
-      "emptyTitle": "СИГНАЛЫ КАТАЛОГА ПРОГРЕВАЮТСЯ",
-      "emptyDescription": "API сейчас не возвращает публичные серверы. Discovery остается основным путем, и эта панель заполнится live-данными каталога, когда targets будут online.",
-      "liveLabel": "LIVE-ДАННЫЕ",
-      "rankedByLabel": "РАНЖИРОВАНО ПО",
-      "playerHelperSuffix": "МАКС. ИГРОКОВ",
-      "viewAllLabel": "ОТКРЫТЬ DISCOVER",
-      "verifiedLabel": "КАТАЛОГ ПРОВЕРЕН"
-    },
-    "progression": {
-      "eyebrow": "СЛЕДУЮЩИЙ ЦИКЛ ДОВЕРИЯ",
-      "title": "ПРОГРЕССИЯ, КОТОРАЯ ЗАРАБАТЫВАЕТ ДОВЕРИЕ",
-      "subtitle": "Геймификация планируется как доказательство полезной активности, а не косметический шум.",
-      "items": [
-        {
-          "title": "ПРОВЕРЕННЫЕ BADGES",
-          "description": "Будущие badges должны отмечать реальный uptime, owner verification и поведение сообщества.",
-          "stateLabel": "СКОРО"
-        },
-        {
-          "title": "ЛЕСТНИЦА РЕПУТАЦИИ",
-          "description": "Действия игроков смогут стать earned trust signals, когда будут готовы review и activity gates.",
-          "stateLabel": "ПЛАН"
-        },
-        {
-          "title": "LOOT LOOP",
-          "description": "Награды должны возвращать игроков к лучшим сообществам без искажения честного ранжирования.",
-          "stateLabel": "ПЛАН"
-        }
-      ]
-    },
-    "hero": {
-      "statusLabel": "СТАТУС",
-      "statusValue": "АКТИВНО",
-      "title": "НАЙДИ СВОЕ\nСЛЕДУЮЩЕЕ ПРИКЛЮЧЕНИЕ",
-      "subtitle": "Первая проверенная платформа для поиска серверов Minecraft и Hytale. Настоящие игроки. Настоящий uptime. Настоящие сообщества.",
-      "explorerLabel": "EXPLORERS",
-      "metrics": {
-        "livePlayers": "ИГРОКИ ОНЛАЙН",
-        "registeredExplorers": "ЗАРЕГИСТРИРОВАННЫЕ EXPLORERS",
-        "registeredServers": "ЗАРЕГИСТРИРОВАННЫЕ СЕРВЕРЫ"
-      },
-      "actions": {
-        "primaryLabel": "НАЧАТЬ ПОИСК",
-        "secondaryLabel": "ДОБАВИТЬ СЕРВЕР"
-      }
+    "returnCta": {
+      "label": "\u041d\u0410\u0412\u0415\u0420\u0425"
     },
     "features": {
       "eyebrow": "TRUST SIGNALS",
       "title": "ПОЧЕМУ FIRSTSPAWN?",
-      "subtitle": "Создано по-другому для сообщества voxel-игр",
+      "subtitle": "Создано по-другому для игроков, которым важнее свежие сигналы, реальная активность и подходящий сервер, а не хайп.",
       "items": [
         {
           "title": "ПРОВЕРЕННЫЙ UPTIME",
@@ -395,52 +278,6 @@
           "description": "Создавай союзы, соревнуйся в таблицах лидеров и открывай эксклюзивные награды."
         }
       ]
-    },
-    "howItWorks": {
-      "title": "КАК ЭТО РАБОТАЕТ",
-      "items": [
-        {
-          "title": "ИССЛЕДУЙ",
-          "description": "Просматривай проверенные серверы с реальными отзывами игроков и живыми данными uptime."
-        },
-        {
-          "title": "ПОДКЛЮЧАЙСЯ",
-          "description": "Присоединяйся в один клик. Твой профиль синхронизируется во всех поддерживаемых играх."
-        },
-        {
-          "title": "ВНОСИ ВКЛАД",
-          "description": "Оставляй отзывы, получай значки и поднимайся по лестнице репутации."
-        }
-      ]
-    },
-    "discoveryChat": {
-      "title": "DISCOVERY CONSOLE",
-      "assistantWaitingMessage": "Живые ответы discovery скоро появятся. Твой запрос уже готов для реального чат-потока.",
-      "composer": {
-        "placeholder": "Попроси FirstSpawn найти твой следующий мир...",
-        "submitLabel": "ОТПРАВИТЬ"
-      },
-      "demoThread": {
-        "userPrompt": "Найди мне проверенный survival-сервер с сильным сообществом и стабильной активностью.",
-        "assistantReply": "Сканирую проверенные сигналы. Я нашел сильное совпадение для игроков, которым нужны надежный uptime, живой чат и пространство для роста.",
-        "recommendationCard": {
-          "title": "Aetheria Prime",
-          "description": "Мир survival со стабильной экономикой, активными модераторами и социальной базой игроков, которая не затихает после прайм-тайма.",
-          "statusLabel": "ЛУЧШЕЕ СОВПАДЕНИЕ",
-          "matchLabel": "98% СОВПАДЕНИЕ",
-          "tags": ["SURVIVAL", "ЭКОНОМИКА", "СООБЩЕСТВО"]
-        }
-      }
-    },
-    "proof": {
-      "eyebrow": "ПОПУЛЯРНОЕ",
-      "title": "ПОПУЛЯРНОЕ СЕРВЕРЫ"
-    },
-    "finalCta": {
-      "title": "ГОТОВ ВЗЯТЬ КВЕСТ?",
-      "subtitle": "Открой Discover, сравни live-сигналы и найди сервер для следующей сессии.",
-      "primaryLabel": "НАЧАТЬ ПОИСК",
-      "secondaryLabel": "ПОЛУЧАТЬ НОВОСТИ"
     },
     "newsletter": {
       "title": "ПОЛУЧАТЬ НОВОСТИ О ЗАПУСКЕ",

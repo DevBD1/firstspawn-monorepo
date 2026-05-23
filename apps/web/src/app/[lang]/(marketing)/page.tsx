@@ -1,28 +1,41 @@
 import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 import LandingTerminalHero from "@/features/landing/components/LandingTerminalHero.client";
-import LandingDiscoveryFork from "@/features/landing/components/LandingDiscoveryFork.client";
-import LandingServerGrid from "@/features/landing/components/LandingServerGrid.client";
 import LandingFeatureBlocks from "@/features/landing/components/LandingFeatureBlocks.client";
-import LandingActionPrompt from "@/features/landing/components/LandingActionPrompt.client";
-import LandingNewsletterBlock from "@/features/landing/components/LandingNewsletterBlock.client";
 import { getLandingContent } from "@/features/landing/lib/landing-content";
-import { fetchServers, type PublicServerListItem } from "@/lib/servers-api";
+import {
+  fetchServers,
+  fetchServerStats,
+  type PublicServerListItem,
+  type PublicServerStats,
+} from "@/lib/servers-api";
 import LandingProblemSolution from "@/features/landing/components/LandingProblemSolution.client";
+import LandingReturnCta from "@/features/landing/components/LandingReturnCta.client";
 import LandingVisualsControl from "@/features/landing/components/LandingVisualsControl.client";
+import { getServerCardCopy } from "@/features/server/lib/server-copy";
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
   const lang = resolveLocaleParam(langParam);
   const dictionary = await getDictionary(lang);
   const content = getLandingContent(dictionary);
+  const serverCardCopy = getServerCardCopy(dictionary);
   let servers: PublicServerListItem[] = [];
+  let stats: PublicServerStats = {
+    checked_recently: 0,
+    total_active_servers: 0,
+    total_online_players: 0,
+  };
 
   try {
-    const data = await fetchServers({ limit: 6, sort: "players" });
-    servers = data.servers;
+    const [serversData, statsData] = await Promise.all([
+      fetchServers({ limit: 6, sort: "players" }),
+      fetchServerStats(),
+    ]);
+    servers = serversData.servers;
+    stats = statsData;
   } catch (error) {
-    console.error("Failed to fetch landing server proof:", error);
+    console.error("Failed to fetch landing discovery console data:", error);
   }
 
   return (
@@ -37,34 +50,19 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
 
         {/* HERO - The Entry Point */}
         <div className="mx-auto w-full max-w-6xl">
-          <LandingTerminalHero content={content} lang={lang} />
+          <LandingTerminalHero
+            content={content}
+            lang={lang}
+            serverCardCopy={serverCardCopy}
+            servers={servers}
+            stats={stats}
+          />
         </div>
 
         {/* MAIN MODULE STACK */}
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col space-y-48">
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col space-y-24 md:space-y-32">
           {/* Section Connector 1 - Central Spine */}
           <div className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-px bg-primary/20 -z-10" />
-
-          {/* Module: The Problem and The Vision */}
-          <div className="relative">
-            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <LandingProblemSolution content={content} />
-          </div>
-
-          {/* Module: The Core Shift (Problem vs Solution) */}
-          <div className="relative">
-            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <LandingDiscoveryFork content={content} lang={lang} />
-          </div>
-
-          {/* Module: The Data Grid */}
-          <div className="relative">
-            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <LandingServerGrid content={content} servers={servers} lang={lang} />
-          </div>
 
           {/* Module: Features */}
           <div className="relative">
@@ -73,17 +71,13 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
             <LandingFeatureBlocks content={content} />
           </div>
 
-          {/* Module: Action Prompt */}
+          {/* Module: The Problem and The Vision */}
           <div className="relative">
             <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
             <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-20 h-px bg-primary/30 hidden lg:block" />
-            <LandingActionPrompt content={content} lang={lang} />
+            <LandingProblemSolution content={content} />
+            <LandingReturnCta content={content} />
           </div>
-        </div>
-
-        {/* FOOTER CONNECTOR */}
-        <div className="mx-auto mt-32 w-full max-w-6xl pt-32 border-t-4 border-black">
-          <LandingNewsletterBlock dictionary={dictionary} lang={lang} id="newsletter" />
         </div>
       </div>
     </main>

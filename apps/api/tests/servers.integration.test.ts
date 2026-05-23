@@ -374,6 +374,7 @@ describe("servers integration", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().data).toEqual({
+      checked_recently: 2,
       total_active_servers: 2,
       total_online_players: 18,
     });
