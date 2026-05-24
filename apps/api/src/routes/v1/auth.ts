@@ -29,6 +29,7 @@ import {
 const RESTORE_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const SOFT_DELETE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 const EXPEDITE_DELETE_WINDOW_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_LOCALE = "en";
 
 const localeSchema = z.enum(["en", "tr", "de", "ru", "es", "fr"]);
 const usernameRegex = /^[a-zA-Z0-9_]{3,32}$/;
@@ -252,7 +253,7 @@ const userPayload = (user: UserRecord) => ({
   email_confirmed_at: user.emailConfirmedAt?.toISOString() ?? null,
   username: user.username,
   status: user.status,
-  locale: user.locale,
+  locale: user.locale ?? DEFAULT_LOCALE,
 });
 
 const duplicateFieldFromError = (error: { constraint?: string; detail?: string }): string => {
@@ -379,7 +380,12 @@ const sendRestoreToken = async (
     updatedAt: now,
   });
 
-  void app.mailer.sendAccountRestoreEmail(user.email, rawToken, purgeAfter, user.locale);
+  void app.mailer.sendAccountRestoreEmail(
+    user.email,
+    rawToken,
+    purgeAfter,
+    user.locale ?? DEFAULT_LOCALE
+  );
 };
 
 const findActiveRestoreToken = async (
@@ -533,7 +539,7 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       });
 
       const tokens = await createSessionAndTokens(app, user, request);
-      void app.mailer.sendVerificationEmail(user.email, rawToken, user.locale);
+      void app.mailer.sendVerificationEmail(user.email, rawToken, user.locale ?? DEFAULT_LOCALE);
 
       const response = successEnvelope({ user: userPayload(user), tokens }, request.id);
       return reply.status(201).send(response);
