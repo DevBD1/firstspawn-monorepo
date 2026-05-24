@@ -196,28 +196,28 @@
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
     "discoveryConsole": {
-      "eyebrow": "DISCOVERY CONSOLE",
-      "title": "FIND A SERVER WORTH JOINING",
-      "subtitle": "Search live Minecraft and Hytale listings by real activity, freshness, region, and fit. FirstSpawn opens on discovery because the useful signal should come before the pitch.",
-      "searchLabel": "Search active servers",
-      "searchPlaceholder": "Survival, low ping, economy, community...",
-      "searchSubmitLabel": "Search",
-      "browseAllLabel": "Browse all servers",
-      "ownerLabel": "Run a community? Claim your path through the owner console.",
-      "ownerCtaLabel": "List your server",
+      "eyebrow": "CONSOLE DE DÉCOUVERTE",
+      "title": "TROUVE UN SERVEUR QUI VAUT LE DÉTOUR",
+      "subtitle": "Recherche des serveurs Minecraft et Hytale actifs selon leur activité réelle, leur fraîcheur, leur région et leur pertinence. FirstSpawn commence par la découverte, car le signal utile doit venir avant le discours.",
+      "searchLabel": "Rechercher des serveurs actifs",
+      "searchPlaceholder": "Survie, faible latence, économie, communauté...",
+      "searchSubmitLabel": "Rechercher",
+      "browseAllLabel": "Parcourir tous les serveurs",
+      "ownerLabel": "Tu gères une communauté ? Revendique ton parcours depuis la console propriétaire.",
+      "ownerCtaLabel": "Référencer ton serveur",
       "stats": {
-        "activeServers": "Active servers",
-        "onlinePlayers": "Online players",
+        "activeServers": "Serveurs actifs",
+        "onlinePlayers": "Joueurs en ligne",
         "checkedRecently": "Vérifiés récemment"
       },
       "serverPreview": {
-        "emptyTitle": "Catalog signals are warming up",
-        "emptyDescription": "No public servers are available from the API right now. Discovery stays the primary path, and this console will populate from live catalog data as targets come online.",
-        "liveLabel": "online",
-        "offlineLabel": "offline",
-        "rankedByLabel": "Ranked by",
-        "maxPlayersLabel": "max players",
-        "verifiedLabel": "Catalog checked"
+        "emptyTitle": "Les signaux du catalogue se préparent",
+        "emptyDescription": "Aucun serveur public n'est disponible depuis l'API pour le moment. La découverte reste le parcours principal, et cette console se remplira avec les données actives du catalogue lorsque les cibles seront en ligne.",
+        "liveLabel": "en ligne",
+        "offlineLabel": "hors ligne",
+        "rankedByLabel": "Classé par",
+        "maxPlayersLabel": "joueurs maximum",
+        "verifiedLabel": "Catalogue vérifié"
       }
     },
     "problemSolution": {
