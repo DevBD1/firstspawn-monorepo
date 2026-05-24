@@ -41,6 +41,7 @@ type PublicServerListRow = {
   sortSecondary: number;
 };
 type PublicStatsRow = {
+  checked_recently: number;
   total_active_servers: number;
   total_online_players: number;
 };
@@ -211,6 +212,7 @@ const publicDetailResponseSchema = envelopeSchema(
 
 const publicStatsResponseSchema = envelopeSchema(
   z.object({
+    checked_recently: z.number().int().nonnegative(),
     total_active_servers: z.number().int().nonnegative(),
     total_online_players: z.number().int().nonnegative(),
   })
@@ -478,6 +480,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
   // Simple in-memory cache for stats to reduce DB load
   let cachedStats: {
+    checked_recently: number;
     total_active_servers: number;
     total_online_players: number;
     last_fetched_at: number;
@@ -498,6 +501,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       if (cachedStats && now - cachedStats.last_fetched_at < STATS_CACHE_TTL_MS) {
         return successEnvelope(
           {
+            checked_recently: cachedStats.checked_recently,
             total_active_servers: cachedStats.total_active_servers,
             total_online_players: cachedStats.total_online_players,
           },
@@ -510,6 +514,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const countsResult = await app.db.pool.query<PublicStatsRow>(
         `
           select
+            (count(s.id) filter (where s.last_probe_attempt_at >= $1))::integer as checked_recently,
             count(s.id)::integer as total_active_servers,
             coalesce(
               sum(
@@ -535,6 +540,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const counts = countsResult.rows[0];
 
       const stats = {
+        checked_recently: counts?.checked_recently ?? 0,
         total_active_servers: counts?.total_active_servers ?? 0,
         total_online_players: counts?.total_online_players ?? 0,
       };

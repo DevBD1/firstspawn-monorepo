@@ -5,7 +5,6 @@ import { useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import {
-  ShieldCheck,
   Activity,
   Database,
   Heart,
@@ -17,7 +16,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { EXTERNAL_LINKS, SOCIAL_LINKS as SOCIAL_DATA } from "@/lib/links";
-import { PixelButton } from "@firstspawn/ui";
+import NewsletterCaptcha from "@/features/captcha/components/NewsletterCaptcha.client";
+import NewsletterSignup from "@/features/landing/components/NewsletterSignup.client";
+import { useNewsletterSignup } from "@/features/landing/hooks/useNewsletterSignup";
 
 export interface FooterProps {
   dictionary: AppDictionary;
@@ -58,6 +59,18 @@ function FooterSection({ children, id, isOpen, onToggle, title }: FooterSectionP
 export default function Footer({ dictionary }: FooterProps) {
   const pathname = usePathname();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const lang = pathname?.split("/").filter(Boolean)[0] ?? "en";
+  const {
+    confirmEmailSent,
+    email,
+    isSubscribed,
+    showCaptcha,
+    statusMessage,
+    closeCaptcha,
+    handleSubscribe,
+    handleVerifySuccess,
+    setEmail,
+  } = useNewsletterSignup(lang, dictionary);
 
   // Hide footer on Discover page to avoid bad UX with infinite scrolling
   if (pathname?.includes("/discover")) {
@@ -90,8 +103,11 @@ export default function Footer({ dictionary }: FooterProps) {
       />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mb-16 hidden gap-8 border-b-4 border-gray-800 pb-12 md:grid md:grid-cols-2">
-          <div>
+        <div
+          id="newsletter"
+          className="mb-16 grid gap-8 border-b-4 border-gray-800 pb-12 md:grid-cols-2 md:items-start"
+        >
+          <div className="max-w-md">
             <h2 className="mb-4 font-display text-xl leading-relaxed text-white md:text-2xl">
               {dictionary.footer.cta.title}
               <br />
@@ -100,39 +116,18 @@ export default function Footer({ dictionary }: FooterProps) {
             <p className="mb-6 max-w-md font-ui text-xl text-gray-400">
               {dictionary.footer.cta.subtitle}
             </p>
-            <div className="flex flex-wrap gap-4">
-              <PixelButton disabled className="cursor-not-allowed opacity-60">
-                {dictionary.footer.cta.getStarted}
-              </PixelButton>
-              <PixelButton variant="outline" disabled className="cursor-not-allowed opacity-60">
-                {dictionary.footer.cta.owners}
-              </PixelButton>
-            </div>
           </div>
 
-          <div className="flex flex-col items-start justify-center space-y-4 md:items-end">
-            <div className="hidden w-full max-w-sm border-2 border-gray-700 bg-[#1a1a1a] p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.5)] md:block">
-              <div className="mb-2 flex items-center space-x-3">
-                <ShieldCheck className="text-success" />
-                <span className="font-display text-xs text-success">
-                  {dictionary.footer.stats.title}
-                </span>
-              </div>
-              <div className="space-y-2 font-ui text-lg text-gray-300">
-                <div className="flex justify-between">
-                  <span>{dictionary.footer.stats.fakeVotes}</span>
-                  <span className="text-white">{dictionary.footer.stats.fakeVotesValue}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{dictionary.footer.stats.uptime}</span>
-                  <span className="text-white">{dictionary.footer.stats.uptimeValue}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{dictionary.footer.stats.filters}</span>
-                  <span className="text-fs-diamond">{dictionary.footer.stats.filtersValue}</span>
-                </div>
-              </div>
-            </div>
+          <div className="w-full">
+            <NewsletterSignup
+              dictionary={dictionary}
+              confirmEmailSent={confirmEmailSent}
+              email={email}
+              isSubscribed={isSubscribed}
+              onEmailChange={setEmail}
+              onSubmit={handleSubscribe}
+              statusMessage={statusMessage}
+            />
           </div>
         </div>
 
@@ -281,6 +276,12 @@ export default function Footer({ dictionary }: FooterProps) {
           </div>
         </div>
       </div>
+      <NewsletterCaptcha
+        dictionary={dictionary}
+        isOpen={showCaptcha}
+        onClose={closeCaptcha}
+        onVerify={handleVerifySuccess}
+      />
     </footer>
   );
 }

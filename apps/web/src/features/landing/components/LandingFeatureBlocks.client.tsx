@@ -10,12 +10,16 @@ interface LandingFeatureBlocksProps {
 
 export default function LandingFeatureBlocks({ content }: LandingFeatureBlocksProps) {
   return (
-    <section className="space-y-12 py-16">
-      <div className="text-left max-w-4xl border-l-4 border-primary pl-8">
-        <h2 className="font-ui text-4xl uppercase mb-4 text-foreground">
+    <section className="space-y-12 py-12 md:py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <span className="mb-4 block font-ui text-xs uppercase tracking-[0.5em] text-primary">
+          {content.landing.features.eyebrow}
+        </span>
+        <h2 className="mb-6 font-ui text-4xl uppercase text-foreground md:text-5xl">
           {content.landing.features.title}
         </h2>
-        <p className="font-body text-foreground/80 leading-relaxed text-lg">
+        <div className="mx-auto mb-8 h-1 w-24 bg-primary opacity-50" />
+        <p className="mx-auto max-w-2xl font-body text-base leading-relaxed text-foreground/80 md:text-lg">
           {content.landing.features.subtitle}
         </p>
       </div>

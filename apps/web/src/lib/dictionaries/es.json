@@ -195,67 +195,35 @@
     "scene": {
       "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
     },
-    "questBoard": {
-      "eyebrow": "TABLERO DE MISIONES",
-      "title": "ELIGE TU PRÓXIMA MISIÓN DE SERVIDOR",
-      "subtitle": "Empieza con discovery de Minecraft en vivo, uptime verificado y una clasificación justa que no vende el primer puesto.",
-      "statusLabel": "SISTEMA",
-      "statusValue": "ONLINE",
-      "betaLabel": "ACCESO BETA",
-      "primaryLabel": "EMPEZAR A DESCUBRIR",
-      "secondaryLabel": "RECIBIR NOVEDADES",
-      "quests": [
-        {
-          "title": "ENCUENTRA UN MUNDO",
-          "description": "Busca servidores activos por jugadores, ping, región y modo sin ruido de posicionamiento pagado.",
-          "rewardLabel": "RECOMPENSA",
-          "rewardValue": "MATCH MÁS RÁPIDO",
-          "statusLabel": "EN VIVO",
-          "statusValue": "AHORA"
-        },
-        {
-          "title": "VERIFICA LA SEÑAL",
-          "description": "Usa checks de frescura y uptime para evitar listados muertos antes de entrar.",
-          "rewardLabel": "RECOMPENSA",
-          "rewardValue": "MENOS PÉRDIDA",
-          "statusLabel": "EN VIVO",
-          "statusValue": "AHORA"
-        },
-        {
-          "title": "CONSTRUYE REPUTACIÓN",
-          "description": "Reseñas, favoritos, insignias y loot loops se preparan como la próxima capa de confianza.",
-          "rewardLabel": "RECOMPENSA",
-          "rewardValue": "PRÓXIMAMENTE",
-          "statusLabel": "SIGUIENTE",
-          "statusValue": "FASE"
-        }
-      ]
-    },
-    "roadmap": {
-      "eyebrow": "DISPONIBLE / PRÓXIMAMENTE",
-      "title": "LO QUE LOS JUGADORES PUEDEN USAR",
-      "items": [
-        {
-          "title": "DISCOVERY DE SERVIDORES",
-          "statusLabel": "DISPONIBLE AHORA",
-          "description": "Explora listados públicos de servidores Minecraft y abre la vista completa de discovery."
-        },
-        {
-          "title": "CHECKS DE UPTIME",
-          "statusLabel": "DISPONIBLE AHORA",
-          "description": "Usa señales de frescura en vivo para evitar servidores muertos o desactualizados."
-        },
-        {
-          "title": "REPUTACIÓN DE JUGADOR",
-          "statusLabel": "PRÓXIMAMENTE",
-          "description": "Reseñas ganadas, favoritos, insignias y señales de confianza serán el próximo loop."
-        }
-      ]
+    "discoveryConsole": {
+      "eyebrow": "CONSOLA DE DESCUBRIMIENTO",
+      "title": "ENCUENTRA UN SERVIDOR QUE VALGA LA PENA UNIRSE",
+      "subtitle": "Busca listados activos de Minecraft y Hytale por actividad real, frescura, región y afinidad. FirstSpawn empieza por el descubrimiento porque la señal útil debe llegar antes que el discurso.",
+      "searchLabel": "Buscar servidores activos",
+      "searchPlaceholder": "Supervivencia, baja latencia, economía, comunidad...",
+      "searchSubmitLabel": "Buscar",
+      "browseAllLabel": "Ver todos los servidores",
+      "ownerLabel": "¿Diriges una comunidad? Reclama tu ruta desde la consola de propietarios.",
+      "ownerCtaLabel": "Publica tu servidor",
+      "stats": {
+        "activeServers": "Servidores activos",
+        "onlinePlayers": "Jugadores en línea",
+        "checkedRecently": "Revisados recientemente"
+      },
+      "serverPreview": {
+        "emptyTitle": "Las señales del catálogo se están preparando",
+        "emptyDescription": "Ahora mismo no hay servidores públicos disponibles desde la API. El descubrimiento sigue siendo la ruta principal, y esta consola se llenará con datos activos del catálogo cuando los objetivos entren en línea.",
+        "liveLabel": "en línea",
+        "offlineLabel": "sin conexión",
+        "rankedByLabel": "Ordenado por",
+        "maxPlayersLabel": "jugadores máximos",
+        "verifiedLabel": "Catálogo verificado"
+      }
     },
     "problemSolution": {
       "eyebrow": "COMPARACIÓN DEL SISTEMA",
       "title": "DISCOVERY: REDEFINIDO",
-      "subtitle": "No solo creamos una mejor lista de servidores. Diseñamos un protocolo claro para corregir una década de estancamiento impulsado por bots.",
+      "subtitle": "Compara servidores por actividad real, frescura y encaje, no por ruido de posicionamiento pagado.",
       "problem": {
         "statusLabel": "ERR://DETERIORO_DETECTADO",
         "title": "EL DETERIORO\nDEL LISTADO",
@@ -285,98 +253,13 @@
         ]
       }
     },
-    "discoveryFork": {
-      "title": "DISCOVERY: REDEFINIDO",
-      "subtitle": "Una plataforma. Dos mundos paralelos. Elige tu enlace.",
-      "player": {
-        "channelLabel": "[CANAL_01: JUGADOR]",
-        "title": "DISCOVERY\nNEURAL",
-        "description": "Encuentra joyas ocultas con métricas deep-pulse de tiempo de juego y reputación comunitaria.",
-        "actionLabel": "EMPEZAR_A_EXPLORAR"
-      },
-      "host": {
-        "channelLabel": "[CANAL_02: HOST]",
-        "title": "CENTRO DE\nINTELIGENCIA",
-        "description": "Accede a mapas de crecimiento en tiempo real y demografía precisa de jugadores.",
-        "actionLabel": "ACCEDER_AL_PANEL"
-      }
-    },
-    "trust": {
-      "eyebrow": "DISCOVERY JUSTO",
-      "title": "ORDENADO POR SEÑAL, NO POR GASTO",
-      "subtitle": "La página puede sentirse como un juego, pero las reglas de ranking siguen siendo serias.",
-      "items": [
-        {
-          "title": "FRESCURA EN VIVO",
-          "description": "El estado del servidor se deriva de actividad reciente de heartbeat, para que mundos offline no parezcan activos.",
-          "statusLabel": "ACTIVO"
-        },
-        {
-          "title": "SIN VENTA DE PRIMER PUESTO",
-          "description": "FirstSpawn se basa en relevancia y confianza, no en comprar el listado más visible.",
-          "statusLabel": "POLÍTICA"
-        },
-        {
-          "title": "FILTROS PARA JUGADORES",
-          "description": "Discovery empieza con lo que importa: comunidades activas, latencia, versión y encaje del servidor.",
-          "statusLabel": "MVP"
-        }
-      ]
-    },
-    "serverProof": {
-      "eyebrow": "CATÁLOGO EN VIVO",
-      "title": "PRUEBA DE SERVIDOR SIN HYPE FALSO",
-      "subtitle": "Cuando hay datos de catálogo, el tablero muestra listados reales. Cuando no, lo dice claro.",
-      "emptyTitle": "LAS SEÑALES DEL CATÁLOGO SE ESTÁN PREPARANDO",
-      "emptyDescription": "La API no devuelve servidores públicos ahora mismo. Discovery sigue siendo la ruta principal, y este panel se llenará con datos de catálogo en vivo cuando los objetivos estén online.",
-      "liveLabel": "DATOS EN VIVO",
-      "rankedByLabel": "ORDENADO POR",
-      "playerHelperSuffix": "JUGADORES MÁX.",
-      "viewAllLabel": "VER DISCOVER",
-      "verifiedLabel": "CATÁLOGO CHECKEADO"
-    },
-    "progression": {
-      "eyebrow": "SIGUIENTE BUCLE DE CONFIANZA",
-      "title": "PROGRESIÓN QUE GANA CONFIANZA",
-      "subtitle": "La gamificación se planea como prueba de actividad útil, no como ruido cosmético.",
-      "items": [
-        {
-          "title": "INSIGNIAS VERIFICADAS",
-          "description": "Las futuras insignias deberían marcar uptime real, verificación de dueño y comportamiento de comunidad.",
-          "stateLabel": "PRÓXIMAMENTE"
-        },
-        {
-          "title": "ESCALERA DE REPUTACIÓN",
-          "description": "Las acciones de jugadores pueden convertirse en señales de confianza cuando estén listas las gates de reseñas y actividad.",
-          "stateLabel": "PLANEADO"
-        },
-        {
-          "title": "LOOT LOOP",
-          "description": "Las recompensas deberían traer de vuelta a jugadores sin distorsionar la justicia del ranking.",
-          "stateLabel": "PLANEADO"
-        }
-      ]
-    },
-    "hero": {
-      "statusLabel": "ESTADO",
-      "statusValue": "ACTIVO",
-      "title": "DESCUBRE TU\nPRÓXIMA AVENTURA",
-      "subtitle": "La primera plataforma verificada para descubrir servidores de Minecraft y Hytale. Jugadores reales. Uptime real. Comunidades reales.",
-      "explorerLabel": "EXPLORERS",
-      "metrics": {
-        "livePlayers": "JUGADORES EN VIVO",
-        "registeredExplorers": "EXPLORERS REGISTRADOS",
-        "registeredServers": "SERVIDORES REGISTRADOS"
-      },
-      "actions": {
-        "primaryLabel": "EMPEZAR A DESCUBRIR",
-        "secondaryLabel": "AGREGA TU SERVIDOR"
-      }
+    "returnCta": {
+      "label": "IR ARRIBA"
     },
     "features": {
       "eyebrow": "TRUST SIGNALS",
       "title": "¿POR QUÉ FIRSTSPAWN?",
-      "subtitle": "Hecho de forma distinta para la comunidad voxel",
+      "subtitle": "Hecho de forma distinta para jugadores que quieren señales frescas, actividad real y encaje antes que hype.",
       "items": [
         {
           "title": "UPTIME VERIFICADO",
@@ -395,52 +278,6 @@
           "description": "Forma alianzas, compite en clasificaciones y desbloquea recompensas exclusivas."
         }
       ]
-    },
-    "howItWorks": {
-      "title": "CÓMO FUNCIONA",
-      "items": [
-        {
-          "title": "DESCUBRE",
-          "description": "Explora servidores verificados con reseñas reales y datos de uptime en vivo."
-        },
-        {
-          "title": "CONECTA",
-          "description": "Únete con un clic. Tu perfil se sincroniza en todos los juegos compatibles."
-        },
-        {
-          "title": "CONTRIBUYE",
-          "description": "Deja reseñas, gana insignias y sube en la reputación."
-        }
-      ]
-    },
-    "discoveryChat": {
-      "title": "DISCOVERY CONSOLE",
-      "assistantWaitingMessage": "Las respuestas de discovery en vivo llegarán pronto. Tu consulta ya está lista para el flujo real de chat.",
-      "composer": {
-        "placeholder": "Pídele a FirstSpawn que encuentre tu próximo mundo...",
-        "submitLabel": "ENVIAR"
-      },
-      "demoThread": {
-        "userPrompt": "Encuéntrame un servidor survival verificado con una comunidad fuerte y actividad constante.",
-        "assistantReply": "Escaneando señales verificadas. Encontré una coincidencia fuerte para jugadores que buscan uptime confiable, un chat activo y espacio para crecer.",
-        "recommendationCard": {
-          "title": "Aetheria Prime",
-          "description": "Mundo survival con economía estable, moderadores activos y una base social de jugadores que sigue viva después de la hora pico.",
-          "statusLabel": "MEJOR COINCIDENCIA",
-          "matchLabel": "98% MATCH",
-          "tags": ["SURVIVAL", "ECONOMÍA", "COMUNIDAD"]
-        }
-      }
-    },
-    "proof": {
-      "eyebrow": "POPULAR",
-      "title": "POPULAR SERVIDORES"
-    },
-    "finalCta": {
-      "title": "¿LISTO PARA TOMAR UNA MISIÓN?",
-      "subtitle": "Abre Discover, compara señales en vivo y encuentra un servidor para tu próxima sesión.",
-      "primaryLabel": "EMPEZAR A DESCUBRIR",
-      "secondaryLabel": "RECIBIR NOVEDADES"
     },
     "newsletter": {
       "title": "RECIBE NOVEDADES DEL LANZAMIENTO",

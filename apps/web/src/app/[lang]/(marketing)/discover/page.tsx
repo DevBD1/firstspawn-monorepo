@@ -8,9 +8,24 @@ import { fetchServers, fetchServerStats, type PublicServerListItem } from "@/lib
 
 export const revalidate = 60;
 
-export default async function DiscoverPage({ params }: { params: Promise<{ lang: string }> }) {
+interface DiscoverPageProps {
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ q?: string | string[] }>;
+}
+
+const resolveInitialQuery = (value?: string | string[]) => {
+  if (Array.isArray(value)) {
+    return value[0]?.trim() ?? "";
+  }
+
+  return value?.trim() ?? "";
+};
+
+export default async function DiscoverPage({ params, searchParams }: DiscoverPageProps) {
   const { lang: langParam } = await params;
+  const queryParams = await searchParams;
   const lang = resolveLocaleParam(langParam);
+  const initialQuery = resolveInitialQuery(queryParams.q);
   const dictionary = (await getDictionary(lang)) as AppDictionary;
   const copy = getDiscoverCopy(dictionary);
   const serverCardCopy = getServerCardCopy(dictionary);
@@ -20,11 +35,11 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
     next_cursor: null,
     limit: 24,
   };
-  let globalStats = { total_active_servers: 0, total_online_players: 0 };
+  let globalStats = { checked_recently: 0, total_active_servers: 0, total_online_players: 0 };
 
   try {
     const [serversData, statsData] = await Promise.all([
-      fetchServers({ limit: 24, sort: "players" }),
+      fetchServers({ limit: 24, sort: "players", q: initialQuery || undefined }),
       fetchServerStats(),
     ]);
     initialServers = serversData.servers;
@@ -41,6 +56,7 @@ export default async function DiscoverPage({ params }: { params: Promise<{ lang:
       initialServers={initialServers}
       initialPagination={initialPagination}
       initialGlobalStats={globalStats}
+      initialQuery={initialQuery}
       serverCardCopy={serverCardCopy}
     />
   );
