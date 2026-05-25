@@ -503,9 +503,9 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
               passwordHash: hashPassword(payload.password),
               status: "active",
               locale: payload.locale,
-              termsAccepted: payload.terms_accepted ? now : null,
-              privacyAccepted: payload.privacy_accepted ? now : null,
-              marketingConsent: payload.marketing_consent ? now : null,
+              termsAcceptedAt: payload.terms_accepted ? now : null,
+              privacyAcceptedAt: payload.privacy_accepted ? now : null,
+              marketingConsentAt: payload.marketing_consent ? now : null,
               lastLoginAt: now,
               updatedAt: now,
             })

@@ -46,7 +46,6 @@ type PublicStatsRow = {
   total_online_players: number;
 };
 
-const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
 const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
@@ -82,8 +81,7 @@ const serverBaseSchema = z.object({
   freshness_status: freshnessStatusSchema,
   online_mode: z.boolean(),
   countryCode: z.string().nullable(),
-  website_url: z.string().nullable(),
-  discord_url: z.string().nullable(),
+
   last_ping_at: z.string().datetime().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -127,8 +125,6 @@ const adminCreateBodySchema = z.object({
   status: adminStatusSchema.default("active"),
   online_mode: z.boolean().default(true),
   countryCode: z.string().trim().length(2).nullable().optional(),
-  website_url: urlOrNullSchema,
-  discord_url: urlOrNullSchema,
 });
 
 const adminUpdateBodySchema = z
@@ -140,8 +136,6 @@ const adminUpdateBodySchema = z
     port: z.number().int().min(1).max(65535).optional(),
     online_mode: z.boolean().optional(),
     countryCode: z.string().trim().length(2).nullable().optional(),
-    website_url: urlOrNullSchema,
-    discord_url: urlOrNullSchema,
   })
   .refine((payload) => Object.keys(payload).length > 0, {
     message: "At least one field must be provided.",
@@ -319,8 +313,7 @@ const normalizeServerPayload = (
   freshness_status: "online" | "offline" | "unknown";
   online_mode: boolean;
   countryCode: string | null;
-  website_url: string | null;
-  discord_url: string | null;
+
   last_ping_at: string | null;
   created_at: string;
   updated_at: string;
@@ -334,10 +327,8 @@ const normalizeServerPayload = (
   game: server.game as "mc_java" | "mc_bedrock" | "hytale",
   catalog_status: server.status as "active" | "suspended" | "archived",
   freshness_status: freshnessFromServer(server, nowMs),
-  online_mode: server.onlineMode,
-  countryCode: server.countryCode ?? null,
-  website_url: server.websiteUrl ?? null,
-  discord_url: server.discordUrl ?? null,
+  online_mode: !server.isCracked,
+  countryCode: server.countryCode,
   last_ping_at: server.lastPingAt ? server.lastPingAt.toISOString() : null,
   created_at: server.createdAt.toISOString(),
   updated_at: server.updatedAt.toISOString(),
@@ -641,10 +632,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             port: payload.port,
             game: "mc_java",
             status: payload.status,
-            onlineMode: payload.online_mode,
-            countryCode: toNullable(payload.countryCode),
-            websiteUrl: toNullable(payload.website_url),
-            discordUrl: toNullable(payload.discord_url),
+            isCracked: !payload.online_mode,
+            countryCode: toNullable(payload.countryCode) ?? "WW",
             updatedAt: now,
           })
           .returning();
@@ -749,16 +738,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         patch.port = request.body.port;
       }
       if (request.body.online_mode !== undefined) {
-        patch.onlineMode = request.body.online_mode;
+        patch.isCracked = !request.body.online_mode;
       }
       if (request.body.countryCode !== undefined) {
-        patch.countryCode = toNullable(request.body.countryCode);
-      }
-      if (request.body.website_url !== undefined) {
-        patch.websiteUrl = toNullable(request.body.website_url);
-      }
-      if (request.body.discord_url !== undefined) {
-        patch.discordUrl = toNullable(request.body.discord_url);
+        patch.countryCode = toNullable(request.body.countryCode) ?? "WW";
       }
 
       let updated: ServerRecord;
