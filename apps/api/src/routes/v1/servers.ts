@@ -27,7 +27,7 @@ type PublicServerListRow = {
   description: string;
   game: "mc_java" | "mc_bedrock" | "hytale";
   status: "active" | "suspended" | "archived";
-  region: string | null;
+  countryCode: string | null;
   lastPingAt: Date | null;
   lastProbeAttemptAt: Date | null;
   probeStatus: "online" | "offline" | "unknown" | "unreachable";
@@ -81,7 +81,7 @@ const serverBaseSchema = z.object({
   catalog_status: adminStatusSchema,
   freshness_status: freshnessStatusSchema,
   online_mode: z.boolean(),
-  region: z.string().nullable(),
+  countryCode: z.string().nullable(),
   website_url: z.string().nullable(),
   discord_url: z.string().nullable(),
   last_ping_at: z.string().datetime().nullable(),
@@ -126,7 +126,7 @@ const adminCreateBodySchema = z.object({
   game: z.literal("mc_java").default("mc_java"),
   status: adminStatusSchema.default("active"),
   online_mode: z.boolean().default(true),
-  region: z.string().trim().min(1).max(50).nullable().optional(),
+  countryCode: z.string().trim().length(2).nullable().optional(),
   website_url: urlOrNullSchema,
   discord_url: urlOrNullSchema,
 });
@@ -139,7 +139,7 @@ const adminUpdateBodySchema = z
     host: z.string().trim().min(1).max(255).optional(),
     port: z.number().int().min(1).max(65535).optional(),
     online_mode: z.boolean().optional(),
-    region: z.string().trim().min(1).max(50).nullable().optional(),
+    countryCode: z.string().trim().length(2).nullable().optional(),
     website_url: urlOrNullSchema,
     discord_url: urlOrNullSchema,
   })
@@ -188,7 +188,7 @@ const publicListResponseSchema = envelopeSchema(
           game: true,
           catalog_status: true,
           freshness_status: true,
-          region: true,
+          countryCode: true,
           last_ping_at: true,
         })
         .extend({
@@ -318,7 +318,7 @@ const normalizeServerPayload = (
   catalog_status: "active" | "suspended" | "archived";
   freshness_status: "online" | "offline" | "unknown";
   online_mode: boolean;
-  region: string | null;
+  countryCode: string | null;
   website_url: string | null;
   discord_url: string | null;
   last_ping_at: string | null;
@@ -335,7 +335,7 @@ const normalizeServerPayload = (
   catalog_status: server.status as "active" | "suspended" | "archived",
   freshness_status: freshnessFromServer(server, nowMs),
   online_mode: server.onlineMode,
-  region: server.region ?? null,
+  countryCode: server.countryCode ?? null,
   website_url: server.websiteUrl ?? null,
   discord_url: server.discordUrl ?? null,
   last_ping_at: server.lastPingAt ? server.lastPingAt.toISOString() : null,
@@ -642,7 +642,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             game: "mc_java",
             status: payload.status,
             onlineMode: payload.online_mode,
-            region: toNullable(payload.region),
+            countryCode: toNullable(payload.countryCode),
             websiteUrl: toNullable(payload.website_url),
             discordUrl: toNullable(payload.discord_url),
             updatedAt: now,
@@ -751,8 +751,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       if (request.body.online_mode !== undefined) {
         patch.onlineMode = request.body.online_mode;
       }
-      if (request.body.region !== undefined) {
-        patch.region = toNullable(request.body.region);
+      if (request.body.countryCode !== undefined) {
+        patch.countryCode = toNullable(request.body.countryCode);
       }
       if (request.body.website_url !== undefined) {
         patch.websiteUrl = toNullable(request.body.website_url);
@@ -957,7 +957,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             s.description,
             s.game,
             s.status,
-            s.region,
+            s.countryCode,
             s.last_ping_at as "lastPingAt",
             s.last_probe_attempt_at as "lastProbeAttemptAt",
             s.probe_status as "probeStatus",
@@ -1013,7 +1013,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             game: row.game,
             catalog_status: row.status,
             freshness_status: freshnessFromServer(row, nowMs),
-            region: row.region ?? null,
+            countryCode: row.countryCode ?? null,
             last_ping_at: row.lastPingAt ? row.lastPingAt.toISOString() : null,
             latest_metrics: normalizeMetricsPayload(latestHeartbeatFromPublicRow(row)),
           })),

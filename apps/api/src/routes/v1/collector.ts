@@ -61,7 +61,7 @@ const collectorTargetSchema = z.object({
   host: z.string(),
   port: z.number().int().positive(),
   game: z.literal("mc_java"),
-  region: z.string().nullable(),
+  countryCode: z.string().nullable(),
   created_at: z.string().datetime(),
 });
 
@@ -320,7 +320,7 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
           host: servers.host,
           port: servers.port,
           game: servers.game,
-          region: servers.region,
+          countryCode: servers.countryCode,
           createdAt: servers.createdAt,
         })
         .from(servers)
@@ -340,7 +340,7 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
             host: row.host,
             port: row.port,
             game: "mc_java" as const,
-            region: row.region ?? null,
+            countryCode: row.countryCode ?? null,
             created_at: row.createdAt.toISOString(),
           })),
           next_cursor:

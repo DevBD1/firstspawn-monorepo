@@ -1,3 +1,9 @@
+CREATE TABLE "countries" (
+	"iso_a_2" varchar(2) PRIMARY KEY NOT NULL,
+	"iso_a_3" varchar(3) NOT NULL,
+	"name" varchar(100) NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "server_heartbeat_daily" (
 	"server_id" uuid NOT NULL,
 	"bucket_date" date NOT NULL,
@@ -61,6 +67,7 @@ CREATE TABLE "server_heartbeats" (
 CREATE TABLE "servers" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"slug" "citext" NOT NULL,
+	"owner_id" uuid,
 	"name" varchar(64) NOT NULL,
 	"description" text NOT NULL,
 	"host" varchar(255) NOT NULL,
@@ -68,7 +75,7 @@ CREATE TABLE "servers" (
 	"game" varchar(20) NOT NULL,
 	"status" varchar(20) DEFAULT 'active' NOT NULL,
 	"online_mode" boolean DEFAULT true NOT NULL,
-	"region" varchar(50),
+	"country_code" varchar(2),
 	"website_url" varchar(2048),
 	"discord_url" varchar(2048),
 	"last_ping_at" timestamp with time zone,
@@ -87,6 +94,16 @@ CREATE TABLE "servers" (
 	CONSTRAINT "chk_servers_consecutive_probe_failures" CHECK ("servers"."consecutive_probe_failures" >= 0)
 );
 --> statement-breakpoint
+CREATE TABLE "server_supported_clients" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"server_id" uuid NOT NULL,
+	"client_name" varchar(20) NOT NULL,
+	"client_version" varchar(50) NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "chk_server_supported_clients_client_name" CHECK ("server_supported_clients"."client_name" in ('mc_java', 'mc_bedrock', 'hytale'))
+);
+--> statement-breakpoint
 CREATE TABLE "user_deletion_requests" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -100,6 +117,17 @@ CREATE TABLE "user_deletion_requests" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "chk_user_deletion_requests_purge_after" CHECK ("user_deletion_requests"."purge_after" > "user_deletion_requests"."requested_at")
+);
+--> statement-breakpoint
+CREATE TABLE "user_moderation_logs" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"admin_id" uuid,
+	"action" varchar(20) NOT NULL,
+	"reason" text,
+	"expires_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "chk_user_moderation_logs_action" CHECK ("user_moderation_logs"."action" in ('suspended', 'unsuspended', 'warned'))
 );
 --> statement-breakpoint
 CREATE TABLE "user_sessions" (
@@ -126,7 +154,9 @@ CREATE TABLE "users" (
 	"username" "citext" NOT NULL,
 	"password_hash" text,
 	"status" varchar(20) DEFAULT 'active' NOT NULL,
-	"locale" varchar(10) DEFAULT 'en' NOT NULL,
+	"role" varchar(20) DEFAULT 'user' NOT NULL,
+	"locale" varchar(10),
+	"country_code" varchar(2),
 	"terms_accepted" timestamp with time zone,
 	"privacy_accepted" timestamp with time zone,
 	"marketing_consent" timestamp with time zone,
@@ -134,6 +164,7 @@ CREATE TABLE "users" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "chk_users_status" CHECK ("users"."status" in ('active', 'suspended', 'deleted')),
+	CONSTRAINT "chk_users_role" CHECK ("users"."role" in ('user', 'moderator', 'admin')),
 	CONSTRAINT "chk_users_locale" CHECK ("users"."locale" in ('en', 'tr', 'de', 'ru', 'es', 'fr')),
 	CONSTRAINT "chk_users_username_format" CHECK ("users"."username"::text ~ '^[A-Za-z0-9_]{3,32}$')
 );
@@ -150,10 +181,16 @@ CREATE TABLE "verification_tokens" (
 );
 --> statement-breakpoint
 ALTER TABLE "server_heartbeat_daily" ADD CONSTRAINT "server_heartbeat_daily_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "servers" ADD CONSTRAINT "servers_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "servers" ADD CONSTRAINT "servers_country_code_countries_iso_a_2_fk" FOREIGN KEY ("country_code") REFERENCES "countries"("iso_a_2") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "server_heartbeat_hourly" ADD CONSTRAINT "server_heartbeat_hourly_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "server_heartbeats" ADD CONSTRAINT "server_heartbeats_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_supported_clients" ADD CONSTRAINT "server_supported_clients_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_deletion_requests" ADD CONSTRAINT "user_deletion_requests_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_moderation_logs" ADD CONSTRAINT "user_moderation_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_moderation_logs" ADD CONSTRAINT "user_moderation_logs_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "users" ADD CONSTRAINT "users_country_code_countries_iso_a_2_fk" FOREIGN KEY ("country_code") REFERENCES "countries"("iso_a_2") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "verification_tokens" ADD CONSTRAINT "verification_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeat_daily_bucket_date" ON "server_heartbeat_daily" USING btree ("bucket_date");--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeat_hourly_bucket_start" ON "server_heartbeat_hourly" USING btree ("bucket_start");--> statement-breakpoint
@@ -162,17 +199,23 @@ CREATE INDEX "idx_server_heartbeats_occurred_at" ON "server_heartbeats" USING bt
 CREATE INDEX "idx_server_heartbeats_server_occurred" ON "server_heartbeats" USING btree ("server_id","occurred_at");--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeats_server_latest" ON "server_heartbeats" USING btree ("server_id","occurred_at" DESC,"created_at" DESC,"id" DESC);--> statement-breakpoint
 CREATE UNIQUE INDEX "idx_server_heartbeats_server_idempotency" ON "server_heartbeats" USING btree ("server_id","idempotency_key");--> statement-breakpoint
+CREATE INDEX "idx_server_supported_clients_server_id" ON "server_supported_clients" USING btree ("server_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "idx_server_supported_clients_unique" ON "server_supported_clients" USING btree ("server_id","client_name","client_version");--> statement-breakpoint
 CREATE UNIQUE INDEX "servers_slug_unique" ON "servers" USING btree ("slug");--> statement-breakpoint
+CREATE INDEX "idx_servers_owner_id" ON "servers" USING btree ("owner_id");--> statement-breakpoint
 CREATE INDEX "idx_servers_status" ON "servers" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "idx_servers_game" ON "servers" USING btree ("game");--> statement-breakpoint
 CREATE INDEX "idx_servers_probe_status" ON "servers" USING btree ("probe_status");--> statement-breakpoint
 CREATE INDEX "idx_user_deletion_requests_user_id" ON "user_deletion_requests" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_user_deletion_requests_purge_after" ON "user_deletion_requests" USING btree ("purge_after");--> statement-breakpoint
 CREATE UNIQUE INDEX "idx_user_deletion_requests_active_user" ON "user_deletion_requests" USING btree ("user_id") WHERE "user_deletion_requests"."cancelled_at" is null and "user_deletion_requests"."purged_at" is null;--> statement-breakpoint
+CREATE INDEX "idx_user_moderation_logs_user_id" ON "user_moderation_logs" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_user_moderation_logs_admin_id" ON "user_moderation_logs" USING btree ("admin_id");--> statement-breakpoint
 CREATE INDEX "idx_user_sessions_user_id" ON "user_sessions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "idx_user_sessions_expires_at" ON "user_sessions" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "idx_user_sessions_last_seen_at" ON "user_sessions" USING btree ("last_seen_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "users_email_unique" ON "users" USING btree ("email");--> statement-breakpoint
 CREATE UNIQUE INDEX "users_username_unique" ON "users" USING btree ("username");--> statement-breakpoint
 CREATE INDEX "idx_verification_tokens_user_id" ON "verification_tokens" USING btree ("user_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "idx_verification_tokens_token_hash" ON "verification_tokens" USING btree ("token_hash");
+CREATE UNIQUE INDEX "idx_verification_tokens_token_hash" ON "verification_tokens" USING btree ("token_hash");--> statement-breakpoint
+CREATE UNIQUE INDEX "countries_name_unique" ON "countries" USING btree ("name");
