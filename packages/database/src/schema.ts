@@ -104,9 +104,7 @@ export const users = pgTable(
 export const userSessions = pgTable(
   "user_sessions",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -165,9 +163,7 @@ export const userConsentAuditLogs = pgTable(
 export const userDeletionRequests = pgTable(
   "user_deletion_requests",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -200,9 +196,7 @@ export const userDeletionRequests = pgTable(
 export const userModerationLogs = pgTable(
   "user_moderation_logs",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     adminId: uuid("admin_id").references(() => users.id, { onDelete: "set null" }),
 
@@ -226,9 +220,7 @@ export const userModerationLogs = pgTable(
 export const verificationTokens = pgTable(
   "verification_tokens",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -263,9 +255,7 @@ export const countries = pgTable(
 export const servers = pgTable(
   "servers",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     slug: citext("slug").notNull(),
 
     ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
@@ -369,9 +359,7 @@ export const serverSupportedClients = pgTable(
 export const serverHeartbeats = pgTable(
   "server_heartbeats",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
@@ -481,9 +469,7 @@ export const serverHeartbeatDaily = pgTable(
 export const serverModerationLogs = pgTable(
   "server_moderation_logs",
   {
-    id: uuid("id")
-      .primaryKey()
-      .defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     serverId: uuid("server_id").references(() => servers.id, { onDelete: "set null" }),
     adminId: uuid("admin_id").references(() => users.id, { onDelete: "set null" }),
     action: varchar("action", { length: 20 }).notNull(),
