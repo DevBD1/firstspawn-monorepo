@@ -1,24 +1,39 @@
 # @firstspawn/database
 
-Database workspace for Drizzle migrations and local PostgreSQL bootstrap assets.
+Database workspace for the Drizzle runtime schema, shared database client,
+migrations, and local PostgreSQL bootstrap assets.
 
 ## Files
 
 - `schema-design.md`: working ERD and design notes
+- `src/schema.ts`: Drizzle runtime schema and inferred database record types
+- `src/client.ts`: shared Drizzle and `pg` database context helpers
 - `migrations/`: generated SQL migration history
-- `init/`: local bootstrap SQL for Docker
+- `init/`: local Docker extension bootstrap SQL only
 - `drizzle.config.ts`: Drizzle config
 - `jobs/`: SQL jobs for rollup, retention, and active-server selection
 
 ## Source Of Truth
 
-- Canonical schema definition: `packages/database/schema-design.md`
-- Runtime implementation derived from that definition: `apps/api/src/db/schema.ts`
+- Canonical schema design: `packages/database/schema-design.md`
+- Canonical Drizzle runtime schema: `packages/database/src/schema.ts`
 
 ## Commands
 
 ```bash
+pnpm --filter @firstspawn/database build
+pnpm --filter @firstspawn/database typecheck
 pnpm --dir packages/database run generate
+pnpm --dir packages/database run migrate
+```
+
+## Local Bootstrap
+
+Docker init SQL only enables required PostgreSQL extensions. Tables,
+constraints, indexes, and country seed data are owned by Drizzle migrations.
+After creating or recreating a local database, run:
+
+```bash
 pnpm --dir packages/database run migrate
 ```
 

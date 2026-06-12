@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1775597483257,
-      "tag": "0000_tidy_next_avengers",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1777089600000,
-      "tag": "0001_probe_state",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1777813200000,
-      "tag": "0002_latest_heartbeat_index",
+      "when": 1781206548046,
+      "tag": "0000_tidy_outlaw_kid",
       "breakpoints": true
     }
   ]

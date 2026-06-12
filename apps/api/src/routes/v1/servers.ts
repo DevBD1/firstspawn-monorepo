@@ -4,7 +4,12 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { serverHeartbeats, servers } from "../../db/schema.js";
+import {
+  serverHeartbeats,
+  serverSocials,
+  serverSupportedClients,
+  servers,
+} from "@firstspawn/database/schema";
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
 import { requireAdminUser } from "../../lib/request-auth.js";
@@ -27,7 +32,10 @@ type PublicServerListRow = {
   description: string;
   game: "mc_java" | "mc_bedrock" | "hytale";
   status: "active" | "suspended" | "archived";
-  region: string | null;
+  countryCode: string | null;
+  authMode: "official" | "offline_allowed" | "unknown";
+  logoUrl: string | null;
+  bannerUrl: string | null;
   lastPingAt: Date | null;
   lastProbeAttemptAt: Date | null;
   probeStatus: "online" | "offline" | "unknown" | "unreachable";
@@ -46,12 +54,21 @@ type PublicStatsRow = {
   total_online_players: number;
 };
 
-const urlOrNullSchema = z.string().trim().url().nullable().optional();
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
 const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
+const authModeSchema = z.enum(["official", "offline_allowed", "unknown"]);
 const publicListSortSchema = z.enum(["players", "ping"]);
 const publicTierSchema = z.enum(["common", "rare", "epic", "legendary"]);
+const serverSocialPlatformSchema = z.enum([
+  "website",
+  "discord",
+  "youtube",
+  "twitter",
+  "instagram",
+  "tiktok",
+  "facebook",
+]);
 
 const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
@@ -70,6 +87,52 @@ const latestMetricsSchema = z.object({
   occurred_at: z.string().datetime().nullable(),
 });
 
+const serverSocialSchema = z.object({
+  platform: serverSocialPlatformSchema,
+  url: z.string().url().max(2048),
+  display_order: z.number().int().min(0).default(0),
+});
+
+const serverSupportedClientSchema = z.object({
+  client_name: gameSchema,
+  client_version: z.string().trim().min(1).max(50),
+});
+
+const serverSocialsBodySchema = z
+  .array(serverSocialSchema)
+  .max(20)
+  .superRefine((socials, ctx) => {
+    const seenPlatforms = new Set<string>();
+    socials.forEach((social, index) => {
+      if (seenPlatforms.has(social.platform)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Only one social link per platform is allowed.",
+          path: [index, "platform"],
+        });
+      }
+      seenPlatforms.add(social.platform);
+    });
+  });
+
+const serverSupportedClientsBodySchema = z
+  .array(serverSupportedClientSchema)
+  .max(20)
+  .superRefine((clients, ctx) => {
+    const seenClients = new Set<string>();
+    clients.forEach((client, index) => {
+      const key = JSON.stringify([client.client_name, client.client_version]);
+      if (seenClients.has(key)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Only one supported client entry per client and version is allowed.",
+          path: [index, "client_version"],
+        });
+      }
+      seenClients.add(key);
+    });
+  });
+
 const serverBaseSchema = z.object({
   id: z.string().uuid(),
   slug: z.string(),
@@ -80,10 +143,11 @@ const serverBaseSchema = z.object({
   game: gameSchema,
   catalog_status: adminStatusSchema,
   freshness_status: freshnessStatusSchema,
-  online_mode: z.boolean(),
-  region: z.string().nullable(),
-  website_url: z.string().nullable(),
-  discord_url: z.string().nullable(),
+  auth_mode: authModeSchema,
+  country_code: z.string().nullable(),
+  logo_url: z.string().nullable(),
+  banner_url: z.string().nullable(),
+
   last_ping_at: z.string().datetime().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -125,10 +189,12 @@ const adminCreateBodySchema = z.object({
   port: z.number().int().min(1).max(65535),
   game: z.literal("mc_java").default("mc_java"),
   status: adminStatusSchema.default("active"),
-  online_mode: z.boolean().default(true),
-  region: z.string().trim().min(1).max(50).nullable().optional(),
-  website_url: urlOrNullSchema,
-  discord_url: urlOrNullSchema,
+  auth_mode: authModeSchema.default("official"),
+  country_code: z.string().trim().length(2).nullable().optional(),
+  logo_url: z.string().url().max(2048).nullable().optional(),
+  banner_url: z.string().url().max(2048).nullable().optional(),
+  socials: serverSocialsBodySchema.optional(),
+  supported_clients: serverSupportedClientsBodySchema.optional(),
 });
 
 const adminUpdateBodySchema = z
@@ -138,10 +204,12 @@ const adminUpdateBodySchema = z
     description: z.string().trim().min(1).max(4000).optional(),
     host: z.string().trim().min(1).max(255).optional(),
     port: z.number().int().min(1).max(65535).optional(),
-    online_mode: z.boolean().optional(),
-    region: z.string().trim().min(1).max(50).nullable().optional(),
-    website_url: urlOrNullSchema,
-    discord_url: urlOrNullSchema,
+    auth_mode: authModeSchema.optional(),
+    country_code: z.string().trim().length(2).nullable().optional(),
+    logo_url: z.string().url().max(2048).nullable().optional(),
+    banner_url: z.string().url().max(2048).nullable().optional(),
+    socials: serverSocialsBodySchema.optional(),
+    supported_clients: serverSupportedClientsBodySchema.optional(),
   })
   .refine((payload) => Object.keys(payload).length > 0, {
     message: "At least one field must be provided.",
@@ -173,6 +241,8 @@ const adminDetailResponseSchema = envelopeSchema(
   z.object({
     server: serverBaseSchema.extend({
       latest_metrics: latestMetricsSchema,
+      socials: z.array(serverSocialSchema),
+      supported_clients: z.array(serverSupportedClientSchema),
     }),
   })
 );
@@ -188,7 +258,10 @@ const publicListResponseSchema = envelopeSchema(
           game: true,
           catalog_status: true,
           freshness_status: true,
-          region: true,
+          auth_mode: true,
+          country_code: true,
+          logo_url: true,
+          banner_url: true,
           last_ping_at: true,
         })
         .extend({
@@ -206,6 +279,8 @@ const publicDetailResponseSchema = envelopeSchema(
   z.object({
     server: serverBaseSchema.extend({
       latest_metrics: latestMetricsSchema,
+      socials: z.array(serverSocialSchema),
+      supported_clients: z.array(serverSupportedClientSchema),
     }),
   })
 );
@@ -317,10 +392,11 @@ const normalizeServerPayload = (
   game: "mc_java" | "mc_bedrock" | "hytale";
   catalog_status: "active" | "suspended" | "archived";
   freshness_status: "online" | "offline" | "unknown";
-  online_mode: boolean;
-  region: string | null;
-  website_url: string | null;
-  discord_url: string | null;
+  auth_mode: "official" | "offline_allowed" | "unknown";
+  country_code: string | null;
+  logo_url: string | null;
+  banner_url: string | null;
+
   last_ping_at: string | null;
   created_at: string;
   updated_at: string;
@@ -334,14 +410,49 @@ const normalizeServerPayload = (
   game: server.game as "mc_java" | "mc_bedrock" | "hytale",
   catalog_status: server.status as "active" | "suspended" | "archived",
   freshness_status: freshnessFromServer(server, nowMs),
-  online_mode: server.onlineMode,
-  region: server.region ?? null,
-  website_url: server.websiteUrl ?? null,
-  discord_url: server.discordUrl ?? null,
+  auth_mode: server.authMode as "official" | "offline_allowed" | "unknown",
+  country_code: server.countryCode,
+  logo_url: server.logoUrl,
+  banner_url: server.bannerUrl,
   last_ping_at: server.lastPingAt ? server.lastPingAt.toISOString() : null,
   created_at: server.createdAt.toISOString(),
   updated_at: server.updatedAt.toISOString(),
 });
+
+type ServerMetadata = {
+  socials: Array<z.infer<typeof serverSocialSchema>>;
+  supported_clients: Array<z.infer<typeof serverSupportedClientSchema>>;
+};
+
+const findServerMetadata = async (
+  app: FastifyInstance,
+  serverId: string
+): Promise<ServerMetadata> => {
+  const [socialRows, clientRows] = await Promise.all([
+    app.db.db
+      .select()
+      .from(serverSocials)
+      .where(eq(serverSocials.serverId, serverId))
+      .orderBy(asc(serverSocials.displayOrder), asc(serverSocials.platform)),
+    app.db.db
+      .select()
+      .from(serverSupportedClients)
+      .where(eq(serverSupportedClients.serverId, serverId))
+      .orderBy(asc(serverSupportedClients.clientName), asc(serverSupportedClients.clientVersion)),
+  ]);
+
+  return {
+    socials: socialRows.map((row) => ({
+      platform: row.platform as z.infer<typeof serverSocialPlatformSchema>,
+      url: row.url,
+      display_order: row.displayOrder,
+    })),
+    supported_clients: clientRows.map((row) => ({
+      client_name: row.clientName as z.infer<typeof gameSchema>,
+      client_version: row.clientVersion,
+    })),
+  };
+};
 
 const normalizeMetricsPayload = (
   heartbeat: Pick<
@@ -630,25 +741,52 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
       let created: ServerRecord;
       try {
-        const rows = await app.db.db
-          .insert(servers)
-          .values({
-            id: randomUUID(),
-            slug: generatedSlug,
-            name: payload.name,
-            description: payload.description,
-            host: payload.host,
-            port: payload.port,
-            game: "mc_java",
-            status: payload.status,
-            onlineMode: payload.online_mode,
-            region: toNullable(payload.region),
-            websiteUrl: toNullable(payload.website_url),
-            discordUrl: toNullable(payload.discord_url),
-            updatedAt: now,
-          })
-          .returning();
-        created = rows[0]!;
+        created = await app.db.db.transaction(async (tx) => {
+          const rows = await tx
+            .insert(servers)
+            .values({
+              id: randomUUID(),
+              slug: generatedSlug,
+              name: payload.name,
+              description: payload.description,
+              host: payload.host,
+              port: payload.port,
+              game: "mc_java",
+              status: payload.status,
+              authMode: payload.auth_mode,
+              countryCode: toNullable(payload.country_code) ?? "WW",
+              logoUrl: toNullable(payload.logo_url),
+              bannerUrl: toNullable(payload.banner_url),
+              updatedAt: now,
+            })
+            .returning();
+          const row = rows[0]!;
+
+          if (payload.socials && payload.socials.length > 0) {
+            await tx.insert(serverSocials).values(
+              payload.socials.map((social) => ({
+                serverId: row.id,
+                platform: social.platform,
+                url: social.url,
+                displayOrder: social.display_order,
+                updatedAt: now,
+              }))
+            );
+          }
+
+          if (payload.supported_clients && payload.supported_clients.length > 0) {
+            await tx.insert(serverSupportedClients).values(
+              payload.supported_clients.map((client) => ({
+                serverId: row.id,
+                clientName: client.client_name,
+                clientVersion: client.client_version,
+                updatedAt: now,
+              }))
+            );
+          }
+
+          return row;
+        });
       } catch (error) {
         const pgError = getPgErrorMetadata(error);
         if (pgError.code === "23505") {
@@ -663,12 +801,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       }
 
       const serverPayload = normalizeServerPayload(created, Date.now());
+      const metadata = await findServerMetadata(app, created.id);
       return reply.status(201).send(
         successEnvelope(
           {
             server: {
               ...serverPayload,
               latest_metrics: normalizeMetricsPayload(null),
+              ...metadata,
             },
           },
           request.id
@@ -695,12 +835,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         })
       );
 
-      const latest = await findLatestHeartbeat(app, server.id);
+      const [latest, metadata] = await Promise.all([
+        findLatestHeartbeat(app, server.id),
+        findServerMetadata(app, server.id),
+      ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
             latest_metrics: normalizeMetricsPayload(latest),
+            ...metadata,
           },
         },
         request.id
@@ -748,27 +892,62 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       if (request.body.port !== undefined) {
         patch.port = request.body.port;
       }
-      if (request.body.online_mode !== undefined) {
-        patch.onlineMode = request.body.online_mode;
+      if (request.body.auth_mode !== undefined) {
+        patch.authMode = request.body.auth_mode;
       }
-      if (request.body.region !== undefined) {
-        patch.region = toNullable(request.body.region);
+      if (request.body.country_code !== undefined) {
+        patch.countryCode = toNullable(request.body.country_code) ?? "WW";
       }
-      if (request.body.website_url !== undefined) {
-        patch.websiteUrl = toNullable(request.body.website_url);
+      if (request.body.logo_url !== undefined) {
+        patch.logoUrl = toNullable(request.body.logo_url);
       }
-      if (request.body.discord_url !== undefined) {
-        patch.discordUrl = toNullable(request.body.discord_url);
+      if (request.body.banner_url !== undefined) {
+        patch.bannerUrl = toNullable(request.body.banner_url);
       }
 
       let updated: ServerRecord;
       try {
-        const rows = await app.db.db
-          .update(servers)
-          .set(patch)
-          .where(eq(servers.id, existing.id))
-          .returning();
-        updated = rows[0]!;
+        updated = await app.db.db.transaction(async (tx) => {
+          const rows = await tx
+            .update(servers)
+            .set(patch)
+            .where(eq(servers.id, existing.id))
+            .returning();
+          const row = rows[0]!;
+
+          if (request.body.socials !== undefined) {
+            await tx.delete(serverSocials).where(eq(serverSocials.serverId, existing.id));
+            if (request.body.socials.length > 0) {
+              await tx.insert(serverSocials).values(
+                request.body.socials.map((social) => ({
+                  serverId: existing.id,
+                  platform: social.platform,
+                  url: social.url,
+                  displayOrder: social.display_order,
+                  updatedAt: now,
+                }))
+              );
+            }
+          }
+
+          if (request.body.supported_clients !== undefined) {
+            await tx
+              .delete(serverSupportedClients)
+              .where(eq(serverSupportedClients.serverId, existing.id));
+            if (request.body.supported_clients.length > 0) {
+              await tx.insert(serverSupportedClients).values(
+                request.body.supported_clients.map((client) => ({
+                  serverId: existing.id,
+                  clientName: client.client_name,
+                  clientVersion: client.client_version,
+                  updatedAt: now,
+                }))
+              );
+            }
+          }
+
+          return row;
+        });
       } catch (error) {
         const pgError = getPgErrorMetadata(error);
         if (pgError.code === "23505") {
@@ -782,12 +961,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         throw error;
       }
 
-      const latest = await findLatestHeartbeat(app, updated.id);
+      const [latest, metadata] = await Promise.all([
+        findLatestHeartbeat(app, updated.id),
+        findServerMetadata(app, updated.id),
+      ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
             latest_metrics: normalizeMetricsPayload(latest),
+            ...metadata,
           },
         },
         request.id
@@ -820,12 +1003,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
       const updated = requireFound(rows[0]);
 
-      const latest = await findLatestHeartbeat(app, updated.id);
+      const [latest, metadata] = await Promise.all([
+        findLatestHeartbeat(app, updated.id),
+        findServerMetadata(app, updated.id),
+      ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
             latest_metrics: normalizeMetricsPayload(latest),
+            ...metadata,
           },
         },
         request.id
@@ -957,7 +1144,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             s.description,
             s.game,
             s.status,
-            s.region,
+            s.country_code as "countryCode",
+            s.auth_mode as "authMode",
+            s.logo_url as "logoUrl",
+            s.banner_url as "bannerUrl",
             s.last_ping_at as "lastPingAt",
             s.last_probe_attempt_at as "lastProbeAttemptAt",
             s.probe_status as "probeStatus",
@@ -1013,7 +1203,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             game: row.game,
             catalog_status: row.status,
             freshness_status: freshnessFromServer(row, nowMs),
-            region: row.region ?? null,
+            auth_mode: row.authMode,
+            country_code: row.countryCode ?? null,
+            logo_url: row.logoUrl,
+            banner_url: row.bannerUrl,
             last_ping_at: row.lastPingAt ? row.lastPingAt.toISOString() : null,
             latest_metrics: normalizeMetricsPayload(latestHeartbeatFromPublicRow(row)),
           })),
@@ -1048,12 +1241,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         })
       );
 
-      const latest = await findLatestHeartbeat(app, server.id);
+      const [latest, metadata] = await Promise.all([
+        findLatestHeartbeat(app, server.id),
+        findServerMetadata(app, server.id),
+      ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
             latest_metrics: normalizeMetricsPayload(latest),
+            ...metadata,
           },
         },
         request.id

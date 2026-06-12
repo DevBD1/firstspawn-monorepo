@@ -13,7 +13,7 @@ import { registerApiRoutes } from "./routes/index.js";
 import { ApiError } from "./lib/api-error.js";
 import { errorEnvelope } from "./lib/envelope.js";
 import { getConfig } from "./lib/config.js";
-import { createDatabase, type DatabaseContext } from "./db/client.js";
+import { createDatabase, type DatabaseContext } from "@firstspawn/database/client";
 import type { Mailer } from "./services/mailer.js";
 import { createMailer } from "./services/mailer.js";
 import { createRedisClient, type RedisClient } from "./lib/redis.js";

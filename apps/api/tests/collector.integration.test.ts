@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { servers } from "../src/db/schema.js";
+import { servers } from "@firstspawn/database/schema";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("collector integration", () => {
@@ -33,18 +33,20 @@ describe("collector integration", () => {
 
   const createServer = async (overrides: Partial<typeof servers.$inferInsert> = {}) => {
     const now = new Date();
+    const serverId = randomUUID();
     const [row] = await getContext()
       .app.db.db.insert(servers)
       .values({
-        id: randomUUID(),
+        id: serverId,
         slug: `srv-${randomUUID().slice(0, 8)}`,
-        name: "Test Server",
+        name: `Test Server ${serverId.slice(0, 8)}`,
         description: "Test",
         host: "127.0.0.1",
         port: 25565,
         game: "mc_java",
         status: "active",
-        onlineMode: true,
+        authMode: "official",
+        countryCode: "WW",
         createdAt: now,
         updatedAt: now,
         ...overrides,
@@ -90,6 +92,7 @@ describe("collector integration", () => {
     expect(pageOne.statusCode).toBe(200);
     expect(pageOne.json().data.targets).toHaveLength(1);
     expect(pageOne.json().data.targets[0].id).toBe(first.id);
+    expect(pageOne.json().data.targets[0].country_code).toBe("WW");
     expect(pageOne.json().data.next_cursor).toBeTruthy();
 
     const pageTwo = await getContext().app.inject({

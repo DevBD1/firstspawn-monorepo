@@ -7,7 +7,7 @@ select
   s.host,
   s.port,
   s.game,
-  s.region
+  s.country_code
 from servers s
 where s.status = 'active'
 order by s.created_at asc;

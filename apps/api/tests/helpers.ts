@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 
 import { buildApp } from "../src/server.js";
-import { createDatabase, toPoolConfig } from "../src/db/client.js";
+import { createDatabase, toPoolConfig } from "@firstspawn/database/client";
 import { resetConfigForTests } from "../src/lib/config.js";
 import { createInMemoryRedisClient } from "../src/lib/redis.js";
 
@@ -50,8 +50,8 @@ export const createTestApp = async (): Promise<TestContext> => {
   const schemaName = `test_api_${randomUUID().replaceAll("-", "")}`;
 
   const adminPool = new Pool(toPoolConfig(normalizedBaseUrl));
-  await adminPool.query('create extension if not exists "uuid-ossp"');
   await adminPool.query('create extension if not exists "citext"');
+  await adminPool.query('create extension if not exists "pgcrypto"');
   await adminPool.query(`create schema "${schemaName}"`);
 
   const testUrlObject = new URL(normalizedBaseUrl);

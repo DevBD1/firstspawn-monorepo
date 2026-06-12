@@ -4,7 +4,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { serverHeartbeats, servers } from "../../db/schema.js";
+import { serverHeartbeats, servers } from "@firstspawn/database/schema";
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
 import { requireCollectorKey } from "../../lib/request-auth.js";
@@ -61,7 +61,7 @@ const collectorTargetSchema = z.object({
   host: z.string(),
   port: z.number().int().positive(),
   game: z.literal("mc_java"),
-  region: z.string().nullable(),
+  country_code: z.string().nullable(),
   created_at: z.string().datetime(),
 });
 
@@ -320,7 +320,7 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
           host: servers.host,
           port: servers.port,
           game: servers.game,
-          region: servers.region,
+          countryCode: servers.countryCode,
           createdAt: servers.createdAt,
         })
         .from(servers)
@@ -340,7 +340,7 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
             host: row.host,
             port: row.port,
             game: "mc_java" as const,
-            region: row.region ?? null,
+            country_code: row.countryCode ?? null,
             created_at: row.createdAt.toISOString(),
           })),
           next_cursor:

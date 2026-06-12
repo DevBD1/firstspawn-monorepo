@@ -1,7 +1,8 @@
+import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { inArray } from "drizzle-orm";
 
-import { serverHeartbeats, servers } from "../src/db/schema.js";
+import { serverHeartbeats, servers } from "@firstspawn/database/schema";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("servers integration", () => {
@@ -43,6 +44,7 @@ describe("servers integration", () => {
     accessToken: string,
     overrides: Record<string, unknown> = {}
   ) => {
+    const serverName = `Test Server ${randomUUID().slice(0, 8)}`;
     const response = await getContext().app.inject({
       method: "POST",
       url: "/api/v1/admin/servers",
@@ -50,12 +52,13 @@ describe("servers integration", () => {
         authorization: `Bearer ${accessToken}`,
       },
       payload: {
-        name: "Test Server",
+        name: serverName,
         description: "Test description",
         host: "play.example.com",
         port: 25565,
         game: "mc_java",
-        online_mode: true,
+        auth_mode: "official",
+        country_code: "WW",
         ...overrides,
       },
     });
@@ -176,7 +179,8 @@ describe("servers integration", () => {
         host: "two.example.com",
         port: 25566,
         game: "mc_java",
-        online_mode: true,
+        auth_mode: "official",
+        country_code: "WW",
       },
     });
 
@@ -217,6 +221,201 @@ describe("servers integration", () => {
     const allSlugs = includeArchived.json().data.servers.map((item: { slug: string }) => item.slug);
     expect(allSlugs).toContain(active.slug);
     expect(allSlugs).toContain(archived.slug);
+  });
+
+  it("creates and replaces embedded server metadata", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_metadata",
+    });
+
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "metadata-server",
+      logo_url: "https://cdn.example.com/logo.png",
+      banner_url: "https://cdn.example.com/banner.png",
+      socials: [
+        {
+          platform: "website",
+          url: "https://example.com",
+          display_order: 0,
+        },
+        {
+          platform: "discord",
+          url: "https://discord.gg/example",
+          display_order: 1,
+        },
+      ],
+      supported_clients: [
+        {
+          client_name: "mc_java",
+          client_version: "1.21.1",
+        },
+      ],
+    });
+
+    const detail = await getContext().app.inject({
+      method: "GET",
+      url: `/api/v1/admin/servers/${created.id}`,
+      headers: {
+        authorization: `Bearer ${admin.accessToken}`,
+      },
+    });
+
+    expect(detail.statusCode).toBe(200);
+    expect(detail.json().data.server).toMatchObject({
+      logo_url: "https://cdn.example.com/logo.png",
+      banner_url: "https://cdn.example.com/banner.png",
+      auth_mode: "official",
+      country_code: "WW",
+    });
+    expect(detail.json().data.server.socials).toEqual([
+      {
+        platform: "website",
+        url: "https://example.com",
+        display_order: 0,
+      },
+      {
+        platform: "discord",
+        url: "https://discord.gg/example",
+        display_order: 1,
+      },
+    ]);
+    expect(detail.json().data.server.supported_clients).toEqual([
+      {
+        client_name: "mc_java",
+        client_version: "1.21.1",
+      },
+    ]);
+
+    const updated = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${created.id}`,
+      headers: {
+        authorization: `Bearer ${admin.accessToken}`,
+      },
+      payload: {
+        auth_mode: "offline_allowed",
+        socials: [
+          {
+            platform: "youtube",
+            url: "https://youtube.com/@example",
+            display_order: 0,
+          },
+        ],
+        supported_clients: [
+          {
+            client_name: "mc_java",
+            client_version: "1.20.4",
+          },
+          {
+            client_name: "mc_bedrock",
+            client_version: "1.20",
+          },
+        ],
+      },
+    });
+
+    expect(updated.statusCode).toBe(200);
+    expect(updated.json().data.server.auth_mode).toBe("offline_allowed");
+    expect(updated.json().data.server.socials).toEqual([
+      {
+        platform: "youtube",
+        url: "https://youtube.com/@example",
+        display_order: 0,
+      },
+    ]);
+    expect(updated.json().data.server.supported_clients).toEqual([
+      {
+        client_name: "mc_bedrock",
+        client_version: "1.20",
+      },
+      {
+        client_name: "mc_java",
+        client_version: "1.20.4",
+      },
+    ]);
+  });
+
+  it("rejects duplicate social platforms before database insert", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_duplicate_social",
+    });
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/admin/servers",
+      headers: {
+        authorization: `Bearer ${admin.accessToken}`,
+      },
+      payload: {
+        name: "Duplicate Social Server",
+        description: "Test description",
+        host: "duplicate-social.example.com",
+        port: 25565,
+        game: "mc_java",
+        auth_mode: "official",
+        country_code: "WW",
+        socials: [
+          {
+            platform: "website",
+            url: "https://example.com",
+            display_order: 0,
+          },
+          {
+            platform: "website",
+            url: "https://example.org",
+            display_order: 1,
+          },
+        ],
+      },
+    });
+
+    const payload = response.json();
+    expect(response.statusCode).toBe(422);
+    expect(payload.error.code).toBe("VALIDATION_ERROR");
+    expect(payload.error.message).not.toBe("Slug is already in use.");
+    expect(JSON.stringify(payload.error.details.errors)).toContain(
+      "Only one social link per platform is allowed."
+    );
+  });
+
+  it("rejects duplicate supported clients before database update", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_duplicate_client",
+    });
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "duplicate-client-server",
+    });
+
+    const response = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${created.id}`,
+      headers: {
+        authorization: `Bearer ${admin.accessToken}`,
+      },
+      payload: {
+        supported_clients: [
+          {
+            client_name: "mc_java",
+            client_version: "1.21.1",
+          },
+          {
+            client_name: "mc_java",
+            client_version: "1.21.1",
+          },
+        ],
+      },
+    });
+
+    const payload = response.json();
+    expect(response.statusCode).toBe(422);
+    expect(payload.error.code).toBe("VALIDATION_ERROR");
+    expect(payload.error.message).not.toBe("Slug is already in use.");
+    expect(JSON.stringify(payload.error.details.errors)).toContain(
+      "Only one supported client entry per client and version is allowed."
+    );
   });
 
   it("returns latest heartbeat metrics in public list", async () => {

@@ -19,12 +19,13 @@ import {
   verifyPassword,
 } from "../../lib/security.js";
 import {
+  userConsentAuditLogs,
   userDeletionRequests,
   userSessions,
   users,
   verificationTokens,
   type UserRecord,
-} from "../../db/schema.js";
+} from "@firstspawn/database/schema";
 
 const RESTORE_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const SOFT_DELETE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
@@ -489,25 +490,81 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       }
 
       const now = new Date();
+      const rawToken = createRawToken();
       let user: UserRecord;
 
       try {
-        [user] = await db
-          .insert(users)
-          .values({
+        user = await db.transaction(async (tx) => {
+          const [newUser] = await tx
+            .insert(users)
+            .values({
+              email: payload.email,
+              username: payload.username,
+              passwordHash: hashPassword(payload.password),
+              status: "active",
+              locale: payload.locale,
+              termsAcceptedAt: payload.terms_accepted ? now : null,
+              privacyAcceptedAt: payload.privacy_accepted ? now : null,
+              marketingConsentAt: payload.marketing_consent ? now : null,
+              lastLoginAt: now,
+              updatedAt: now,
+            })
+            .returning();
+
+          await tx.insert(verificationTokens).values({
             id: randomUUID(),
-            email: payload.email,
-            username: payload.username,
-            passwordHash: hashPassword(payload.password),
-            status: "active",
-            locale: payload.locale,
-            termsAccepted: payload.terms_accepted ? now : null,
-            privacyAccepted: payload.privacy_accepted ? now : null,
-            marketingConsent: payload.marketing_consent ? now : null,
-            lastLoginAt: now,
+            userId: newUser.id,
+            tokenHash: hashToken(rawToken, app.config),
+            purpose: "email_verification",
+            expiresAt: new Date(Date.now() + RESTORE_TOKEN_TTL_MS),
             updatedAt: now,
-          })
-          .returning();
+          });
+
+          // GDPR Consent Logging
+          const ipAddress = getClientIp(request.ip);
+          const userAgent = normalizeHeader(request.headers["user-agent"]);
+
+          const consentLogs = [];
+          if (payload.terms_accepted) {
+            consentLogs.push({
+              userId: newUser.id,
+              action: "opt_in" as const,
+              consentType: "terms" as const,
+              policyVersion: "1.0",
+              ip: ipAddress ?? undefined,
+              userAgent: userAgent ?? undefined,
+              createdAt: now,
+            });
+          }
+          if (payload.privacy_accepted) {
+            consentLogs.push({
+              userId: newUser.id,
+              action: "opt_in" as const,
+              consentType: "privacy" as const,
+              policyVersion: "1.0",
+              ip: ipAddress ?? undefined,
+              userAgent: userAgent ?? undefined,
+              createdAt: now,
+            });
+          }
+          if (payload.marketing_consent) {
+            consentLogs.push({
+              userId: newUser.id,
+              action: "opt_in" as const,
+              consentType: "marketing" as const,
+              policyVersion: "1.0",
+              ip: ipAddress ?? undefined,
+              userAgent: userAgent ?? undefined,
+              createdAt: now,
+            });
+          }
+
+          if (consentLogs.length > 0) {
+            await tx.insert(userConsentAuditLogs).values(consentLogs);
+          }
+
+          return newUser;
+        });
       } catch (error) {
         const duplicateField = duplicateFieldFromError(
           error as { constraint?: string; detail?: string }
@@ -527,16 +584,6 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
         }
         throw error;
       }
-
-      const rawToken = createRawToken();
-      await db.insert(verificationTokens).values({
-        id: randomUUID(),
-        userId: user.id,
-        tokenHash: hashToken(rawToken, app.config),
-        purpose: "email_verification",
-        expiresAt: new Date(Date.now() + RESTORE_TOKEN_TTL_MS),
-        updatedAt: now,
-      });
 
       const tokens = await createSessionAndTokens(app, user, request);
       void app.mailer.sendVerificationEmail(user.email, rawToken, user.locale ?? DEFAULT_LOCALE);

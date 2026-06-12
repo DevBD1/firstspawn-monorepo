@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { eq } from "drizzle-orm";
 
+import { userConsentAuditLogs } from "@firstspawn/database/schema";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("auth integration", () => {
@@ -62,6 +64,14 @@ describe("auth integration", () => {
     expect(mePayload.data.user.email).toBe("tester@example.com");
     expect(mePayload.meta.request_id).toBeTruthy();
     expect(meResponse.headers["x-request-id"]).toBeTruthy();
+
+    const consentRows = await getContext()
+      .app.db.db.select({
+        consentType: userConsentAuditLogs.consentType,
+      })
+      .from(userConsentAuditLogs)
+      .where(eq(userConsentAuditLogs.userId, authData.user.id));
+    expect(consentRows.map((row) => row.consentType).sort()).toEqual(["privacy", "terms"]);
   });
 
   it("supports login with email and username", async () => {

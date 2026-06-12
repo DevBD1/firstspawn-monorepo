@@ -575,7 +575,7 @@ export default function DiscoverClient({
                     maxPlayers={server.latest_metrics?.max_players}
                     isOnline={server.freshness_status === "online"}
                     pingMs={server.latest_metrics?.ping_ms}
-                    region={server.region}
+                    region={server.country_code}
                     sortHighlight={getServerSortHighlight(
                       serverCardCopy,
                       copy.ranking,

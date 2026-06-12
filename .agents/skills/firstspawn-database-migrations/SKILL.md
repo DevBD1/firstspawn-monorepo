@@ -10,7 +10,7 @@ Use this for work under `packages/database` or DB-backed API changes.
 ## Source Files
 
 - Canonical design: `packages/database/schema-design.md`
-- Runtime schema mirror: `apps/api/src/db/schema.ts`
+- Runtime schema: `packages/database/src/schema.ts`
 - Migration history: `packages/database/migrations/`
 - Drizzle config: `packages/database/drizzle.config.ts`
 - SQL jobs: `packages/database/jobs/`
@@ -19,7 +19,7 @@ Use this for work under `packages/database` or DB-backed API changes.
 ## Rules
 
 - `packages/database/schema-design.md` is the canonical schema design source.
-- `apps/api/src/db/schema.ts` must stay aligned with the design.
+- `packages/database/src/schema.ts` must stay aligned with the design.
 - When schema intent changes, update `packages/database/schema-design.md` in the same change.
 - Generated migrations must match the intended schema change.
 - Do not hand-wave exactness. Say exact match vs structural alignment clearly.
@@ -32,7 +32,7 @@ Use this for work under `packages/database` or DB-backed API changes.
 
 1. Read the design section being changed.
 2. Update `packages/database/schema-design.md` when schema intent changes.
-3. Update `apps/api/src/db/schema.ts`.
+3. Update `packages/database/src/schema.ts`.
 4. Generate migration SQL:
 
 ```bash
