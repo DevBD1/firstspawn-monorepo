@@ -25,7 +25,7 @@ import {
   users,
   verificationTokens,
   type UserRecord,
-} from "../../db/schema.js";
+} from "@firstspawn/database/schema";
 
 const RESTORE_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const SOFT_DELETE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
@@ -540,7 +540,7 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
             consentLogs.push({
               userId: newUser.id,
               action: "opt_in" as const,
-              consentType: "privacy_policy" as const,
+              consentType: "privacy" as const,
               policyVersion: "1.0",
               ip: ipAddress ?? undefined,
               userAgent: userAgent ?? undefined,

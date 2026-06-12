@@ -2,8 +2,8 @@
 -- Runs once on first container startup
 
 -- Enable required extensions
-create extension if not exists "uuid-ossp";
 create extension if not exists "citext";
+create extension if not exists "pgcrypto";
 
 -- Create roles (for future separate schemas)
 -- These are placeholders for when we migrate to domain-specific schemas
@@ -20,5 +20,5 @@ create extension if not exists "citext";
 -- Grant usage on extensions to app user (will be handled by docker-compose)
 -- grant usage on schema public to app;
 
-comment on extension "uuid-ossp" is 'UUID generation functions';
 comment on extension "citext" is 'Case-insensitive text type';
+comment on extension "pgcrypto" is 'Cryptographic functions including gen_random_uuid';

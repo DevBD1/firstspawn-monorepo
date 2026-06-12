@@ -2,14 +2,47 @@
   "name": "@firstspawn/database",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    }
+  },
+  "files": [
+    "dist",
+    "migrations",
+    "jobs",
+    "init",
+    "schema-design.md",
+    "drizzle.config.ts"
+  ],
   "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "generate": "drizzle-kit generate --config=drizzle.config.ts",
     "migrate": "drizzle-kit migrate --config=drizzle.config.ts",
     "migrate:status": "drizzle-kit check --config=drizzle.config.ts",
-    "clean": "rm -rf migrations/*.sql migrations/meta"
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.6",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@firstspawn/typescript-config": "workspace:*",
+    "@types/node": "^20",
+    "@types/pg": "^8.15.5",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.6",
     "typescript": "^5"

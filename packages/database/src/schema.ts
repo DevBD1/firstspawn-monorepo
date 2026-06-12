@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import {
-  boolean,
   check,
   customType,
   date,
@@ -17,7 +16,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { randomUUID } from "node:crypto";
 
 function uuidv7(): string {
   const ts = Date.now();
@@ -108,7 +106,7 @@ export const userSessions = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -169,7 +167,7 @@ export const userDeletionRequests = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -204,7 +202,7 @@ export const userModerationLogs = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     adminId: uuid("admin_id").references(() => users.id, { onDelete: "set null" }),
 
@@ -230,7 +228,7 @@ export const verificationTokens = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -267,7 +265,7 @@ export const servers = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     slug: citext("slug").notNull(),
 
     ownerId: uuid("owner_id").references(() => users.id, { onDelete: "set null" }),
@@ -280,7 +278,7 @@ export const servers = pgTable(
     game: varchar("game", { length: 20 }).notNull(),
     status: varchar("status", { length: 20 }).notNull().default("active"),
 
-    isCracked: boolean("is_cracked").notNull().default(false),
+    authMode: varchar("auth_mode", { length: 20 }).notNull().default("unknown"),
     countryCode: varchar("country_code", { length: 2 })
       .notNull()
       .references(() => countries.isoA2),
@@ -309,6 +307,10 @@ export const servers = pgTable(
     check("chk_servers_game", sql`${table.game} in ('mc_java', 'mc_bedrock', 'hytale')`),
     check("chk_servers_status", sql`${table.status} in ('active', 'suspended', 'archived')`),
     check(
+      "chk_servers_auth_mode",
+      sql`${table.authMode} in ('official', 'offline_allowed', 'unknown')`
+    ),
+    check(
       "chk_servers_probe_status",
       sql`${table.probeStatus} in ('online', 'offline', 'unknown', 'unreachable')`
     ),
@@ -319,9 +321,6 @@ export const servers = pgTable(
 export const serverSocials = pgTable(
   "server_socials",
   {
-    id: uuid("id")
-      .primaryKey()
-      .$defaultFn(() => randomUUID()),
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
@@ -333,8 +332,8 @@ export const serverSocials = pgTable(
     ...timestamps,
   },
   (table) => [
+    primaryKey({ columns: [table.serverId, table.platform], name: "pk_server_socials" }),
     index("idx_server_socials_server_id").on(table.serverId),
-    uniqueIndex("idx_server_socials_unique").on(table.serverId, table.platform),
     check(
       "chk_server_socials_platform",
       sql`${table.platform} in ('website', 'discord', 'youtube', 'twitter', 'instagram', 'tiktok', 'facebook')`
@@ -345,9 +344,6 @@ export const serverSocials = pgTable(
 export const serverSupportedClients = pgTable(
   "server_supported_clients",
   {
-    id: uuid("id")
-      .primaryKey()
-      .$defaultFn(() => randomUUID()),
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
@@ -358,12 +354,11 @@ export const serverSupportedClients = pgTable(
     ...timestamps,
   },
   (table) => [
+    primaryKey({
+      columns: [table.serverId, table.clientName, table.clientVersion],
+      name: "pk_server_supported_clients",
+    }),
     index("idx_server_supported_clients_server_id").on(table.serverId),
-    uniqueIndex("idx_server_supported_clients_unique").on(
-      table.serverId,
-      table.clientName,
-      table.clientVersion
-    ),
     check(
       "chk_server_supported_clients_client_name",
       sql`${table.clientName} in ('mc_java', 'mc_bedrock', 'hytale')`
@@ -376,7 +371,7 @@ export const serverHeartbeats = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
@@ -488,7 +483,7 @@ export const serverModerationLogs = pgTable(
   {
     id: uuid("id")
       .primaryKey()
-      .$defaultFn(() => randomUUID()),
+      .defaultRandom(),
     serverId: uuid("server_id").references(() => servers.id, { onDelete: "set null" }),
     adminId: uuid("admin_id").references(() => users.id, { onDelete: "set null" }),
     action: varchar("action", { length: 20 }).notNull(),

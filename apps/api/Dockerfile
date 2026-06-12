@@ -16,6 +16,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+RUN pnpm --filter @firstspawn/database build
 RUN pnpm --filter @firstspawn/api build
 
 WORKDIR /app/apps/api

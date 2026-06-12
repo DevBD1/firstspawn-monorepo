@@ -386,6 +386,7 @@ export interface ServerDetailDictionary {
     archived: string;
   };
   labels: {
+    authMode: string;
     back: string;
     discord: string;
     host: string;
@@ -398,6 +399,7 @@ export interface ServerDetailDictionary {
     ping: string;
     port: string;
     region: string;
+    unknownMode: string;
     version: string;
     website: string;
   };

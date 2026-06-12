@@ -1,9 +1,56 @@
 {
-  "id": "01dedd7e-26dc-4957-bf4d-30911b35af08",
+  "id": "df6e7375-7b2c-423c-bd7c-c60d900359ea",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.countries": {
+      "name": "countries",
+      "schema": "",
+      "columns": {
+        "iso_a_2": {
+          "name": "iso_a_2",
+          "type": "varchar(2)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "iso_a_3": {
+          "name": "iso_a_3",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "countries_name_unique": {
+          "name": "countries_name_unique",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.server_heartbeat_daily": {
       "name": "server_heartbeat_daily",
       "schema": "",
@@ -282,7 +329,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "server_id": {
           "name": "server_id",
@@ -418,6 +466,39 @@
           "method": "btree",
           "with": {}
         },
+        "idx_server_heartbeats_server_latest": {
+          "name": "idx_server_heartbeats_server_latest",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "idx_server_heartbeats_server_idempotency": {
           "name": "idx_server_heartbeats_server_idempotency",
           "columns": [
@@ -478,6 +559,294 @@
       },
       "isRLSEnabled": false
     },
+    "public.server_moderation_logs": {
+      "name": "server_moderation_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "server_id": {
+          "name": "server_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_server_moderation_logs_server_id": {
+          "name": "idx_server_moderation_logs_server_id",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_server_moderation_logs_admin_id": {
+          "name": "idx_server_moderation_logs_admin_id",
+          "columns": [
+            {
+              "expression": "admin_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "server_moderation_logs_server_id_servers_id_fk": {
+          "name": "server_moderation_logs_server_id_servers_id_fk",
+          "tableFrom": "server_moderation_logs",
+          "tableTo": "servers",
+          "columnsFrom": ["server_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "server_moderation_logs_admin_id_users_id_fk": {
+          "name": "server_moderation_logs_admin_id_users_id_fk",
+          "tableFrom": "server_moderation_logs",
+          "tableTo": "users",
+          "columnsFrom": ["admin_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_server_moderation_logs_action": {
+          "name": "chk_server_moderation_logs_action",
+          "value": "\"server_moderation_logs\".\"action\" in ('suspended', 'unsuspended', 'warned')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.server_socials": {
+      "name": "server_socials",
+      "schema": "",
+      "columns": {
+        "server_id": {
+          "name": "server_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform": {
+          "name": "platform",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_server_socials_server_id": {
+          "name": "idx_server_socials_server_id",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "server_socials_server_id_servers_id_fk": {
+          "name": "server_socials_server_id_servers_id_fk",
+          "tableFrom": "server_socials",
+          "tableTo": "servers",
+          "columnsFrom": ["server_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pk_server_socials": {
+          "name": "pk_server_socials",
+          "columns": ["server_id", "platform"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_server_socials_platform": {
+          "name": "chk_server_socials_platform",
+          "value": "\"server_socials\".\"platform\" in ('website', 'discord', 'youtube', 'twitter', 'instagram', 'tiktok', 'facebook')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.server_supported_clients": {
+      "name": "server_supported_clients",
+      "schema": "",
+      "columns": {
+        "server_id": {
+          "name": "server_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "client_name": {
+          "name": "client_name",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "client_version": {
+          "name": "client_version",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_server_supported_clients_server_id": {
+          "name": "idx_server_supported_clients_server_id",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "server_supported_clients_server_id_servers_id_fk": {
+          "name": "server_supported_clients_server_id_servers_id_fk",
+          "tableFrom": "server_supported_clients",
+          "tableTo": "servers",
+          "columnsFrom": ["server_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pk_server_supported_clients": {
+          "name": "pk_server_supported_clients",
+          "columns": ["server_id", "client_name", "client_version"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_server_supported_clients_client_name": {
+          "name": "chk_server_supported_clients_client_name",
+          "value": "\"server_supported_clients\".\"client_name\" in ('mc_java', 'mc_bedrock', 'hytale')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.servers": {
       "name": "servers",
       "schema": "",
@@ -486,13 +855,20 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "slug": {
           "name": "slug",
           "type": "citext",
           "primaryKey": false,
           "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -531,27 +907,27 @@
           "notNull": true,
           "default": "'active'"
         },
-        "online_mode": {
-          "name": "online_mode",
-          "type": "boolean",
+        "auth_mode": {
+          "name": "auth_mode",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true,
-          "default": true
+          "default": "'unknown'"
         },
-        "region": {
-          "name": "region",
-          "type": "varchar(50)",
+        "country_code": {
+          "name": "country_code",
+          "type": "varchar(2)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "website_url": {
-          "name": "website_url",
+        "logo_url": {
+          "name": "logo_url",
           "type": "varchar(2048)",
           "primaryKey": false,
           "notNull": false
         },
-        "discord_url": {
-          "name": "discord_url",
+        "banner_url": {
+          "name": "banner_url",
           "type": "varchar(2048)",
           "primaryKey": false,
           "notNull": false
@@ -561,6 +937,44 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "last_probe_attempt_at": {
+          "name": "last_probe_attempt_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_probe_success_at": {
+          "name": "last_probe_success_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_probe_failure_at": {
+          "name": "last_probe_failure_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "consecutive_probe_failures": {
+          "name": "consecutive_probe_failures",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "last_probe_error_code": {
+          "name": "last_probe_error_code",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "probe_status": {
+          "name": "probe_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unknown'"
         },
         "created_at": {
           "name": "created_at",
@@ -589,6 +1003,36 @@
             }
           ],
           "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "servers_name_unique": {
+          "name": "servers_name_unique",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_servers_owner_id": {
+          "name": "idx_servers_owner_id",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -622,9 +1066,43 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "idx_servers_probe_status": {
+          "name": "idx_servers_probe_status",
+          "columns": [
+            {
+              "expression": "probe_status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "servers_owner_id_users_id_fk": {
+          "name": "servers_owner_id_users_id_fk",
+          "tableFrom": "servers",
+          "tableTo": "users",
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "servers_country_code_countries_iso_a_2_fk": {
+          "name": "servers_country_code_countries_iso_a_2_fk",
+          "tableFrom": "servers",
+          "tableTo": "countries",
+          "columnsFrom": ["country_code"],
+          "columnsTo": ["iso_a_2"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -640,6 +1118,115 @@
         "chk_servers_status": {
           "name": "chk_servers_status",
           "value": "\"servers\".\"status\" in ('active', 'suspended', 'archived')"
+        },
+        "chk_servers_auth_mode": {
+          "name": "chk_servers_auth_mode",
+          "value": "\"servers\".\"auth_mode\" in ('official', 'offline_allowed', 'unknown')"
+        },
+        "chk_servers_probe_status": {
+          "name": "chk_servers_probe_status",
+          "value": "\"servers\".\"probe_status\" in ('online', 'offline', 'unknown', 'unreachable')"
+        },
+        "chk_servers_consecutive_probe_failures": {
+          "name": "chk_servers_consecutive_probe_failures",
+          "value": "\"servers\".\"consecutive_probe_failures\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.user_consent_audit_logs": {
+      "name": "user_consent_audit_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "inet",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consent_type": {
+          "name": "consent_type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "policy_version": {
+          "name": "policy_version",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_user_consent_audit_logs_user_id": {
+          "name": "idx_user_consent_audit_logs_user_id",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_consent_audit_logs_user_id_users_id_fk": {
+          "name": "user_consent_audit_logs_user_id_users_id_fk",
+          "tableFrom": "user_consent_audit_logs",
+          "tableTo": "users",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_user_consent_audit_logs_action": {
+          "name": "chk_user_consent_audit_logs_action",
+          "value": "\"user_consent_audit_logs\".\"action\" in ('opt_in', 'opt_out')"
+        },
+        "chk_user_consent_audit_logs_type": {
+          "name": "chk_user_consent_audit_logs_type",
+          "value": "\"user_consent_audit_logs\".\"consent_type\" in ('marketing', 'privacy', 'terms')"
         }
       },
       "isRLSEnabled": false
@@ -652,7 +1239,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
@@ -787,6 +1375,125 @@
       },
       "isRLSEnabled": false
     },
+    "public.user_moderation_logs": {
+      "name": "user_moderation_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "action": {
+          "name": "action",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_user_moderation_logs_user_id": {
+          "name": "idx_user_moderation_logs_user_id",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_user_moderation_logs_admin_id": {
+          "name": "idx_user_moderation_logs_admin_id",
+          "columns": [
+            {
+              "expression": "admin_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_moderation_logs_user_id_users_id_fk": {
+          "name": "user_moderation_logs_user_id_users_id_fk",
+          "tableFrom": "user_moderation_logs",
+          "tableTo": "users",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "user_moderation_logs_admin_id_users_id_fk": {
+          "name": "user_moderation_logs_admin_id_users_id_fk",
+          "tableFrom": "user_moderation_logs",
+          "tableTo": "users",
+          "columnsFrom": ["admin_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_user_moderation_logs_action": {
+          "name": "chk_user_moderation_logs_action",
+          "value": "\"user_moderation_logs\".\"action\" in ('suspended', 'unsuspended', 'warned')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.user_sessions": {
       "name": "user_sessions",
       "schema": "",
@@ -795,7 +1502,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
@@ -958,17 +1666,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "email_confirmed_at": {
-          "name": "email_confirmed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
         "username": {
           "name": "username",
           "type": "citext",
           "primaryKey": false,
           "notNull": true
+        },
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": false
         },
         "password_hash": {
           "name": "password_hash",
@@ -983,27 +1691,45 @@
           "notNull": true,
           "default": "'active'"
         },
+        "role": {
+          "name": "role",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        },
         "locale": {
           "name": "locale",
           "type": "varchar(10)",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'en'"
+          "notNull": false
         },
-        "terms_accepted": {
-          "name": "terms_accepted",
+        "country_code": {
+          "name": "country_code",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email_confirmed_at": {
+          "name": "email_confirmed_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
-        "privacy_accepted": {
-          "name": "privacy_accepted",
+        "marketing_consent_at": {
+          "name": "marketing_consent_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         },
-        "marketing_consent": {
-          "name": "marketing_consent",
+        "privacy_accepted_at": {
+          "name": "privacy_accepted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "terms_accepted_at": {
+          "name": "terms_accepted_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
@@ -1061,22 +1787,32 @@
           "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "users_country_code_countries_iso_a_2_fk": {
+          "name": "users_country_code_countries_iso_a_2_fk",
+          "tableFrom": "users",
+          "tableTo": "countries",
+          "columnsFrom": ["country_code"],
+          "columnsTo": ["iso_a_2"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {
+        "chk_users_username_format": {
+          "name": "chk_users_username_format",
+          "value": "\"users\".\"username\"::text ~ '^[A-Za-z0-9_]{3,32}$'"
+        },
         "chk_users_status": {
           "name": "chk_users_status",
           "value": "\"users\".\"status\" in ('active', 'suspended', 'deleted')"
         },
-        "chk_users_locale": {
-          "name": "chk_users_locale",
-          "value": "\"users\".\"locale\" in ('en', 'tr', 'de', 'ru', 'es', 'fr')"
-        },
-        "chk_users_username_format": {
-          "name": "chk_users_username_format",
-          "value": "\"users\".\"username\"::text ~ '^[A-Za-z0-9_]{3,32}$'"
+        "chk_users_role": {
+          "name": "chk_users_role",
+          "value": "\"users\".\"role\" in ('user', 'moderator', 'admin')"
         }
       },
       "isRLSEnabled": false
@@ -1089,7 +1825,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",

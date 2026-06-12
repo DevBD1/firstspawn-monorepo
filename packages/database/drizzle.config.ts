@@ -45,7 +45,7 @@ const connectionString =
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: "../../apps/api/src/db/schema.ts",
+  schema: "./src/schema.ts",
   out: "./migrations",
   dbCredentials: {
     url: connectionString,

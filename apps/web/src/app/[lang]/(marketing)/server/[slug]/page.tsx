@@ -100,6 +100,22 @@ export default async function ServerDetailPage({
 
   const isOnline = server.freshness_status === "online";
   const metrics = server.latest_metrics;
+  const websiteSocial = server.socials.find((social) => social.platform === "website");
+  const discordSocial = server.socials.find((social) => social.platform === "discord");
+  const authModeView = {
+    official: {
+      label: dict.labels.onlineMode,
+      className: "border-success/30 text-success bg-success/10",
+    },
+    offline_allowed: {
+      label: dict.labels.offlineMode,
+      className: "border-danger/30 text-danger bg-danger/10",
+    },
+    unknown: {
+      label: dict.labels.unknownMode,
+      className: "border-foreground/30 text-foreground/60 bg-background",
+    },
+  }[server.auth_mode];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -113,7 +129,7 @@ export default async function ServerDetailPage({
       priceCurrency: "USD",
     },
     description: server.description.slice(0, 155),
-    url: server.website_url || undefined,
+    url: websiteSocial?.url,
   };
 
   return (
@@ -236,30 +252,32 @@ export default async function ServerDetailPage({
               </div>
               <div>
                 <span className="block text-foreground/50 text-xs mb-1">
-                  {dict.labels.onlineMode}
+                  {dict.labels.authMode}
                 </span>
                 <span
-                  className={`inline-flex px-2 py-0.5 border text-xs tracking-wider ${server.online_mode ? "border-success/30 text-success bg-success/10" : "border-danger/30 text-danger bg-danger/10"}`}
+                  className={`inline-flex px-2 py-0.5 border text-xs tracking-wider ${authModeView.className}`}
                 >
-                  {server.online_mode ? dict.labels.onlineMode : dict.labels.offlineMode}
+                  {authModeView.label}
                 </span>
               </div>
-              {server.region && (
+              {server.country_code && (
                 <div>
                   <span className="block text-foreground/50 text-xs mb-1">
                     {dict.labels.region}
                   </span>
-                  <span className="text-foreground tracking-wide uppercase">{server.region}</span>
+                  <span className="text-foreground tracking-wide uppercase">
+                    {server.country_code}
+                  </span>
                 </div>
               )}
             </div>
 
             {/* Links */}
-            {(server.website_url || server.discord_url) && (
+            {(websiteSocial || discordSocial) && (
               <div className="border-2 border-foreground/20 bg-background/50 p-6 shadow-[4px_4px_0_rgba(0,0,0,0.3)] space-y-4 flex flex-col items-stretch">
-                {server.website_url && (
+                {websiteSocial && (
                   <a
-                    href={server.website_url}
+                    href={websiteSocial.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full"
@@ -269,9 +287,9 @@ export default async function ServerDetailPage({
                     </PixelButton>
                   </a>
                 )}
-                {server.discord_url && (
+                {discordSocial && (
                   <a
-                    href={server.discord_url}
+                    href={discordSocial.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block w-full"

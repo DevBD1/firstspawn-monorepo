@@ -18,8 +18,11 @@ export interface PublicServerListItem {
   description: string;
   game: PublicServerGame;
   catalog_status: "active" | "archived";
-  freshness_status: "online" | "offline";
-  region: string | null;
+  freshness_status: "online" | "offline" | "unknown";
+  auth_mode: "official" | "offline_allowed" | "unknown";
+  country_code: string | null;
+  logo_url: string | null;
+  banner_url: string | null;
   last_ping_at: string | null;
   latest_metrics: {
     ping_ms: number | null;
@@ -36,8 +39,11 @@ export interface PublicServerDetail {
   description: string;
   game: PublicServerGame;
   catalog_status: "active" | "archived";
-  freshness_status: "online" | "offline";
-  region: string | null;
+  freshness_status: "online" | "offline" | "unknown";
+  auth_mode: "official" | "offline_allowed" | "unknown";
+  country_code: string | null;
+  logo_url: string | null;
+  banner_url: string | null;
   last_ping_at: string | null;
   latest_metrics: {
     ping_ms: number | null;
@@ -49,9 +55,15 @@ export interface PublicServerDetail {
   host: string;
   port: number;
   id: string;
-  online_mode: boolean;
-  website_url: string | null;
-  discord_url: string | null;
+  socials: Array<{
+    platform: "website" | "discord" | "youtube" | "twitter" | "instagram" | "tiktok" | "facebook";
+    url: string;
+    display_order: number;
+  }>;
+  supported_clients: Array<{
+    client_name: PublicServerGame;
+    client_version: string;
+  }>;
   created_at: string;
   updated_at: string;
 }

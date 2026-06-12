@@ -8,6 +8,7 @@ export interface DatabaseContext {
   db: NodePgDatabase<typeof schema>;
 }
 
+/** Converts a PostgreSQL connection string into the discrete `pg` pool options used by services. */
 export const toPoolConfig = (connectionString: string): PoolConfig => {
   const url = new URL(connectionString);
   return {
@@ -20,6 +21,7 @@ export const toPoolConfig = (connectionString: string): PoolConfig => {
   };
 };
 
+/** Creates the shared Drizzle and `pg` database context for FirstSpawn services. */
 export const createDatabase = (connectionString: string): DatabaseContext => {
   const pool = new Pool(toPoolConfig(connectionString));
 

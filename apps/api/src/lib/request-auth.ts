@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 
-import { users, type UserRecord } from "../db/schema.js";
+import { users, type UserRecord } from "@firstspawn/database/schema";
 import { ApiError } from "./api-error.js";
 import { decodeAccessToken, TokenDecodeError } from "./security.js";
 

@@ -32,6 +32,9 @@ importers:
       '@fastify/swagger-ui':
         specifier: ^5.2.3
         version: 5.2.5
+      '@firstspawn/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       dotenv:
         specifier: ^17.2.3
         version: 17.3.1
@@ -250,10 +253,23 @@ importers:
   packages/config: {}
 
   packages/database:
+    dependencies:
+      drizzle-orm:
+        specifier: ^0.44.6
+        version: 0.44.7(@opentelemetry/api@1.9.0)(@types/pg@8.20.0)(pg@8.20.0)
+      pg:
+        specifier: ^8.16.3
+        version: 8.20.0
     devDependencies:
       '@firstspawn/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/node':
+        specifier: ^20
+        version: 20.19.30
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.20.0
       dotenv:
         specifier: ^17.2.3
         version: 17.3.1

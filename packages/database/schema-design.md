@@ -136,7 +136,7 @@ erDiagram
         varchar(20) game "mc_java | mc_bedrock | hytale, indexed"
         varchar(20) status "active | suspended | archived, indexed"
 
-        boolean is_cracked
+        varchar(20) auth_mode "official | offline_allowed | unknown"
         varchar(2) country_code FK "ISO 3166-1 alpha-2"
 
         varchar(2048) logo_url "nullable"
@@ -155,10 +155,9 @@ erDiagram
     }
 
     server_socials {
-        uuid id PK "uuidv4"
-        uuid server_id FK "indexed, cascade"
+        uuid server_id PK,FK "indexed, cascade"
+        varchar(50) platform PK "website | discord | youtube | twitter | instagram | tiktok | facebook"
 
-        varchar(50) platform "website | discord | youtube | twitter | instagram | tiktok | facebook"
         varchar(2048) url
         int display_order
 
@@ -167,11 +166,10 @@ erDiagram
     }
 
     server_supported_clients {
-        uuid id PK "uuidv4"
-        uuid server_id FK "indexed, cascade"
+        uuid server_id PK,FK "indexed, cascade"
 
-        varchar(20) client_name "mc_java | mc_bedrock | hytale"
-        varchar(50) client_version
+        varchar(20) client_name PK "mc_java | mc_bedrock | hytale"
+        varchar(50) client_version PK
 
         timestamptz created_at
         timestamptz updated_at
@@ -263,8 +261,10 @@ erDiagram
 - Use `varchar + CHECK` (not PostgreSQL enums) for constrained fields.
 - `users.username` is DB-constrained to `^[A-Za-z0-9_]{3,32}$`.
 - `servers.slug` is globally unique and never reused.
+- `servers.auth_mode` is DB-constrained to `official`, `offline_allowed`, or `unknown`.
 - `server_heartbeats` dedupe uniqueness is scoped by `(server_id, idempotency_key)`.
-- `server_supported_clients` dedupe uniqueness is scoped by `(server_id, client_name, client_version)`.
+- `server_socials` primary key is `(server_id, platform)`.
+- `server_supported_clients` primary key is `(server_id, client_name, client_version)`.
 - `user_moderation_logs.action` and `server_moderation_logs.action` are constrained to `suspended`, `unsuspended`, or `warned`.
 - `servers.status` is catalog/moderation state only: `active`, `suspended`, or `archived`.
 - Collectors target active `mc_java` rows regardless of heartbeat freshness or probe confidence.

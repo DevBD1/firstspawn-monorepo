@@ -43,7 +43,7 @@ Implemented:
 - New `apps/collector` service with `/healthz` and `/metrics`
 - Docker scheduler container for daily archive / rollup / purge jobs
 - Rebaselined Drizzle migration history
-- MVP schema foundation (`users`, `sessions`, `verification_tokens`, `user_deletion_requests`, `servers`, `server_heartbeats`, hourly/daily rollups)
+- MVP schema foundation (`users`, `sessions`, `verification_tokens`, `user_deletion_requests`, `servers`, server metadata, `server_heartbeats`, hourly/daily rollups)
 
 Pending for MVP completion:
 

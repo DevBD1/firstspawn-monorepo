@@ -1,7 +1,7 @@
 # @firstspawn/api
 
 Fastify production API with Zod validation, Drizzle-backed PostgreSQL access,
-and database migrations managed from `packages/database`.
+and database schema/client primitives consumed from `@firstspawn/database`.
 
 ## Current Status (2026-04-10)
 
@@ -34,6 +34,8 @@ and database migrations managed from `packages/database`.
 - DB-backed integration and concurrency tests for auth flows
 - Admin server catalog endpoints (`mc_java`)
 - Public server list/detail endpoints (slug detail)
+- Catalog server metadata uses `auth_mode`, `country_code`, `logo_url`,
+  `banner_url`, embedded `socials`, and embedded `supported_clients`
 - Collector target, heartbeat ingestion, and probe-failure ingestion endpoints
 - Freshness derived from probe state plus `servers.last_ping_at` (15 minute online window)
 - Heartbeat idempotency by `(server_id, idempotency_key)`
@@ -113,7 +115,8 @@ mail VPS hostname instead of a local Compose service.
 ## Contract Sources
 
 - `../../packages/database/schema-design.md`
-- `src/db/schema.ts`
+- `@firstspawn/database/schema`
+- `@firstspawn/database/client`
 
 ## Database Migrations
 
@@ -166,7 +169,7 @@ Test isolation uses per-test PostgreSQL schemas via `search_path` (no create-dat
 - `POST /api/v1/admin/servers`
 - `GET /api/v1/admin/servers/:id`
 - `PATCH /api/v1/admin/servers/:id`
-- `POST /api/v1/admin/servers/:id/status`
+- `PATCH /api/v1/admin/servers/:id/status`
 - `GET /api/v1/servers`
 - `GET /api/v1/servers/:slug`
 - `GET /api/v1/collector/targets`

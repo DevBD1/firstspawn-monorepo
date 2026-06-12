@@ -369,6 +369,7 @@
       "archived": "ARCHIVED"
     },
     "labels": {
+      "authMode": "AUTH MODE",
       "back": "BACK TO DISCOVER",
       "discord": "DISCORD",
       "host": "HOST",
@@ -381,6 +382,7 @@
       "ping": "PING",
       "port": "PORT",
       "region": "REGION",
+      "unknownMode": "UNKNOWN MODE",
       "version": "VERSION",
       "website": "WEBSITE"
     },
