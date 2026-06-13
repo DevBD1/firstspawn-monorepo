@@ -65,6 +65,11 @@ function getServerSignals(name: string): Signals {
   return { activity, trust, freshness };
 }
 
+function getConsoleServerTags(server: ConsoleServer): string[] {
+  const haystack = `${server.name} ${server.description || ""}`.toLowerCase();
+  return WL_ALL_TAGS.filter((tag) => haystack.includes(tag.toLowerCase()));
+}
+
 function WLPlaceholder({
   label,
   height = 110,
@@ -134,21 +139,15 @@ function WLTrailerStudio({
   isPublished: boolean;
   copy: OwnerConsoleDictionary["trailer"];
 }) {
-  const [step, setStep] = useState<"address" | "rendering" | "preview" | "published">("address");
+  const [step, setStep] = useState<"address" | "rendering" | "preview" | "published">(
+    isPublished ? "published" : "address"
+  );
   const [stageIdx, setStageIdx] = useState(0);
   const provenanceDate = useSyncExternalStore(
     subscribeToStaticClientSnapshot,
     getProvenanceDateSnapshot,
     getEmptySnapshot
   );
-
-  useEffect(() => {
-    // Reset the trailer studio whenever the selected server or its published state changes.
-    /* eslint-disable react-hooks/set-state-in-effect -- intentional reset on prop change */
-    setStep(isPublished ? "published" : "address");
-    setStageIdx(0);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [slug, isPublished]);
 
   useEffect(() => {
     if (step !== "rendering") return;
@@ -354,6 +353,194 @@ function WLListingHealth({
   );
 }
 
+interface WLProfileFormProps {
+  server: ConsoleServer;
+  lang: string;
+  isCustomServer: boolean;
+  copy: OwnerConsoleDictionary["profile"];
+  countryOptions: ReturnType<typeof getCountryOptions>;
+  links: { kind: string; value: string; verified: boolean }[];
+  onServerSaved: (server: ConsoleServer) => void;
+}
+
+function WLProfileForm({
+  server,
+  lang,
+  isCustomServer,
+  copy,
+  countryOptions,
+  links,
+  onServerSaved,
+}: WLProfileFormProps) {
+  const [editName, setEditName] = useState(server.name);
+  const [editBlurb, setEditBlurb] = useState(server.description || "");
+  const [editTags, setEditTags] = useState(() => getConsoleServerTags(server));
+  const [editCountry, setEditCountry] = useState(server.country_code || "WW");
+  const [saved, setSaved] = useState(false);
+  const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) {
+        clearTimeout(savedTimerRef.current);
+      }
+    };
+  }, []);
+
+  const toggleTag = (tag: string) => {
+    setEditTags((current) =>
+      current.includes(tag)
+        ? current.filter((x) => x !== tag)
+        : current.length < 4
+          ? [...current, tag]
+          : current
+    );
+  };
+
+  const saveProfile = () => {
+    if (!isCustomServer) {
+      return;
+    }
+
+    try {
+      const customServersStr = localStorage.getItem("fsproto.custom_servers");
+      if (!customServersStr) return;
+
+      const customServers = JSON.parse(customServersStr) as ConsoleServer[];
+      const idx = customServers.findIndex((cs) => cs.slug === server.slug);
+      if (idx === -1) return;
+
+      const updatedServer = {
+        ...server,
+        name: editName,
+        description: editBlurb,
+        country_code: editCountry,
+      };
+
+      customServers[idx] = { ...customServers[idx], ...updatedServer };
+      localStorage.setItem("fsproto.custom_servers", JSON.stringify(customServers));
+      onServerSaved(updatedServer);
+      setSaved(true);
+
+      if (savedTimerRef.current) {
+        clearTimeout(savedTimerRef.current);
+      }
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2200);
+    } catch {}
+  };
+
+  return (
+    <div className="flex flex-col gap-5 max-w-[620px]">
+      <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col gap-4 shadow-sm">
+        <div>
+          <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
+            {copy.nameLabel}
+          </div>
+          <input
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            disabled={!isCustomServer}
+            className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+          />
+          <div className="font-mono text-[10px] text-muted mt-1.5">
+            {copy.nameHint.replace("{url}", `firstspawn.com/${lang}/server/${server.slug}`)}
+          </div>
+        </div>
+
+        <div>
+          <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
+            {copy.blurbLabel.replace("{count}", String(140 - editBlurb.length))}
+          </div>
+          <input
+            value={editBlurb}
+            maxLength={140}
+            onChange={(e) => setEditBlurb(e.target.value)}
+            disabled={!isCustomServer}
+            className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+          />
+        </div>
+
+        <div>
+          <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-2">
+            {copy.tagsLabel.replace("{count}", String(editTags.length))}
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {WL_ALL_TAGS.map((tag) => (
+              <button
+                key={tag}
+                disabled={!isCustomServer}
+                onClick={() => toggleTag(tag)}
+                className={`font-body text-xs font-semibold rounded-full px-2.5 py-0.5 cursor-pointer transition border ${
+                  editTags.includes(tag)
+                    ? "bg-primary border-primary text-on-primary"
+                    : "border-border text-muted hover:border-foreground"
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
+            {copy.countryLabel}
+          </div>
+          <select
+            value={editCountry}
+            onChange={(e) => setEditCountry(e.target.value)}
+            disabled={!isCustomServer}
+            className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888fa5'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 14px center",
+            }}
+          >
+            {countryOptions.map(({ code, name }) => (
+              <option key={code} value={code}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col shadow-sm">
+        <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-3.5">
+          {copy.linksTitle}
+        </div>
+        <div className="flex flex-col gap-3">
+          {links.map((link) => (
+            <div key={link.kind} className="grid grid-cols-[80px_1fr_auto] gap-3 items-center">
+              <span className="font-body font-bold text-xs text-foreground">{link.kind}</span>
+              <span className="font-mono text-xs text-primary truncate">{link.value}</span>
+              {link.verified ? (
+                <span className="font-body text-[10px] font-bold text-fs-gold">
+                  {copy.linkVerifiedLabel}
+                </span>
+              ) : (
+                <button className="font-body text-xs font-bold text-primary hover:underline cursor-pointer">
+                  {copy.linkVerifyCta}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3.5 flex-wrap">
+        <WLButton variant="primary" onClick={saveProfile} disabled={!isCustomServer}>
+          {copy.saveLabel}
+        </WLButton>
+        {saved && (
+          <span className="font-body text-xs font-bold text-success">{copy.savedNote}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function WLOwnerConsoleClient({
   initialServers,
   lang,
@@ -373,13 +560,6 @@ export default function WLOwnerConsoleClient({
   const [servers, setServers] = useState<ConsoleServer[]>([]);
   const [serverId, setServerId] = useState("");
   const [section, setSection] = useState<ConsoleSectionId>("overview");
-
-  // Edit states
-  const [editName, setEditName] = useState("");
-  const [editBlurb, setEditBlurb] = useState("");
-  const [editTags, setEditTags] = useState<string[]>([]);
-  const [editCountry, setEditCountry] = useState("WW");
-  const [saved, setSaved] = useState(false);
 
   // Custom states
   const [trailerPublishedMap, setTrailerPublishedMap] = useState<Record<string, boolean>>({});
@@ -419,23 +599,6 @@ export default function WLOwnerConsoleClient({
 
   const activeServer = servers.find((s) => s.id === serverId) || servers[0];
 
-  useEffect(() => {
-    if (!activeServer) return;
-    // Resync the edit form to the selected server when it changes.
-    /* eslint-disable react-hooks/set-state-in-effect -- intentional resync on selection change */
-    setEditName(activeServer.name);
-    setEditBlurb(activeServer.description || "");
-
-    // derive tags
-    const haystack = `${activeServer.name} ${activeServer.description || ""}`.toLowerCase();
-    const derived = WL_ALL_TAGS.filter((tag) => haystack.includes(tag.toLowerCase()));
-    setEditTags(derived);
-
-    setEditCountry(activeServer.country_code || "WW");
-    setSaved(false);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [serverId, activeServer]);
-
   if (!activeServer) {
     return (
       <div className="max-w-[1200px] mx-auto px-4 py-12 text-center">
@@ -453,45 +616,9 @@ export default function WLOwnerConsoleClient({
   const baseVotes = 1200 + activeServer.name.charCodeAt(0) * 15;
   const isCustomServer = !!activeServer.pending;
 
-  const saveProfile = () => {
-    if (!isCustomServer) {
-      return;
-    }
-
-    // Persist changes to localStorage if it's a custom server
-    try {
-      const customServersStr = localStorage.getItem("fsproto.custom_servers");
-      if (customServersStr) {
-        const customServers = JSON.parse(customServersStr);
-        const idx = customServers.findIndex((cs: ConsoleServer) => cs.slug === activeServer.slug);
-        if (idx !== -1) {
-          customServers[idx].name = editName;
-          customServers[idx].description = editBlurb;
-          customServers[idx].country_code = editCountry;
-          localStorage.setItem("fsproto.custom_servers", JSON.stringify(customServers));
-          setSaved(true);
-
-          // Refresh state
-          setServers(
-            servers.map((s) =>
-              s.id === serverId
-                ? { ...s, name: editName, description: editBlurb, country_code: editCountry }
-                : s
-            )
-          );
-        }
-      }
-    } catch {}
-    setTimeout(() => setSaved(false), 2200);
-  };
-
-  const toggleTag = (t: string) => {
-    setEditTags(
-      editTags.includes(t)
-        ? editTags.filter((x) => x !== t)
-        : editTags.length < 4
-          ? [...editTags, t]
-          : editTags
+  const handleServerSaved = (updatedServer: ConsoleServer) => {
+    setServers((current) =>
+      current.map((s) => (s.id === updatedServer.id ? { ...s, ...updatedServer } : s))
     );
   };
 
@@ -522,9 +649,12 @@ export default function WLOwnerConsoleClient({
         { ok: true, label: healthCopy.ownership.label, note: healthCopy.ownership.note },
         { ok: true, label: healthCopy.links.label, note: healthCopy.links.noteLive },
         {
-          ok: editTags.length > 0,
+          ok: getConsoleServerTags(activeServer).length > 0,
           label: healthCopy.featureCards.label,
-          note: healthCopy.featureCards.noteLive.replace("{count}", String(editTags.length)),
+          note: healthCopy.featureCards.noteLive.replace(
+            "{count}",
+            String(getConsoleServerTags(activeServer).length)
+          ),
         },
         {
           ok: isTrailerDone,
@@ -699,123 +829,16 @@ export default function WLOwnerConsoleClient({
           )}
 
           {section === "profile" && (
-            <div className="flex flex-col gap-5 max-w-[620px]">
-              <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col gap-4 shadow-sm">
-                <div>
-                  <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
-                    {consoleCopy.profile.nameLabel}
-                  </div>
-                  <input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    disabled={!isCustomServer}
-                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
-                  />
-                  <div className="font-mono text-[10px] text-muted mt-1.5">
-                    {consoleCopy.profile.nameHint.replace(
-                      "{url}",
-                      `firstspawn.com/${lang}/server/${activeServer.slug}`
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
-                    {consoleCopy.profile.blurbLabel.replace(
-                      "{count}",
-                      String(140 - editBlurb.length)
-                    )}
-                  </div>
-                  <input
-                    value={editBlurb}
-                    maxLength={140}
-                    onChange={(e) => setEditBlurb(e.target.value)}
-                    disabled={!isCustomServer}
-                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
-                  />
-                </div>
-
-                <div>
-                  <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-2">
-                    {consoleCopy.profile.tagsLabel.replace("{count}", String(editTags.length))}
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {WL_ALL_TAGS.map((t) => (
-                      <button
-                        key={t}
-                        disabled={!isCustomServer}
-                        onClick={() => toggleTag(t)}
-                        className={`font-body text-xs font-semibold rounded-full px-2.5 py-0.5 cursor-pointer transition border ${
-                          editTags.includes(t)
-                            ? "bg-primary border-primary text-on-primary"
-                            : "border-border text-muted hover:border-foreground"
-                        } disabled:cursor-not-allowed disabled:opacity-60`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
-                    {consoleCopy.profile.countryLabel}
-                  </div>
-                  <select
-                    value={editCountry}
-                    onChange={(e) => setEditCountry(e.target.value)}
-                    disabled={!isCustomServer}
-                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888fa5'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "right 14px center",
-                    }}
-                  >
-                    {countryOptions.map(({ code, name }) => (
-                      <option key={code} value={code}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Links Box */}
-              <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col shadow-sm">
-                <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-3.5">
-                  {consoleCopy.profile.linksTitle}
-                </div>
-                <div className="flex flex-col gap-3">
-                  {links.map((l) => (
-                    <div key={l.kind} className="grid grid-cols-[80px_1fr_auto] gap-3 items-center">
-                      <span className="font-body font-bold text-xs text-foreground">{l.kind}</span>
-                      <span className="font-mono text-xs text-primary truncate">{l.value}</span>
-                      {l.verified ? (
-                        <span className="font-body text-[10px] font-bold text-fs-gold">
-                          {consoleCopy.profile.linkVerifiedLabel}
-                        </span>
-                      ) : (
-                        <button className="font-body text-xs font-bold text-primary hover:underline cursor-pointer">
-                          {consoleCopy.profile.linkVerifyCta}
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3.5 flex-wrap">
-                <WLButton variant="primary" onClick={saveProfile} disabled={!isCustomServer}>
-                  {consoleCopy.profile.saveLabel}
-                </WLButton>
-                {saved && (
-                  <span className="font-body text-xs font-bold text-success">
-                    {consoleCopy.profile.savedNote}
-                  </span>
-                )}
-              </div>
-            </div>
+            <WLProfileForm
+              key={activeServer.id}
+              server={activeServer}
+              lang={lang}
+              isCustomServer={isCustomServer}
+              copy={consoleCopy.profile}
+              countryOptions={countryOptions}
+              links={links}
+              onServerSaved={handleServerSaved}
+            />
           )}
 
           {section === "media" && (
@@ -895,6 +918,7 @@ export default function WLOwnerConsoleClient({
           {section === "trailer" && (
             <div className="max-w-[620px]">
               <WLTrailerStudio
+                key={`${activeServer.id}:${isTrailerDone ? "published" : "draft"}`}
                 slug={activeServer.id}
                 addr={`play.${activeServer.slug}.net`}
                 serverName={activeServer.name}

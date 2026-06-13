@@ -49,16 +49,13 @@ function sigilDataUri(color: string) {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-// Load the WorldLight display font (Unbounded) for the title. Falls back to the
-// default Satori font if the fetch fails so the card always renders.
+const UNBOUNDED_FONT_URL = new URL("../../assets/fonts/Unbounded[wght].ttf", import.meta.url);
+
+// Load the bundled WorldLight display font for reliable OG generation. Falls
+// back to the default Satori font if the local asset cannot be read.
 async function loadDisplayFont(): Promise<ArrayBuffer | null> {
   try {
-    const css = await fetch("https://fonts.googleapis.com/css2?family=Unbounded:wght@700").then(
-      (res) => res.text()
-    );
-    const match = css.match(/src: url\((.+?)\) format\('(?:opentype|truetype)'\)/);
-    if (!match) return null;
-    const res = await fetch(match[1]);
+    const res = await fetch(UNBOUNDED_FONT_URL);
     if (!res.ok) return null;
     return await res.arrayBuffer();
   } catch {
