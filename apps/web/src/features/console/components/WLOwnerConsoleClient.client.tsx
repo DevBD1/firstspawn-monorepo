@@ -420,7 +420,7 @@ export default function WLOwnerConsoleClient({
     setEditBlurb(activeServer.description || "");
 
     // derive tags
-    const haystack = `${activeServer.name} ${activeServer.description}`.toLowerCase();
+    const haystack = `${activeServer.name} ${activeServer.description || ""}`.toLowerCase();
     const derived = WL_ALL_TAGS.filter((tag) => haystack.includes(tag.toLowerCase()));
     setEditTags(derived);
 
