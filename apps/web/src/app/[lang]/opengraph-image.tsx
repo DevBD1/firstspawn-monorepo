@@ -49,7 +49,7 @@ function sigilDataUri(color: string) {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-const UNBOUNDED_FONT_URL = new URL("../../assets/fonts/Unbounded[wght].ttf", import.meta.url);
+const UNBOUNDED_FONT_URL = new URL("../../assets/fonts/Unbounded-Bold.ttf", import.meta.url);
 
 // Load the bundled WorldLight display font for reliable OG generation. Falls
 // back to the default Satori font if the local asset cannot be read.
