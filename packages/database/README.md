@@ -10,6 +10,7 @@ migrations, and local PostgreSQL bootstrap assets.
 - `src/client.ts`: shared Drizzle and `pg` database context helpers
 - `migrations/`: generated SQL migration history
 - `init/`: local Docker extension bootstrap SQL only
+- `seeds/`: optional local demo data SQL
 - `drizzle.config.ts`: Drizzle config
 - `jobs/`: SQL jobs for rollup, retention, and active-server selection
 
@@ -35,6 +36,12 @@ After creating or recreating a local database, run:
 
 ```bash
 pnpm --dir packages/database run migrate
+```
+
+Optional demo data can be applied after migrations:
+
+```bash
+psql "$API_DATABASE_URL" -f packages/database/seeds/0001_demo_server.sql
 ```
 
 ## Operational Jobs
