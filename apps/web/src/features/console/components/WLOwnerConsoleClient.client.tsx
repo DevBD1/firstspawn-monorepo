@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { WLButton } from "@firstspawn/ui";
 import type { PublicServerListItem } from "@/lib/servers-api";
@@ -13,6 +13,11 @@ import { getCountryOptions } from "@/lib/countries";
 
 const WL_CONSOLE_SECTION_IDS = ["overview", "profile", "media", "trailer", "health"] as const;
 type ConsoleSectionId = (typeof WL_CONSOLE_SECTION_IDS)[number];
+
+const subscribeToStaticClientSnapshot = () => () => {};
+const getEmptySnapshot = () => "";
+const getProvenanceDateSnapshot = () =>
+  new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
 // Console server records merge catalog rows with locally-stored custom drafts,
 // so only the fields the console reads are typed; the rest stay opaque.
@@ -131,6 +136,11 @@ function WLTrailerStudio({
 }) {
   const [step, setStep] = useState<"address" | "rendering" | "preview" | "published">("address");
   const [stageIdx, setStageIdx] = useState(0);
+  const provenanceDate = useSyncExternalStore(
+    subscribeToStaticClientSnapshot,
+    getProvenanceDateSnapshot,
+    getEmptySnapshot
+  );
 
   useEffect(() => {
     // Reset the trailer studio whenever the selected server or its published state changes.
@@ -273,10 +283,7 @@ function WLTrailerStudio({
               ▶
             </span>
             <span className="absolute left-2.5 bottom-2.5 font-mono text-[10px] text-foreground bg-bg-panel/90 border border-border rounded-lg px-2.5 py-1">
-              {copy.provenanceDated.replace(
-                "{date}",
-                new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" })
-              )}
+              {copy.provenanceDated.replace("{date}", provenanceDate)}
             </span>
           </div>
           {step === "preview" ? (
@@ -444,9 +451,13 @@ export default function WLOwnerConsoleClient({
 
   const sig = getServerSignals(activeServer.name);
   const baseVotes = 1200 + activeServer.name.charCodeAt(0) * 15;
+  const isCustomServer = !!activeServer.pending;
 
   const saveProfile = () => {
-    setSaved(true);
+    if (!isCustomServer) {
+      return;
+    }
+
     // Persist changes to localStorage if it's a custom server
     try {
       const customServersStr = localStorage.getItem("fsproto.custom_servers");
@@ -458,6 +469,7 @@ export default function WLOwnerConsoleClient({
           customServers[idx].description = editBlurb;
           customServers[idx].country_code = editCountry;
           localStorage.setItem("fsproto.custom_servers", JSON.stringify(customServers));
+          setSaved(true);
 
           // Refresh state
           setServers(
@@ -696,7 +708,8 @@ export default function WLOwnerConsoleClient({
                   <input
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary"
+                    disabled={!isCustomServer}
+                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                   />
                   <div className="font-mono text-[10px] text-muted mt-1.5">
                     {consoleCopy.profile.nameHint.replace(
@@ -717,7 +730,8 @@ export default function WLOwnerConsoleClient({
                     value={editBlurb}
                     maxLength={140}
                     onChange={(e) => setEditBlurb(e.target.value)}
-                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary"
+                    disabled={!isCustomServer}
+                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </div>
 
@@ -729,12 +743,13 @@ export default function WLOwnerConsoleClient({
                     {WL_ALL_TAGS.map((t) => (
                       <button
                         key={t}
+                        disabled={!isCustomServer}
                         onClick={() => toggleTag(t)}
                         className={`font-body text-xs font-semibold rounded-full px-2.5 py-0.5 cursor-pointer transition border ${
                           editTags.includes(t)
                             ? "bg-primary border-primary text-on-primary"
                             : "border-border text-muted hover:border-foreground"
-                        }`}
+                        } disabled:cursor-not-allowed disabled:opacity-60`}
                       >
                         {t}
                       </button>
@@ -749,7 +764,8 @@ export default function WLOwnerConsoleClient({
                   <select
                     value={editCountry}
                     onChange={(e) => setEditCountry(e.target.value)}
-                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full appearance-none cursor-pointer"
+                    disabled={!isCustomServer}
+                    className="font-body text-xs p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground w-full appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888fa5'/%3E%3C/svg%3E")`,
                       backgroundRepeat: "no-repeat",
@@ -790,7 +806,7 @@ export default function WLOwnerConsoleClient({
               </div>
 
               <div className="flex items-center gap-3.5 flex-wrap">
-                <WLButton variant="primary" onClick={saveProfile}>
+                <WLButton variant="primary" onClick={saveProfile} disabled={!isCustomServer}>
                   {consoleCopy.profile.saveLabel}
                 </WLButton>
                 {saved && (

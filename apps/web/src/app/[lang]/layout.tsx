@@ -119,7 +119,7 @@ export default async function RootLayout({
         {/* Blocking theme bootstrap: sets data-theme before first paint to avoid a dusk flash for day-mode users. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=JSON.parse(localStorage.getItem("fsproto.mode"));if(t==="day"||t==="dusk"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("fsproto.mode");if(t==="day"||t==="dusk"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`,
           }}
         />
         <script

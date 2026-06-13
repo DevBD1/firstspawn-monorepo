@@ -63,7 +63,7 @@ function getServerSignals(s: PublicServerDetail): Signals {
 }
 
 function getServerTags(s: PublicServerDetail): string[] {
-  const haystack = `${s.name} ${s.description}`.toLowerCase();
+  const haystack = `${s.name} ${s.description || ""}`.toLowerCase();
   const found = WL_ALL_TAGS.filter((tag) => haystack.includes(tag.toLowerCase()));
   if (found.length === 0) {
     return ["Survival", "Community"];

@@ -18,3 +18,5 @@ export const AUTH_PASSWORD_TOGGLE_CLASS =
 
 export const AUTH_ALTERNATE_LINK_CLASS =
   "font-ui text-base font-bold uppercase tracking-wide text-primary underline decoration-primary/40 underline-offset-4 transition-colors hover:text-primary-hover";
+
+export const AUTH_DISCORD_BUTTON_CLASS = "auth-discord-btn";

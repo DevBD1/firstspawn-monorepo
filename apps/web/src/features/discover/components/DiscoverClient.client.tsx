@@ -340,6 +340,7 @@ export default function DiscoverClient({
 }: DiscoverClientProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
   const [nextCursor, setNextCursor] = useState<string | null>(initialPagination.next_cursor);
   const [globalStats, setGlobalStats] = useState<PublicServerStats>(initialGlobalStats);
@@ -401,8 +402,16 @@ export default function DiscoverClient({
     }
   };
 
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [query]);
+
   // Interpret search query
-  const intent = useMemo(() => wlInterpretQuery(query), [query]);
+  const intent = useMemo(() => wlInterpretQuery(debouncedQuery), [debouncedQuery]);
   const hasIntents = intent.tags.length > 0 || !!intent.game || !!intent.country;
   const isSmartActive = hasIntents && !smartMatchOff;
 
@@ -439,7 +448,7 @@ export default function DiscoverClient({
 
         const [serversData, statsData] = await Promise.all([
           loadMoreServers({
-            q: query.trim() || undefined,
+            q: debouncedQuery.trim() || undefined,
             game: apiGame,
             sort: apiSort,
             limit: 24,
@@ -464,7 +473,7 @@ export default function DiscoverClient({
         if (activeTags.length > 0) {
           filteredServers = filteredServers.filter((s) => {
             // Note: Since tags aren't returned explicitly in PublicServerListItem, we mock them based on description keywords or name
-            const haystack = `${s.name} ${s.description}`.toLowerCase();
+            const haystack = `${s.name} ${s.description || ""}`.toLowerCase();
             return activeTags.every((t) => haystack.includes(t.toLowerCase()));
           });
         }
@@ -495,7 +504,7 @@ export default function DiscoverClient({
       }
     });
   }, [
-    query,
+    debouncedQuery,
     selectedGame,
     selectedCountry,
     selectedTags,
@@ -517,7 +526,7 @@ export default function DiscoverClient({
       const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
 
       const data = await loadMoreServers({
-        q: query.trim() || undefined,
+        q: debouncedQuery.trim() || undefined,
         game: apiGame,
         sort: apiSort,
         cursor: nextCursor,
@@ -545,7 +554,7 @@ export default function DiscoverClient({
     isRefreshing,
     selectedGame,
     sortBy,
-    query,
+    debouncedQuery,
     isSmartActive,
     intent.country,
     selectedCountry,

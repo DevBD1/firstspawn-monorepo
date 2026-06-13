@@ -13,6 +13,7 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import AuthSubmitButton from "./AuthSubmitButton.client";
 import {
   AUTH_ALTERNATE_LINK_CLASS,
+  AUTH_DISCORD_BUTTON_CLASS,
   AUTH_FIELD_ERROR_CLASS,
   AUTH_ICON_CLASS,
   AUTH_LABEL_CLASS,
@@ -42,12 +43,7 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
       <input type="hidden" name="next" value={nextPath ?? undefined} />
 
       <div className="space-y-4">
-        <WLButton
-          type="button"
-          variant="primary"
-          fullWidth
-          style={{ background: "#5865F2", borderColor: "#4752C4", color: "#ffffff" }}
-        >
+        <WLButton type="button" variant="primary" fullWidth className={AUTH_DISCORD_BUTTON_CLASS}>
           <DiscordIcon className="h-5 w-5" />
           {copy.discordCta}
         </WLButton>

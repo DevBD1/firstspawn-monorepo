@@ -78,10 +78,11 @@ export default function WLListFlowClient({
   const [country, setCountry] = useState("WW");
   const [published, setPublished] = useState(false);
 
-  const slug = (name || "your-server")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  const slug =
+    (name || "your-server")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "unnamed-server";
 
   const doPing = () => {
     if (!addr.trim()) return;

@@ -24,7 +24,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       document.documentElement.setAttribute("data-theme", theme);
-      localStorage.setItem("fsproto.mode", JSON.stringify(theme));
+      localStorage.setItem("fsproto.mode", theme);
     } catch (e) {
       console.error("Failed to write theme changes", e);
     }
