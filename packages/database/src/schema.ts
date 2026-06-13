@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   customType,
   date,
@@ -262,8 +263,16 @@ export const servers = pgTable(
 
     name: varchar("name", { length: 64 }).notNull(),
     description: text("description").notNull(),
+    longDescription: text("long_description"),
     host: varchar("host", { length: 255 }).notNull(),
     port: integer("port").notNull(),
+    votifierHost: varchar("votifier_host", { length: 255 }),
+    votifierPort: integer("votifier_port"),
+    votifierPublicKey: text("votifier_public_key"),
+    votifierEnabled: boolean("votifier_enabled").notNull().default(false),
+    verificationMethod: varchar("verification_method", { length: 10 }),
+    verificationToken: varchar("verification_token", { length: 80 }),
+    verifiedAt: timestamp("verified_at", { withTimezone: true, mode: "date" }),
 
     game: varchar("game", { length: 20 }).notNull(),
     status: varchar("status", { length: 20 }).notNull().default("active"),
@@ -305,6 +314,14 @@ export const servers = pgTable(
       sql`${table.probeStatus} in ('online', 'offline', 'unknown', 'unreachable')`
     ),
     check("chk_servers_consecutive_probe_failures", sql`${table.consecutiveProbeFailures} >= 0`),
+    check(
+      "chk_servers_votifier_port",
+      sql`${table.votifierPort} is null or ${table.votifierPort} between 1 and 65535`
+    ),
+    check(
+      "chk_servers_verification_method",
+      sql`${table.verificationMethod} is null or ${table.verificationMethod} in ('motd', 'dns')`
+    ),
   ]
 );
 
@@ -328,6 +345,25 @@ export const serverSocials = pgTable(
       "chk_server_socials_platform",
       sql`${table.platform} in ('website', 'discord', 'youtube', 'twitter', 'instagram', 'tiktok', 'facebook')`
     ),
+  ]
+);
+
+export const serverMedia = pgTable(
+  "server_media",
+  {
+    serverId: uuid("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+
+    url: varchar("url", { length: 2048 }).notNull(),
+    kind: varchar("kind", { length: 20 }).notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+
+    ...timestamps,
+  },
+  (table) => [
+    index("idx_server_media_server_id").on(table.serverId),
+    check("chk_server_media_kind", sql`${table.kind} in ('build', 'banner', 'screenshot', 'logo')`),
   ]
 );
 

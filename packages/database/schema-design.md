@@ -130,8 +130,16 @@ erDiagram
         uuid owner_id FK "nullable, indexed"
 
         text description
+        text long_description "nullable"
         varchar(255) host "domain or ip"
         int port
+        varchar(255) votifier_host "nullable"
+        int votifier_port "nullable"
+        text votifier_public_key "nullable"
+        boolean votifier_enabled
+        varchar(10) verification_method "nullable, motd | dns"
+        varchar(80) verification_token "nullable"
+        timestamptz verified_at "nullable"
 
         varchar(20) game "mc_java | mc_bedrock | hytale, indexed"
         varchar(20) status "active | suspended | archived, indexed"
@@ -149,6 +157,16 @@ erDiagram
         int consecutive_probe_failures
         varchar(80) last_probe_error_code "nullable"
         varchar(20) probe_status "online | offline | unknown | unreachable, indexed"
+
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    server_media {
+        uuid server_id FK "indexed, cascade"
+        varchar(2048) url
+        varchar(20) kind "build | banner | screenshot | logo"
+        int display_order
 
         timestamptz created_at
         timestamptz updated_at
@@ -252,6 +270,7 @@ erDiagram
     servers ||--o{ server_heartbeats : "receives pings"
     servers ||--o{ server_heartbeat_hourly : "rollup"
     servers ||--o{ server_heartbeat_daily : "rollup"
+    servers ||--o{ server_media : "has media"
     servers ||--o{ server_supported_clients : "supports clients"
     countries ||--o{ servers : "hosts"
 ```
@@ -262,7 +281,10 @@ erDiagram
 - `users.username` is DB-constrained to `^[A-Za-z0-9_]{3,32}$`.
 - `servers.slug` is globally unique and never reused.
 - `servers.auth_mode` is DB-constrained to `official`, `offline_allowed`, or `unknown`.
+- `servers.votifier_port` is nullable; when present it is constrained to `1..65535`.
+- `servers.verification_method` is nullable; when present it is constrained to `motd` or `dns`.
 - `server_heartbeats` dedupe uniqueness is scoped by `(server_id, idempotency_key)`.
+- `server_media.kind` is constrained to `build`, `banner`, `screenshot`, or `logo`.
 - `server_socials` primary key is `(server_id, platform)`.
 - `server_supported_clients` primary key is `(server_id, client_name, client_version)`.
 - `user_moderation_logs.action` and `server_moderation_logs.action` are constrained to `suspended`, `unsuspended`, or `warned`.
