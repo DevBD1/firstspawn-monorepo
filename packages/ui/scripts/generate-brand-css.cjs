@@ -177,6 +177,18 @@ function renderTypographyValue(familyName, nextFontVariable) {
   return `var(${nextFontVariable}, "${familyName}"), "${familyName}"`;
 }
 
+function renderCssTokenValue(value) {
+  return value
+    .replace(/#[0-9a-fA-F]{3,8}\b/g, (hex) => hex.toLowerCase())
+    .replace(/rgba\(([^)]+)\)/g, (_match, args) => {
+      const spacedArgs = args
+        .split(",")
+        .map((arg) => arg.trim())
+        .join(", ");
+      return `rgba(${spacedArgs})`;
+    });
+}
+
 function renderBrandCss(colors, typography, radii, shadows) {
   const lines = [
     "/* This file is generated from packages/ui/src/branding/tokens.ts. */",
@@ -189,7 +201,11 @@ function renderBrandCss(colors, typography, radii, shadows) {
     lines.push(`  /* ${group.label} */`);
 
     for (const [key, cssVariable] of group.entries) {
-      lines.push(`  ${cssVariable}: ${requireToken(colors, key, "firstspawnBrandColors")};`);
+      lines.push(
+        `  ${cssVariable}: ${renderCssTokenValue(
+          requireToken(colors, key, "firstspawnBrandColors")
+        )};`
+      );
     }
 
     lines.push("");
@@ -205,7 +221,9 @@ function renderBrandCss(colors, typography, radii, shadows) {
   lines.push("  /* Elevation Shadows */");
 
   for (const [key, cssVariable] of shadowEntries) {
-    lines.push(`  ${cssVariable}: ${requireToken(shadows, key, "worldlightShadows")};`);
+    lines.push(
+      `  ${cssVariable}: ${renderCssTokenValue(requireToken(shadows, key, "worldlightShadows"))};`
+    );
   }
 
   lines.push("");
