@@ -4,13 +4,22 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { CheckCircle, Eye, EyeOff, Key, Mail } from "lucide-react";
 import { loginAction } from "@/app/actions/auth";
-import { PixelButton } from "@firstspawn/ui";
+import { WLButton } from "@firstspawn/ui";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
 import { usePasswordVisibility } from "@/features/auth/hooks/usePasswordVisibility";
 import type { LoginFormCopy } from "@/features/auth/types";
 import { Turnstile } from "@marsidev/react-turnstile";
 import AuthSubmitButton from "./AuthSubmitButton.client";
+import {
+  AUTH_ALTERNATE_LINK_CLASS,
+  AUTH_DISCORD_BUTTON_CLASS,
+  AUTH_FIELD_ERROR_CLASS,
+  AUTH_ICON_CLASS,
+  AUTH_LABEL_CLASS,
+  AUTH_PASSWORD_TOGGLE_CLASS,
+  authInputClass,
+} from "./auth-styles";
 
 interface LoginFormProps {
   lang: string;
@@ -42,37 +51,29 @@ export default function LoginForm({
       <input type="hidden" name="next" value={nextPath ?? undefined} />
 
       {showRegisteredBanner && registeredMessage ? (
-        <div className="flex items-center gap-3 border-2 border-emerald-700 bg-emerald-950/50 px-4 py-3 font-ui text-base text-emerald-300">
-          <CheckCircle className="h-5 w-5 shrink-0 text-emerald-400" />
+        <div className="flex items-center gap-3 rounded-control border border-success/40 bg-success/10 px-4 py-3 font-ui text-base text-success">
+          <CheckCircle className="h-5 w-5 shrink-0 text-success" />
           <span>{registeredMessage}</span>
         </div>
       ) : null}
 
       <div className="space-y-4">
-        <PixelButton
-          type="button"
-          variant="discord"
-          className="flex w-full items-center justify-center gap-3"
-        >
+        <WLButton type="button" variant="primary" fullWidth className={AUTH_DISCORD_BUTTON_CLASS}>
           <DiscordIcon className="h-5 w-5" />
           {copy.discordCta}
-        </PixelButton>
+        </WLButton>
 
-        <PixelButton
-          type="button"
-          variant="authSecondary"
-          className="flex w-full items-center justify-center gap-3"
-        >
+        <WLButton type="button" variant="secondary" fullWidth>
           <Key className="h-4 w-4" />
           {copy.passkeyCta}
-        </PixelButton>
+        </WLButton>
 
         <div className="relative py-4">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t-2 border-zinc-800" />
+            <div className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-zinc-950 px-4 font-ui text-base uppercase text-zinc-500">
+            <span className="bg-bg-panel px-4 font-ui text-base uppercase text-muted">
               {copy.dividerLabel}
             </span>
           </div>
@@ -80,14 +81,11 @@ export default function LoginForm({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label
-              className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
-              htmlFor="login-identifier"
-            >
+            <label className={AUTH_LABEL_CLASS} htmlFor="login-identifier">
               {copy.identifierLabel}
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+              <Mail className={AUTH_ICON_CLASS} />
               <input
                 id="login-identifier"
                 name="identifier"
@@ -96,19 +94,16 @@ export default function LoginForm({
                 minLength={3}
                 autoComplete="username"
                 placeholder={copy.identifierPlaceholder}
-                className="w-full border-2 border-zinc-800 bg-zinc-900 px-10 py-3 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className={authInputClass("px-10")}
               />
             </div>
             {fieldErrors.identifier ? (
-              <p className="font-ui text-base text-red-400">{fieldErrors.identifier}</p>
+              <p className={AUTH_FIELD_ERROR_CLASS}>{fieldErrors.identifier}</p>
             ) : null}
           </div>
 
           <div className="space-y-2">
-            <label
-              className="block font-ui text-lg font-bold uppercase tracking-wide text-zinc-300"
-              htmlFor="login-password"
-            >
+            <label className={AUTH_LABEL_CLASS} htmlFor="login-password">
               {copy.passwordLabel}
             </label>
             <div className="relative">
@@ -120,24 +115,24 @@ export default function LoginForm({
                 minLength={8}
                 autoComplete="current-password"
                 placeholder={copy.passwordPlaceholder}
-                className="w-full border-2 border-zinc-800 bg-zinc-900 px-4 py-3 pr-12 font-ui text-xl leading-none text-zinc-100 outline-none transition-colors placeholder:text-zinc-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                className={authInputClass("px-4 pr-12")}
               />
               <button
                 type="button"
                 onClick={toggle}
-                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-2 border-zinc-700 bg-zinc-800 text-zinc-100 transition-colors hover:bg-zinc-700"
+                className={AUTH_PASSWORD_TOGGLE_CLASS}
                 aria-label={showPassword ? copy.hidePasswordAriaLabel : copy.showPasswordAriaLabel}
               >
                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
             {fieldErrors.password ? (
-              <p className="font-ui text-base text-red-400">{fieldErrors.password}</p>
+              <p className={AUTH_FIELD_ERROR_CLASS}>{fieldErrors.password}</p>
             ) : null}
           </div>
 
           {message ? (
-            <div className="border-2 border-red-800 bg-red-950/50 px-4 py-3 font-ui text-base text-red-300">
+            <div className="rounded-control border border-danger/40 bg-danger/10 px-4 py-3 font-ui text-base text-danger">
               {message}
             </div>
           ) : null}
@@ -155,13 +150,10 @@ export default function LoginForm({
         </div>
       </div>
 
-      <div className="mt-8 border-t-2 border-zinc-800/50 pt-6">
-        <p className="font-body text-sm text-zinc-500">
+      <div className="mt-8 border-t border-border pt-6">
+        <p className="font-body text-sm text-muted">
           {copy.alternatePrompt}{" "}
-          <Link
-            href={registerHref}
-            className="font-ui text-base font-bold uppercase tracking-wide text-emerald-500 underline decoration-emerald-500/30 underline-offset-4 transition-colors hover:text-emerald-400"
-          >
+          <Link href={registerHref} className={AUTH_ALTERNATE_LINK_CLASS}>
             {copy.alternateCta}
           </Link>
         </p>

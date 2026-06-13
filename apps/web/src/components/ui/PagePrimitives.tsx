@@ -3,22 +3,6 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 export const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
 
-export function PixelCorners({ className }: { className?: string }) {
-  const cornerClass = joinClasses(
-    "absolute h-2.5 w-2.5 border border-black bg-fs-diamond shadow-[0_0_10px_rgba(34,211,238,0.18)]",
-    className
-  );
-
-  return (
-    <>
-      <span className={joinClasses(cornerClass, "left-2 top-2")} />
-      <span className={joinClasses(cornerClass, "right-2 top-2")} />
-      <span className={joinClasses(cornerClass, "bottom-2 left-2")} />
-      <span className={joinClasses(cornerClass, "bottom-2 right-2")} />
-    </>
-  );
-}
-
 export function PageContainer({ children, className, ...props }: ComponentPropsWithoutRef<"div">) {
   return (
     <div
@@ -44,8 +28,7 @@ export function PageBackdrop({
     <div
       className={joinClasses("pointer-events-none fixed inset-0 z-0 overflow-hidden", className)}
     >
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_16%,rgba(34,211,238,0.12),transparent_32%),radial-gradient(circle_at_82%_12%,rgba(74,222,128,0.08),transparent_28%),linear-gradient(180deg,rgba(2,6,23,0.18)_0%,rgba(2,6,23,0.46)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[size:32px_32px] opacity-10" />
       {children}
     </div>
   );
@@ -59,12 +42,11 @@ export function PageSurface({
   return (
     <section
       className={joinClasses(
-        "relative overflow-hidden border-4 border-black bg-background/78 shadow-[8px_8px_0_0_rgba(0,0,0,1)] backdrop-blur-[2px]",
+        "relative overflow-hidden bg-bg-panel border border-border rounded-[12px] shadow-[0_1px_0_rgba(0,0,0,0.4)] backdrop-blur-[2px]",
         className
       )}
       {...props}
     >
-      <PixelCorners />
       {children}
     </section>
   );
@@ -84,9 +66,7 @@ export function PageSectionHeader({
   return (
     <div className={joinClasses("space-y-3", className)}>
       {eyebrow ? (
-        <p className="font-ui text-[11px] uppercase tracking-[0.38em] text-fs-diamond/80">
-          {eyebrow}
-        </p>
+        <p className="font-ui text-[11px] uppercase tracking-[0.38em] text-fs-gold/80">{eyebrow}</p>
       ) : null}
       <h1 className="font-display text-xl leading-tight tracking-[0.14em] text-foreground md:text-2xl">
         {title}
@@ -110,16 +90,16 @@ export function StatusChip({
   tone?: "diamond" | "success" | "danger" | "gold";
 }) {
   const toneClasses: Record<NonNullable<typeof tone>, string> = {
-    danger: "border-danger/60 bg-danger/12 text-danger",
-    diamond: "border-fs-diamond/60 bg-fs-diamond/12 text-fs-diamond",
-    gold: "border-fs-gold/60 bg-fs-gold/12 text-fs-gold",
-    success: "border-success/60 bg-success/12 text-success",
+    danger: "border-danger/40 bg-danger/10 text-danger",
+    diamond: "border-primary/40 bg-primary/10 text-foreground",
+    gold: "border-fs-gold/40 bg-fs-gold/10 text-fs-gold",
+    success: "border-success/40 bg-success/10 text-success",
   };
 
   return (
     <span
       className={joinClasses(
-        "inline-flex items-center gap-2 border-2 px-3 py-1.5 font-ui text-[10px] uppercase tracking-[0.3em] shadow-[3px_3px_0_0_rgba(0,0,0,1)]",
+        "inline-flex items-center gap-2 border rounded-full px-3 py-1 font-body text-[10px] font-bold uppercase tracking-widest",
         toneClasses[tone],
         className
       )}

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { FormEvent } from "react";
-import { PixelButton } from "@firstspawn/ui";
+import { WLButton } from "@firstspawn/ui";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 
 interface NewsletterSignupProps {
@@ -27,29 +27,26 @@ export default function NewsletterSignup({
   const newsletter = dictionary.landing.newsletter;
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4">
+    <div className="mx-auto w-full max-w-2xl space-y-4 text-left">
       <div>
-        <h3 className="mb-2 font-display text-base tracking-wider text-foreground md:text-lg">
+        <h3 className="mb-2 font-display text-base tracking-normal text-foreground md:text-lg font-semibold">
           {newsletter.title}
         </h3>
-        <p className="max-w-xl font-body text-sm leading-relaxed text-foreground/70">
+        <p className="max-w-xl font-body text-sm leading-relaxed text-muted">
           {newsletter.description}
         </p>
       </div>
 
       {isSubscribed ? (
-        <div className="border-4 border-black bg-success/15 p-4 text-center font-display text-sm tracking-wider text-success shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+        <div className="border border-success/20 bg-success/10 p-4 text-center font-body text-sm font-semibold text-success rounded-xl shadow-sm">
           {newsletter.subscriptionVerified}
         </div>
       ) : confirmEmailSent ? (
-        <div className="border-4 border-black bg-fs-diamond/10 p-4 text-center font-display text-sm tracking-wider text-fs-diamond shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+        <div className="border border-primary/20 bg-primary/10 p-4 text-center font-body text-sm font-semibold text-primary rounded-xl shadow-sm">
           {newsletter.checkInbox}
         </div>
       ) : (
-        <form
-          className="group flex flex-col items-stretch gap-0 border-4 border-black bg-bg-panel shadow-[8px_8px_0_0_rgba(0,0,0,1)] sm:flex-row"
-          onSubmit={onSubmit}
-        >
+        <form className="flex flex-col sm:flex-row gap-3 items-stretch w-full" onSubmit={onSubmit}>
           <input
             id="landing-newsletter-email"
             name="email"
@@ -57,16 +54,12 @@ export default function NewsletterSignup({
             placeholder={dictionary.common.placeholders.email}
             value={email}
             onChange={(event) => onEmailChange(event.target.value)}
-            className="min-h-14 flex-grow border-b-4 border-black bg-background px-4 py-4 font-body text-sm text-foreground placeholder:text-foreground/35 focus:outline-none sm:border-b-0 sm:border-r-4"
+            className="min-h-11 flex-grow border border-border bg-secondary px-4 py-2.5 font-body text-sm text-foreground placeholder:text-muted rounded-xl outline-none focus:border-primary"
             required
           />
-          <PixelButton
-            type="submit"
-            variant="diamond"
-            className="!m-0 min-h-14 !border-0 text-center"
-          >
+          <WLButton type="submit" variant="primary" size="md" className="min-h-11">
             {newsletter.submitLabel}
-          </PixelButton>
+          </WLButton>
         </form>
       )}
 
@@ -74,7 +67,7 @@ export default function NewsletterSignup({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="font-ui text-sm tracking-wide text-fs-diamond"
+          className="font-mono text-xs text-primary"
         >
           {statusMessage}
         </motion.div>

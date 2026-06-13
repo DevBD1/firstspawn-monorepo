@@ -41,16 +41,37 @@
       "online": "ONLINE",
       "systemsNormal": "Системы в норме",
       "verified": "ПРОВЕРЕНО"
+    },
+    "countries": {
+      "WW": "Весь мир",
+      "US": "США",
+      "DE": "Германия",
+      "GB": "Великобритания",
+      "CA": "Канада",
+      "TR": "Турция",
+      "NO": "Норвегия",
+      "FI": "Финляндия",
+      "BR": "Бразилия",
+      "KR": "Южная Корея"
+    },
+    "linkKinds": {
+      "website": "Сайт",
+      "discord": "Discord",
+      "store": "Магазин",
+      "youtube": "YouTube"
     }
   },
   "nav": {
     "console": "Консоль",
     "discover": "Найти",
+    "forOwners": "ДЛЯ ВЛАДЕЛЬЦЕВ",
+    "community": "СООБЩЕСТВО",
     "languageMenuLabel": "LANGUAGE",
     "logIn": "LOG IN",
-    "logOut": "LOG OUT",
+    "logOut": "Выйти",
     "menuLabel": "MENU",
     "myLoot": "Мой лут",
+    "signIn": "Войти",
     "signUp": "SIGN UP",
     "verifyEmail": "VERIFY EMAIL",
     "verifyEmailTitle": "Your email is not verified"
@@ -192,92 +213,31 @@
     }
   },
   "landing": {
-    "scene": {
-      "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
+    "hero": {
+      "statsLine": "{players} игроков онлайн в {servers} мирах",
+      "titleLine1": "Твой следующий мир",
+      "titleLine2": "уже где-то там.",
+      "subtitle": "Честный поиск серверов Minecraft и Hytale — рейтинг по реальной активности и доверию сообщества, а не по тому, кто больше заплатил.",
+      "searchPlaceholder": "Искать миры — “скайблок с экономикой”",
+      "searchSubmitLabel": "Исследовать"
     },
-    "discoveryConsole": {
-      "eyebrow": "КОНСОЛЬ ПОИСКА",
-      "title": "НАЙДИ СЕРВЕР, К КОТОРОМУ СТОИТ ПРИСОЕДИНИТЬСЯ",
-      "subtitle": "Ищи активные листинги Minecraft и Hytale по реальной активности, свежести, региону и соответствию. FirstSpawn начинает с поиска, потому что полезный сигнал должен появляться раньше рекламного обещания.",
-      "searchLabel": "Искать активные серверы",
-      "searchPlaceholder": "Выживание, низкий пинг, экономика, сообщество...",
-      "searchSubmitLabel": "Искать",
-      "browseAllLabel": "Смотреть все серверы",
-      "ownerLabel": "Управляешь сообществом? Заяви о себе через консоль владельца.",
-      "ownerCtaLabel": "Добавить свой сервер",
-      "stats": {
-        "activeServers": "Активные серверы",
-        "onlinePlayers": "Игроки онлайн",
-        "checkedRecently": "Недавно проверены"
-      },
-      "serverPreview": {
-        "emptyTitle": "Сигналы каталога прогреваются",
-        "emptyDescription": "Сейчас API не возвращает публичные серверы. Поиск остается основным путем, а эта консоль заполнится живыми данными каталога, когда цели появятся онлайн.",
-        "liveLabel": "онлайн",
-        "offlineLabel": "офлайн",
-        "rankedByLabel": "Ранжировано по",
-        "maxPlayersLabel": "максимум игроков",
-        "verifiedLabel": "Каталог проверен"
-      }
+    "activeTonight": {
+      "title": "Активны сегодня вечером",
+      "viewAllLabel": "Смотреть все →",
+      "emptyTitle": "Серверы ещё не проиндексированы",
+      "emptyDescription": "Запустите сиды или зарегистрируйте сервер, чтобы наполнить каталог."
     },
-    "problemSolution": {
-      "eyebrow": "СРАВНЕНИЕ СИСТЕМ",
-      "title": "DISCOVERY: ПЕРЕОПРЕДЕЛЕН",
-      "subtitle": "Сравнивай серверы по реальной активности, свежести и соответствию, а не по шуму платного размещения.",
-      "problem": {
-        "statusLabel": "ERR://РАСПАД_ОБНАРУЖЕН",
-        "title": "РАСПАД\nЛИСТИНГОВ",
-        "items": [
-          {
-            "title": "СИНТЕТИЧЕСКОЕ ТЩЕСЛАВИЕ",
-            "description": "Рейтинги, построенные на взятках и bot loops. Синтетические метрики, скрывающие реальный пульс сервера."
-          },
-          {
-            "title": "ГНИЮЩАЯ АРХИТЕКТУРА",
-            "description": "Статичные телефонные книги для призраков. Разрозненные каталоги, которые не развивались с 2012 года."
-          }
-        ]
-      },
-      "solution": {
-        "statusLabel": "SYS://ORIGIN_АКТИВЕН",
-        "title": "СТАНДАРТ\nИСТОКА",
-        "items": [
-          {
-            "title": "DEEP-PULSE ЦЕЛОСТНОСТЬ",
-            "description": "Репутация, подкрепленная FSVotifier. Метрики в реальном времени, доказывающие здоровье сообщества и доверие."
-          },
-          {
-            "title": "НЕЙРОННЫЙ DISCOVERY",
-            "description": "Живой мост. Мы напрямую соединяем игроков со скрытыми жемчужинами, которые важны."
-          }
-        ]
-      }
+    "ranking": {
+      "title": "Рейтинг дня",
+      "formulaHint": "ранг = активность × доверие × свежесть — нажмите на номер ранга",
+      "emptyTitle": "Рейтинги ещё не рассчитаны",
+      "emptyDescription": "Рейтинги обновляются автоматически по мере накопления heartbeat-данных."
     },
-    "returnCta": {
-      "label": "\u041d\u0410\u0412\u0415\u0420\u0425"
-    },
-    "features": {
-      "eyebrow": "TRUST SIGNALS",
-      "title": "ПОЧЕМУ FIRSTSPAWN?",
-      "subtitle": "Создано по-другому для игроков, которым важнее свежие сигналы, реальная активность и подходящий сервер, а не хайп.",
-      "items": [
-        {
-          "title": "ПРОВЕРЕННЫЙ UPTIME",
-          "description": "Больше никаких фальшивых онлайн-цифр. Наши боты проверяют статус каждого сервера в реальном времени."
-        },
-        {
-          "title": "ПОДТВЕРЖДЕННАЯ ИГРА",
-          "description": "Отзывы подкреплены реальным временем в игре. Оценки могут оставлять только настоящие игроки."
-        },
-        {
-          "title": "КРОСС-ПЛАТФОРМЕННЫЙ ID",
-          "description": "Одна личность для Minecraft, Hytale и не только. Синхронизируй свой путь."
-        },
-        {
-          "title": "СИСТЕМА ГИЛЬДИЙ",
-          "description": "Создавай союзы, соревнуйся в таблицах лидеров и открывай эксклюзивные награды."
-        }
-      ]
+    "ownerCta": {
+      "title": "Управляете сервером?",
+      "description": "Разместите его бесплатно. Заслужите своё место аптаймом, активностью и доверием игроков — и точно видьте, какие сигналы влияют на ваш ранг.",
+      "listServerLabel": "Разместить сервер",
+      "howRankingWorksLabel": "Как работает рейтинг"
     },
     "newsletter": {
       "title": "ПОЛУЧАТЬ НОВОСТИ О ЗАПУСКЕ",
@@ -291,45 +251,37 @@
   },
   "discover": {
     "page": {
-      "badgeLabel": "MATCHMAKING CORE",
-      "title": "DISCOVER WORLDS",
-      "subtitle": "Find your next adventure. Browse verified servers ranked by real player data.",
-      "searchPlaceholder": "Search servers, descriptions...",
-      "gameFilters": {
-        "all": "ALL WORLDS",
-        "minecraft": "MINECRAFT",
-        "hytale": "HYTALE"
+      "title": "Поиск",
+      "searchPlaceholder": "Попробуйте “smp по вайтлисту в Финляндии” — {count} серверов",
+      "smartMatch": {
+        "readingAs": "ваш запрос читается как",
+        "literalActive": "слова читаются буквально ·",
+        "enableLabel": "включить умный поиск",
+        "disableLabel": "искать слова буквально",
+        "extraTermsLabel": "+ “{query}”",
+        "methodNote": "сопоставление слово→тег · без догадок ИИ"
       },
-      "rarityFilterTitle": "RARITY FILTER",
-      "sortTitle": "SORT BY",
-      "sortOptions": {
-        "players": "PLAYER COUNT",
-        "ping": "PING"
+      "filters": {
+        "gameTitle": "Игра",
+        "countryTitle": "Страна",
+        "tagsTitle": "Теги",
+        "sortTitle": "Сортировать по",
+        "allGames": "Все",
+        "allCountries": "Все страны",
+        "sortOptions": {
+          "rank": "Ранг",
+          "players": "Игроки",
+          "votes": "Голоса"
+        }
       },
-      "personalStatsTitle": "YOUR STATS",
-      "personalStats": {
-        "serversVisited": "Servers Visited",
-        "favorites": "Favorites"
-      },
-      "resultsSummary": "Показано {count} серверов из {total}",
-      "syncingLabel": "SYNCING...",
-      "loadingMoreLabel": "LOADING...",
-      "emptyStateTitle": "NO WORLDS FOUND",
-      "emptyStateDescription": "Try adjusting your filters",
-      "stats": {
-        "onlineServers": "SERVERS ONLINE",
-        "activePlayers": "PLAYERS ACTIVE",
-        "version": "SERVER DISCOVERY v2.0"
-      },
-      "ranking": {
-        "rankedBy": "RANKED BY",
-        "lowerIsBetter": "LOWER IS BETTER"
-      },
-      "tiers": {
-        "common": "COMMON",
-        "rare": "RARE",
-        "epic": "EPIC",
-        "legendary": "LEGENDARY"
+      "results": {
+        "countOne": "{count} сервер",
+        "countOther": "{count} серверов",
+        "matchingQuery": "по запросу “{query}”",
+        "neverSoldNote": "позиции никогда не продаются",
+        "emptyTitle": "Здесь пока пусто…",
+        "emptyDescription": "Попробуйте убрать некоторые фильтры или поискать другие ключевые слова.",
+        "loadingMore": "Загружаем ещё миры..."
       }
     }
   },
@@ -361,6 +313,89 @@
     "modsRequired": {
       "yes": "YES",
       "no": "NO"
+    },
+    "row": {
+      "verifiedBadge": "✓ Проверено",
+      "votedLabel": "✓ Голос учтён",
+      "onlineCountLabel": "{count} онлайн",
+      "uptimeLabel": "аптайм {value}%",
+      "globalRegionLabel": "Весь мир",
+      "noDescription": "Описание отсутствует.",
+      "gameNames": {
+        "mcJava": "Minecraft",
+        "mcBedrock": "Bedrock",
+        "hytale": "Hytale",
+        "fallback": "Игра"
+      },
+      "relativeTime": {
+        "justNow": "только что",
+        "minutesAgo": "{count} мин назад",
+        "hoursAgo": "{count} ч назад",
+        "daysAgo": "{count} дн назад",
+        "unknown": "неизвестно"
+      }
+    },
+    "tagFeatures": {
+      "Survival": {
+        "title": "Режим выживания",
+        "description": "Классический сбор ресурсов, строительство и торговля между игроками."
+      },
+      "Whitelist": {
+        "title": "Доступ по вайтлисту",
+        "description": "Требуется заявка для проверки намерений и зрелости."
+      },
+      "Economy": {
+        "title": "Экономические системы",
+        "description": "Магазины игроков, виртуальные аукционы, стабильная валюта."
+      },
+      "Trading": {
+        "title": "Торговля между игроками",
+        "description": "Безопасные интерфейсы обмена, зоны бартера."
+      },
+      "Towny": {
+        "title": "Управление городами",
+        "description": "Занимайте регионы, вводите налоги, объединяйтесь в нации с соседями."
+      },
+      "Skyblock": {
+        "title": "Небесные острова",
+        "description": "Начните на крошечном острове в пустоте и расширяйтесь через испытания."
+      },
+      "Quests": {
+        "title": "Авторские цепочки квестов",
+        "description": "Более 200 сюжетных заданий, еженедельные награды."
+      },
+      "RPG": {
+        "title": "Элементы ролевой игры",
+        "description": "Собственные классы, деревья прокачки, уникальные комплекты снаряжения."
+      },
+      "Hardcore": {
+        "title": "Высокие ставки",
+        "description": "Ограниченные жизни, постоянные эффекты, опасные ночи."
+      },
+      "Seasonal": {
+        "title": "Сезонные циклы",
+        "description": "Мир сбрасывается каждые 3-6 месяцев с новыми темами."
+      },
+      "Creative": {
+        "title": "Свободное строительство",
+        "description": "Зоны свободной застройки, общие участки, инструменты дизайна."
+      },
+      "Builds": {
+        "title": "Выставочные районы",
+        "description": "Подборки выдающихся построек."
+      },
+      "Showcase": {
+        "title": "Экскурсии",
+        "description": "Осматривайте лучшие творения вместе с их авторами."
+      },
+      "Dungeons": {
+        "title": "Подземелья",
+        "description": "Процедурные забеги, рукотворные арены боссов."
+      },
+      "Family-friendly": {
+        "title": "Для всей семьи",
+        "description": "Строгие фильтры, терпеливые модераторы."
+      }
     }
   },
   "serverDetail": {
@@ -428,19 +463,121 @@
     "status": {
       "online": "ONLINE",
       "offline": "OFFLINE"
+    },
+    "profile": {
+      "breadcrumbBack": "← Поиск",
+      "gameNames": {
+        "mcJava": "Minecraft Java",
+        "mcBedrock": "Minecraft Bedrock",
+        "hytale": "Hytale"
+      },
+      "updatedJustNow": "обновлено только что",
+      "updatedRecently": "обновлено недавно",
+      "links": {
+        "verifiedTooltip": "Владение подтверждено FirstSpawn",
+        "unverifiedTooltip": "Ещё не подтверждено",
+        "verifiedByNote": "✓ подтверждено FirstSpawn"
+      },
+      "tabs": {
+        "overview": "Обзор",
+        "discussion": "Обсуждение · {count}"
+      },
+      "about": {
+        "title": "Об этом мире"
+      },
+      "rank": {
+        "title": "Почему он занимает это место",
+        "subtitle": "ранг = активность × доверие × свежесть — одна и та же формула для каждого сервера, никогда не продаётся"
+      },
+      "featureCards": {
+        "title": "Что делает его особенным",
+        "subtitle": "подбирается владельцем, не больше четырёх — для каждой карточки нужен настоящий внутриигровой скриншот"
+      },
+      "media": {
+        "title": "Медиа",
+        "subtitle": "трейлер рендерится из живых данных карты сервера — никаких сгенерированных изображений",
+        "provenanceChip": "⬡ срендерено из живых данных мира · обновляется еженедельно"
+      },
+      "similar": {
+        "title": "Похожие миры"
+      },
+      "discussion": {
+        "updatesTitle": "Новости от команды",
+        "updatesSubtitle": "подписанные посты подтверждённого владельца — закреплены над веткой",
+        "staffBadge": "✓ команда {name}",
+        "threadTitle": "Ветка игроков",
+        "threadSubtitle": "открыта автоматически вместе с листингом · принадлежит игрокам, модерируется FirstSpawn",
+        "composerPlaceholder": "Спросите о {name} или расскажите игрокам, каково там…",
+        "postingAsNote": "публикуется как {username} · один аккаунт, одна репутация",
+        "postLabel": "Опубликовать",
+        "youSuffix": "(вы)",
+        "repliesLabel": "ответов: {count}",
+        "ownerRepliedLabel": "владелец ответил",
+        "deleteLabel": "удалить",
+        "reportLabel": "пожаловаться",
+        "underReviewLabel": "⚑ на рассмотрении · {reason}",
+        "reportPromptTitle": "Жалоба модераторам FirstSpawn — не владельцу сервера:",
+        "reportReasons": {
+          "spam": "Спам или реклама",
+          "harassment": "Травля",
+          "misleading": "Вводит в заблуждение о сервере",
+          "offTopic": "Не по теме"
+        },
+        "cancelLabel": "отмена"
+      },
+      "sidebar": {
+        "joinTitle": "Подключиться",
+        "copiedLabel": "скопировано ✓",
+        "copyAddressLabel": "Скопировать адрес сервера",
+        "voteLabel": "▲ Проголосовать за этот сервер",
+        "votedLabel": "✓ Голос за сегодня",
+        "stats": {
+          "onlineNow": "Сейчас онлайн",
+          "uptime30d": "Аптайм (30 дн)",
+          "votes": "Голоса",
+          "standing": "Репутация"
+        },
+        "factsTitle": "Факты о сервере",
+        "facts": {
+          "version": "Версия",
+          "crossplay": "Кроссплей",
+          "language": "Язык",
+          "resets": "Вайпы",
+          "listedSince": "В каталоге с"
+        },
+        "factValues": {
+          "javaBedrock": "Java + Bedrock",
+          "pcOnly": "Только ПК",
+          "english": "Английский",
+          "seasonal": "Сезонные",
+          "nonePlanned": "Не планируются",
+          "hytaleRelease": "Релиз 1.x",
+          "mcJavaDefault": "1.21.x · Java"
+        },
+        "factsFootnote": "факты указаны владельцем · сверяются с живыми пингами"
+      }
     }
   },
   "legal": {
     "terms": {
       "title": "Terms of Service",
       "description": "This Terms of Service page is being finalized. By creating an account, you agree to FirstSpawn platform usage rules, account responsibility, and acceptable conduct policies.",
-      "localeLabel": "Locale"
+      "localeLabel": "Locale",
+      "noticeBadge": "Черновик в работе",
+      "noticeBody": "Мы готовим полные Условия использования. До публикации приведённое выше описание поясняет, как работает платформа. Загляните позже."
     },
     "privacy": {
       "title": "Privacy Policy",
       "description": "This Privacy Policy page is being finalized. By creating an account, you acknowledge data processing for account security, product operations, and communications preferences.",
-      "localeLabel": "Locale"
+      "localeLabel": "Locale",
+      "noticeBadge": "Черновик в работе",
+      "noticeBody": "Мы готовим полную Политику конфиденциальности. До публикации приведённое выше описание поясняет, как мы обрабатываем ваши данные. Загляните позже."
     }
+  },
+  "communityPage": {
+    "badge": "Скоро",
+    "title": "СООБЩЕСТВО",
+    "description": "Паспорта игроков, журналы серверов и вклад сообщества уже в пути. Этот раздел откроется на следующем этапе релиза."
   },
   "consolePage": {
     "badge": "COMMAND TERMINAL ONLINE",
@@ -510,5 +647,215 @@
     "categoryUnavailable": "Personalization and marketing cookies are not currently active on FirstSpawn.",
     "stateOn": "ON",
     "stateOff": "OFF"
+  },
+  "rankSignals": {
+    "popoverTitle": "Почему такой ранг?",
+    "activityLabel": "Активность",
+    "trustLabel": "Доверие",
+    "freshnessLabel": "Свежесть",
+    "activityHint": "игроки, действительно находящиеся онлайн, час за часом",
+    "trustHint": "подтверждённое владение, история модерации, жалобы игроков",
+    "freshnessHint": "как давно подтверждались данные листинга",
+    "formulaLine": "ранг = активность × доверие × свежесть.",
+    "neverSoldLine": "Позиции никогда не продаются.",
+    "activityMeasuredTooltip": "Активность измеряется FirstSpawn"
+  },
+  "listFlow": {
+    "steps": {
+      "address": "Адрес",
+      "ownership": "Владение",
+      "profile": "Профиль",
+      "publish": "Публикация"
+    },
+    "header": {
+      "title": "Добавьте свой сервер",
+      "summary": "Бесплатно и останется бесплатным. Вы начинаете без ранга — место зарабатывается измеренной активностью, доверием и свежестью, а не покупается."
+    },
+    "address": {
+      "title": "Где живёт ваш мир?",
+      "description": "Сначала мы его пингуем. Листинг строится на том, что мы можем измерить — форма идёт потом.",
+      "hostPlaceholder": "play.yourserver.net",
+      "pingingLabel": "Пингуем…",
+      "checkServerLabel": "Проверить сервер",
+      "stats": {
+        "status": "Статус",
+        "reachable": "● доступен",
+        "version": "Версия",
+        "onlineNow": "Сейчас онлайн",
+        "motd": "MOTD"
+      },
+      "continueLabel": "Всё верно →",
+      "supportNote": "java + bedrock поддерживаются · hytale на запуске"
+    },
+    "ownership": {
+      "title": "Докажите, что он ваш.",
+      "description": "Одна проверка, два способа. Это открывает консоль владельца, подписанные обновления и ✓ на ваших ссылках — и не пускает самозванцев в FirstSpawn.",
+      "tokenLabel": "Ваш токен проверки",
+      "copyLabel": "копировать",
+      "motdTitle": "MOTD сервера",
+      "motdBody": "Добавьте токен в MOTD на один перезапуск. Мы увидим его при следующем пинге.",
+      "dnsTitle": "DNS-запись",
+      "dnsBodyPrefix": "Добавьте TXT-запись по адресу",
+      "dnsFallbackDomain": "yourserver.net",
+      "dnsBodySuffix": ".",
+      "verifiedLabel": "✓ Владение подтверждено",
+      "continueLabel": "Продолжить →",
+      "checkingLabel": "Проверяем…",
+      "verifyLabel": "Я добавил — проверить"
+    },
+    "profile": {
+      "title": "Представьте свой мир.",
+      "description": "Намеренно коротко. Скриншоты, карточки особенностей и трейлер появятся после публикации — этого достаточно, чтобы игроки вас нашли.",
+      "nameLabel": "Название сервера",
+      "blurbLabel": "Описание в одну строку · осталось {count}",
+      "blurbPlaceholder": "Сезонное выживание с событиями и рынком, которым управляют игроки.",
+      "tagsLabel": "Теги · выберите до 4 ({count}/4)",
+      "countryLabel": "Страна",
+      "countryHint": "где размещён сервер · выберите Global, если играют все",
+      "previewLabel": "Предпросмотр листинга →"
+    },
+    "preview": {
+      "draftTitle": "Так вас увидят игроки.",
+      "draftDescription": "Измеренные числа приходят из наших пингов; всё, что вы ввели, помечено как заявленное владельцем. Вы начинаете без ранга и поднимаетесь по мере накопления сигналов.",
+      "publishedTitle": "Вы в листинге.",
+      "publishedDescription": "Первое сканирование уже идёт. Игровая ветка открыта, а консоль владельца разблокирована — карточки особенностей, подтверждённые ссылки и трейлер мира находятся там.",
+      "fallbackName": "Ваш сервер",
+      "fallbackBlurb": "Сезонное выживание с проводимыми событиями и рынком под управлением игроков.",
+      "justListedLabel": "только что добавлен",
+      "onlineMeasuredLabel": "● 87 онлайн · измерено",
+      "rankUnrankedLabel": "ранг — без ранга · заработан, не куплен",
+      "standingLabel": "статус — Строится",
+      "publishLabel": "Опубликовать листинг",
+      "editProfileLabel": "← Редактировать профиль",
+      "openConsoleLabel": "Открыть консоль владельца →"
+    }
+  },
+  "ownerConsole": {
+    "sections": {
+      "overview": "Обзор",
+      "profile": "Профиль",
+      "media": "Медиа",
+      "trailer": "Трейлер мира",
+      "health": "Состояние"
+    },
+    "header": {
+      "title": "Консоль владельца",
+      "summary": "{count} миров · ✓ владение подтверждено · здесь ничто не покупает ранг",
+      "listAnotherLabel": "+ Разместить ещё один сервер"
+    },
+    "empty": {
+      "title": "На вашем аккаунте нет размещённых серверов.",
+      "ctaLabel": "Разместите свой первый сервер"
+    },
+    "switcher": {
+      "pendingBadge": "ожидание"
+    },
+    "overview": {
+      "firstCrawlTitle": "Идёт первое сканирование.",
+      "firstCrawlBody": "Измеренная статистика появится в течение часа — ранг и репутация придут по мере накопления сигналов. Ветка игроков уже открыта.",
+      "rankLabel": "ранг",
+      "rankPending": "ожидание",
+      "rankOf": "из {total}",
+      "onlineNowLabel": "сейчас онлайн · измерено",
+      "standingLabel": "репутация · подтверждена",
+      "votesLabel": "голоса (за всё время)",
+      "signalsTitle": "Сигналы ранга",
+      "signalsNote": "та же формула, что у всех · никогда не продаётся",
+      "viewProfileLabel": "Открыть публичный профиль",
+      "trailerCtaLabel": "Трейлер мира →",
+      "healthCtaLabel": "Состояние листинга →"
+    },
+    "profile": {
+      "nameLabel": "Название сервера",
+      "nameHint": "{url} · смена названия требует проверки",
+      "blurbLabel": "Описание в одну строку · осталось {count}",
+      "tagsLabel": "Теги · выберите до 4 ({count}/4)",
+      "countryLabel": "Страна",
+      "linksTitle": "Ссылки · ✓ = владение подтверждено",
+      "linkVerifiedLabel": "✓ подтверждено",
+      "linkVerifyCta": "подтвердить →",
+      "saveLabel": "Сохранить изменения",
+      "savedNote": "✓ Сохранено — в эфире меньше чем через минуту"
+    },
+    "media": {
+      "replaceLabel": "Заменить",
+      "screenshotsLabel": "Скриншоты · {count} из 6",
+      "addScreenshotLabel": "+ Добавить скриншот",
+      "policyNote": "только внутриигровые снимки · сгенерированные или стоковые изображения удаляются и снижают репутацию доверия"
+    },
+    "trailer": {
+      "title": "Трейлер мира",
+      "provenanceNote": "⬡ срендерено из живых данных мира · никаких сгенерированных изображений",
+      "lockedTitle": "Доступно после первого сканирования.",
+      "lockNotePending": "Сканирование {name} завершится в течение часа — студия откроется, как только появятся измеренные данные мира.",
+      "renderCta": "Срендерить трейлер",
+      "filmTitle": "Снимите этот мир.",
+      "filmBody": "Мы читаем вашу живую карту — те же данные, что видят игроки, — находим самые посещаемые постройки и снимаем кинематографичный облёт. Около минуты. Ничего не выдумывается: если это в трейлере — это есть на вашем сервере.",
+      "addressNote": "подтверждённый адрес · перерендеривается еженедельно, чтобы трейлер не устаревал",
+      "renderingTitle": "Снимаем ваш мир…",
+      "renderingBody": "План рендера разворачивается на глазах — каждый кадр взят из настоящих чанков.",
+      "stages": [
+        {
+          "label": "Пингуем {addr}",
+          "detail": "1.21.4 · 1 204 онлайн · 41мс"
+        },
+        {
+          "label": "Читаем данные карты мира",
+          "detail": "регион спавна + 6 районов · 2,4 ГБ чанков"
+        },
+        {
+          "label": "Находим достопримечательности",
+          "detail": "12 построек-кандидатов, оценённых по плотности посещений"
+        },
+        {
+          "label": "Планируем траекторию камеры",
+          "detail": "4 прохода · рассветный свет · всего 42с"
+        },
+        {
+          "label": "Рендерим кадры",
+          "detail": "1 260 / 1 260 · path-traced"
+        }
+      ],
+      "previewTitle": "Ваш трейлер готов.",
+      "previewBody": "Четыре прохода над самыми посещаемыми постройками в рассветном свете. Опубликуйте его или перерендерьте с другим временем суток.",
+      "publishedTitle": "В эфире на вашем профиле.",
+      "publishedBody": "Игроки видят его на firstspawn.com/{slug} с отметкой происхождения. Перерендеривается еженедельно.",
+      "provenanceDated": "⬡ срендерено из живых данных мира · {date}",
+      "publishCta": "Опубликовать в профиле",
+      "rerenderCta": "Перерендерить",
+      "publishedBadge": "✓ Опубликовано",
+      "startOverCta": "Начать заново"
+    },
+    "health": {
+      "title": "Состояние листинга",
+      "footnote": "состояние никогда не влияет на ранг напрямую — оно лишь делает уже заработанные сигналы видимыми игрокам",
+      "items": {
+        "ownership": {
+          "label": "Владение подтверждено",
+          "note": "MOTD-токен · продлевается автоматически"
+        },
+        "freshPing": {
+          "label": "Свежие данные пинга",
+          "notePending": "подтверждено только что",
+          "noteLive": "подтверждено 5 мин назад"
+        },
+        "links": {
+          "label": "Подтверждённые ссылки",
+          "notePending": "добавьте ссылки на сайт и Discord, затем подтвердите",
+          "noteLive": "2 из 4 с отметкой ✓ — магазин в ожидании"
+        },
+        "featureCards": {
+          "label": "Карточки особенностей",
+          "notePending": "0 из 4 — каждой нужен внутриигровой скриншот",
+          "noteLive": "{count} из 4 избранных тегов подтверждены"
+        },
+        "trailer": {
+          "label": "Трейлер мира",
+          "notePending": "откроется после первого сканирования",
+          "notePublished": "опубликован · перерендеривается еженедельно",
+          "noteUnrendered": "ещё не срендерен — трейлеры повышают вовлечённость"
+        }
+      }
+    }
   }
 }

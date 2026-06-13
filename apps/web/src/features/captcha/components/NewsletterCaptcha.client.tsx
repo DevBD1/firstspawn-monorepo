@@ -2,8 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { PixelButton } from "@firstspawn/ui";
-import PixelCard from "@/components/ui/PixelCard";
+import { WLButton, WLCard } from "@firstspawn/ui";
 import { useScrewCaptcha } from "@/features/captcha/hooks/useScrewCaptcha";
 import { CaptchaState } from "@/features/captcha/types";
 import { CAPTCHA_MAX_ROTATION } from "@/features/captcha/lib/constants";
@@ -110,21 +109,26 @@ export default function NewsletterCaptcha({
               <X size={32} />
             </button>
 
-            <PixelCard
-              title={captchaState === CaptchaState.SUCCESS ? copy.successTitle : copy.title}
-            >
+            <WLCard>
+              <div className="mb-6 w-full border-b border-border pb-3 text-center">
+                <h2 className="font-display text-2xl tracking-normal text-foreground font-semibold">
+                  {captchaState === CaptchaState.SUCCESS ? copy.successTitle : copy.title}
+                </h2>
+              </div>
               <div className="flex flex-col gap-6">
                 <div
-                  className={`border-2 border-black p-4 text-center font-display text-xl uppercase transition-colors duration-300 ${
-                    captchaState === CaptchaState.IDLE ? "bg-background/60 text-foreground" : ""
-                  } ${captchaState === CaptchaState.VERIFYING ? "animate-pulse bg-yellow-900/50 text-yellow-200" : ""} ${
-                    captchaState === CaptchaState.SUCCESS ? "bg-green-900/50 text-green-400" : ""
-                  } ${captchaState === CaptchaState.FAILURE ? "bg-red-900/50 text-red-400" : ""}`}
+                  className={`border border-border rounded-xl p-4 text-center font-display text-base uppercase transition-colors duration-300 ${
+                    captchaState === CaptchaState.IDLE ? "bg-secondary/40 text-foreground" : ""
+                  } ${captchaState === CaptchaState.VERIFYING ? "animate-pulse bg-yellow-900/10 border-yellow-500/20 text-yellow-600" : ""} ${
+                    captchaState === CaptchaState.SUCCESS
+                      ? "bg-success/10 border-success/20 text-success"
+                      : ""
+                  } ${captchaState === CaptchaState.FAILURE ? "bg-danger/10 border-danger/20 text-danger" : ""}`}
                 >
                   {statusMessage}
                 </div>
 
-                <div className="inner-shadow rounded border-2 border-black/50 bg-black/20 p-4">
+                <div className="bg-secondary border border-border rounded-xl p-4">
                   <ScrewMechanic
                     rotation={rotation}
                     targetRotation={targetRotation}
@@ -157,18 +161,18 @@ export default function NewsletterCaptcha({
                   </div>
                 </div>
 
-                <div className="flex gap-4 border-t-2 border-fs-diamond/20 pt-4">
-                  <PixelButton
+                <div className="flex gap-4 border-t border-border pt-4">
+                  <WLButton
                     variant="secondary"
                     onClick={handleReset}
                     disabled={captchaState === CaptchaState.VERIFYING}
-                    className="!px-4 flex items-center gap-2"
+                    style={{ paddingLeft: 16, paddingRight: 16 }}
                     title={copy.resetAriaLabel}
                   >
                     <RefreshIcon />
-                  </PixelButton>
+                  </WLButton>
 
-                  <PixelButton
+                  <WLButton
                     variant={captchaState === CaptchaState.FAILURE ? "danger" : "primary"}
                     className="flex flex-1 items-center justify-center gap-2 text-sm md:text-xl"
                     onClick={captchaState === CaptchaState.FAILURE ? handleReset : handleVerify}
@@ -187,10 +191,10 @@ export default function NewsletterCaptcha({
 
                     {captchaState === CaptchaState.SUCCESS ? <CheckIcon /> : null}
                     {captchaState === CaptchaState.FAILURE ? <XIcon /> : null}
-                  </PixelButton>
+                  </WLButton>
                 </div>
               </div>
-            </PixelCard>
+            </WLCard>
 
             <div className="mt-4 text-center font-ui text-xs text-foreground/40">
               {copy.subtitle}

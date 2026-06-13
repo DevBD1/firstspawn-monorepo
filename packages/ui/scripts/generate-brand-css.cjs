@@ -14,15 +14,18 @@ const colorGroups = [
       ["foreground", "--foreground"],
       ["muted", "--muted"],
       ["border", "--border"],
+      ["link", "--link"],
     ],
   },
   {
     label: "Surfaces and Supporting Fills",
     entries: [
       ["bgPanel", "--bg-panel"],
-      ["bgHostPanel", "--bg-host-panel"],
       ["secondary", "--secondary"],
       ["secondaryHover", "--secondary-hover"],
+      ["inputBg", "--input-bg"],
+      ["art", "--art"],
+      ["artDim", "--art-dim"],
     ],
   },
   {
@@ -30,7 +33,7 @@ const colorGroups = [
     entries: [
       ["primary", "--primary"],
       ["primaryHover", "--primary-hover"],
-      ["fsDiamond", "--fs-diamond"],
+      ["onPrimary", "--on-primary"],
     ],
   },
   {
@@ -40,23 +43,32 @@ const colorGroups = [
       ["successHover", "--success-hover"],
       ["danger", "--danger"],
       ["dangerHover", "--danger-hover"],
-      ["fsOrange", "--fs-orange"],
       ["fsGold", "--fs-gold"],
     ],
   },
-  {
-    label: "Atmospheric Effects",
-    entries: [
-      ["errorGlow", "--error-glow"],
-      ["scanlineColor", "--scanline-color"],
-    ],
-  },
+];
+
+const radiusEntries = [
+  ["tag", "--radius-tag"],
+  ["badge", "--radius-badge"],
+  ["control", "--radius-control"],
+  ["card", "--radius-card"],
+  ["panel", "--radius-panel"],
+  ["modal", "--radius-modal"],
+  ["pill", "--radius-pill"],
+];
+
+const shadowEntries = [
+  ["card", "--shadow-card"],
+  ["popover", "--shadow-popover"],
+  ["modal", "--shadow-modal"],
 ];
 
 const typographyEntries = [
   ["displayFamily", "--font-family-display", "--font-display-base"],
   ["uiFamily", "--font-family-ui", "--font-ui-base"],
   ["bodyFamily", "--font-family-body", "--font-body-base"],
+  ["monoFamily", "--font-family-mono", "--font-mono-base"],
 ];
 
 function flattenMappedTokenKeys(groups) {
@@ -128,6 +140,29 @@ function parseStringTokens(block, exportName) {
   return tokens;
 }
 
+function parseNumericTokens(block, exportName) {
+  const tokens = {};
+
+  for (const line of block.split("\n")) {
+    const trimmed = line.trim();
+    const tokenLine = trimmed.replace(/\s+\/\/.*$/, "");
+
+    if (!tokenLine || tokenLine.startsWith("//")) {
+      continue;
+    }
+
+    const match = tokenLine.match(/^([a-zA-Z][a-zA-Z0-9]*): (\d+),?$/);
+
+    if (!match) {
+      throw new Error(`Unsupported token line in ${exportName}: ${tokenLine}`);
+    }
+
+    tokens[match[1]] = `${match[2]}px`;
+  }
+
+  return tokens;
+}
+
 function requireToken(tokens, key, exportName) {
   const value = tokens[key];
 
@@ -142,7 +177,19 @@ function renderTypographyValue(familyName, nextFontVariable) {
   return `var(${nextFontVariable}, "${familyName}"), "${familyName}"`;
 }
 
-function renderBrandCss(colors, typography) {
+function renderCssTokenValue(value) {
+  return value
+    .replace(/#[0-9a-fA-F]{3,8}\b/g, (hex) => hex.toLowerCase())
+    .replace(/rgba\(([^)]+)\)/g, (_match, args) => {
+      const spacedArgs = args
+        .split(",")
+        .map((arg) => arg.trim())
+        .join(", ");
+      return `rgba(${spacedArgs})`;
+    });
+}
+
+function renderBrandCss(colors, typography, radii, shadows) {
   const lines = [
     "/* This file is generated from packages/ui/src/branding/tokens.ts. */",
     "/* Run `pnpm --filter @firstspawn/ui generate:styles` to update it. */",
@@ -154,12 +201,32 @@ function renderBrandCss(colors, typography) {
     lines.push(`  /* ${group.label} */`);
 
     for (const [key, cssVariable] of group.entries) {
-      lines.push(`  ${cssVariable}: ${requireToken(colors, key, "firstspawnBrandColors")};`);
+      lines.push(
+        `  ${cssVariable}: ${renderCssTokenValue(
+          requireToken(colors, key, "firstspawnBrandColors")
+        )};`
+      );
     }
 
     lines.push("");
   }
 
+  lines.push("  /* Corner Radii */");
+
+  for (const [key, cssVariable] of radiusEntries) {
+    lines.push(`  ${cssVariable}: ${requireToken(radii, key, "worldlightRadii")};`);
+  }
+
+  lines.push("");
+  lines.push("  /* Elevation Shadows */");
+
+  for (const [key, cssVariable] of shadowEntries) {
+    lines.push(
+      `  ${cssVariable}: ${renderCssTokenValue(requireToken(shadows, key, "worldlightShadows"))};`
+    );
+  }
+
+  lines.push("");
   lines.push("  /* Typography */");
 
   for (const [key, cssVariable, nextFontVariable] of typographyEntries) {
@@ -181,6 +248,11 @@ const typography = parseStringTokens(
   extractTokenBlock(source, "firstspawnBrandTypography"),
   "firstspawnBrandTypography"
 );
+const radii = parseNumericTokens(extractTokenBlock(source, "worldlightRadii"), "worldlightRadii");
+const shadows = parseStringTokens(
+  extractTokenBlock(source, "worldlightShadows"),
+  "worldlightShadows"
+);
 
 assertExactTokenCoverage(colors, flattenMappedTokenKeys(colorGroups), "firstspawnBrandColors");
 assertExactTokenCoverage(
@@ -188,8 +260,18 @@ assertExactTokenCoverage(
   typographyEntries.map(([key]) => key),
   "firstspawnBrandTypography"
 );
+assertExactTokenCoverage(
+  radii,
+  radiusEntries.map(([key]) => key),
+  "worldlightRadii"
+);
+assertExactTokenCoverage(
+  shadows,
+  shadowEntries.map(([key]) => key),
+  "worldlightShadows"
+);
 
-const generatedCss = renderBrandCss(colors, typography);
+const generatedCss = renderBrandCss(colors, typography, radii, shadows);
 const currentCss = readFileSync(cssPath, "utf8");
 
 if (checkOnly) {

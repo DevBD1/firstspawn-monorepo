@@ -43,15 +43,32 @@ interface LegalPageShellProps {
   description: string;
   locale: string;
   localeLabel: string;
+  noticeBadge: string;
+  noticeBody: string;
   title: string;
 }
 
-export function LegalPageShell({ description, locale, localeLabel, title }: LegalPageShellProps) {
+export function LegalPageShell({
+  description,
+  locale,
+  localeLabel,
+  noticeBadge,
+  noticeBody,
+  title,
+}: LegalPageShellProps) {
   return (
-    <CenteredPageShell className="max-w-4xl" description={description} title={title}>
-      <p className="font-ui text-sm uppercase tracking-[0.28em] text-foreground/55">
-        {localeLabel}: <span className="text-fs-diamond">{locale.toUpperCase()}</span>
-      </p>
+    <CenteredPageShell
+      badge={noticeBadge}
+      className="max-w-4xl"
+      description={description}
+      title={title}
+    >
+      <div className="space-y-4">
+        <p className="font-ui text-sm uppercase tracking-[0.28em] text-foreground/55">
+          {localeLabel}: <span className="text-fs-gold">{locale.toUpperCase()}</span>
+        </p>
+        <p className="max-w-2xl font-body text-sm leading-relaxed text-muted">{noticeBody}</p>
+      </div>
     </CenteredPageShell>
   );
 }

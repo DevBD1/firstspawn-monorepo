@@ -3,36 +3,49 @@
 
 :root {
   /* Canvas */
-  --background: #05070a;
-  --foreground: #e0e6ed;
-  --muted: #64748b;
-  --border: #000000;
+  --background: #12151e;
+  --foreground: #edeff4;
+  --muted: #8b92a6;
+  --border: #2a3040;
+  --link: #9fb4e8;
 
   /* Surfaces and Supporting Fills */
-  --bg-panel: #0f172a;
-  --bg-host-panel: #1e1a0a;
-  --secondary: #1e293b;
-  --secondary-hover: #334155;
+  --bg-panel: #1a1f2b;
+  --secondary: #222838;
+  --secondary-hover: #2a3144;
+  --input-bg: rgba(26, 31, 43, 0.92);
+  --art: #7d8bb0;
+  --art-dim: #6e7a9c;
 
   /* Brand and Primary Actions */
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --fs-diamond: #3b82f6;
+  --primary: #e5a04c;
+  --primary-hover: #c7822f;
+  --on-primary: #1c1304;
 
   /* State and Signal Colors */
-  --success: #39ff14;
-  --success-hover: #32e612;
-  --danger: #ff3131;
-  --danger-hover: #e62c2c;
-  --fs-orange: #ff9500;
-  --fs-gold: #ffd700;
+  --success: #62c887;
+  --success-hover: #55b97a;
+  --danger: #e0635c;
+  --danger-hover: #cf544d;
+  --fs-gold: #e7c56a;
 
-  /* Atmospheric Effects */
-  --error-glow: #e28c8c;
-  --scanline-color: #121010;
+  /* Corner Radii */
+  --radius-tag: 6px;
+  --radius-badge: 8px;
+  --radius-control: 10px;
+  --radius-card: 12px;
+  --radius-panel: 14px;
+  --radius-modal: 16px;
+  --radius-pill: 999px;
+
+  /* Elevation Shadows */
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.45);
 
   /* Typography */
-  --font-family-display: var(--font-display-base, "Press Start 2P"), "Press Start 2P";
-  --font-family-ui: var(--font-ui-base, "VT323"), "VT323";
-  --font-family-body: var(--font-body-base, "JetBrains Mono"), "JetBrains Mono";
+  --font-family-display: var(--font-display-base, "Unbounded"), "Unbounded";
+  --font-family-ui: var(--font-ui-base, "Onest"), "Onest";
+  --font-family-body: var(--font-body-base, "Onest"), "Onest";
+  --font-family-mono: var(--font-mono-base, "JetBrains Mono"), "JetBrains Mono";
 }

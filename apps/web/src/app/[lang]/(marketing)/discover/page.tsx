@@ -3,7 +3,6 @@ import { getDictionary } from "@/lib/get-dictionary";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import DiscoverClient from "@/features/discover/components/DiscoverClient.client";
 import { getDiscoverCopy } from "@/features/discover/lib/discover-copy";
-import { getServerCardCopy } from "@/features/server/lib/server-copy";
 import { fetchServers, fetchServerStats, type PublicServerListItem } from "@/lib/servers-api";
 
 export const revalidate = 60;
@@ -28,7 +27,6 @@ export default async function DiscoverPage({ params, searchParams }: DiscoverPag
   const initialQuery = resolveInitialQuery(queryParams.q);
   const dictionary = (await getDictionary(lang)) as AppDictionary;
   const copy = getDiscoverCopy(dictionary);
-  const serverCardCopy = getServerCardCopy(dictionary);
 
   let initialServers: PublicServerListItem[] = [];
   let initialPagination: { next_cursor: string | null; limit: number } = {
@@ -52,12 +50,14 @@ export default async function DiscoverPage({ params, searchParams }: DiscoverPag
   return (
     <DiscoverClient
       copy={copy.page}
+      rowCopy={dictionary.serverCatalog.row}
+      rankCopy={dictionary.rankSignals}
+      countries={dictionary.common.countries}
       lang={lang}
       initialServers={initialServers}
       initialPagination={initialPagination}
       initialGlobalStats={globalStats}
       initialQuery={initialQuery}
-      serverCardCopy={serverCardCopy}
     />
   );
 }

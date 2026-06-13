@@ -14,6 +14,8 @@ export default async function PrivacyPage({ params }: { params: Promise<{ lang: 
       description={copy.description}
       locale={lang}
       localeLabel={copy.localeLabel}
+      noticeBadge={copy.noticeBadge}
+      noticeBody={copy.noticeBody}
       title={copy.title}
     />
   );

@@ -3,6 +3,10 @@
 
 :root {
   --fs-nav-height: 80px;
+  --discord-brand: #5865f2;
+  --discord-brand-border: #4752c4;
+  --discord-on-brand: #ffffff;
+  --hero-gradient: linear-gradient(180deg, #12151e 0%, #1a1c2e 52%, #3a2e33 84%, #6b4a33 100%);
 }
 
 @theme inline {
@@ -11,94 +15,44 @@
   --color-muted: var(--muted);
   --color-bg-panel: var(--bg-panel);
   --color-border: var(--border);
+  --color-link: var(--link);
+  --color-art: var(--art);
+  --color-art-dim: var(--art-dim);
 
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
   --color-secondary: var(--secondary);
   --color-secondary-hover: var(--secondary-hover);
   --color-success: var(--success);
   --color-success-hover: var(--success-hover);
   --color-danger: var(--danger);
   --color-danger-hover: var(--danger-hover);
-  --color-fs-diamond: var(--fs-diamond);
   --color-fs-gold: var(--fs-gold);
-  --color-fs-orange: var(--fs-orange);
-}
+  --color-input-bg: var(--input-bg);
 
-@layer utilities {
-  .pixel-border {
-    border: 4px solid black;
-    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-    background: var(--bg-panel);
-  }
+  --radius-tag: var(--radius-tag);
+  --radius-badge: var(--radius-badge);
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+  --radius-panel: var(--radius-panel);
+  --radius-modal: var(--radius-modal);
+  --radius-pill: var(--radius-pill);
 
-  .pixel-border-sm {
-    border: 2px solid black;
-    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
-  }
+  --shadow-card: var(--shadow-card);
+  --shadow-popover: var(--shadow-popover);
+  --shadow-modal: var(--shadow-modal);
 
-  /* Mechanical Pulse Animation */
-  .animate-retro-pulse {
-    animation: retro-pulse 1s steps(4) infinite;
-  }
-
-  @keyframes retro-pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.2;
-    }
-  }
-
-  .pixel-shadow {
-    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
-  }
-
-  .pixel-shadow-sm {
-    box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
-  }
-
-  .pixel-shadow-none {
-    box-shadow: none;
-  }
-
-  .crt-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background:
-      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size:
-      100% 4px,
-      4px 100%;
-    pointer-events: none;
-    z-index: 1000;
-    animation: crt-flicker 0.15s infinite;
-  }
-
-  @keyframes crt-flicker {
-    0% {
-      opacity: 0.15;
-    }
-    50% {
-      opacity: 0.12;
-    }
-    100% {
-      opacity: 0.15;
-    }
-  }
+  --font-display: var(--font-family-display);
+  --font-ui: var(--font-family-ui);
+  --font-body: var(--font-family-body);
+  --font-mono: var(--font-family-mono);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-family-body);
-  image-rendering: pixelated;
   margin: 0;
   min-height: 100dvh;
 }
@@ -115,15 +69,147 @@ body {
   font-family: var(--font-family-body);
 }
 
+.font-mono {
+  font-family: var(--font-family-mono);
+}
+
 ::-webkit-scrollbar {
   width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #444;
-  border: 2px solid #000;
+  background: var(--secondary);
+  border: 2px solid var(--background);
+}
+
+:root[data-theme="day"] {
+  --background: #f2efe7;
+  --foreground: #23272f;
+  --muted: #6e7280;
+  --border: #e2ddd0;
+  --link: #3d5fa8;
+
+  --bg-panel: #fbf9f4;
+  --secondary: #ffffff;
+  --secondary-hover: #f2efe7;
+  --input-bg: #ffffff;
+  --art: #a89a78;
+  --art-dim: #9a8c6c;
+
+  --primary: #b26f1f;
+  --primary-hover: #8f5717;
+  --on-primary: #fff6e8;
+
+  --success: #2e7d4f;
+  --success-hover: #24633e;
+  --danger: #b6453e;
+  --danger-hover: #963933;
+  --fs-gold: #9a7b2e;
+  --shadow-card: 0 1px 0 rgba(60, 50, 30, 0.08);
+  --hero-gradient: linear-gradient(180deg, #f2efe7 0%, #f4ecda 55%, #f0dfc0 85%, #e8c9a0 100%);
+}
+
+.wl-btn {
+  transition:
+    filter 120ms,
+    background 120ms;
+}
+.wl-btn:hover:not(:disabled) {
+  filter: brightness(1.08) !important;
+}
+.wl-btn:active:not(:disabled) {
+  filter: brightness(0.95) !important;
+}
+.wl-btn:focus-visible,
+.wl-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.auth-discord-btn {
+  background: var(--discord-brand) !important;
+  border-color: var(--discord-brand-border) !important;
+  color: var(--discord-on-brand) !important;
+}
+
+.wl-card {
+  transition:
+    transform 120ms,
+    border-color 120ms;
+}
+.wl-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+
+.wl-row {
+  transition: background 120ms;
+}
+.wl-row:hover {
+  background: var(--secondary);
+}
+
+.wl-link:hover {
+  text-decoration: underline;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+}
+
+@keyframes wl-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.wl-blink {
+  animation: wl-blink 900ms step-start infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wl-blink,
+  [class*="wl-blink"] {
+    animation: none;
+  }
+}
+
+.wl-srow {
+  display: grid;
+  grid-template-columns: 44px 40px minmax(0, 1fr) 110px 88px 96px;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 18px 11px 10px;
+}
+@media (max-width: 980px) {
+  .wl-srow {
+    grid-template-columns: 44px 40px minmax(0, 1fr) 110px 96px;
+  }
+  .wl-srow-uptime {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .wl-srow {
+    grid-template-columns: 44px minmax(0, 1fr) 96px;
+    gap: 12px;
+  }
+  .wl-srow-icon,
+  .wl-srow-players {
+    display: none;
+  }
 }

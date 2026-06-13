@@ -38,9 +38,9 @@ const ScrewThread = ({ width, height }: { width: number; height: number }) => {
 
 const PixelNut = ({ x, angle, isGhost }: { x: number; angle: number; isGhost?: boolean }) => {
   const opacity = isGhost ? 0.3 : 1;
-  const strokeColor = isGhost ? "#4ADE80" : "black";
+  const strokeColor = isGhost ? "var(--success)" : "black";
   const fillColor = isGhost ? "transparent" : "#b13e53";
-  const detailColor = isGhost ? "#4ADE80" : "#ffd700";
+  const detailColor = isGhost ? "var(--success)" : "var(--primary)";
 
   return (
     <g transform={`translate(${x}, 0)`}>
@@ -93,7 +93,7 @@ export function ScrewMechanic({
   const targetX = calculateX(targetRotation);
 
   return (
-    <div className="relative flex h-48 w-full items-center justify-center overflow-hidden rounded border-2 border-black bg-[#0B131A] shadow-inner">
+    <div className="relative flex h-48 w-full items-center justify-center overflow-hidden rounded-control border border-border bg-[#0B131A] shadow-inner">
       <svg width="100%" height="100%" viewBox="-160 -60 320 120" className="overflow-visible">
         <g transform="translate(-150, -15)">
           <ScrewThread width={300} height={30} />
