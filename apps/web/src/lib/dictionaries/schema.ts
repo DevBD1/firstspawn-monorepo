@@ -3,6 +3,15 @@ export interface CommonDictionary {
   siteTitle: string;
   tagline: string;
   sourceLabel: string;
+  /** Country display names keyed by ISO-style code ("WW" = global). */
+  countries: Record<string, string>;
+  /** Display names for external link slots on server profiles. */
+  linkKinds: {
+    website: string;
+    discord: string;
+    store: string;
+    youtube: string;
+  };
   actions: {
     addServer: string;
     backHome: string;
@@ -46,11 +55,14 @@ export interface CommonDictionary {
 export interface NavigationDictionary {
   console: string;
   discover: string;
+  forOwners: string;
+  community: string;
   languageMenuLabel: string;
   logIn: string;
   logOut: string;
   menuLabel: string;
   myLoot: string;
+  signIn: string;
   signUp: string;
   verifyEmail: string;
   verifyEmailTitle: string;
@@ -224,66 +236,32 @@ export interface AuthDictionary {
 }
 
 export interface LandingDictionary {
-  scene: {
-    alt: string;
-  };
-  discoveryConsole: {
-    eyebrow: string;
-    title: string;
+  hero: {
+    /** Supports {players} and {servers} placeholders. */
+    statsLine: string;
+    titleLine1: string;
+    titleLine2: string;
     subtitle: string;
-    searchLabel: string;
     searchPlaceholder: string;
     searchSubmitLabel: string;
-    browseAllLabel: string;
-    ownerLabel: string;
-    ownerCtaLabel: string;
-    stats: {
-      activeServers: string;
-      checkedRecently: string;
-      onlinePlayers: string;
-    };
-    serverPreview: {
-      emptyTitle: string;
-      emptyDescription: string;
-      liveLabel: string;
-      offlineLabel: string;
-      rankedByLabel: string;
-      maxPlayersLabel: string;
-      verifiedLabel: string;
-    };
   };
-  problemSolution: {
-    eyebrow: string;
+  activeTonight: {
     title: string;
-    subtitle: string;
-    problem: {
-      statusLabel: string;
-      title: string;
-      items: Array<{
-        title: string;
-        description: string;
-      }>;
-    };
-    solution: {
-      statusLabel: string;
-      title: string;
-      items: Array<{
-        title: string;
-        description: string;
-      }>;
-    };
+    viewAllLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
   };
-  returnCta: {
-    label: string;
-  };
-  features: {
-    eyebrow: string;
+  ranking: {
     title: string;
-    subtitle: string;
-    items: Array<{
-      description: string;
-      title: string;
-    }>;
+    formulaHint: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+  ownerCta: {
+    title: string;
+    description: string;
+    listServerLabel: string;
+    howRankingWorksLabel: string;
   };
   newsletter: {
     title: string;
@@ -298,47 +276,135 @@ export interface LandingDictionary {
 
 export interface DiscoverDictionary {
   page: {
-    badgeLabel: string;
     title: string;
-    subtitle: string;
+    /** Supports a {count} placeholder for the active server total. */
     searchPlaceholder: string;
-    gameFilters: {
-      all: string;
-      minecraft: string;
-      hytale: string;
+    smartMatch: {
+      readingAs: string;
+      literalActive: string;
+      enableLabel: string;
+      disableLabel: string;
+      /** Supports a {query} placeholder for unmatched search words. */
+      extraTermsLabel: string;
+      methodNote: string;
     };
-    rarityFilterTitle: string;
-    sortTitle: string;
-    sortOptions: {
-      ping: string;
-      players: string;
+    filters: {
+      gameTitle: string;
+      countryTitle: string;
+      tagsTitle: string;
+      sortTitle: string;
+      allGames: string;
+      allCountries: string;
+      sortOptions: {
+        rank: string;
+        players: string;
+        votes: string;
+      };
     };
-    personalStatsTitle: string;
-    personalStats: {
-      favorites: string;
-      serversVisited: string;
+    results: {
+      /** Supports a {count} placeholder; singular form. */
+      countOne: string;
+      /** Supports a {count} placeholder; plural form. */
+      countOther: string;
+      /** Supports a {query} placeholder. */
+      matchingQuery: string;
+      neverSoldNote: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      loadingMore: string;
     };
-    resultsSummary: string;
-    syncingLabel: string;
-    loadingMoreLabel: string;
-    emptyStateTitle: string;
-    emptyStateDescription: string;
+  };
+}
+
+/**
+ * Copy for the ranking-transparency UI (signal bars, "why this rank?"
+ * popovers) shared by the landing, discover, server profile, and owner
+ * console surfaces.
+ */
+export interface RankSignalsDictionary {
+  popoverTitle: string;
+  activityLabel: string;
+  trustLabel: string;
+  freshnessLabel: string;
+  activityHint: string;
+  trustHint: string;
+  freshnessHint: string;
+  formulaLine: string;
+  neverSoldLine: string;
+  activityMeasuredTooltip: string;
+}
+
+/** Copy for the WorldLight list-your-server flow. */
+export interface ListFlowDictionary {
+  steps: {
+    address: string;
+    ownership: string;
+    profile: string;
+    publish: string;
+  };
+  header: {
+    title: string;
+    summary: string;
+  };
+  address: {
+    title: string;
+    description: string;
+    hostPlaceholder: string;
+    pingingLabel: string;
+    checkServerLabel: string;
     stats: {
-      activePlayers: string;
-      onlineServers: string;
+      status: string;
+      reachable: string;
       version: string;
+      onlineNow: string;
+      motd: string;
     };
-    ranking: {
-      lowerIsBetter: string;
-      rankedBy: string;
-    };
-    tiers: {
-      common: string;
-      rare: string;
-      epic: string;
-      legendary: string;
-    };
-    tierFilterTitle: string;
+    continueLabel: string;
+    supportNote: string;
+  };
+  ownership: {
+    title: string;
+    description: string;
+    tokenLabel: string;
+    copyLabel: string;
+    motdTitle: string;
+    motdBody: string;
+    dnsTitle: string;
+    dnsBodyPrefix: string;
+    dnsFallbackDomain: string;
+    dnsBodySuffix: string;
+    verifiedLabel: string;
+    continueLabel: string;
+    checkingLabel: string;
+    verifyLabel: string;
+  };
+  profile: {
+    title: string;
+    description: string;
+    nameLabel: string;
+    /** Supports a {count} placeholder (characters left). */
+    blurbLabel: string;
+    blurbPlaceholder: string;
+    /** Supports a {count} placeholder (selected tag count). */
+    tagsLabel: string;
+    countryLabel: string;
+    countryHint: string;
+    previewLabel: string;
+  };
+  preview: {
+    draftTitle: string;
+    draftDescription: string;
+    publishedTitle: string;
+    publishedDescription: string;
+    fallbackName: string;
+    fallbackBlurb: string;
+    justListedLabel: string;
+    onlineMeasuredLabel: string;
+    rankUnrankedLabel: string;
+    standingLabel: string;
+    publishLabel: string;
+    editProfileLabel: string;
+    openConsoleLabel: string;
   };
 }
 
@@ -373,11 +439,40 @@ export interface ServerCatalogDictionary {
     no: string;
     yes: string;
   };
+  /** Copy for the compact list rows and cards used on landing and discover. */
+  row: {
+    verifiedBadge: string;
+    votedLabel: string;
+    /** Supports a {count} placeholder. */
+    onlineCountLabel: string;
+    /** Supports a {value} placeholder (uptime percentage). */
+    uptimeLabel: string;
+    globalRegionLabel: string;
+    noDescription: string;
+    gameNames: {
+      mcJava: string;
+      mcBedrock: string;
+      hytale: string;
+      fallback: string;
+    };
+    relativeTime: {
+      justNow: string;
+      /** Supports a {count} placeholder. */
+      minutesAgo: string;
+      /** Supports a {count} placeholder. */
+      hoursAgo: string;
+      /** Supports a {count} placeholder. */
+      daysAgo: string;
+      unknown: string;
+    };
+  };
   sortHighlights: {
     lowerIsBetter: string;
     rankedBy: string;
     trendingNow: string;
   };
+  /** Feature-card copy keyed by catalog tag token (tag tokens stay English). */
+  tagFeatures: Record<string, { title: string; description: string }>;
 }
 
 export interface ServerDetailDictionary {
@@ -403,6 +498,106 @@ export interface ServerDetailDictionary {
     version: string;
     website: string;
   };
+  /** Copy for the WorldLight server profile page. */
+  profile: {
+    breadcrumbBack: string;
+    gameNames: {
+      mcJava: string;
+      mcBedrock: string;
+      hytale: string;
+    };
+    updatedJustNow: string;
+    updatedRecently: string;
+    links: {
+      verifiedTooltip: string;
+      unverifiedTooltip: string;
+      verifiedByNote: string;
+    };
+    tabs: {
+      overview: string;
+      /** Supports a {count} placeholder (total posts + replies). */
+      discussion: string;
+    };
+    about: {
+      title: string;
+    };
+    rank: {
+      title: string;
+      subtitle: string;
+    };
+    featureCards: {
+      title: string;
+      subtitle: string;
+    };
+    media: {
+      title: string;
+      subtitle: string;
+      provenanceChip: string;
+    };
+    similar: {
+      title: string;
+    };
+    discussion: {
+      updatesTitle: string;
+      updatesSubtitle: string;
+      /** Supports a {name} placeholder (server name). */
+      staffBadge: string;
+      threadTitle: string;
+      threadSubtitle: string;
+      /** Supports a {name} placeholder (server name). */
+      composerPlaceholder: string;
+      /** Supports a {username} placeholder. */
+      postingAsNote: string;
+      postLabel: string;
+      youSuffix: string;
+      /** Supports a {count} placeholder. */
+      repliesLabel: string;
+      ownerRepliedLabel: string;
+      deleteLabel: string;
+      reportLabel: string;
+      /** Supports a {reason} placeholder. */
+      underReviewLabel: string;
+      reportPromptTitle: string;
+      reportReasons: {
+        spam: string;
+        harassment: string;
+        misleading: string;
+        offTopic: string;
+      };
+      cancelLabel: string;
+    };
+    sidebar: {
+      joinTitle: string;
+      copiedLabel: string;
+      copyAddressLabel: string;
+      voteLabel: string;
+      votedLabel: string;
+      stats: {
+        onlineNow: string;
+        uptime30d: string;
+        votes: string;
+        standing: string;
+      };
+      factsTitle: string;
+      facts: {
+        version: string;
+        crossplay: string;
+        language: string;
+        resets: string;
+        listedSince: string;
+      };
+      factValues: {
+        javaBedrock: string;
+        pcOnly: string;
+        english: string;
+        seasonal: string;
+        nonePlanned: string;
+        hytaleRelease: string;
+        mcJavaDefault: string;
+      };
+      factsFootnote: string;
+    };
+  };
   relativeTime: {
     justNow: string;
     day: RelativeTimeDictionaryUnit;
@@ -418,10 +613,129 @@ export interface ServerDetailDictionary {
   };
 }
 
+/** Copy for the WorldLight owner console. */
+export interface OwnerConsoleDictionary {
+  sections: {
+    overview: string;
+    profile: string;
+    media: string;
+    trailer: string;
+    health: string;
+  };
+  header: {
+    title: string;
+    /** Supports a {count} placeholder (number of listed worlds). */
+    summary: string;
+    listAnotherLabel: string;
+  };
+  empty: {
+    title: string;
+    ctaLabel: string;
+  };
+  switcher: {
+    pendingBadge: string;
+  };
+  overview: {
+    firstCrawlTitle: string;
+    firstCrawlBody: string;
+    rankLabel: string;
+    rankPending: string;
+    /** Supports a {total} placeholder. */
+    rankOf: string;
+    onlineNowLabel: string;
+    standingLabel: string;
+    votesLabel: string;
+    signalsTitle: string;
+    signalsNote: string;
+    viewProfileLabel: string;
+    trailerCtaLabel: string;
+    healthCtaLabel: string;
+  };
+  profile: {
+    nameLabel: string;
+    /** Supports a {url} placeholder (public profile URL). */
+    nameHint: string;
+    /** Supports a {count} placeholder (characters left). */
+    blurbLabel: string;
+    /** Supports a {count} placeholder (selected tag count). */
+    tagsLabel: string;
+    countryLabel: string;
+    linksTitle: string;
+    linkVerifiedLabel: string;
+    linkVerifyCta: string;
+    saveLabel: string;
+    savedNote: string;
+  };
+  media: {
+    replaceLabel: string;
+    /** Supports a {count} placeholder (uploaded screenshot count). */
+    screenshotsLabel: string;
+    addScreenshotLabel: string;
+    policyNote: string;
+  };
+  trailer: {
+    title: string;
+    provenanceNote: string;
+    lockedTitle: string;
+    /** Supports a {name} placeholder (server name). */
+    lockNotePending: string;
+    renderCta: string;
+    filmTitle: string;
+    filmBody: string;
+    addressNote: string;
+    renderingTitle: string;
+    renderingBody: string;
+    /** Stage labels may use an {addr} placeholder. */
+    stages: Array<{ label: string; detail: string }>;
+    previewTitle: string;
+    previewBody: string;
+    publishedTitle: string;
+    /** Supports a {slug} placeholder (public profile slug). */
+    publishedBody: string;
+    /** Supports a {date} placeholder. */
+    provenanceDated: string;
+    publishCta: string;
+    rerenderCta: string;
+    publishedBadge: string;
+    startOverCta: string;
+  };
+  health: {
+    title: string;
+    footnote: string;
+    items: {
+      ownership: { label: string; note: string };
+      freshPing: { label: string; notePending: string; noteLive: string };
+      links: { label: string; notePending: string; noteLive: string };
+      featureCards: {
+        label: string;
+        notePending: string;
+        /** Supports a {count} placeholder. */
+        noteLive: string;
+      };
+      trailer: {
+        label: string;
+        notePending: string;
+        notePublished: string;
+        noteUnrendered: string;
+      };
+    };
+  };
+}
+
 export interface LegalPageCopy {
   description: string;
   localeLabel: string;
   title: string;
+  /** Status-chip label for the "drafting in progress" placeholder state. */
+  noticeBadge: string;
+  /** Short reassurance line shown beneath the locale row while the text is drafted. */
+  noticeBody: string;
+}
+
+export interface CommunityPageCopy {
+  badge: string;
+  title: string;
+  description: string;
 }
 
 export interface ConsolePageCopy {
@@ -471,6 +785,7 @@ export interface AppDictionary {
   auth: AuthDictionary;
   captcha: CaptchaDictionary;
   common: CommonDictionary;
+  communityPage: CommunityPageCopy;
   consolePage: ConsolePageCopy;
   cookieConsent: CookieConsentDictionary;
   debugPages: DebugPageCopy;
@@ -481,8 +796,11 @@ export interface AppDictionary {
     privacy: LegalPageCopy;
     terms: LegalPageCopy;
   };
+  listFlow: ListFlowDictionary;
   lootPage: LootPageCopy;
   nav: NavigationDictionary;
+  ownerConsole: OwnerConsoleDictionary;
+  rankSignals: RankSignalsDictionary;
   serverCatalog: ServerCatalogDictionary;
   serverDetail: ServerDetailDictionary;
 }

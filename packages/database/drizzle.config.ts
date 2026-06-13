@@ -19,7 +19,8 @@ const buildDatabaseUrlFromDiscreteEnv = (host: string): string | null => {
     return null;
   }
 
-  return `postgresql://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:5432/${encodeURIComponent(database)}`;
+  const port = host === "localhost" ? process.env.POSTGRES_HOST_PORT || "55432" : "5432";
+  return `postgresql://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${host}:${port}/${encodeURIComponent(database)}`;
 };
 
 const expandDatabasePlaceholders = (url: string): string => {

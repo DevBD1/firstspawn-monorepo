@@ -57,15 +57,15 @@ export interface ServerCardProps {
 }
 
 const BADGE_TONE_CLASSES: Record<ServerCardBadgeTone, string> = {
-  featured: "border-amber-300/50 bg-amber-300/15 text-amber-200",
-  trending: "border-fs-diamond/50 bg-fs-diamond/15 text-fs-diamond",
-  verified: "border-emerald-300/50 bg-emerald-300/15 text-emerald-200",
+  featured: "border-primary/45 bg-primary/10 text-primary",
+  trending: "border-fs-gold/45 bg-fs-gold/10 text-fs-gold",
+  verified: "border-fs-gold/45 bg-fs-gold/10 text-fs-gold",
 };
 
 const SORT_HIGHLIGHT_CLASSES: Record<ServerCardSortHighlightTone, string> = {
-  ping: "border-cyan-300/45 bg-cyan-300/10 text-cyan-200",
-  players: "border-emerald-300/45 bg-emerald-300/10 text-emerald-200",
-  trending: "border-fs-diamond/50 bg-fs-diamond/12 text-fs-diamond",
+  ping: "border-primary/45 bg-primary/10 text-primary",
+  players: "border-success/45 bg-success/10 text-success",
+  trending: "border-fs-gold/45 bg-fs-gold/10 text-fs-gold",
 };
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
@@ -119,7 +119,7 @@ function ServerLogo({
   return (
     <div
       className={joinClasses(
-        "relative shrink-0 overflow-hidden border-2 border-black bg-[linear-gradient(135deg,rgba(34,211,238,0.18),rgba(15,23,42,0.9))] shadow-[3px_3px_0_0_rgba(0,0,0,1)]",
+        "relative shrink-0 overflow-hidden rounded-card border border-border bg-secondary shadow-card",
         sizeClass
       )}
       aria-hidden="true"
@@ -134,7 +134,7 @@ function ServerLogo({
           unoptimized
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center font-display text-xl text-fs-diamond">
+        <div className="flex h-full w-full items-center justify-center font-display text-xl text-fs-gold">
           {initial}
         </div>
       )}
@@ -152,25 +152,25 @@ function ServerBanner({
   name: string;
 }) {
   return (
-    <div className="relative h-28 overflow-hidden border-b-2 border-black bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,0.24),transparent_38%),linear-gradient(135deg,rgba(12,31,45,0.98),rgba(3,7,18,0.98))] md:h-32">
+    <div className="relative h-28 overflow-hidden border-b border-border bg-[linear-gradient(135deg,color-mix(in_srgb,var(--art)_28%,transparent),color-mix(in_srgb,var(--background)_94%,transparent))] md:h-32">
       {bannerUrl ? (
         <Image
           src={bannerUrl}
           alt=""
           fill
-          className="object-cover opacity-85 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-100"
+          className="object-cover opacity-85 transition duration-150 group-hover:scale-[1.03] group-hover:opacity-100"
           sizes="(min-width: 1024px) 420px, 100vw"
           unoptimized
         />
       ) : (
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.16)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:18px_18px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,color-mix(in_srgb,var(--art)_32%,transparent),transparent_42%),linear-gradient(135deg,color-mix(in_srgb,var(--art-dim)_22%,transparent),transparent)]" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
       <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-3">
-        <span className="max-w-[70%] truncate font-ui text-sm uppercase tracking-[0.2em] text-white/70">
+        <span className="max-w-[70%] truncate font-ui text-sm uppercase tracking-[0.14em] text-foreground/70">
           {name}
         </span>
-        <span className="border border-fs-diamond/50 bg-black/55 px-2 py-1 font-ui text-xs uppercase tracking-widest text-fs-diamond">
+        <span className="rounded-badge border border-border bg-bg-panel/85 px-2 py-1 font-ui text-xs uppercase tracking-[0.12em] text-muted">
           {liveDataLabel}
         </span>
       </div>
@@ -188,17 +188,14 @@ function StatusPill({
   return (
     <span
       className={joinClasses(
-        "inline-flex items-center gap-2 border px-2.5 py-1 font-ui text-xs uppercase tracking-widest",
+        "inline-flex items-center gap-2 rounded-pill border px-2.5 py-1 font-ui text-xs uppercase tracking-[0.12em]",
         isOnline
-          ? "border-emerald-300/40 bg-emerald-300/10 text-emerald-200"
-          : "border-red-300/40 bg-red-300/10 text-red-200"
+          ? "border-success/45 bg-success/10 text-success"
+          : "border-danger/45 bg-danger/10 text-danger"
       )}
     >
       <span
-        className={joinClasses(
-          "h-2 w-2 border border-black",
-          isOnline ? "animate-pulse bg-emerald-400" : "bg-red-400"
-        )}
+        className={joinClasses("h-2 w-2 rounded-full", isOnline ? "bg-success" : "bg-danger")}
       />
       {isOnline ? labels.online : labels.offline}
     </span>
@@ -211,7 +208,7 @@ function BadgePill({ badge }: { badge: ServerCardBadge }) {
   return (
     <span
       className={joinClasses(
-        "inline-flex items-center gap-1 border px-2 py-1 font-ui text-[11px] uppercase tracking-widest",
+        "inline-flex items-center gap-1 rounded-badge border px-2 py-1 font-ui text-[11px] uppercase tracking-[0.12em]",
         BADGE_TONE_CLASSES[tone]
       )}
     >
@@ -225,7 +222,7 @@ function BadgePill({ badge }: { badge: ServerCardBadge }) {
 
 function TagPill({ tag }: { tag: string }) {
   return (
-    <span className="truncate border border-foreground/15 bg-foreground/[0.04] px-2 py-1 font-ui text-[11px] uppercase tracking-wider text-foreground/70">
+    <span className="truncate rounded-tag border border-border bg-secondary/40 px-2 py-1 font-ui text-[11px] uppercase tracking-[0.12em] text-muted">
       {tag}
     </span>
   );
@@ -245,15 +242,13 @@ function MetricTile({
   return (
     <div
       className={joinClasses(
-        "min-w-0 border p-2 shadow-[2px_2px_0_0_rgba(0,0,0,0.85)] transition-colors",
-        highlighted ? "border-fs-diamond/70 bg-fs-diamond/10" : "border-black/70 bg-background/75"
+        "min-w-0 rounded-control border p-2 shadow-card transition-colors duration-150",
+        highlighted ? "border-primary/60 bg-primary/10" : "border-border bg-secondary/40"
       )}
     >
-      <div className="mb-1 flex items-center gap-1.5 text-fs-diamond">{icon}</div>
-      <div className="font-ui text-[10px] uppercase tracking-widest text-foreground/45">
-        {label}
-      </div>
-      <div className="truncate font-body text-xs font-semibold text-foreground">{value}</div>
+      <div className="mb-1 flex items-center gap-1.5 text-primary">{icon}</div>
+      <div className="font-ui text-[10px] uppercase tracking-[0.12em] text-muted">{label}</div>
+      <div className="truncate font-mono text-xs font-semibold text-foreground">{value}</div>
     </div>
   );
 }
@@ -270,19 +265,19 @@ function SortHighlightBlock({
   return (
     <div
       className={joinClasses(
-        "flex h-[4.25rem] min-w-0 flex-col justify-center border px-3 py-2 transition-colors",
+        "flex h-[4.25rem] min-w-0 flex-col justify-center rounded-control border px-3 py-2 transition-colors duration-150",
         SORT_HIGHLIGHT_CLASSES[tone],
         align === "right" ? "text-right" : "text-left"
       )}
     >
-      <div className="font-ui text-[9px] uppercase tracking-[0.24em] opacity-70">
+      <div className="font-ui text-[9px] uppercase tracking-[0.12em] opacity-70">
         {highlight.label}
       </div>
-      <div className="truncate font-display text-xs uppercase tracking-wider text-foreground">
+      <div className="truncate font-mono text-xs font-semibold uppercase tracking-[0.08em] text-foreground">
         {highlight.value}
       </div>
       {highlight.helper ? (
-        <div className="truncate font-ui text-[9px] uppercase tracking-widest opacity-60">
+        <div className="truncate font-ui text-[9px] uppercase tracking-[0.12em] opacity-60">
           {highlight.helper}
         </div>
       ) : null}
@@ -304,18 +299,16 @@ function FeatureStat({
   return (
     <div
       className={joinClasses(
-        "flex h-[3.25rem] min-w-0 items-center gap-2 border px-3 transition-colors",
+        "flex h-[3.25rem] min-w-0 items-center gap-2 rounded-control border px-3 transition-colors duration-150",
         highlighted
-          ? "border-fs-diamond/60 bg-fs-diamond/10 text-fs-diamond"
-          : "border-foreground/10 bg-background/45 text-foreground/65"
+          ? "border-primary/60 bg-primary/10 text-primary"
+          : "border-border bg-secondary/40 text-muted"
       )}
     >
-      <div className="shrink-0 text-fs-diamond">{icon}</div>
+      <div className="shrink-0 text-primary">{icon}</div>
       <div className="min-w-0">
-        <div className="font-ui text-[9px] uppercase tracking-widest text-foreground/40">
-          {label}
-        </div>
-        <div className="truncate font-body text-xs uppercase tracking-wider text-foreground/80">
+        <div className="font-ui text-[9px] uppercase tracking-[0.12em] text-muted">{label}</div>
+        <div className="truncate font-mono text-xs uppercase tracking-[0.08em] text-foreground/80">
           {value}
         </div>
       </div>
@@ -339,25 +332,19 @@ function PlayerBar({
   return (
     <div
       className={joinClasses(
-        "space-y-1.5 border p-2 transition-colors",
-        highlighted ? "border-fs-diamond/45 bg-fs-diamond/10" : "border-transparent"
+        "space-y-1.5 rounded-control border p-2 transition-colors duration-150",
+        highlighted ? "border-primary/45 bg-primary/10" : "border-transparent"
       )}
     >
-      <div className="flex items-center justify-between gap-3 font-ui text-xs uppercase tracking-widest">
-        <span className="text-foreground/50">{labels.players}</span>
-        <span className="text-foreground">
-          <span className="text-fs-diamond">{formatNumber(onlinePlayers)}</span>
-          <span className="text-foreground/40">
-            {" "}
-            / {maxPlayers ? formatNumber(maxPlayers) : "?"}
-          </span>
+      <div className="flex items-center justify-between gap-3 font-ui text-xs uppercase tracking-[0.12em]">
+        <span className="text-muted">{labels.players}</span>
+        <span className="font-mono text-foreground">
+          <span className="text-primary">{formatNumber(onlinePlayers)}</span>
+          <span className="text-muted"> / {maxPlayers ? formatNumber(maxPlayers) : "?"}</span>
         </span>
       </div>
-      <div className="h-2 overflow-hidden border border-black bg-black/60">
-        <div
-          className="h-full bg-[linear-gradient(90deg,#22d3ee,#7dd3fc)]"
-          style={{ width: `${ratio}%` }}
-        />
+      <div className="h-2 overflow-hidden rounded-pill border border-border bg-secondary">
+        <div className="h-full bg-primary" style={{ width: `${ratio}%` }} />
       </div>
     </div>
   );
@@ -388,7 +375,7 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
   const highlightsPlayers = sortHighlight?.tone === "players";
 
   return (
-    <article className="relative h-full w-full min-w-0 overflow-hidden border-4 border-black bg-bg-panel shadow-[8px_8px_0_0_rgba(0,0,0,1)] transition duration-200 group-hover:-translate-y-1 group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-visible:-translate-y-1 group-focus-visible:shadow-[12px_12px_0_0_rgba(0,0,0,1)]">
+    <article className="relative h-full w-full min-w-0 overflow-hidden rounded-panel border border-border bg-bg-panel shadow-card transition duration-150 group-hover:-translate-y-0.5 group-hover:border-primary group-focus-visible:-translate-y-0.5 group-focus-visible:border-primary">
       <ServerBanner bannerUrl={bannerUrl} liveDataLabel={copy.liveData} name={name} />
       <div className="space-y-4 p-4 md:p-5">
         <div className="-mt-10 flex items-end justify-between gap-3">
@@ -401,16 +388,16 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
             {badges.slice(0, 2).map((badge) => (
               <BadgePill key={`${badge.label}-${badge.tone}`} badge={badge} />
             ))}
-            <span className="border border-fs-diamond/30 bg-fs-diamond/10 px-2 py-1 font-ui text-[11px] uppercase tracking-widest text-fs-diamond">
+            <span className="rounded-badge border border-border bg-secondary/40 px-2 py-1 font-ui text-[11px] uppercase tracking-[0.12em] text-muted">
               {getGameLabel(game, copy)}
             </span>
           </div>
-          <h3 className="truncate font-display text-lg leading-tight tracking-[0.08em] text-foreground transition-colors group-hover:text-fs-diamond md:text-xl">
+          <h3 className="truncate font-display text-lg leading-tight text-foreground transition-colors duration-150 group-hover:text-primary md:text-xl">
             {name}
           </h3>
           {description ? (
             <p
-              className="min-h-[2.75rem] font-body text-sm leading-relaxed text-foreground/62"
+              className="min-h-[2.75rem] font-body text-sm leading-relaxed text-muted"
               style={clampTwoLines}
             >
               {description}
@@ -446,16 +433,16 @@ function LandingServerCard(props: ServerCardProps & { labels: Required<ServerCar
           />
         </div>
 
-        <div className="flex min-w-0 items-center justify-between gap-3 border-t border-foreground/10 pt-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 border-t border-border pt-3">
           <div className="min-w-0">
-            <div className="font-ui text-[10px] uppercase tracking-widest text-foreground/40">
+            <div className="font-ui text-[10px] uppercase tracking-[0.12em] text-muted">
               {labels.address}
             </div>
-            <div className="truncate font-body text-xs text-foreground/75">
+            <div className="truncate font-mono text-xs text-foreground/75">
               {address || copy.profilePageFallback}
             </div>
           </div>
-          <span className="shrink-0 border-2 border-black bg-fs-diamond px-3 py-2 font-display text-[10px] uppercase tracking-wider text-background shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+          <span className="shrink-0 rounded-control border border-primary-hover bg-primary px-3 py-2 font-ui text-[10px] font-bold uppercase tracking-[0.12em] text-on-primary">
             {labels.view}
           </span>
         </div>
@@ -496,22 +483,22 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
   const highlightsPlayers = sortHighlight?.tone === "players";
 
   return (
-    <article className="relative w-full min-w-0 overflow-hidden border-2 border-foreground/10 bg-bg-panel/80 transition duration-200 group-hover:border-fs-diamond/50 group-hover:bg-bg-panel group-hover:shadow-[0_0_26px_rgba(34,211,238,0.12)] group-focus-visible:border-fs-diamond/70">
+    <article className="relative w-full min-w-0 overflow-hidden rounded-card border border-border bg-bg-panel/80 shadow-card transition duration-150 group-hover:-translate-y-0.5 group-hover:border-primary group-hover:bg-bg-panel group-focus-visible:-translate-y-0.5 group-focus-visible:border-primary">
       <div className="flex min-w-0 flex-col sm:flex-row">
-        <div className="relative h-28 shrink-0 overflow-hidden border-b border-foreground/10 bg-[linear-gradient(135deg,rgba(34,211,238,0.14),rgba(2,6,23,0.9))] sm:h-auto sm:w-44 sm:border-b-0 sm:border-r">
+        <div className="relative h-28 shrink-0 overflow-hidden border-b border-border bg-[linear-gradient(135deg,color-mix(in_srgb,var(--art)_24%,transparent),color-mix(in_srgb,var(--background)_92%,transparent))] sm:h-auto sm:w-44 sm:border-b-0 sm:border-r">
           {bannerUrl ? (
             <Image
               src={bannerUrl}
               alt=""
               fill
-              className="object-cover opacity-85 transition duration-300 group-hover:scale-[1.03]"
+              className="object-cover opacity-85 transition duration-150 group-hover:scale-[1.03]"
               sizes="176px"
               unoptimized
             />
           ) : (
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.14)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:16px_16px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,color-mix(in_srgb,var(--art)_30%,transparent),transparent_42%),linear-gradient(135deg,color-mix(in_srgb,var(--art-dim)_20%,transparent),transparent)]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/55 via-background/10 to-background/40" />
           <div className="absolute bottom-3 left-3">
             <ServerLogo compact logoUrl={logoUrl} name={name} />
           </div>
@@ -526,7 +513,7 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
                   <BadgePill key={`${badge.label}-${badge.tone}`} badge={badge} />
                 ))}
               </div>
-              <h3 className="truncate font-display text-base leading-tight tracking-[0.08em] text-foreground transition-colors group-hover:text-fs-diamond">
+              <h3 className="truncate font-display text-base leading-tight text-foreground transition-colors duration-150 group-hover:text-primary">
                 {name}
               </h3>
             </div>
@@ -555,7 +542,7 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
 
           {description ? (
             <p
-              className="min-h-[2.75rem] font-body text-sm leading-relaxed text-foreground/62"
+              className="min-h-[2.75rem] font-body text-sm leading-relaxed text-muted"
               style={clampTwoLines}
             >
               {description}
@@ -571,11 +558,11 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
           </div>
 
           <div className="grid gap-2 text-xs md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_7rem_7rem_7rem_auto] xl:items-center">
-            <div className="flex h-[3.25rem] min-w-0 flex-col justify-center border border-foreground/10 bg-background/45 px-3">
-              <div className="font-ui text-[10px] uppercase tracking-widest text-foreground/40">
+            <div className="flex h-[3.25rem] min-w-0 flex-col justify-center rounded-control border border-border bg-secondary/40 px-3">
+              <div className="font-ui text-[10px] uppercase tracking-[0.12em] text-muted">
                 {labels.address}
               </div>
-              <div className="truncate font-body text-foreground/75">
+              <div className="truncate font-mono text-foreground/75">
                 {address || copy.profilePageFallback}
               </div>
             </div>
@@ -596,7 +583,7 @@ function DiscoverServerCard(props: ServerCardProps & { labels: Required<ServerCa
               label={labels.ping}
               value={formatPing(copy, pingMs)}
             />
-            <span className="inline-flex h-[3.25rem] items-center justify-center border-2 border-black bg-fs-diamond px-3 font-display text-[10px] uppercase tracking-wider text-background shadow-[3px_3px_0_0_rgba(0,0,0,1)]">
+            <span className="inline-flex h-[3.25rem] items-center justify-center rounded-control border border-primary-hover bg-primary px-3 font-ui text-[10px] font-bold uppercase tracking-[0.12em] text-on-primary">
               {labels.view}
             </span>
           </div>
@@ -630,7 +617,7 @@ export default function ServerCard({
       href={href}
       aria-label={`${resolvedLabels.view}: ${props.name}`}
       className={joinClasses(
-        "group block h-full w-full min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-fs-diamond focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "group block h-full w-full min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className
       )}
     >

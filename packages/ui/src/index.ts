@@ -1,3 +1,3 @@
-export * from "./Button";
-export * from "./PixelButton";
-export * from "./PixelCard";
+export * from "./Sigil";
+export * from "./WLButton";
+export * from "./WLCard";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { JetBrains_Mono, Press_Start_2P, VT323 } from "next/font/google";
+import { JetBrains_Mono, Onest, Unbounded } from "next/font/google";
 import "../globals.css";
 import { i18n } from "@/lib/i18n-config";
 import { getDictionary } from "@/lib/get-dictionary";
@@ -10,22 +10,30 @@ import PostHogPageView from "@/components/providers/PostHogPageView.client";
 import { getPublicConfig } from "@/lib/config";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 
-const vt323 = VT323({
-  weight: "400",
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  variable: "--font-display-base",
+  weight: ["400", "500", "600", "700"],
+});
+
+const onestUi = Onest({
   subsets: ["latin"],
   variable: "--font-ui-base",
+  weight: ["400", "500", "600", "700"],
+});
+
+const onestBody = Onest({
+  subsets: ["latin"],
+  variable: "--font-body-base",
+  weight: ["400", "500", "600", "700"],
 });
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-body-base",
+  variable: "--font-mono-base",
 });
 
-const pressStart2P = Press_Start_2P({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-display-base",
-});
+import { ThemeProvider } from "@/components/providers/ThemeProvider.client";
 
 export async function generateMetadata({
   params,
@@ -57,9 +65,6 @@ export async function generateMetadata({
       template: `%s | ${brand}`,
     },
     description: tagline,
-    icons: {
-      icon: "/favicon.ico",
-    },
     openGraph: {
       title: brand,
       description: tagline,
@@ -107,10 +112,16 @@ export default async function RootLayout({
   const { NEXT_PUBLIC_SITE_URL: siteUrl } = getPublicConfig();
 
   return (
-    <html lang={lang}>
+    <html lang={lang} suppressHydrationWarning>
       <body
-        className={`${jetBrainsMono.variable} ${vt323.variable} ${pressStart2P.variable} antialiased min-h-screen flex flex-col`}
+        className={`${unbounded.variable} ${onestUi.variable} ${onestBody.variable} ${jetBrainsMono.variable} antialiased min-h-screen flex flex-col`}
       >
+        {/* Blocking theme bootstrap: sets data-theme before first paint to avoid a dusk flash for day-mode users. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=JSON.parse(localStorage.getItem("fsproto.mode"));if(t==="day"||t==="dusk"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -129,13 +140,14 @@ export default async function RootLayout({
           }}
         />
 
-        <PostHogProvider>
-          <div className="crt-overlay" />
-          {children}
-          <Suspense fallback={null}>
-            <PostHogPageView />
-          </Suspense>
-        </PostHogProvider>
+        <ThemeProvider>
+          <PostHogProvider>
+            {children}
+            <Suspense fallback={null}>
+              <PostHogPageView />
+            </Suspense>
+          </PostHogProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

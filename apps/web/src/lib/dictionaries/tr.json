@@ -41,16 +41,37 @@
       "online": "ONLINE",
       "systemsNormal": "Sistemler Normal",
       "verified": "DOĞRULANMIŞ"
+    },
+    "countries": {
+      "WW": "Küresel",
+      "US": "Amerika Birleşik Devletleri",
+      "DE": "Almanya",
+      "GB": "Birleşik Krallık",
+      "CA": "Kanada",
+      "TR": "Türkiye",
+      "NO": "Norveç",
+      "FI": "Finlandiya",
+      "BR": "Brezilya",
+      "KR": "Güney Kore"
+    },
+    "linkKinds": {
+      "website": "Web sitesi",
+      "discord": "Discord",
+      "store": "Mağaza",
+      "youtube": "YouTube"
     }
   },
   "nav": {
     "console": "KONSOL",
     "discover": "KEŞFET",
+    "forOwners": "SAHİPLER İÇİN",
+    "community": "TOPLULUK",
     "languageMenuLabel": "DİL",
     "logIn": "LOG IN",
-    "logOut": "LOG OUT",
+    "logOut": "Çıkış yap",
     "menuLabel": "MENÜ",
     "myLoot": "GANİMETİM",
+    "signIn": "Giriş yap",
     "signUp": "SIGN UP",
     "verifyEmail": "E-POSTAYI DOĞRULA",
     "verifyEmailTitle": "E-posta adresiniz doğrulanmadı"
@@ -222,92 +243,31 @@
     "stateOff": "KAPALI"
   },
   "landing": {
-    "scene": {
-      "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
+    "hero": {
+      "statsLine": "{servers} dünyada {players} oyuncu çevrimiçi",
+      "titleLine1": "Bir sonraki dünyan",
+      "titleLine2": "seni bekliyor.",
+      "subtitle": "Minecraft ve Hytale için dürüst keşif — gerçek aktivite ve topluluk güvenine göre sıralanır, asla kimin daha çok ödediğine göre değil.",
+      "searchPlaceholder": "Dünyalarda ara — “ekonomili skyblock”",
+      "searchSubmitLabel": "Keşfet"
     },
-    "discoveryConsole": {
-      "eyebrow": "DISCOVERY CONSOLE",
-      "title": "KATILMAYA DEĞER BİR SUNUCU BUL",
-      "subtitle": "Canlı Minecraft ve Hytale listelerini gerçek aktivite, güncellik, bölge ve uyuma göre ara. FirstSpawn, tanıtımdan önce faydalı sinyali göstermek için keşifle açılır.",
-      "searchLabel": "Aktif sunucularda ara",
-      "searchPlaceholder": "Survival, düşük ping, ekonomi, topluluk...",
-      "searchSubmitLabel": "Ara",
-      "browseAllLabel": "Tüm sunuculara bak",
-      "ownerLabel": "Topluluk mu yönetiyorsun? Owner console üzerinden yolunu aç.",
-      "ownerCtaLabel": "Sunucunu listele",
-      "stats": {
-        "activeServers": "Aktif sunucular",
-        "onlinePlayers": "Online oyuncular",
-        "checkedRecently": "Yakında kontrol edildi"
-      },
-      "serverPreview": {
-        "emptyTitle": "Katalog sinyalleri hazırlanıyor",
-        "emptyDescription": "API şu anda herkese açık sunucu döndürmüyor. Keşif ana yol olarak kalır; hedefler online oldukça bu konsol canlı katalog verisiyle dolar.",
-        "liveLabel": "online",
-        "offlineLabel": "offline",
-        "rankedByLabel": "Sıralama",
-        "maxPlayersLabel": "maks oyuncu",
-        "verifiedLabel": "Katalog kontrol edildi"
-      }
+    "activeTonight": {
+      "title": "Bu gece aktif",
+      "viewAllLabel": "Tümünü gör →",
+      "emptyTitle": "Henüz dizine eklenmiş sunucu yok",
+      "emptyDescription": "Kataloğu doldurmak için seed çalıştırın veya bir sunucu kaydedin."
     },
-    "problemSolution": {
-      "eyebrow": "SİSTEM KARŞILAŞTIRMASI",
-      "title": "KEŞİF: YENİDEN TANIMLANDI",
-      "subtitle": "Sunucuları ücretli görünürlük gürültüsü yerine gerçek aktivite, güncellik ve uyuma göre karşılaştır.",
-      "problem": {
-        "statusLabel": "ERR://ÇÜRÜME_TESPİT_EDİLDİ",
-        "title": "LİSTELEMENİN\nÇÜRÜYÜŞÜ",
-        "items": [
-          {
-            "title": "YAPAY GÖSTERİŞ",
-            "description": "Rüşvet ve bot döngüleriyle kurulan sıralamalar. Bir sunucunun gerçek nabzını gizleyen yapay metrikler."
-          },
-          {
-            "title": "ÇÜRÜYEN MİMARİ",
-            "description": "Hayaletler için statik telefon rehberleri. 2012'den beri gelişmeyen kopuk dizinler."
-          }
-        ]
-      },
-      "solution": {
-        "statusLabel": "SYS://ORIGIN_AKTİF",
-        "title": "KÖKENİN\nSTANDARDI",
-        "items": [
-          {
-            "title": "DERİN NABIZ BÜTÜNLÜĞÜ",
-            "description": "FSVotifier destekli itibar. Topluluk sağlığını ve güveni kanıtlayan gerçek zamanlı metrikler."
-          },
-          {
-            "title": "NÖRAL KEŞİF",
-            "description": "Yaşayan bir köprü. Oyuncuları doğrudan değerli gizli topluluklara bağlarız."
-          }
-        ]
-      }
+    "ranking": {
+      "title": "Bugünün sıralaması",
+      "formulaHint": "sıralama = aktivite × güven × tazelik — bir sıra numarasına dokunun",
+      "emptyTitle": "Hesaplanmış sıralama yok",
+      "emptyDescription": "Sıralamalar, kalp atışı verileri biriktikçe otomatik olarak güncellenir."
     },
-    "returnCta": {
-      "label": "YUKARI G\u0130T"
-    },
-    "features": {
-      "eyebrow": "TRUST SIGNALS",
-      "title": "NEDEN FIRSTSPAWN?",
-      "subtitle": "Taze sinyal, gerçek aktivite ve hype’tan önce sunucu uyumu isteyen oyuncular için farklı tasarlandı.",
-      "items": [
-        {
-          "title": "DOĞRULANMIŞ UPTIME",
-          "description": "Sahte çevrimiçi sayıları bitti. Botlarımız her sunucunun durumunu gerçek zamanlı doğrular."
-        },
-        {
-          "title": "OYUN KANITI",
-          "description": "Yorumlar gerçek oyun süresiyle desteklenir. Yalnızca gerçek oyuncular puan verebilir."
-        },
-        {
-          "title": "ÇAPRAZ PLATFORM KİMLİĞİ",
-          "description": "Minecraft, Hytale ve sonrası için tek kimlik. Yolculuğunu senkronize et."
-        },
-        {
-          "title": "GUILD SİSTEMİ",
-          "description": "İttifak kur, liderlik tablolarında yarış ve özel ödüllerin kilidini aç."
-        }
-      ]
+    "ownerCta": {
+      "title": "Sunucu mu işletiyorsun?",
+      "description": "Ücretsiz listele. Yerini çalışma süresi, aktivite ve oyuncu güveniyle kazan — ve sıralamanı hangi sinyallerin etkilediğini tam olarak gör.",
+      "listServerLabel": "Sunucunu listele",
+      "howRankingWorksLabel": "Sıralama nasıl çalışır"
     },
     "newsletter": {
       "title": "LANSAMAN GÜNCELLEMELERİ AL",
@@ -321,45 +281,37 @@
   },
   "discover": {
     "page": {
-      "badgeLabel": "EŞLEŞTİRME ÇEKİRDEĞİ",
-      "title": "DÜNYALARI KEŞFET",
-      "subtitle": "Sıradaki maceranı bul. Gerçek oyuncu verileriyle sıralanan doğrulanmış sunucuları keşfet.",
-      "searchPlaceholder": "Sunucu veya açıklama ara...",
-      "gameFilters": {
-        "all": "TÜM DÜNYALAR",
-        "minecraft": "MINECRAFT",
-        "hytale": "HYTALE"
+      "title": "Keşfet",
+      "searchPlaceholder": "“Finlandiya'da beyaz listeli smp” dene — {count} sunucu",
+      "smartMatch": {
+        "readingAs": "araman şöyle yorumlanıyor:",
+        "literalActive": "kelimeler birebir okunuyor ·",
+        "enableLabel": "akıllı eşleştirmeyi aç",
+        "disableLabel": "kelimeleri birebir eşleştir",
+        "extraTermsLabel": "+ “{query}”",
+        "methodNote": "kelime→etiket eşleşmesi · yapay zeka tahmini yok"
       },
-      "rarityFilterTitle": "NADİRLİK FİLTRESİ",
-      "sortTitle": "SIRALA",
-      "sortOptions": {
-        "players": "OYUNCU SAYISI",
-        "ping": "PING"
+      "filters": {
+        "gameTitle": "Oyun",
+        "countryTitle": "Ülke",
+        "tagsTitle": "Etiketler",
+        "sortTitle": "Sıralama ölçütü",
+        "allGames": "Tümü",
+        "allCountries": "Tüm ülkeler",
+        "sortOptions": {
+          "rank": "Sıra",
+          "players": "Oyuncular",
+          "votes": "Oylar"
+        }
       },
-      "personalStatsTitle": "İSTATİSTİKLERİN",
-      "personalStats": {
-        "serversVisited": "Ziyaret Edilen Sunucu",
-        "favorites": "Favoriler"
-      },
-      "resultsSummary": "{total} sunucudan {count} tanesi listeleniyor",
-      "syncingLabel": "EŞİTLENİYOR...",
-      "loadingMoreLabel": "YÜKLENİYOR...",
-      "emptyStateTitle": "DÜNYA BULUNAMADI",
-      "emptyStateDescription": "Filtreleri değiştirmeyi dene",
-      "stats": {
-        "onlineServers": "SUNUCU AKTİF",
-        "activePlayers": "OYUNCU AKTİF",
-        "version": "SUNUCU KEŞFİ v2.0"
-      },
-      "ranking": {
-        "rankedBy": "SIRALAMA",
-        "lowerIsBetter": "DAHA DÜŞÜK DAHA İYİ"
-      },
-      "tiers": {
-        "common": "YAYGIN",
-        "rare": "NADİR",
-        "epic": "DESTANSI",
-        "legendary": "EFSANEVİ"
+      "results": {
+        "countOne": "{count} sunucu",
+        "countOther": "{count} sunucu",
+        "matchingQuery": "“{query}” ile eşleşen",
+        "neverSoldNote": "sıralama asla satılmaz",
+        "emptyTitle": "Burada henüz bir şey yok…",
+        "emptyDescription": "Bazı filtreleri kaldırmayı veya farklı anahtar kelimeler aramayı deneyin.",
+        "loadingMore": "Daha fazla dünya yükleniyor..."
       }
     }
   },
@@ -391,6 +343,89 @@
     "modsRequired": {
       "yes": "EVET",
       "no": "HAYIR"
+    },
+    "row": {
+      "verifiedBadge": "✓ Doğrulanmış",
+      "votedLabel": "✓ Oy verildi",
+      "onlineCountLabel": "{count} çevrimiçi",
+      "uptimeLabel": "çalışma %{value}",
+      "globalRegionLabel": "Küresel",
+      "noDescription": "Açıklama sağlanmamış.",
+      "gameNames": {
+        "mcJava": "Minecraft",
+        "mcBedrock": "Bedrock",
+        "hytale": "Hytale",
+        "fallback": "Oyun"
+      },
+      "relativeTime": {
+        "justNow": "az önce",
+        "minutesAgo": "{count} dk önce",
+        "hoursAgo": "{count} sa önce",
+        "daysAgo": "{count} gün önce",
+        "unknown": "bilinmiyor"
+      }
+    },
+    "tagFeatures": {
+      "Survival": {
+        "title": "Hayatta kalma oynanışı",
+        "description": "Geleneksel kaynak toplama, inşa ve oyuncu odaklı ticaret."
+      },
+      "Whitelist": {
+        "title": "Beyaz listeli erişim",
+        "description": "Niyet ve olgunluğu doğrulamak için başvuru gerektirir."
+      },
+      "Economy": {
+        "title": "Ekonomi sistemleri",
+        "description": "Oyuncu dükkanları, sanal müzayedeler, istikrarlı para birimi tasarımı."
+      },
+      "Trading": {
+        "title": "Oyuncu ticareti",
+        "description": "Güvenli eşler arası ticaret arayüzleri, takas bölgeleri."
+      },
+      "Towny": {
+        "title": "Kasaba yönetimi",
+        "description": "Bölge sahiplen, vergi koy, komşularla uluslara katıl."
+      },
+      "Skyblock": {
+        "title": "Gökyüzü adaları",
+        "description": "Boşluktaki küçük bir adada başla, görevlerle genişle."
+      },
+      "Quests": {
+        "title": "Özel görev dizileri",
+        "description": "200'den fazla hikaye odaklı görev, haftalık ödüller."
+      },
+      "RPG": {
+        "title": "Rol yapma ögeleri",
+        "description": "Özel sınıflar, seviye ağaçları, benzersiz ekipman setleri."
+      },
+      "Hardcore": {
+        "title": "Yüksek risk",
+        "description": "Sınırlı can, kalıcı durum etkileri, tehlikeli geceler."
+      },
+      "Seasonal": {
+        "title": "Sezonluk döngüler",
+        "description": "Dünya her 3-6 ayda bir özel temalarla sıfırlanır."
+      },
+      "Creative": {
+        "title": "Serbest inşa",
+        "description": "Serbest inşa alanları, arsa paylaşımı, tasarım araçları."
+      },
+      "Builds": {
+        "title": "Vitrin bölgeleri",
+        "description": "Öne çıkan yapıların seçilmiş galerileri."
+      },
+      "Showcase": {
+        "title": "Rehberli turlar",
+        "description": "Öne çıkan eserleri yapımcılarıyla birlikte gez."
+      },
+      "Dungeons": {
+        "title": "Zindan keşifleri",
+        "description": "Prosedürel koşular, el yapımı boss arenaları."
+      },
+      "Family-friendly": {
+        "title": "Aile dostu",
+        "description": "Sıkı filtreler, sabırlı moderatörler."
+      }
     }
   },
   "serverDetail": {
@@ -446,19 +481,121 @@
     "status": {
       "online": "ONLINE",
       "offline": "OFFLINE"
+    },
+    "profile": {
+      "breadcrumbBack": "← Keşfet",
+      "gameNames": {
+        "mcJava": "Minecraft Java",
+        "mcBedrock": "Minecraft Bedrock",
+        "hytale": "Hytale"
+      },
+      "updatedJustNow": "az önce güncellendi",
+      "updatedRecently": "yakın zamanda güncellendi",
+      "links": {
+        "verifiedTooltip": "Sahiplik FirstSpawn tarafından doğrulandı",
+        "unverifiedTooltip": "Henüz doğrulanmadı",
+        "verifiedByNote": "✓ FirstSpawn tarafından doğrulandı"
+      },
+      "tabs": {
+        "overview": "Genel bakış",
+        "discussion": "Tartışma · {count}"
+      },
+      "about": {
+        "title": "Bu dünya hakkında"
+      },
+      "rank": {
+        "title": "Neden bu sırada yer alıyor",
+        "subtitle": "sıralama = aktivite × güven × tazelik — her sunucu için aynı matematik, asla satılmaz"
+      },
+      "featureCards": {
+        "title": "Onu farklı kılan ne",
+        "subtitle": "sahip tarafından seçilir, dörtle sınırlı — her kart gerçek bir oyun içi ekran görüntüsü gerektirir"
+      },
+      "media": {
+        "title": "Medya",
+        "subtitle": "fragman sunucunun canlı harita verisinden işlenir — asla üretilmiş görüntü kullanılmaz",
+        "provenanceChip": "⬡ canlı dünya verisinden işlendi · her hafta otomatik yenilenir"
+      },
+      "similar": {
+        "title": "Benzer dünyalar"
+      },
+      "discussion": {
+        "updatesTitle": "Ekipten güncellemeler",
+        "updatesSubtitle": "doğrulanmış sahipten imzalı gönderiler — konunun üstüne sabitlenir",
+        "staffBadge": "✓ {name} ekibi",
+        "threadTitle": "Oyuncu konusu",
+        "threadSubtitle": "bu listelemeyle otomatik açıldı · oyunculara ait, FirstSpawn moderasyonunda",
+        "composerPlaceholder": "{name} hakkında soru sor veya oyunculara nasıl olduğunu anlat…",
+        "postingAsNote": "{username} olarak gönderiliyor · tek hesap, tek itibar",
+        "postLabel": "Gönder",
+        "youSuffix": "(sen)",
+        "repliesLabel": "{count} yanıt",
+        "ownerRepliedLabel": "sahip yanıtladı",
+        "deleteLabel": "sil",
+        "reportLabel": "bildir",
+        "underReviewLabel": "⚑ inceleniyor · {reason}",
+        "reportPromptTitle": "FirstSpawn moderatörlerine bildir — sunucu sahibine değil:",
+        "reportReasons": {
+          "spam": "Spam veya reklam",
+          "harassment": "Taciz",
+          "misleading": "Sunucu hakkında yanıltıcı",
+          "offTopic": "Konu dışı"
+        },
+        "cancelLabel": "iptal"
+      },
+      "sidebar": {
+        "joinTitle": "Katıl",
+        "copiedLabel": "kopyalandı ✓",
+        "copyAddressLabel": "Sunucu adresini kopyala",
+        "voteLabel": "▲ Bu sunucuya oy ver",
+        "votedLabel": "✓ Bugün oy verildi",
+        "stats": {
+          "onlineNow": "Şu an çevrimiçi",
+          "uptime30d": "Çalışma süresi (30g)",
+          "votes": "Oylar",
+          "standing": "İtibar"
+        },
+        "factsTitle": "Sunucu bilgileri",
+        "facts": {
+          "version": "Sürüm",
+          "crossplay": "Çapraz oyun",
+          "language": "Dil",
+          "resets": "Sıfırlamalar",
+          "listedSince": "Listelenme yılı"
+        },
+        "factValues": {
+          "javaBedrock": "Java + Bedrock",
+          "pcOnly": "Yalnızca PC",
+          "english": "İngilizce",
+          "seasonal": "Sezonluk",
+          "nonePlanned": "Planlanmadı",
+          "hytaleRelease": "Sürüm 1.x",
+          "mcJavaDefault": "1.21.x · Java"
+        },
+        "factsFootnote": "bilgiler sahip beyanıdır · canlı ping'lerle karşılaştırılır"
+      }
     }
   },
   "legal": {
     "terms": {
       "title": "Terms of Service",
       "description": "Bu Kullanım Şartları sayfası tamamlanıyor. Hesap oluşturarak FirstSpawn platform kullanım kurallarını, hesap sorumluluğunu ve kabul edilebilir davranış politikalarını kabul etmiş olursunuz.",
-      "localeLabel": "Dil"
+      "localeLabel": "Dil",
+      "noticeBadge": "Taslak hazırlanıyor",
+      "noticeBody": "Tam Kullanım Şartları'nı yazıyoruz. Yayınlanana kadar yukarıdaki özet platformun nasıl çalıştığını açıklıyor. Yakında tekrar uğrayın."
     },
     "privacy": {
       "title": "Privacy Policy",
       "description": "Bu Gizlilik Politikası sayfası tamamlanıyor. Hesap oluşturarak hesap güvenliği, ürün operasyonları ve iletişim tercihleri için veri işlenmesini kabul etmiş olursunuz.",
-      "localeLabel": "Dil"
+      "localeLabel": "Dil",
+      "noticeBadge": "Taslak hazırlanıyor",
+      "noticeBody": "Tam Gizlilik Politikası'nı yazıyoruz. Yayınlanana kadar yukarıdaki özet verilerinizi nasıl işlediğimizi açıklıyor. Yakında tekrar uğrayın."
     }
+  },
+  "communityPage": {
+    "badge": "Çok yakında",
+    "title": "TOPLULUK",
+    "description": "Oyuncu pasaportları, sunucu kayıtları ve topluluk katkıları yolda. Bu alan bir sonraki sürüm aşamasında açılacak."
   },
   "consolePage": {
     "badge": "KOMUT TERMİNALİ AKTİF",
@@ -497,6 +634,216 @@
     "screw": {
       "idleMessage": "SOMUNU HİZALA",
       "verifyingMessage": "ANALİZ EDİLİYOR..."
+    }
+  },
+  "rankSignals": {
+    "popoverTitle": "Neden bu sıra?",
+    "activityLabel": "Aktivite",
+    "trustLabel": "Güven",
+    "freshnessLabel": "Tazelik",
+    "activityHint": "saat saat gerçekten çevrimiçi olan oyuncular",
+    "trustHint": "doğrulanmış sahiplik, moderasyon geçmişi, oyuncu raporları",
+    "freshnessHint": "listeleme verisinin en son ne zaman doğrulandığı",
+    "formulaLine": "sıralama = aktivite × güven × tazelik.",
+    "neverSoldLine": "Sıralama asla satılmaz.",
+    "activityMeasuredTooltip": "Aktivite FirstSpawn tarafından ölçülür"
+  },
+  "listFlow": {
+    "steps": {
+      "address": "Adres",
+      "ownership": "Sahiplik",
+      "profile": "Profil",
+      "publish": "Yayınla"
+    },
+    "header": {
+      "title": "Sunucunu listele",
+      "summary": "Ücretsizdir ve ücretsiz kalır. Sırasız başlarsın — yerin ölçülen aktivite, güven ve tazelikle kazanılır, asla satın alınmaz."
+    },
+    "address": {
+      "title": "Dünyan nerede yaşıyor?",
+      "description": "Önce ping atarız. Listelemen ölçebildiğimiz şeylerin üzerine kurulur — form sonra gelir.",
+      "hostPlaceholder": "play.sunucun.net",
+      "pingingLabel": "Ping atılıyor…",
+      "checkServerLabel": "Sunucuyu kontrol et",
+      "stats": {
+        "status": "Durum",
+        "reachable": "● erişilebilir",
+        "version": "Sürüm",
+        "onlineNow": "Şu an çevrimiçi",
+        "motd": "MOTD"
+      },
+      "continueLabel": "Doğru görünüyor →",
+      "supportNote": "java + bedrock desteklenir · hytale çıkışta"
+    },
+    "ownership": {
+      "title": "Sana ait olduğunu kanıtla.",
+      "description": "Tek doğrulama, iki yol. Bu sahip konsolunu, imzalı güncellemeleri ve bağlantılarındaki ✓ işaretini açar — FirstSpawn'da taklitçileri uzak tutan da budur.",
+      "tokenLabel": "Doğrulama belirtecin",
+      "copyLabel": "kopyala",
+      "motdTitle": "Sunucu MOTD'si",
+      "motdBody": "Belirteci bir yeniden başlatma boyunca MOTD'ne ekle. Sonraki ping'de yakalarız.",
+      "dnsTitle": "DNS kaydı",
+      "dnsBodyPrefix": "Şuraya bir TXT kaydı ekle",
+      "dnsFallbackDomain": "sunucun.net",
+      "dnsBodySuffix": ".",
+      "verifiedLabel": "✓ Sahiplik doğrulandı",
+      "continueLabel": "Devam et →",
+      "checkingLabel": "Kontrol ediliyor…",
+      "verifyLabel": "Ekledim — doğrula"
+    },
+    "profile": {
+      "title": "Dünyanı tanıt.",
+      "description": "Bilerek kısa. Ekran görüntüleri, özellik kartları ve fragman yayınladıktan sonra gelir — bu oyuncuların seni bulması için yeterli.",
+      "nameLabel": "Sunucu adı",
+      "blurbLabel": "Tek satırlık açıklama · {count} karakter kaldı",
+      "blurbPlaceholder": "Düzenlenen etkinlikler ve oyuncu pazarı olan sezonluk survival.",
+      "tagsLabel": "Etiketler · en fazla 4 seç ({count}/4)",
+      "countryLabel": "Ülke",
+      "countryHint": "sunucunun barındırıldığı yer · herkese hizmet veriyorsan Global seç",
+      "previewLabel": "Listeleme önizlemesi →"
+    },
+    "preview": {
+      "draftTitle": "Oyuncular seni böyle görecek.",
+      "draftDescription": "Ölçülen sayılar ping'lerimizden gelir; yazdığın her şey sahip beyanı olarak işaretlenir. Sırasız başlar, sinyaller biriktikçe yükselirsin.",
+      "publishedTitle": "Listelendin.",
+      "publishedDescription": "İlk tarama başladı. Oyuncu başlığın açık ve sahip konsolu açıldı — özellik kartları, doğrulanmış bağlantılar ve dünya fragmanı orada yaşar.",
+      "fallbackName": "Sunucun",
+      "fallbackBlurb": "Düzenlenen etkinlikler ve oyuncuların işlettiği bir pazarla sezonluk hayatta kalma.",
+      "justListedLabel": "az önce listelendi",
+      "onlineMeasuredLabel": "● 87 çevrimiçi · ölçüldü",
+      "rankUnrankedLabel": "sıra — sırasız · kazanılır, satın alınmaz",
+      "standingLabel": "itibar — İnşa ediliyor",
+      "publishLabel": "Listelemeyi yayınla",
+      "editProfileLabel": "← Profili düzenle",
+      "openConsoleLabel": "Sahip konsolunu aç →"
+    }
+  },
+  "ownerConsole": {
+    "sections": {
+      "overview": "Genel bakış",
+      "profile": "Profil",
+      "media": "Medya",
+      "trailer": "Dünya fragmanı",
+      "health": "Sağlık"
+    },
+    "header": {
+      "title": "Sahip konsolu",
+      "summary": "{count} dünya · ✓ sahiplik doğrulandı · burada hiçbir şey sıra satın almaz",
+      "listAnotherLabel": "+ Başka bir sunucu listele"
+    },
+    "empty": {
+      "title": "Hesabınızda listelenmiş sunucu yok.",
+      "ctaLabel": "İlk sunucunu listele"
+    },
+    "switcher": {
+      "pendingBadge": "beklemede"
+    },
+    "overview": {
+      "firstCrawlTitle": "İlk tarama sürüyor.",
+      "firstCrawlBody": "Ölçülen istatistikler bir saat içinde görünür — sinyaller biriktikçe sıra ve itibar gelir. Oyuncu konunuz zaten açık.",
+      "rankLabel": "sıra",
+      "rankPending": "beklemede",
+      "rankOf": "/ {total}",
+      "onlineNowLabel": "şu an çevrimiçi · ölçülen",
+      "standingLabel": "itibar · doğrulanmış",
+      "votesLabel": "oylar (tüm zamanlar)",
+      "signalsTitle": "Sıralama sinyalleri",
+      "signalsNote": "herkesle aynı matematik · asla satılmaz",
+      "viewProfileLabel": "Herkese açık profili gör",
+      "trailerCtaLabel": "Dünya fragmanı →",
+      "healthCtaLabel": "Listeleme sağlığı →"
+    },
+    "profile": {
+      "nameLabel": "Sunucu adı",
+      "nameHint": "{url} · ad değişiklikleri inceleme gerektirir",
+      "blurbLabel": "Tek satırlık açıklama · {count} karakter kaldı",
+      "tagsLabel": "Etiketler · en fazla 4 seç ({count}/4)",
+      "countryLabel": "Ülke",
+      "linksTitle": "Bağlantılar · ✓ = sahiplik doğrulandı",
+      "linkVerifiedLabel": "✓ doğrulandı",
+      "linkVerifyCta": "doğrula →",
+      "saveLabel": "Değişiklikleri kaydet",
+      "savedNote": "✓ Kaydedildi — bir dakikadan kısa sürede yayında"
+    },
+    "media": {
+      "replaceLabel": "Değiştir",
+      "screenshotsLabel": "Ekran görüntüleri · {count} / 6",
+      "addScreenshotLabel": "+ Ekran görüntüsü ekle",
+      "policyNote": "yalnızca oyun içi görüntüler · üretilmiş veya stok görseller kaldırılır ve güven itibarına mal olur"
+    },
+    "trailer": {
+      "title": "Dünya fragmanı",
+      "provenanceNote": "⬡ canlı dünya verisinden işlendi · asla üretilmiş görüntü değil",
+      "lockedTitle": "İlk taramadan sonra kullanılabilir.",
+      "lockNotePending": "{name} taraması bir saat içinde tamamlanır — ölçülen dünya verisi geldiği anda stüdyo açılır.",
+      "renderCta": "Fragmanı işle",
+      "filmTitle": "Bu dünyayı filme al.",
+      "filmBody": "Canlı haritanı okuruz — oyuncuların gördüğü aynı veriyi — en çok ziyaret edilen yapılarını bulur ve sinematik bir uçuş çekeriz. Yaklaşık bir dakika. Hiçbir şey uydurulmaz: fragmandaysa, sunucundadır.",
+      "addressNote": "doğrulanmış adres · fragman bayatlamasın diye her hafta yeniden işlenir",
+      "renderingTitle": "Dünyan filme alınıyor…",
+      "renderingBody": "İşleme planı gerçekleşirken izleniyor — her kare gerçek chunk'lardan gelir.",
+      "stages": [
+        {
+          "label": "{addr} ping'leniyor",
+          "detail": "1.21.4 · 1.204 çevrimiçi · 41ms"
+        },
+        {
+          "label": "Dünya harita verisi okunuyor",
+          "detail": "spawn bölgesi + 6 bölge · 2,4 GB chunk"
+        },
+        {
+          "label": "Simge yapılar tespit ediliyor",
+          "detail": "ziyaret yoğunluğuna göre puanlanan 12 aday yapı"
+        },
+        {
+          "label": "Kamera yolu planlanıyor",
+          "detail": "4 geçiş · şafak ışığı · toplam 42sn"
+        },
+        {
+          "label": "Kareler işleniyor",
+          "detail": "1.260 / 1.260 · path-traced"
+        }
+      ],
+      "previewTitle": "Fragmanın hazır.",
+      "previewBody": "Şafak ışığında en çok ziyaret edilen yapıların üzerinde dört geçiş. Yayınla ya da günün farklı bir saatiyle yeniden işle.",
+      "publishedTitle": "Profilinde yayında.",
+      "publishedBody": "Oyuncular onu kaynak rozetiyle birlikte firstspawn.com/{slug} adresinde görür. Her hafta yeniden işlenir.",
+      "provenanceDated": "⬡ canlı dünya verisinden işlendi · {date}",
+      "publishCta": "Profile yayınla",
+      "rerenderCta": "Yeniden işle",
+      "publishedBadge": "✓ Yayınlandı",
+      "startOverCta": "Baştan başla"
+    },
+    "health": {
+      "title": "Listeleme sağlığı",
+      "footnote": "sağlık sıralamayı asla doğrudan etkilemez — sadece hâlihazırda kazandığın sinyalleri oyunculara görünür kılar",
+      "items": {
+        "ownership": {
+          "label": "Sahiplik doğrulandı",
+          "note": "MOTD belirteci · otomatik yenilenir"
+        },
+        "freshPing": {
+          "label": "Taze ping verisi",
+          "notePending": "en son az önce doğrulandı",
+          "noteLive": "en son 5 dk önce doğrulandı"
+        },
+        "links": {
+          "label": "Doğrulanmış bağlantılar",
+          "notePending": "web sitesi ve Discord bağlantıları ekleyip doğrula",
+          "noteLive": "4 üzerinden 2'sinde ✓ var — mağaza beklemede"
+        },
+        "featureCards": {
+          "label": "Özellik kartları",
+          "notePending": "0 / 4 — her biri oyun içi ekran görüntüsü gerektirir",
+          "noteLive": "4 öne çıkan etiketin {count} tanesi doğrulandı"
+        },
+        "trailer": {
+          "label": "Dünya fragmanı",
+          "notePending": "ilk taramadan sonra açılır",
+          "notePublished": "yayınlandı · her hafta yeniden işlenir",
+          "noteUnrendered": "henüz işlenmedi — fragmanlar etkileşimi artırır"
+        }
+      }
     }
   }
 }

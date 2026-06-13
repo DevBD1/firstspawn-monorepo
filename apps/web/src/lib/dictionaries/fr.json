@@ -41,16 +41,37 @@
       "online": "ONLINE",
       "systemsNormal": "Systèmes Normaux",
       "verified": "VÉRIFIÉ"
+    },
+    "countries": {
+      "WW": "Mondial",
+      "US": "États-Unis",
+      "DE": "Allemagne",
+      "GB": "Royaume-Uni",
+      "CA": "Canada",
+      "TR": "Turquie",
+      "NO": "Norvège",
+      "FI": "Finlande",
+      "BR": "Brésil",
+      "KR": "Corée du Sud"
+    },
+    "linkKinds": {
+      "website": "Site web",
+      "discord": "Discord",
+      "store": "Boutique",
+      "youtube": "YouTube"
     }
   },
   "nav": {
     "console": "Console",
     "discover": "Découvrir",
+    "forOwners": "POUR LES PROPRIÉTAIRES",
+    "community": "COMMUNAUTÉ",
     "languageMenuLabel": "LANGUAGE",
     "logIn": "LOG IN",
-    "logOut": "LOG OUT",
+    "logOut": "Se déconnecter",
     "menuLabel": "MENU",
     "myLoot": "Mon Butin",
+    "signIn": "Se connecter",
     "signUp": "SIGN UP",
     "verifyEmail": "VERIFY EMAIL",
     "verifyEmailTitle": "Your email is not verified"
@@ -192,92 +213,31 @@
     }
   },
   "landing": {
-    "scene": {
-      "alt": "A dusk overworld vista with a spawn overlook, beacon tower, ruined portal arch, scanning signal trails, and the FirstSpawn scout familiar surveying the route ahead."
+    "hero": {
+      "statsLine": "{players} joueurs en ligne sur {servers} mondes",
+      "titleLine1": "Ton prochain monde",
+      "titleLine2": "est là, quelque part.",
+      "subtitle": "Une découverte honnête pour Minecraft et Hytale — classée selon l'activité réelle et la confiance de la communauté, jamais selon qui a payé le plus.",
+      "searchPlaceholder": "Cherche des mondes — “skyblock avec une économie”",
+      "searchSubmitLabel": "Explorer"
     },
-    "discoveryConsole": {
-      "eyebrow": "CONSOLE DE DÉCOUVERTE",
-      "title": "TROUVE UN SERVEUR QUI VAUT LE DÉTOUR",
-      "subtitle": "Recherche des serveurs Minecraft et Hytale actifs selon leur activité réelle, leur fraîcheur, leur région et leur pertinence. FirstSpawn commence par la découverte, car le signal utile doit venir avant le discours.",
-      "searchLabel": "Rechercher des serveurs actifs",
-      "searchPlaceholder": "Survie, faible latence, économie, communauté...",
-      "searchSubmitLabel": "Rechercher",
-      "browseAllLabel": "Parcourir tous les serveurs",
-      "ownerLabel": "Tu gères une communauté ? Revendique ton parcours depuis la console propriétaire.",
-      "ownerCtaLabel": "Référencer ton serveur",
-      "stats": {
-        "activeServers": "Serveurs actifs",
-        "onlinePlayers": "Joueurs en ligne",
-        "checkedRecently": "Vérifiés récemment"
-      },
-      "serverPreview": {
-        "emptyTitle": "Les signaux du catalogue se préparent",
-        "emptyDescription": "Aucun serveur public n'est disponible depuis l'API pour le moment. La découverte reste le parcours principal, et cette console se remplira avec les données actives du catalogue lorsque les cibles seront en ligne.",
-        "liveLabel": "en ligne",
-        "offlineLabel": "hors ligne",
-        "rankedByLabel": "Classé par",
-        "maxPlayersLabel": "joueurs maximum",
-        "verifiedLabel": "Catalogue vérifié"
-      }
+    "activeTonight": {
+      "title": "Actifs ce soir",
+      "viewAllLabel": "Tout voir →",
+      "emptyTitle": "Aucun serveur indexé pour l'instant",
+      "emptyDescription": "Lancez des seeds ou enregistrez un serveur pour remplir le catalogue."
     },
-    "problemSolution": {
-      "eyebrow": "COMPARAISON SYSTÈME",
-      "title": "DISCOVERY : REDÉFINIE",
-      "subtitle": "Compare les serveurs selon leur activité réelle, leur fraîcheur et leur pertinence, pas selon le bruit du placement payé.",
-      "problem": {
-        "statusLabel": "ERR://DÉCLIN_DÉTECTÉ",
-        "title": "LE DÉCLIN\nDU LISTING",
-        "items": [
-          {
-            "title": "VANITÉ SYNTHÉTIQUE",
-            "description": "Des classements bâtis sur les pots-de-vin et les boucles de bots. Des métriques synthétiques qui masquent le vrai pouls d'un serveur."
-          },
-          {
-            "title": "ARCHITECTURE POURRIE",
-            "description": "Des annuaires statiques pour fantômes. Des répertoires déconnectés qui n'ont pas évolué depuis 2012."
-          }
-        ]
-      },
-      "solution": {
-        "statusLabel": "SYS://ORIGINE_ACTIVE",
-        "title": "LE STANDARD\nD'ORIGINE",
-        "items": [
-          {
-            "title": "INTÉGRITÉ DEEP-PULSE",
-            "description": "Réputation appuyée par FSVotifier. Métriques temps réel qui prouvent la santé et la confiance de la communauté."
-          },
-          {
-            "title": "DISCOVERY NEURALE",
-            "description": "Un pont vivant. Nous connectons directement les joueurs aux perles cachées qui comptent."
-          }
-        ]
-      }
+    "ranking": {
+      "title": "Classement du jour",
+      "formulaHint": "rang = activité × confiance × fraîcheur — touchez un numéro de rang",
+      "emptyTitle": "Aucun classement calculé",
+      "emptyDescription": "Les classements se mettent à jour automatiquement au fil des données de heartbeat."
     },
-    "returnCta": {
-      "label": "REMONTER"
-    },
-    "features": {
-      "eyebrow": "TRUST SIGNALS",
-      "title": "POURQUOI FIRSTSPAWN ?",
-      "subtitle": "Pensé différemment pour les joueurs qui veulent des signaux frais, une activité réelle et le bon serveur avant le hype.",
-      "items": [
-        {
-          "title": "UPTIME VÉRIFIÉ",
-          "description": "Fini les faux nombres de joueurs connectés. Nos bots vérifient l'état de chaque serveur en temps réel."
-        },
-        {
-          "title": "PREUVE DE JEU",
-          "description": "Les avis sont appuyés par du vrai temps de jeu. Seuls les vrais joueurs peuvent noter."
-        },
-        {
-          "title": "IDENTITÉ MULTI-PLATEFORME",
-          "description": "Une seule identité pour Minecraft, Hytale et au-delà. Synchronise ton parcours."
-        },
-        {
-          "title": "SYSTÈME DE GUILDE",
-          "description": "Forme des alliances, grimpe dans les classements et débloque des récompenses exclusives."
-        }
-      ]
+    "ownerCta": {
+      "title": "Vous gérez un serveur ?",
+      "description": "Listez-le gratuitement. Gagnez votre place grâce à la disponibilité, l'activité et la confiance des joueurs — et voyez exactement quels signaux font bouger votre rang.",
+      "listServerLabel": "Lister votre serveur",
+      "howRankingWorksLabel": "Comment fonctionne le classement"
     },
     "newsletter": {
       "title": "REÇOIS LES ACTUS DU LANCEMENT",
@@ -291,45 +251,37 @@
   },
   "discover": {
     "page": {
-      "badgeLabel": "MATCHMAKING CORE",
-      "title": "DISCOVER WORLDS",
-      "subtitle": "Find your next adventure. Browse verified servers ranked by real player data.",
-      "searchPlaceholder": "Search servers, descriptions...",
-      "gameFilters": {
-        "all": "ALL WORLDS",
-        "minecraft": "MINECRAFT",
-        "hytale": "HYTALE"
+      "title": "Découvrir",
+      "searchPlaceholder": "Essayez “smp en liste blanche en Finlande” — {count} serveurs",
+      "smartMatch": {
+        "readingAs": "votre recherche est lue comme",
+        "literalActive": "lecture littérale des mots ·",
+        "enableLabel": "activer la correspondance intelligente",
+        "disableLabel": "correspondance littérale des mots",
+        "extraTermsLabel": "+ “{query}”",
+        "methodNote": "correspondance mot→tag · aucune supposition d'IA"
       },
-      "rarityFilterTitle": "RARITY FILTER",
-      "sortTitle": "SORT BY",
-      "sortOptions": {
-        "players": "PLAYER COUNT",
-        "ping": "PING"
+      "filters": {
+        "gameTitle": "Jeu",
+        "countryTitle": "Pays",
+        "tagsTitle": "Tags",
+        "sortTitle": "Trier par",
+        "allGames": "Tous",
+        "allCountries": "Tous les pays",
+        "sortOptions": {
+          "rank": "Rang",
+          "players": "Joueurs",
+          "votes": "Votes"
+        }
       },
-      "personalStatsTitle": "YOUR STATS",
-      "personalStats": {
-        "serversVisited": "Servers Visited",
-        "favorites": "Favorites"
-      },
-      "resultsSummary": "{count} serveurs listés sur {total}",
-      "syncingLabel": "SYNCING...",
-      "loadingMoreLabel": "LOADING...",
-      "emptyStateTitle": "NO WORLDS FOUND",
-      "emptyStateDescription": "Try adjusting your filters",
-      "stats": {
-        "onlineServers": "SERVERS ONLINE",
-        "activePlayers": "PLAYERS ACTIVE",
-        "version": "SERVER DISCOVERY v2.0"
-      },
-      "ranking": {
-        "rankedBy": "RANKED BY",
-        "lowerIsBetter": "LOWER IS BETTER"
-      },
-      "tiers": {
-        "common": "COMMON",
-        "rare": "RARE",
-        "epic": "EPIC",
-        "legendary": "LEGENDARY"
+      "results": {
+        "countOne": "{count} serveur",
+        "countOther": "{count} serveurs",
+        "matchingQuery": "correspondant à “{query}”",
+        "neverSoldNote": "le placement n'est jamais vendu",
+        "emptyTitle": "Rien par ici… pour l'instant.",
+        "emptyDescription": "Essayez de retirer des filtres ou cherchez d'autres mots-clés.",
+        "loadingMore": "Chargement d'autres mondes..."
       }
     }
   },
@@ -361,6 +313,89 @@
     "modsRequired": {
       "yes": "YES",
       "no": "NO"
+    },
+    "row": {
+      "verifiedBadge": "✓ Vérifié",
+      "votedLabel": "✓ Voté",
+      "onlineCountLabel": "{count} en ligne",
+      "uptimeLabel": "dispo {value}%",
+      "globalRegionLabel": "Mondial",
+      "noDescription": "Aucune description fournie.",
+      "gameNames": {
+        "mcJava": "Minecraft",
+        "mcBedrock": "Bedrock",
+        "hytale": "Hytale",
+        "fallback": "Jeu"
+      },
+      "relativeTime": {
+        "justNow": "à l'instant",
+        "minutesAgo": "il y a {count} min",
+        "hoursAgo": "il y a {count} h",
+        "daysAgo": "il y a {count} j",
+        "unknown": "inconnu"
+      }
+    },
+    "tagFeatures": {
+      "Survival": {
+        "title": "Gameplay survie",
+        "description": "Collecte de ressources classique, construction et commerce entre joueurs."
+      },
+      "Whitelist": {
+        "title": "Accès sur liste blanche",
+        "description": "Nécessite une candidature pour vérifier l'intention et la maturité."
+      },
+      "Economy": {
+        "title": "Systèmes économiques",
+        "description": "Boutiques de joueurs, enchères virtuelles, monnaie stable."
+      },
+      "Trading": {
+        "title": "Échanges entre joueurs",
+        "description": "Interfaces d'échange pair-à-pair sécurisées, zones de troc."
+      },
+      "Towny": {
+        "title": "Gestion de villes",
+        "description": "Revendiquez des régions, levez des impôts, rejoignez des nations voisines."
+      },
+      "Skyblock": {
+        "title": "Îles célestes",
+        "description": "Commencez sur une île minuscule dans le vide et grandissez par défis."
+      },
+      "Quests": {
+        "title": "Lignes de quêtes maison",
+        "description": "Plus de 200 missions scénarisées, primes hebdomadaires."
+      },
+      "RPG": {
+        "title": "Éléments de jeu de rôle",
+        "description": "Classes personnalisées, arbres de niveaux, équipements uniques."
+      },
+      "Hardcore": {
+        "title": "Risques élevés",
+        "description": "Vies limitées, effets de statut permanents, nuits dangereuses."
+      },
+      "Seasonal": {
+        "title": "Cycles saisonniers",
+        "description": "Le monde est réinitialisé tous les 3-6 mois avec des thèmes inédits."
+      },
+      "Creative": {
+        "title": "Construction libre",
+        "description": "Zones de construction libre, partage de parcelles, outils de design."
+      },
+      "Builds": {
+        "title": "Quartiers vitrines",
+        "description": "Galeries organisées des constructions remarquables."
+      },
+      "Showcase": {
+        "title": "Visites guidées",
+        "description": "Parcourez les créations mises en avant avec leurs créateurs."
+      },
+      "Dungeons": {
+        "title": "Donjons",
+        "description": "Parcours procéduraux, arènes de boss faites main."
+      },
+      "Family-friendly": {
+        "title": "Familial",
+        "description": "Filtres stricts, modérateurs patients."
+      }
     }
   },
   "serverDetail": {
@@ -416,19 +451,121 @@
     "status": {
       "online": "ONLINE",
       "offline": "OFFLINE"
+    },
+    "profile": {
+      "breadcrumbBack": "← Découvrir",
+      "gameNames": {
+        "mcJava": "Minecraft Java",
+        "mcBedrock": "Minecraft Bedrock",
+        "hytale": "Hytale"
+      },
+      "updatedJustNow": "mis à jour à l'instant",
+      "updatedRecently": "mis à jour récemment",
+      "links": {
+        "verifiedTooltip": "Propriété vérifiée par FirstSpawn",
+        "unverifiedTooltip": "Pas encore vérifié",
+        "verifiedByNote": "✓ vérifié par FirstSpawn"
+      },
+      "tabs": {
+        "overview": "Aperçu",
+        "discussion": "Discussion · {count}"
+      },
+      "about": {
+        "title": "À propos de ce monde"
+      },
+      "rank": {
+        "title": "Pourquoi il est classé là où il est",
+        "subtitle": "rang = activité × confiance × fraîcheur — le même calcul pour chaque serveur, jamais vendu"
+      },
+      "featureCards": {
+        "title": "Ce qui le rend différent",
+        "subtitle": "choisi par le propriétaire, limité à quatre — chaque carte exige une vraie capture en jeu"
+      },
+      "media": {
+        "title": "Médias",
+        "subtitle": "la bande-annonce est générée à partir des données de carte en direct du serveur — jamais d'images générées",
+        "provenanceChip": "⬡ généré à partir des données du monde en direct · actualisé chaque semaine"
+      },
+      "similar": {
+        "title": "Mondes similaires"
+      },
+      "discussion": {
+        "updatesTitle": "Nouvelles de l'équipe",
+        "updatesSubtitle": "publications signées du propriétaire vérifié — épinglées au-dessus du fil",
+        "staffBadge": "✓ équipe {name}",
+        "threadTitle": "Fil des joueurs",
+        "threadSubtitle": "ouvert automatiquement avec cette fiche · appartient aux joueurs, modéré par FirstSpawn",
+        "composerPlaceholder": "Posez une question sur {name}, ou racontez aux joueurs comment c'est…",
+        "postingAsNote": "publié en tant que {username} · un compte, une réputation",
+        "postLabel": "Publier",
+        "youSuffix": "(vous)",
+        "repliesLabel": "{count} réponses",
+        "ownerRepliedLabel": "le propriétaire a répondu",
+        "deleteLabel": "supprimer",
+        "reportLabel": "signaler",
+        "underReviewLabel": "⚑ en cours d'examen · {reason}",
+        "reportPromptTitle": "Signaler aux modérateurs FirstSpawn — pas au propriétaire du serveur :",
+        "reportReasons": {
+          "spam": "Spam ou publicité",
+          "harassment": "Harcèlement",
+          "misleading": "Trompeur sur le serveur",
+          "offTopic": "Hors sujet"
+        },
+        "cancelLabel": "annuler"
+      },
+      "sidebar": {
+        "joinTitle": "Rejoindre",
+        "copiedLabel": "copié ✓",
+        "copyAddressLabel": "Copier l'adresse du serveur",
+        "voteLabel": "▲ Voter pour ce serveur",
+        "votedLabel": "✓ Voté aujourd'hui",
+        "stats": {
+          "onlineNow": "En ligne maintenant",
+          "uptime30d": "Disponibilité (30 j)",
+          "votes": "Votes",
+          "standing": "Réputation"
+        },
+        "factsTitle": "Infos du serveur",
+        "facts": {
+          "version": "Version",
+          "crossplay": "Crossplay",
+          "language": "Langue",
+          "resets": "Réinitialisations",
+          "listedSince": "Listé depuis"
+        },
+        "factValues": {
+          "javaBedrock": "Java + Bedrock",
+          "pcOnly": "PC uniquement",
+          "english": "Anglais",
+          "seasonal": "Saisonnier",
+          "nonePlanned": "Aucune prévue",
+          "hytaleRelease": "Version 1.x",
+          "mcJavaDefault": "1.21.x · Java"
+        },
+        "factsFootnote": "les infos sont déclarées par le propriétaire · vérifiées contre les pings en direct"
+      }
     }
   },
   "legal": {
     "terms": {
       "title": "Terms of Service",
       "description": "This Terms of Service page is being finalized. By creating an account, you agree to FirstSpawn platform usage rules, account responsibility, and acceptable conduct policies.",
-      "localeLabel": "Locale"
+      "localeLabel": "Locale",
+      "noticeBadge": "Brouillon en cours",
+      "noticeBody": "Nous rédigeons les conditions d'utilisation complètes. En attendant leur publication, le résumé ci-dessus décrit le fonctionnement de la plateforme. Revenez bientôt."
     },
     "privacy": {
       "title": "Privacy Policy",
       "description": "This Privacy Policy page is being finalized. By creating an account, you acknowledge data processing for account security, product operations, and communications preferences.",
-      "localeLabel": "Locale"
+      "localeLabel": "Locale",
+      "noticeBadge": "Brouillon en cours",
+      "noticeBody": "Nous rédigeons la politique de confidentialité complète. En attendant sa publication, le résumé ci-dessus décrit la façon dont nous traitons vos données. Revenez bientôt."
     }
+  },
+  "communityPage": {
+    "badge": "Bientôt disponible",
+    "title": "COMMUNAUTÉ",
+    "description": "Les passeports de joueur, les journaux de serveur et les contributions de la communauté arrivent. Cet espace sera débloqué lors de la prochaine étape de publication."
   },
   "consolePage": {
     "badge": "COMMAND TERMINAL ONLINE",
@@ -498,5 +635,215 @@
     "categoryUnavailable": "Personalization and marketing cookies are not currently active on FirstSpawn.",
     "stateOn": "ON",
     "stateOff": "OFF"
+  },
+  "rankSignals": {
+    "popoverTitle": "Pourquoi ce rang ?",
+    "activityLabel": "Activité",
+    "trustLabel": "Confiance",
+    "freshnessLabel": "Fraîcheur",
+    "activityHint": "joueurs réellement en ligne, heure par heure",
+    "trustHint": "propriété vérifiée, historique de modération, signalements de joueurs",
+    "freshnessHint": "depuis quand les données de la fiche ont été confirmées",
+    "formulaLine": "rang = activité × confiance × fraîcheur.",
+    "neverSoldLine": "Le placement n'est jamais vendu.",
+    "activityMeasuredTooltip": "Activité mesurée par FirstSpawn"
+  },
+  "listFlow": {
+    "steps": {
+      "address": "Adresse",
+      "ownership": "Propriété",
+      "profile": "Profil",
+      "publish": "Publier"
+    },
+    "header": {
+      "title": "Lister votre serveur",
+      "summary": "Gratuit, et cela reste gratuit. Vous commencez sans rang — votre place se gagne par l'activité mesurée, la confiance et la fraîcheur, jamais par l'achat."
+    },
+    "address": {
+      "title": "Où vit votre monde ?",
+      "description": "Nous le pinguons d'abord. Votre fiche repose sur ce que nous pouvons mesurer — le formulaire vient ensuite.",
+      "hostPlaceholder": "play.votreserveur.net",
+      "pingingLabel": "Ping en cours…",
+      "checkServerLabel": "Vérifier le serveur",
+      "stats": {
+        "status": "Statut",
+        "reachable": "● joignable",
+        "version": "Version",
+        "onlineNow": "En ligne maintenant",
+        "motd": "MOTD"
+      },
+      "continueLabel": "C'est correct →",
+      "supportNote": "java + bedrock pris en charge · hytale au lancement"
+    },
+    "ownership": {
+      "title": "Prouvez qu'il est à vous.",
+      "description": "Une vérification, deux façons de la faire. Cela débloque la console propriétaire, les mises à jour signées et le ✓ sur vos liens — et empêche les usurpateurs d'entrer sur FirstSpawn.",
+      "tokenLabel": "Votre jeton de vérification",
+      "copyLabel": "copier",
+      "motdTitle": "MOTD du serveur",
+      "motdBody": "Ajoutez le jeton à votre MOTD pendant un redémarrage. Nous le récupérons au ping suivant.",
+      "dnsTitle": "Enregistrement DNS",
+      "dnsBodyPrefix": "Ajoutez un enregistrement TXT à",
+      "dnsFallbackDomain": "votreserveur.net",
+      "dnsBodySuffix": ".",
+      "verifiedLabel": "✓ Propriété vérifiée",
+      "continueLabel": "Continuer →",
+      "checkingLabel": "Vérification…",
+      "verifyLabel": "Je l'ai ajouté — vérifier"
+    },
+    "profile": {
+      "title": "Présentez votre monde.",
+      "description": "Court volontairement. Les captures, cartes de caractéristiques et la bande-annonce arrivent après la publication — c'est juste assez pour que les joueurs vous trouvent.",
+      "nameLabel": "Nom du serveur",
+      "blurbLabel": "Description en une ligne · {count} restants",
+      "blurbPlaceholder": "Survie saisonnière avec événements hébergés et marché tenu par les joueurs.",
+      "tagsLabel": "Tags · choisissez jusqu'à 4 ({count}/4)",
+      "countryLabel": "Pays",
+      "countryHint": "où le serveur est hébergé · choisissez Global si vous servez tout le monde",
+      "previewLabel": "Aperçu de la fiche →"
+    },
+    "preview": {
+      "draftTitle": "Voici comment les joueurs vous verront.",
+      "draftDescription": "Les chiffres mesurés viennent de nos pings ; tout ce que vous avez saisi est marqué comme déclaré par le propriétaire. Vous commencez sans rang et grimpez à mesure que les signaux s'accumulent.",
+      "publishedTitle": "Vous êtes listé.",
+      "publishedDescription": "Le premier crawl est en cours. Votre fil de joueurs est ouvert, et la console propriétaire est déverrouillée — cartes de caractéristiques, liens vérifiés et bande-annonce du monde y vivent.",
+      "fallbackName": "Votre serveur",
+      "fallbackBlurb": "Survie saisonnière avec des événements organisés et un marché géré par les joueurs.",
+      "justListedLabel": "tout juste listé",
+      "onlineMeasuredLabel": "● 87 en ligne · mesuré",
+      "rankUnrankedLabel": "rang — sans rang · gagné, pas acheté",
+      "standingLabel": "statut — En construction",
+      "publishLabel": "Publier la fiche",
+      "editProfileLabel": "← Modifier le profil",
+      "openConsoleLabel": "Ouvrir la console propriétaire →"
+    }
+  },
+  "ownerConsole": {
+    "sections": {
+      "overview": "Aperçu",
+      "profile": "Profil",
+      "media": "Médias",
+      "trailer": "Bande-annonce du monde",
+      "health": "Santé"
+    },
+    "header": {
+      "title": "Console propriétaire",
+      "summary": "{count} mondes · ✓ propriété vérifiée · rien ici n'achète de rang",
+      "listAnotherLabel": "+ Lister un autre serveur"
+    },
+    "empty": {
+      "title": "Aucun serveur listé sur votre compte.",
+      "ctaLabel": "Listez votre premier serveur"
+    },
+    "switcher": {
+      "pendingBadge": "en attente"
+    },
+    "overview": {
+      "firstCrawlTitle": "Premier crawl en cours.",
+      "firstCrawlBody": "Les statistiques mesurées apparaissent sous une heure — le rang et la réputation suivent à mesure que les signaux s'accumulent. Votre fil des joueurs est déjà ouvert.",
+      "rankLabel": "rang",
+      "rankPending": "en attente",
+      "rankOf": "sur {total}",
+      "onlineNowLabel": "en ligne maintenant · mesuré",
+      "standingLabel": "réputation · vérifiée",
+      "votesLabel": "votes (au total)",
+      "signalsTitle": "Signaux de rang",
+      "signalsNote": "le même calcul pour tous · jamais vendu",
+      "viewProfileLabel": "Voir le profil public",
+      "trailerCtaLabel": "Bande-annonce du monde →",
+      "healthCtaLabel": "Santé de la fiche →"
+    },
+    "profile": {
+      "nameLabel": "Nom du serveur",
+      "nameHint": "{url} · les changements de nom nécessitent une vérification",
+      "blurbLabel": "Description en une ligne · {count} restants",
+      "tagsLabel": "Tags · choisissez jusqu'à 4 ({count}/4)",
+      "countryLabel": "Pays",
+      "linksTitle": "Liens · ✓ = propriété vérifiée",
+      "linkVerifiedLabel": "✓ vérifié",
+      "linkVerifyCta": "vérifier →",
+      "saveLabel": "Enregistrer les modifications",
+      "savedNote": "✓ Enregistré — en ligne en moins d'une minute"
+    },
+    "media": {
+      "replaceLabel": "Remplacer",
+      "screenshotsLabel": "Captures d'écran · {count} sur 6",
+      "addScreenshotLabel": "+ Ajouter une capture",
+      "policyNote": "captures en jeu uniquement · les images générées ou de banque sont retirées et coûtent de la réputation"
+    },
+    "trailer": {
+      "title": "Bande-annonce du monde",
+      "provenanceNote": "⬡ généré à partir des données du monde en direct · jamais d'images générées",
+      "lockedTitle": "Disponible après le premier crawl.",
+      "lockNotePending": "Le crawl de {name} se termine sous une heure — le studio se débloque dès que nous avons des données mesurées du monde.",
+      "renderCta": "Générer la bande-annonce",
+      "filmTitle": "Filmez ce monde.",
+      "filmBody": "Nous lisons votre carte en direct — les mêmes données que voient les joueurs — trouvons vos constructions les plus visitées et filmons un survol cinématique. Environ une minute. Rien n'est inventé : si c'est dans la bande-annonce, c'est sur votre serveur.",
+      "addressNote": "adresse vérifiée · regénérée chaque semaine pour que la bande-annonce ne vieillisse jamais",
+      "renderingTitle": "Tournage de votre monde…",
+      "renderingBody": "Le plan de rendu se déroule sous vos yeux — chaque plan provient de vrais chunks.",
+      "stages": [
+        {
+          "label": "Ping de {addr}",
+          "detail": "1.21.4 · 1 204 en ligne · 41ms"
+        },
+        {
+          "label": "Lecture des données de la carte du monde",
+          "detail": "région de spawn + 6 quartiers · 2,4 Go de chunks"
+        },
+        {
+          "label": "Détection des points d'intérêt",
+          "detail": "12 constructions candidates notées par densité de visites"
+        },
+        {
+          "label": "Planification du parcours caméra",
+          "detail": "4 passages · lumière de l'aube · 42s au total"
+        },
+        {
+          "label": "Rendu des images",
+          "detail": "1 260 / 1 260 · path-traced"
+        }
+      ],
+      "previewTitle": "Votre bande-annonce est prête.",
+      "previewBody": "Quatre passages au-dessus de vos constructions les plus visitées à la lumière de l'aube. Publiez-la, ou regénérez avec un autre moment de la journée.",
+      "publishedTitle": "En ligne sur votre profil.",
+      "publishedBody": "Les joueurs la voient sur firstspawn.com/{slug} avec sa pastille de provenance. Elle est regénérée chaque semaine.",
+      "provenanceDated": "⬡ généré à partir des données du monde en direct · {date}",
+      "publishCta": "Publier sur le profil",
+      "rerenderCta": "Regénérer",
+      "publishedBadge": "✓ Publié",
+      "startOverCta": "Recommencer"
+    },
+    "health": {
+      "title": "Santé de la fiche",
+      "footnote": "la santé n'affecte jamais directement le rang — elle rend simplement visibles aux joueurs les signaux que vous gagnez déjà",
+      "items": {
+        "ownership": {
+          "label": "Propriété vérifiée",
+          "note": "jeton MOTD · se renouvelle automatiquement"
+        },
+        "freshPing": {
+          "label": "Données de ping fraîches",
+          "notePending": "confirmé à l'instant",
+          "noteLive": "confirmé il y a 5 min"
+        },
+        "links": {
+          "label": "Liens vérifiés",
+          "notePending": "ajoutez des liens site web et Discord, puis vérifiez-les",
+          "noteLive": "2 sur 4 portent la ✓ — boutique en attente"
+        },
+        "featureCards": {
+          "label": "Cartes de caractéristiques",
+          "notePending": "0 sur 4 — chacune exige une capture en jeu",
+          "noteLive": "{count} sur 4 tags mis en avant vérifiés"
+        },
+        "trailer": {
+          "label": "Bande-annonce du monde",
+          "notePending": "se débloque après le premier crawl",
+          "notePublished": "publiée · regénérée chaque semaine",
+          "noteUnrendered": "pas encore générée — les bandes-annonces stimulent l'engagement"
+        }
+      }
+    }
   }
 }

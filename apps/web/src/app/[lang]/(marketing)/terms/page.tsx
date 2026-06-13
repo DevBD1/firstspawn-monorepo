@@ -14,6 +14,8 @@ export default async function TermsPage({ params }: { params: Promise<{ lang: st
       description={copy.description}
       locale={lang}
       localeLabel={copy.localeLabel}
+      noticeBadge={copy.noticeBadge}
+      noticeBody={copy.noticeBody}
       title={copy.title}
     />
   );

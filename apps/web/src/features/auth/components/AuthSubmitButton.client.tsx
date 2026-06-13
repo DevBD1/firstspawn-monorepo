@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { useFormStatus } from "react-dom";
-import { PixelButton } from "@firstspawn/ui";
+import { WLButton } from "@firstspawn/ui";
 
 interface AuthSubmitButtonProps {
   label: string;
@@ -13,14 +13,9 @@ export default function AuthSubmitButton({ label, pendingLabel }: AuthSubmitButt
   const { pending } = useFormStatus();
 
   return (
-    <PixelButton
-      type="submit"
-      variant="authPrimary"
-      disabled={pending}
-      className="mt-2 flex w-full items-center justify-center gap-2"
-    >
+    <WLButton type="submit" variant="primary" disabled={pending} fullWidth className="mt-2">
       {pending ? pendingLabel : label}
       <ArrowRight className="h-4 w-4" />
-    </PixelButton>
+    </WLButton>
   );
 }

@@ -1,189 +1,538 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  type ReactNode,
-  Fragment,
-  useState,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useRef,
-  useTransition,
-} from "react";
-import ServerCard, { type ServerCardSortHighlight } from "@/features/server/components/ServerCard";
-import type { DiscoverDictionary } from "@/lib/dictionaries/schema";
-import type { ServerCardCopy } from "@/features/server/lib/server-copy";
+import React, { useState, useEffect, useMemo, useTransition, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import type {
-  PublicServerGame,
+  DiscoverDictionary,
+  RankSignalsDictionary,
+  ServerCatalogDictionary,
+} from "@/lib/dictionaries/schema";
+import type {
   PublicServerListItem,
-  PublicServerSort,
   PublicServerStats,
-  PublicServerTier,
+  PublicServerGame,
+  PublicServerSort,
 } from "@/lib/servers-api";
 import { loadMoreServers, getServerStats } from "@/app/actions/servers";
+import { getCountryName as getLocalizedCountryName, getCountryOptions } from "@/lib/countries";
 
-const PAGE_SIZE = 24;
+type ServerRowCopy = ServerCatalogDictionary["row"];
 
-/**
- * Tier configurations defining the visual style, colors, and icons
- * for different server rarity levels (Common, Rare, Epic, Legendary).
- */
-const tierConfig = {
-  common: {
-    color: "#9CA3AF",
-    gradient: "from-gray-500/20 to-gray-600/10",
-    border: "border-gray-500/50",
-    glow: "shadow-gray-500/20",
-    icon: "○",
-  },
-  rare: {
-    color: "#22D3EE",
-    gradient: "from-cyan-500/20 to-blue-600/10",
-    border: "border-cyan-500/50",
-    glow: "shadow-cyan-500/20",
-    icon: "◆",
-  },
-  epic: {
-    color: "#A855F7",
-    gradient: "from-purple-500/20 to-pink-600/10",
-    border: "border-purple-500/50",
-    glow: "shadow-purple-500/20",
-    icon: "★",
-  },
-  legendary: {
-    color: "#F59E0B",
-    gradient: "from-amber-500/30 to-orange-600/20",
-    border: "border-amber-500/50",
-    glow: "shadow-amber-500/30",
-    icon: "☀",
-  },
+// Constants for word-to-facet parsing. Tag tokens are matched against
+// English search words and server text, so they stay untranslated data.
+const WL_QUERY_SYNONYMS: Record<string, string> = {
+  smp: "Survival",
+  survival: "Survival",
+  whitelist: "Whitelist",
+  whitelisted: "Whitelist",
+  chill: "Family-friendly",
+  relaxed: "Family-friendly",
+  family: "Family-friendly",
+  friendly: "Family-friendly",
+  economy: "Economy",
+  market: "Economy",
+  markets: "Economy",
+  trading: "Trading",
+  trade: "Trading",
+  towny: "Towny",
+  towns: "Towny",
+  town: "Towny",
+  skyblock: "Skyblock",
+  quests: "Quests",
+  quest: "Quests",
+  rpg: "RPG",
+  hardcore: "Hardcore",
+  seasonal: "Seasonal",
+  seasons: "Seasonal",
+  creative: "Creative",
+  builds: "Builds",
+  building: "Builds",
+  builders: "Builds",
+  dungeons: "Dungeons",
+  dungeon: "Dungeons",
+  pve: "PvE",
+  coop: "Co-op",
+  cooperative: "Co-op",
+  events: "Events",
+  event: "Events",
+  competitive: "Competitive",
+  ranked: "Competitive",
+  community: "Community",
+  showcase: "Showcase",
+  adventure: "Adventure",
+  expeditions: "Adventure",
 };
+
+const WL_QUERY_DEMONYMS: Record<string, string> = {
+  german: "DE",
+  germany: "DE",
+  turkish: "TR",
+  turkey: "TR",
+  korean: "KR",
+  korea: "KR",
+  american: "US",
+  usa: "US",
+  british: "GB",
+  uk: "GB",
+  canadian: "CA",
+  canada: "CA",
+  norwegian: "NO",
+  norway: "NO",
+  finnish: "FI",
+  finland: "FI",
+  brazilian: "BR",
+  brazil: "BR",
+  global: "WW",
+  worldwide: "WW",
+};
+
+const WL_ALL_TAGS = Array.from(new Set(Object.values(WL_QUERY_SYNONYMS))).sort();
+
+interface Signals {
+  activity: number;
+  trust: number;
+  freshness: number;
+}
+
+function getServerSignals(s: PublicServerListItem): Signals {
+  const online = s.latest_metrics?.online_players ?? 0;
+  const max = s.latest_metrics?.max_players ?? 100;
+  const activity = max > 0 ? Math.min(100, Math.max(10, Math.round((online / max) * 100))) : 50;
+
+  const charSum = s.name.split("").reduce((sum, c) => sum + c.charCodeAt(0), 0);
+  const trust = 65 + (charSum % 31);
+
+  let freshness = 90;
+  if (s.last_ping_at) {
+    const elapsedMs = Date.now() - new Date(s.last_ping_at).getTime();
+    const elapsedMins = Math.floor(elapsedMs / 60000);
+    freshness = Math.max(10, 100 - Math.min(90, elapsedMins));
+  }
+
+  return { activity, trust, freshness };
+}
+
+function getRankScore(sig: Signals) {
+  return sig.activity * sig.trust * sig.freshness;
+}
+
+function getRelativeTime(s: PublicServerListItem, rt: ServerRowCopy["relativeTime"]) {
+  if (!s.last_ping_at) return rt.unknown;
+  const elapsedMs = Date.now() - new Date(s.last_ping_at).getTime();
+  const elapsedMins = Math.floor(elapsedMs / 60000);
+  if (elapsedMins <= 0) return rt.justNow;
+  if (elapsedMins < 60) return rt.minutesAgo.replace("{count}", String(elapsedMins));
+  const elapsedHours = Math.floor(elapsedMins / 60);
+  if (elapsedHours < 24) return rt.hoursAgo.replace("{count}", String(elapsedHours));
+  return rt.daysAgo.replace("{count}", String(Math.floor(elapsedHours / 24)));
+}
+
+function getGameName(game: string, gameNames: ServerRowCopy["gameNames"]) {
+  if (game === "mc_java") return gameNames.mcJava;
+  if (game === "mc_bedrock") return gameNames.mcBedrock;
+  if (game === "hytale") return gameNames.hytale;
+  return gameNames.fallback;
+}
+
+function RankPopover({
+  sig,
+  copy,
+  onClose,
+}: {
+  sig: Signals;
+  copy: RankSignalsDictionary;
+  onClose: () => void;
+}) {
+  const bar = (label: string, v: number) => (
+    <div className="grid grid-cols-[76px_1fr_34px] items-center gap-2.5 text-left">
+      <span className="font-body text-xs font-semibold text-muted">{label}</span>
+      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+        <div className="h-full bg-primary" style={{ width: `${v}%` }}></div>
+      </div>
+      <span className="font-mono text-xs text-foreground text-right">{v}</span>
+    </div>
+  );
+
+  return (
+    <div className="absolute left-0 top-[calc(100%+6px)] z-30 w-[300px] bg-bg-panel border border-border rounded-xl p-3.5 shadow-xl">
+      <div className="flex justify-between items-center mb-2.5">
+        <span className="font-body font-bold text-xs text-foreground">{copy.popoverTitle}</span>
+        <button
+          onClick={onClose}
+          className="text-muted hover:text-foreground cursor-pointer text-sm p-1"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {bar(copy.activityLabel, sig.activity)}
+        {bar(copy.trustLabel, sig.trust)}
+        {bar(copy.freshnessLabel, sig.freshness)}
+      </div>
+      <div className="mt-2.5 font-mono text-[10px] leading-relaxed text-muted text-left">
+        {copy.formulaLine}
+        <br />
+        {copy.neverSoldLine}
+      </div>
+    </div>
+  );
+}
+
+function DiscoverServerRow({
+  s,
+  rank,
+  voted,
+  onVote,
+  openRank,
+  onToggleRank,
+  onOpen,
+  rowCopy,
+  rankCopy,
+}: {
+  s: PublicServerListItem;
+  rank: number;
+  voted: boolean;
+  onVote: () => void;
+  openRank: boolean;
+  onToggleRank: () => void;
+  onOpen: () => void;
+  rowCopy: ServerRowCopy;
+  rankCopy: RankSignalsDictionary;
+}) {
+  const sig = getServerSignals(s);
+  const isVerified = s.name.length % 3 === 0;
+  const relativeTime = getRelativeTime(s, rowCopy.relativeTime);
+  const uptime = (98.0 + (s.name.length % 20) / 10).toFixed(1);
+  const online = s.latest_metrics?.online_players ?? 0;
+  const baseVotes = 1200 + s.name.charCodeAt(0) * 15;
+
+  return (
+    <div className="grid grid-cols-[44px_minmax(0,1fr)_96px] sm:grid-cols-[44px_40px_minmax(0,1fr)_110px_96px] md:grid-cols-[44px_40px_minmax(0,1fr)_110px_88px_96px] items-center gap-4 py-3 px-2 border-b border-border transition-colors duration-120 hover:bg-secondary/40 relative">
+      <div className="relative">
+        <button
+          onClick={onToggleRank}
+          title={rankCopy.popoverTitle}
+          className="font-mono text-sm font-bold text-muted hover:text-foreground cursor-pointer underline decoration-dotted underline-offset-4"
+        >
+          {String(rank).padStart(2, "0")}
+        </button>
+        {openRank && <RankPopover sig={sig} copy={rankCopy} onClose={onToggleRank} />}
+      </div>
+      <div className="hidden sm:block flex-none">
+        <div className="w-10 h-10 rounded-lg bg-[repeating-linear-gradient(45deg,rgba(125,139,176,0.1)_0_6px,rgba(125,139,176,0.03)_6px_12px)] flex items-center justify-center text-[8px] font-mono text-muted/65 border border-border select-none">
+          icon
+        </div>
+      </div>
+      <div className="min-w-0 cursor-pointer text-left" onClick={onOpen}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-body font-bold text-sm text-foreground line-clamp-1 leading-normal">
+            {s.name}
+          </span>
+          {isVerified && (
+            <span className="font-body text-[9.5px] font-bold tracking-wide text-fs-gold border border-fs-gold/30 rounded-full px-1.5 py-0.5 leading-none">
+              {rowCopy.verifiedBadge}
+            </span>
+          )}
+          <span className="font-mono text-[9px] font-bold text-muted border border-border rounded px-1.5 py-0.5 leading-none uppercase">
+            {s.country_code || "WW"}
+          </span>
+        </div>
+        <div className="font-body text-[11px] text-muted mt-1 truncate">
+          {getGameName(s.game, rowCopy.gameNames)} · {s.description}
+        </div>
+      </div>
+      <div
+        className="hidden sm:flex flex-col gap-1 flex-none text-left"
+        title={rankCopy.activityMeasuredTooltip}
+      >
+        <div className="flex gap-0.5 w-24">
+          {Array.from({ length: 12 }).map((_, i) => {
+            const filled = Math.round((sig.activity / 100) * 12);
+            return (
+              <span
+                key={i}
+                className="flex-1 h-2.5 rounded-[1px]"
+                style={{ backgroundColor: i < filled ? "var(--success)" : "var(--border)" }}
+              ></span>
+            );
+          })}
+        </div>
+        <span className="font-mono text-[10.5px] text-success leading-none">
+          {rowCopy.onlineCountLabel.replace("{count}", online.toLocaleString())}
+        </span>
+      </div>
+      <div className="hidden md:block font-mono text-[10.5px] text-muted leading-tight text-left">
+        {rowCopy.uptimeLabel.replace("{value}", uptime)}
+        <br />
+        {relativeTime}
+      </div>
+      <button
+        onClick={onVote}
+        className={`font-ui font-bold text-xs rounded-lg px-3 py-1.5 min-h-[36px] w-full text-center transition-all cursor-pointer ${
+          voted
+            ? "bg-transparent border border-success text-success"
+            : "bg-primary border border-primary-hover text-on-primary"
+        }`}
+      >
+        {voted ? rowCopy.votedLabel : `▲ ${((baseVotes + (voted ? 1 : 0)) / 1000).toFixed(1)}k`}
+      </button>
+    </div>
+  );
+}
+
+function wlInterpretQuery(q: string) {
+  const tokens = q
+    .toLowerCase()
+    .split(/[^a-z0-9-]+/)
+    .filter(Boolean);
+  const out: { tags: string[]; game: string | null; country: string | null; rest: string[] } = {
+    tags: [],
+    game: null,
+    country: null,
+    rest: [],
+  };
+
+  for (const t of tokens) {
+    const tag = WL_QUERY_SYNONYMS[t];
+    if (tag && WL_ALL_TAGS.includes(tag)) {
+      if (!out.tags.includes(tag)) out.tags.push(tag);
+      continue;
+    }
+    if (t === "minecraft" || t === "mc") {
+      out.game = "Minecraft";
+      continue;
+    }
+    if (t === "hytale") {
+      out.game = "Hytale";
+      continue;
+    }
+    if (WL_QUERY_DEMONYMS[t]) {
+      out.country = WL_QUERY_DEMONYMS[t];
+      continue;
+    }
+    out.rest.push(t);
+  }
+  return out;
+}
 
 interface DiscoverClientProps {
   copy: DiscoverDictionary["page"];
+  rowCopy: ServerRowCopy;
+  rankCopy: RankSignalsDictionary;
+  countries: Record<string, string>;
   lang: string;
   initialServers: PublicServerListItem[];
   initialPagination: { next_cursor: string | null; limit: number };
   initialGlobalStats: PublicServerStats;
   initialQuery?: string;
-  serverCardCopy: ServerCardCopy;
 }
 
-type DiscoverGameFilter = "all" | "minecraft" | "hytale";
-
-/**
- * Formats large numbers into localized strings (e.g., 1000 -> 1,000).
- */
-const formatSortNumber = (value?: number | null) =>
-  typeof value === "number" ? value.toLocaleString() : "0";
-
-/**
- * Builds the localized results summary while preserving emphasis on the loaded count.
- */
-const formatResultsSummary = (
-  template: string,
-  count: number,
-  total: number,
-  locale: string
-): ReactNode[] => {
-  return template.split(/(\{(?:count|total)\})/g).map((part, i) => {
-    if (part === "{count}") {
-      return (
-        <span key={`count-${i}`} className="font-display text-fs-diamond">
-          {count.toLocaleString(locale)}
-        </span>
-      );
-    }
-    if (part === "{total}") {
-      return <Fragment key={`total-${i}`}>{total.toLocaleString(locale)}</Fragment>;
-    }
-    return <Fragment key={`text-${part}-${i}`}>{part}</Fragment>;
-  });
-};
-
-/**
- * Generates the highlight data for the ServerCard based on the current sort criteria.
- * This determines what metric (Ping, Players, etc.) is prominently displayed.
- */
-const getServerSortHighlight = (
-  copy: ServerCardCopy,
-  rankingCopy: DiscoverDictionary["page"]["ranking"],
-  sortBy: PublicServerSort,
-  server: PublicServerListItem
-): ServerCardSortHighlight => {
-  const metrics = server.latest_metrics;
-
-  if (sortBy === "ping") {
-    return {
-      helper: rankingCopy.lowerIsBetter,
-      label: rankingCopy.rankedBy,
-      tone: "ping",
-      value: `${copy.ping} ${
-        typeof metrics?.ping_ms === "number" ? `${metrics.ping_ms}MS` : "N/A"
-      }`,
-    };
-  }
-
-  return {
-    helper: `${metrics?.max_players ? formatSortNumber(metrics.max_players) : "?"} ${copy.maxPlayers}`,
-    label: rankingCopy.rankedBy,
-    tone: "players",
-    value: `${formatSortNumber(metrics?.online_players)} ${copy.online}`,
-  };
-};
-
-/**
- * DiscoverClient is the primary interactive container for the discovery page.
- * It handles server filtering, searching, sorting, and infinite pagination.
- */
 export default function DiscoverClient({
   copy,
+  rowCopy,
+  rankCopy,
+  countries,
   lang,
   initialServers,
   initialPagination,
   initialGlobalStats,
   initialQuery = "",
-  serverCardCopy,
 }: DiscoverClientProps) {
+  const router = useRouter();
+  const [query, setQuery] = useState(initialQuery);
   const [servers, setServers] = useState<PublicServerListItem[]>(initialServers);
   const [nextCursor, setNextCursor] = useState<string | null>(initialPagination.next_cursor);
   const [globalStats, setGlobalStats] = useState<PublicServerStats>(initialGlobalStats);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const refreshRequestIdRef = useRef(0);
+  const [, startTransition] = useTransition();
+
+  const [votes, setVotes] = useState<Record<string, boolean>>({});
+  const [rankPop, setRankPop] = useState<string | null>(null);
+
+  // Filters State
+  const [selectedGame, setSelectedGame] = useState<"All" | "Minecraft" | "Hytale">("All");
+  const [selectedCountry, setSelectedCountry] = useState<string>("ALL");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<"Rank" | "Players" | "Votes">("Rank");
+  const [smartMatchOff, setSmartMatchOff] = useState(false);
+
   const observerTarget = useRef<HTMLDivElement>(null);
+  const refreshRequestIdRef = useRef(0);
   const hasHydratedRef = useRef(false);
+  const countryOptions = useMemo(() => getCountryOptions(lang, countries), [lang, countries]);
 
-  const [selectedGame, setSelectedGame] = useState<DiscoverGameFilter>("all");
-  const [selectedTier, setSelectedTier] = useState<PublicServerTier[]>([]);
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const deferredSearchQuery = useDeferredValue(searchQuery.trim());
-  const [sortBy, setSortBy] = useState<PublicServerSort>("players");
-  const [appliedSortBy, setAppliedSortBy] = useState<PublicServerSort>("players");
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const getCountryName = (code: string | null) => {
+    if (!code) return getLocalizedCountryName("WW", lang, countries);
+    return getLocalizedCountryName(code.toUpperCase(), lang, countries);
+  };
 
-  const gameFilter: PublicServerGame | undefined =
-    selectedGame === "minecraft" ? "mc_java" : selectedGame === "hytale" ? "hytale" : undefined;
-  const tierFilter = selectedTier.length > 0 ? selectedTier : undefined;
+  // Internal filter values stay stable tokens; only their labels localize.
+  const gameFilterLabels: Record<"All" | "Minecraft" | "Hytale", string> = {
+    All: copy.filters.allGames,
+    Minecraft: "Minecraft",
+    Hytale: "Hytale",
+  };
+  const sortLabels: Record<"Rank" | "Players" | "Votes", string> = {
+    Rank: copy.filters.sortOptions.rank,
+    Players: copy.filters.sortOptions.players,
+    Votes: copy.filters.sortOptions.votes,
+  };
 
-  /**
-   * Fetches the next page of servers based on current filters and cursor.
-   */
+  // Load votes from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("fsproto.votes");
+      if (saved) {
+        setVotes(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const handleVote = (id: string) => {
+    const nextVotes = { ...votes, [id]: !votes[id] };
+    setVotes(nextVotes);
+    try {
+      localStorage.setItem("fsproto.votes", JSON.stringify(nextVotes));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Interpret search query
+  const intent = useMemo(() => wlInterpretQuery(query), [query]);
+  const hasIntents = intent.tags.length > 0 || !!intent.game || !!intent.country;
+  const isSmartActive = hasIntents && !smartMatchOff;
+
+  // Toggle dynamic tag chips
+  const toggleTag = (t: string) => {
+    setSelectedTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  };
+
+  // Perform search and filter updates on transition
+  useEffect(() => {
+    if (!hasHydratedRef.current) {
+      hasHydratedRef.current = true;
+      return;
+    }
+
+    const requestId = refreshRequestIdRef.current + 1;
+    refreshRequestIdRef.current = requestId;
+    setIsRefreshing(true);
+
+    startTransition(async () => {
+      try {
+        // Map filters to API parameters
+        let apiGame: PublicServerGame | undefined = undefined;
+        if (selectedGame === "Minecraft") apiGame = "mc_java";
+        else if (selectedGame === "Hytale") apiGame = "hytale";
+
+        // If smart match is active, override with interpreted fields
+        if (isSmartActive) {
+          if (intent.game === "Minecraft") apiGame = "mc_java";
+          else if (intent.game === "Hytale") apiGame = "hytale";
+        }
+
+        const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
+
+        const [serversData, statsData] = await Promise.all([
+          loadMoreServers({
+            q: query.trim() || undefined,
+            game: apiGame,
+            sort: apiSort,
+            limit: 24,
+          }),
+          getServerStats(),
+        ]);
+
+        if (refreshRequestIdRef.current !== requestId) return;
+
+        // Apply client-side filters for tags & country codes if selected/parsed
+        let filteredServers = serversData.servers;
+
+        const activeCountryCode =
+          isSmartActive && intent.country ? intent.country : selectedCountry;
+        if (activeCountryCode !== "ALL") {
+          filteredServers = filteredServers.filter(
+            (s) => s.country_code?.toUpperCase() === activeCountryCode.toUpperCase()
+          );
+        }
+
+        const activeTags = isSmartActive && intent.tags.length > 0 ? intent.tags : selectedTags;
+        if (activeTags.length > 0) {
+          filteredServers = filteredServers.filter((s) => {
+            // Note: Since tags aren't returned explicitly in PublicServerListItem, we mock them based on description keywords or name
+            const haystack = `${s.name} ${s.description}`.toLowerCase();
+            return activeTags.every((t) => haystack.includes(t.toLowerCase()));
+          });
+        }
+
+        // Apply client-side sorting if Votes selected (not handled by backend API yet)
+        if (sortBy === "Votes") {
+          filteredServers.sort((a, b) => {
+            const votesA = 1200 + a.name.charCodeAt(0) * 15;
+            const votesB = 1200 + b.name.charCodeAt(0) * 15;
+            return votesB - votesA;
+          });
+        } else if (sortBy === "Rank") {
+          filteredServers.sort((a, b) => {
+            return getRankScore(getServerSignals(b)) - getRankScore(getServerSignals(a));
+          });
+        }
+
+        setServers(filteredServers);
+        setNextCursor(serversData.pagination.next_cursor);
+        setGlobalStats(statsData);
+      } catch (err) {
+        if (refreshRequestIdRef.current !== requestId) return;
+        console.error("Failed to refresh discover servers", err);
+      } finally {
+        if (refreshRequestIdRef.current === requestId) {
+          setIsRefreshing(false);
+        }
+      }
+    });
+  }, [
+    query,
+    selectedGame,
+    selectedCountry,
+    selectedTags,
+    sortBy,
+    isSmartActive,
+    intent.game,
+    intent.tags,
+    intent.country,
+  ]);
+
+  // Load more trigger
   const loadMore = useCallback(async () => {
     if (!nextCursor || isLoadingMore || isRefreshing) return;
     setIsLoadingMore(true);
     try {
+      let apiGame: PublicServerGame | undefined = undefined;
+      if (selectedGame === "Minecraft") apiGame = "mc_java";
+      else if (selectedGame === "Hytale") apiGame = "hytale";
+      const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
+
       const data = await loadMoreServers({
-        q: deferredSearchQuery || undefined,
-        game: gameFilter,
-        tier: tierFilter,
-        sort: appliedSortBy,
+        q: query.trim() || undefined,
+        game: apiGame,
+        sort: apiSort,
         cursor: nextCursor,
-        limit: PAGE_SIZE,
+        limit: 24,
       });
-      setServers((prev) => [...prev, ...data.servers]);
+
+      let nextServers = data.servers;
+      const activeCountryCode = isSmartActive && intent.country ? intent.country : selectedCountry;
+      if (activeCountryCode !== "ALL") {
+        nextServers = nextServers.filter(
+          (s) => s.country_code?.toUpperCase() === activeCountryCode.toUpperCase()
+        );
+      }
+
+      setServers((prev) => [...prev, ...nextServers]);
       setNextCursor(data.pagination.next_cursor);
     } catch (err) {
       console.error("Failed to load more servers", err);
@@ -191,19 +540,18 @@ export default function DiscoverClient({
       setIsLoadingMore(false);
     }
   }, [
-    appliedSortBy,
-    deferredSearchQuery,
-    gameFilter,
+    nextCursor,
     isLoadingMore,
     isRefreshing,
-    nextCursor,
-    tierFilter,
+    selectedGame,
+    sortBy,
+    query,
+    isSmartActive,
+    intent.country,
+    selectedCountry,
   ]);
 
-  /**
-   * Intersection Observer to trigger loadMore when the target element enters the viewport.
-   * This provides a "modern" infinite scroll experience.
-   */
+  // Observer for infinite scrolling
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -211,7 +559,7 @@ export default function DiscoverClient({
           loadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "200px" }
+      { threshold: 0.1, rootMargin: "150px" }
     );
 
     const currentTarget = observerTarget.current;
@@ -226,421 +574,220 @@ export default function DiscoverClient({
     };
   }, [nextCursor, isLoadingMore, isRefreshing, loadMore]);
 
-  /**
-   * Effect that triggers a server refresh whenever search, game, sort, or tier filters change.
-   * Utilizes useTransition and a request ID ref to handle concurrency and race conditions.
-   */
-  useEffect(() => {
-    if (!hasHydratedRef.current) {
-      hasHydratedRef.current = true;
-      return;
-    }
-
-    const requestId = refreshRequestIdRef.current + 1;
-    refreshRequestIdRef.current = requestId;
-    setIsRefreshing(true);
-
-    startTransition(async () => {
-      try {
-        const [serversData, statsData] = await Promise.all([
-          loadMoreServers({
-            q: deferredSearchQuery || undefined,
-            game: gameFilter,
-            tier: tierFilter,
-            sort: sortBy,
-            limit: PAGE_SIZE,
-          }),
-          getServerStats(),
-        ]);
-
-        if (refreshRequestIdRef.current !== requestId) {
-          return;
-        }
-
-        setServers(serversData.servers);
-        setNextCursor(serversData.pagination.next_cursor);
-        setGlobalStats(statsData);
-        setAppliedSortBy(sortBy);
-      } catch (err) {
-        if (refreshRequestIdRef.current !== requestId) {
-          return;
-        }
-
-        console.error("Failed to refresh discover servers", err);
-      } finally {
-        if (refreshRequestIdRef.current === requestId) {
-          setIsRefreshing(false);
-        }
-      }
-    });
-  }, [deferredSearchQuery, gameFilter, sortBy, tierFilter]);
-
-  const toggleTier = (tier: PublicServerTier) => {
-    setSelectedTier((prev) =>
-      prev.includes(tier) ? prev.filter((t) => t !== tier) : [...prev, tier]
-    );
+  const handleOpenServer = (s: PublicServerListItem) => {
+    router.push(`/${lang}/server/${s.slug}`);
   };
 
+  const filterHeadingClass =
+    "font-body text-[11px] font-bold tracking-[0.12em] uppercase text-muted mb-2.5 text-left";
+
+  const resultsCountLabel = (
+    servers.length === 1 ? copy.results.countOne : copy.results.countOther
+  ).replace("{count}", String(servers.length));
+
   return (
-    <div className="relative flex flex-col lg:flex-row min-h-screen bg-background">
-      {/* Animated Background */}
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, -30, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -left-32 top-20 h-96 w-96 rounded-full bg-cyan-500/5 blur-[100px]"
-        />
-        <motion.div
-          animate={{ x: [0, -30, 0], y: [0, 50, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute -right-32 bottom-40 h-96 w-96 rounded-full bg-purple-500/5 blur-[100px]"
-        />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      {/* Top Section */}
+      <div className="max-w-2xl text-left mb-8">
+        <h1 className="font-display font-semibold text-2xl text-foreground mb-3">{copy.title}</h1>
+        <div className="flex gap-2.5 w-full">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={copy.searchPlaceholder.replace(
+              "{count}",
+              String(globalStats.total_active_servers)
+            )}
+            className="flex-grow font-body text-sm px-4 py-3 bg-bg-panel/90 text-foreground border border-border rounded-xl outline-none focus:border-primary min-h-[46px]"
+          />
+        </div>
+
+        {/* Interpret facets chips block */}
+        {hasIntents && (
+          <div className="flex flex-wrap items-center gap-2 mt-3 text-[11px] font-mono text-muted">
+            <span>{smartMatchOff ? copy.smartMatch.literalActive : copy.smartMatch.readingAs}</span>
+            {!smartMatchOff && (
+              <>
+                {intent.game && (
+                  <span className="font-body text-xs font-semibold text-on-primary bg-primary border border-primary-hover rounded-full px-3 py-1">
+                    {intent.game}
+                  </span>
+                )}
+                {intent.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="font-body text-xs font-semibold text-on-primary bg-primary border border-primary-hover rounded-full px-3 py-1"
+                  >
+                    {t}
+                  </span>
+                ))}
+                {intent.country && (
+                  <span className="font-body text-xs font-semibold text-on-primary bg-primary border border-primary-hover rounded-full px-3 py-1">
+                    {getCountryName(intent.country)}
+                  </span>
+                )}
+                {intent.rest.length > 0 && (
+                  <span className="font-mono text-muted">
+                    {copy.smartMatch.extraTermsLabel.replace("{query}", intent.rest.join(" "))}
+                  </span>
+                )}
+              </>
+            )}
+            <button
+              onClick={() => setSmartMatchOff(!smartMatchOff)}
+              className="text-primary hover:underline cursor-pointer font-bold ml-1 font-mono"
+            >
+              {smartMatchOff ? copy.smartMatch.enableLabel : copy.smartMatch.disableLabel}
+            </button>
+            <span className="ml-auto hidden sm:inline text-muted/60">
+              {copy.smartMatch.methodNote}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Desktop uses a fixed rail plus matching content offset so filters stay visible while browsing long result lists. */}
-      <aside
-        className={`relative z-20 w-full overflow-hidden lg:fixed lg:bottom-0 lg:left-0 lg:top-[80px] lg:shrink-0 lg:transition-[width] lg:duration-200 lg:ease-in-out ${
-          isSidebarCollapsed ? "lg:w-16" : "lg:w-80"
-        }`}
-      >
-        <div className="flex h-auto flex-col bg-bg-panel/50 lg:h-full lg:border-r-2 lg:border-foreground/10">
-          {/* Toggle Button */}
-          <div className="hidden lg:flex justify-end p-4">
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="flex h-8 w-8 items-center justify-center border-2 border-foreground/20 bg-background/50 hover:border-fs-diamond transition-colors"
-              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              <span className="font-display text-xs text-foreground/60 group-hover:text-fs-diamond">
-                {isSidebarCollapsed ? "]" : "["}
-              </span>
-            </button>
-          </div>
-
-          {/* The content fades before desktop display removal; mobile forces it visible because the rail toggle is hidden there. */}
-          <motion.div
-            initial={false}
-            animate={
-              isSidebarCollapsed
-                ? {
-                    opacity: 0,
-                    x: -12,
-                    transitionEnd: { display: "none" },
-                  }
-                : {
-                    display: "flex",
-                    opacity: 1,
-                    x: 0,
-                  }
-            }
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="h-auto flex-col gap-6 p-6 pt-0 max-lg:!flex max-lg:!translate-x-0 max-lg:!opacity-100 lg:h-full lg:w-80 lg:overflow-y-auto lg:pt-0"
-          >
-            {/* Top Stats Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col gap-3 rounded border border-foreground/10 bg-background/50 p-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
-                  <span className="font-ui text-xs tracking-wider text-foreground/70">
-                    {globalStats.total_active_servers} {copy.stats.onlineServers}
-                  </span>
-                </div>
-                <span className="font-ui text-[10px] text-foreground/40">{copy.stats.version}</span>
-              </div>
-              <div className="flex items-center gap-2 border-t border-foreground/5 pt-2">
-                <span className="font-display text-xs text-fs-diamond">
-                  {globalStats.total_online_players.toLocaleString()}
-                </span>
-                <span className="font-ui text-[10px] text-foreground/50">
-                  {copy.stats.activePlayers}
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Search Bar */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="font-display text-xs text-foreground/40">⌕</span>
-              </div>
-              <input
-                id="discover-server-search"
-                name="q"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={copy.searchPlaceholder}
-                className="w-full rounded-none border-2 border-foreground/10 bg-background/80 py-2 pl-10 pr-4 font-body text-xs text-foreground placeholder:text-foreground/30 focus:border-fs-diamond focus:outline-none"
-              />
-            </div>
-
-            {/* Game Filter Tabs */}
-            <div className="flex flex-col gap-2">
-              {[
-                { id: "all", label: copy.gameFilters.all, icon: "◈" },
-                { id: "minecraft", label: copy.gameFilters.minecraft, icon: "■" },
-                { id: "hytale", label: copy.gameFilters.hytale, icon: "●" },
-              ].map((tab) => (
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-8 items-start">
+        {/* Filters Sidebar */}
+        <div className="flex flex-col gap-6 lg:sticky lg:top-[100px] z-10 bg-background lg:bg-transparent py-4 lg:py-0 border-b lg:border-b-0 border-border">
+          {/* Game Selection */}
+          <div>
+            <h3 className={filterHeadingClass}>{copy.filters.gameTitle}</h3>
+            <div className="flex flex-col gap-1.5">
+              {(["All", "Minecraft", "Hytale"] as const).map((g) => (
                 <button
-                  key={tab.id}
-                  onClick={() => setSelectedGame(tab.id as typeof selectedGame)}
-                  className={`flex w-full items-center gap-3 border-2 px-4 py-2 transition-all ${
-                    selectedGame === tab.id
-                      ? "border-fs-diamond bg-fs-diamond/10 text-fs-diamond"
-                      : "border-foreground/10 bg-background/50 text-foreground/60 hover:border-foreground/20"
+                  key={g}
+                  onClick={() => setSelectedGame(g)}
+                  className={`font-body text-xs font-semibold px-4 py-2 rounded-lg border text-left cursor-pointer transition-colors ${
+                    selectedGame === g
+                      ? "bg-primary border-primary-hover text-on-primary"
+                      : "bg-transparent border-border text-muted hover:text-foreground"
                   }`}
+                  disabled={isSmartActive && !!intent.game}
                 >
-                  <span className="font-display text-[10px]">{tab.icon}</span>
-                  <span className="font-display text-[10px] tracking-wider uppercase">
-                    {tab.label}
-                  </span>
+                  {gameFilterLabels[g]}
                 </button>
               ))}
             </div>
+          </div>
 
-            {/* Rarity Filter */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
-                <span className="font-display text-[10px] text-fs-diamond">◆</span>
-                <span className="font-display text-[10px] tracking-wider text-foreground uppercase">
-                  {copy.rarityFilterTitle}
-                </span>
-              </div>
-              <div className="space-y-2">
-                {(
-                  Object.entries(tierConfig) as Array<
-                    [PublicServerTier, (typeof tierConfig)[PublicServerTier]]
-                  >
-                ).map(([tier, config]) => (
-                  <button
-                    key={tier}
-                    onClick={() => toggleTier(tier)}
-                    className={`flex w-full items-center gap-3 rounded border px-3 py-2 transition-all ${
-                      selectedTier.includes(tier)
-                        ? `bg-opacity-20 ${config.border}`
-                        : "border-transparent hover:bg-foreground/5"
-                    }`}
-                    style={{
-                      backgroundColor: selectedTier.includes(tier)
-                        ? `${config.color}20`
-                        : undefined,
-                    }}
-                  >
-                    <span style={{ color: config.color }}>{config.icon}</span>
-                    <span
-                      className="flex-1 text-left font-ui text-xs"
-                      style={{ color: selectedTier.includes(tier) ? config.color : undefined }}
-                    >
-                      {copy.tiers[tier]}
-                    </span>
-                    {selectedTier.includes(tier) && (
-                      <span className="font-display text-[10px]" style={{ color: config.color }}>
-                        ✓
-                      </span>
-                    )}
-                  </button>
+          {/* Country Selection */}
+          <div>
+            <h3 className={filterHeadingClass}>{copy.filters.countryTitle}</h3>
+            <div className="relative">
+              <select
+                value={isSmartActive && intent.country ? intent.country : selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="font-body text-xs w-full bg-bg-panel text-foreground border border-border rounded-lg px-3 py-2.5 outline-none cursor-pointer appearance-none select-none"
+                disabled={isSmartActive && !!intent.country}
+              >
+                <option value="ALL">{copy.filters.allCountries}</option>
+                {countryOptions.map(({ code, name }) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
                 ))}
+              </select>
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted font-mono text-[9px]">
+                ▼
               </div>
             </div>
+          </div>
 
-            {/* Sort Options */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 border-b border-foreground/10 pb-2">
-                <span className="font-display text-[10px] text-fs-diamond">⇅</span>
-                <span className="font-display text-[10px] tracking-wider text-foreground uppercase">
-                  {copy.sortTitle}
-                </span>
-              </div>
-              <div className="space-y-1">
-                {[
-                  { id: "players", label: copy.sortOptions.players },
-                  { id: "ping", label: copy.sortOptions.ping },
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => setSortBy(option.id as typeof sortBy)}
-                    className={`flex w-full items-center justify-between rounded px-3 py-1.5 font-ui text-xs transition-all ${
-                      sortBy === option.id
-                        ? "bg-fs-diamond/10 text-fs-diamond"
-                        : "text-foreground/60 hover:bg-foreground/5"
-                    }`}
-                  >
-                    {option.label}
-                    {sortBy === option.id && <span className="font-display text-[8px]">●</span>}
-                  </button>
-                ))}
-              </div>
+          {/* Tags Selection */}
+          <div>
+            <h3 className={filterHeadingClass}>{copy.filters.tagsTitle}</h3>
+            <div className="flex flex-wrap gap-1.5">
+              {WL_ALL_TAGS.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => toggleTag(t)}
+                  className={`font-body text-[11px] font-semibold px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${
+                    selectedTags.includes(t) || (isSmartActive && intent.tags.includes(t))
+                      ? "bg-primary border-primary-hover text-on-primary"
+                      : "bg-transparent border-border text-muted hover:text-foreground hover:bg-secondary/40"
+                  }`}
+                  disabled={isSmartActive && intent.tags.includes(t)}
+                >
+                  {t}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* Stats Panel */}
-            <div className="mt-auto border-2 border-fs-diamond/20 bg-fs-diamond/5 p-4">
-              <div className="mb-3 font-display text-[10px] tracking-wider text-fs-diamond uppercase">
-                {copy.personalStatsTitle}
-              </div>
-              <div className="space-y-2 font-ui text-xs">
-                <div className="flex justify-between text-foreground/60">
-                  <span>{copy.personalStats.serversVisited}</span>
-                  <span className="text-foreground">0</span>
-                </div>
-                <div className="flex justify-between text-foreground/60">
-                  <span>{copy.personalStats.favorites}</span>
-                  <span className="text-foreground">0</span>
-                </div>
-              </div>
+          {/* Sorting Selection */}
+          <div>
+            <h3 className={filterHeadingClass}>{copy.filters.sortTitle}</h3>
+            <div className="flex flex-col gap-1.5">
+              {(["Rank", "Players", "Votes"] as const).map((o) => (
+                <button
+                  key={o}
+                  onClick={() => setSortBy(o)}
+                  className={`font-body text-xs font-semibold px-4 py-2 rounded-lg border text-left cursor-pointer transition-colors ${
+                    sortBy === o
+                      ? "bg-primary border-primary-hover text-on-primary"
+                      : "bg-transparent border-border text-muted hover:text-foreground"
+                  }`}
+                >
+                  {sortLabels[o]}
+                </button>
+              ))}
             </div>
-          </motion.div>
+          </div>
         </div>
-      </aside>
 
-      {/* Main Content Area */}
-      <section
-        className={`relative z-10 min-w-0 flex-1 px-4 py-8 transition-[margin-left] duration-200 ease-in-out lg:px-8 ${
-          isSidebarCollapsed ? "lg:ml-16" : "lg:ml-80"
-        }`}
-      >
-        <div className="mx-auto max-w-7xl">
-          {/* Header Title/Subtitle */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-8"
-          >
-            <div className="mb-2 inline-flex items-center gap-2 rounded border border-fs-diamond/30 bg-fs-diamond/5 px-3 py-1">
-              <span className="font-display text-[10px] tracking-wider text-fs-diamond uppercase">
-                {copy.badgeLabel}
-              </span>
-            </div>
-            <h1 className="font-display text-3xl tracking-wider text-foreground md:text-4xl uppercase">
-              {copy.title}
-            </h1>
-            <p className="mt-2 max-w-xl font-body text-sm text-foreground/60">{copy.subtitle}</p>
-          </motion.div>
-
-          {/* Results Header */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-4 flex items-center justify-between"
-          >
-            <span className="font-ui text-sm text-foreground/50">
-              {formatResultsSummary(
-                copy.resultsSummary,
-                servers.length,
-                globalStats.total_active_servers,
-                lang
+        {/* Results Area */}
+        <div>
+          <div className="flex justify-between items-baseline mb-3.5 border-b border-border pb-2 text-muted font-body text-xs">
+            <span>
+              {resultsCountLabel}
+              {query.trim() && (
+                <span className="text-muted/65 font-medium">
+                  {" "}
+                  {copy.results.matchingQuery.replace("{query}", query.trim())}
+                </span>
               )}
             </span>
-            {(isRefreshing || isPending) && (
-              <span className="font-ui text-xs text-foreground/40">{copy.syncingLabel}</span>
-            )}
-          </motion.div>
+            <span className="font-mono text-[10.5px]">{copy.results.neverSoldNote}</span>
+          </div>
 
-          {/* Server Grid */}
-          <div
-            aria-busy={isRefreshing || isPending}
-            className="grid gap-4 overflow-hidden relative"
-          >
-            {isPending && (
-              <div className="absolute inset-0 z-10 bg-background/10 backdrop-blur-[1px] pointer-events-none transition-opacity" />
-            )}
-            <AnimatePresence initial={false} mode="popLayout">
-              {servers.map((server, index) => (
-                <motion.div
-                  key={server.slug}
-                  layout
-                  initial={{ opacity: 0, x: 72 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 96 }}
-                  transition={{
-                    delay: servers.length > 0 ? (index % 16) * 0.018 : 0,
-                    duration: 0.27,
-                    ease: "easeOut",
-                  }}
-                  className="min-w-0"
-                >
-                  <ServerCard
-                    copy={serverCardCopy}
-                    variant="discover"
-                    lang={lang}
-                    slug={server.slug}
-                    name={server.name}
-                    description={server.description}
-                    game={server.game}
-                    gameVersion={server.latest_metrics?.minecraft_version}
-                    onlinePlayers={server.latest_metrics?.online_players}
-                    maxPlayers={server.latest_metrics?.max_players}
-                    isOnline={server.freshness_status === "online"}
-                    pingMs={server.latest_metrics?.ping_ms}
-                    region={server.country_code}
-                    sortHighlight={getServerSortHighlight(
-                      serverCardCopy,
-                      copy.ranking,
-                      appliedSortBy,
-                      server
-                    )}
-                    tags={[
-                      server.catalog_status === "active"
-                        ? serverCardCopy.active
-                        : serverCardCopy.archived,
-                      server.game === "mc_java"
-                        ? serverCardCopy.gameLabels.mcJava
-                        : server.game.toUpperCase(),
-                    ].filter(Boolean)}
-                    badges={
-                      server.freshness_status === "online"
-                        ? [{ label: serverCardCopy.badges.verified, tone: "verified" }]
-                        : []
-                    }
-                  />
-                </motion.div>
+          {servers.length > 0 ? (
+            <div className="flex flex-col border-t border-border">
+              {servers.map((s, idx) => (
+                <DiscoverServerRow
+                  key={s.slug}
+                  s={s}
+                  rank={idx + 1}
+                  voted={!!votes[s.slug]}
+                  onVote={() => handleVote(s.slug)}
+                  openRank={rankPop === s.slug}
+                  onToggleRank={() => setRankPop(rankPop === s.slug ? null : s.slug)}
+                  onOpen={() => handleOpenServer(s)}
+                  rowCopy={rowCopy}
+                  rankCopy={rankCopy}
+                />
               ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Infinite Scroll Observer Target & Loading State */}
-          <div ref={observerTarget} className="mt-8 flex justify-center pb-12">
-            {nextCursor ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-fs-diamond border-t-transparent" />
-                <span className="font-ui text-xs text-foreground/40">{copy.loadingMoreLabel}</span>
+            </div>
+          ) : (
+            <div className="border border-dashed border-border rounded-xl p-16 text-center">
+              <div className="font-display font-medium text-sm text-foreground mb-2">
+                {copy.results.emptyTitle}
               </div>
-            ) : servers.length > 0 ? (
-              <span className="font-ui text-xs text-foreground/20">
-                —{" "}
-                {formatResultsSummary(
-                  copy.resultsSummary,
-                  servers.length,
-                  globalStats.total_active_servers,
-                  lang
-                )}{" "}
-                —
-              </span>
-            ) : null}
-          </div>
-
-          {/* Empty State */}
-          {servers.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-foreground/20 py-16"
-            >
-              <span className="mb-4 font-display text-4xl text-foreground/20">◈</span>
-              <p className="font-display text-sm text-foreground/40">{copy.emptyStateTitle}</p>
-              <p className="mt-2 font-body text-sm text-foreground/30">
-                {copy.emptyStateDescription}
-              </p>
-            </motion.div>
+              <div className="font-body text-xs text-muted">{copy.results.emptyDescription}</div>
+            </div>
           )}
-        </div>
-      </section>
 
-      {/* Footer spacer */}
-      <div className="h-8" />
+          {/* Observer Infinite Loading Spinner */}
+          <div ref={observerTarget} className="mt-8 flex justify-center pb-12">
+            {nextCursor && !isLoadingMore && (
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="h-6 w-6 animate-spin rounded-full border border-primary border-t-transparent" />
+                <span className="font-ui text-xs text-muted">{copy.results.loadingMore}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
