@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "../../../../packages/ui/src/styles/brand.css";
+@import "@firstspawn/ui/styles/brand.css";
 
 :root {
   --fs-nav-height: 80px;
