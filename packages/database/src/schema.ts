@@ -348,6 +348,23 @@ export const serverSocials = pgTable(
   ]
 );
 
+export const serverTags = pgTable(
+  "server_tags",
+  {
+    serverId: uuid("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+
+    tag: varchar("tag", { length: 40 }).notNull(),
+
+    ...timestamps,
+  },
+  (table) => [
+    primaryKey({ columns: [table.serverId, table.tag], name: "pk_server_tags" }),
+    index("idx_server_tags_server_id").on(table.serverId),
+  ]
+);
+
 export const serverMedia = pgTable(
   "server_media",
   {

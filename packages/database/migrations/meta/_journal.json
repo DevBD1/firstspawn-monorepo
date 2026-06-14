@@ -15,6 +15,13 @@
       "when": 1781411661429,
       "tag": "0001_nervous_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781440619534,
+      "tag": "0002_parched_secret_warriors",
+      "breakpoints": true
     }
   ]
 }

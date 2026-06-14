@@ -721,7 +721,7 @@
     "address": {
       "title": "Dünyan nerede yaşıyor?",
       "description": "Önce ping atarız. Listelemen ölçebildiğimiz şeylerin üzerine kurulur — form sonra gelir.",
-      "hostPlaceholder": "play.sunucun.net",
+      "hostPlaceholder": "play.sunucun.net:{port}",
       "pingingLabel": "Ping atılıyor…",
       "checkServerLabel": "Sunucuyu kontrol et",
       "stats": {
@@ -729,10 +729,15 @@
         "reachable": "● erişilebilir",
         "version": "Sürüm",
         "onlineNow": "Şu an çevrimiçi",
-        "motd": "MOTD"
+        "motd": "MOTD",
+        "software": "Yazılım"
       },
       "continueLabel": "Doğru görünüyor →",
-      "supportNote": "java + bedrock desteklenir · hytale çıkışta"
+      "supportNote": "java · bedrock · hytale — hepsi destekleniyor",
+      "errorUnreachable": "Bu sunucuya ulaşamadık. Sunucu adresini ve portu kontrol edip tekrar dene.",
+      "softwareLabel": "Sunucu yazılımı",
+      "geyserLabel": "Bu Java sunucusu Bedrock oyuncularını da kabul eder (GeyserMC / Floodgate).",
+      "errorAddressTaken": "Bu adres FirstSpawn'da zaten listeli. Sizinse, sahiplenmek için bir bildirim gönderin (yakında)."
     },
     "ownership": {
       "title": "Sana ait olduğunu kanıtla.",
@@ -748,7 +753,12 @@
       "verifiedLabel": "✓ Sahiplik doğrulandı",
       "continueLabel": "Devam et →",
       "checkingLabel": "Kontrol ediliyor…",
-      "verifyLabel": "Ekledim — doğrula"
+      "verifyLabel": "Ekledim — doğrula",
+      "selectHint": "Bir yöntem seç, jetonu ekle ve doğrula.",
+      "failedLabel": "Jetonunu henüz bulamadık. Ekle, biraz bekle ve tekrar dene.",
+      "motdUnavailable": "Hytale için kullanılamaz — okunacak canlı MOTD yok. Bunun yerine DNS kullanın.",
+      "dnsUnavailable": "Çıplak IP için kullanılamaz — DNS kullanmak için sunucuya bir alan adı yönlendirin veya MOTD ile doğrulayın.",
+      "noMethodHint": "Çıplak IP'li Hytale henüz doğrulanamıyor. Sunucunuza bir alan adı yönlendirip DNS ile doğrulayın."
     },
     "profile": {
       "title": "Dünyanı tanıt.",
@@ -759,7 +769,8 @@
       "tagsLabel": "Etiketler · en fazla 4 seç ({count}/4)",
       "countryLabel": "Ülke",
       "countryHint": "sunucunun barındırıldığı yer · herkese hizmet veriyorsan Global seç",
-      "previewLabel": "Listeleme önizlemesi →"
+      "previewLabel": "Listeleme önizlemesi →",
+      "nameTakenLabel": "Bu ad zaten alınmış. Başka bir ad deneyin."
     },
     "preview": {
       "draftTitle": "Oyuncular seni böyle görecek.",
@@ -769,12 +780,15 @@
       "fallbackName": "Sunucun",
       "fallbackBlurb": "Düzenlenen etkinlikler ve oyuncuların işlettiği bir pazarla sezonluk hayatta kalma.",
       "justListedLabel": "az önce listelendi",
-      "onlineMeasuredLabel": "● 87 çevrimiçi · ölçüldü",
+      "onlineMeasuredLabel": "● {count} çevrimiçi · ölçüldü",
       "rankUnrankedLabel": "sıra — sırasız · kazanılır, satın alınmaz",
       "standingLabel": "itibar — İnşa ediliyor",
       "publishLabel": "Listelemeyi yayınla",
       "editProfileLabel": "← Profili düzenle",
-      "openConsoleLabel": "Sahip konsolunu aç →"
+      "openConsoleLabel": "Sahip konsolunu aç →",
+      "publishingLabel": "Yayınlanıyor…",
+      "publishErrorLabel": "Listeni yayınlayamadık. Lütfen tekrar dene.",
+      "reachableLabel": "● erişilebilir · ölçüldü"
     }
   },
   "ownerConsole": {
@@ -810,7 +824,9 @@
       "signalsNote": "herkesle aynı matematik · asla satılmaz",
       "viewProfileLabel": "Herkese açık profili gör",
       "trailerCtaLabel": "Dünya fragmanı →",
-      "healthCtaLabel": "Listeleme sağlığı →"
+      "healthCtaLabel": "Listeleme sağlığı →",
+      "deleteLabel": "İlanı sil",
+      "deletingLabel": "Siliniyor…"
     },
     "profile": {
       "nameLabel": "Sunucu adı",
@@ -903,6 +919,7 @@
           "noteUnrendered": "henüz işlenmedi — fragmanlar etkileşimi artırır"
         }
       }
-    }
+    },
+    "deleteConfirm": "“{name}” silinsin mi? Bu, ilanı ve verilerini kalıcı olarak kaldırır."
   }
 }

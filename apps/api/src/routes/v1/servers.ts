@@ -293,7 +293,7 @@ const publicStatsResponseSchema = envelopeSchema(
   })
 );
 
-const toNullable = (value?: string | null): string | null => {
+export const toNullable = (value?: string | null): string | null => {
   if (!value) {
     return null;
   }
@@ -314,7 +314,7 @@ const slugify = (value: string): string =>
 
 const randomSlugSuffix = (): string => randomUUID().slice(0, 6);
 
-const buildTemporarySlug = (name: string): string => {
+export const buildTemporarySlug = (name: string): string => {
   const base = slugify(name);
   if (base.length === 0) {
     return `server-${randomSlugSuffix()}`;
@@ -342,7 +342,7 @@ const freshnessFromServer = (
   return nowMs - server.lastPingAt.getTime() <= ONLINE_WINDOW_MS ? "online" : "offline";
 };
 
-const findLatestHeartbeats = async (
+export const findLatestHeartbeats = async (
   app: FastifyInstance,
   serverIds: string[]
 ): Promise<Map<string, HeartbeatRecord>> => {
@@ -379,7 +379,7 @@ const findLatestHeartbeat = async (
   return (await findLatestHeartbeats(app, [serverId])).get(serverId) ?? null;
 };
 
-const normalizeServerPayload = (
+export const normalizeServerPayload = (
   server: ServerRecord,
   nowMs: number
 ): {
@@ -424,7 +424,7 @@ type ServerMetadata = {
   supported_clients: Array<z.infer<typeof serverSupportedClientSchema>>;
 };
 
-const findServerMetadata = async (
+export const findServerMetadata = async (
   app: FastifyInstance,
   serverId: string
 ): Promise<ServerMetadata> => {
@@ -454,7 +454,7 @@ const findServerMetadata = async (
   };
 };
 
-const normalizeMetricsPayload = (
+export const normalizeMetricsPayload = (
   heartbeat: Pick<
     HeartbeatRecord,
     "pingMs" | "onlinePlayers" | "maxPlayers" | "minecraftVersion" | "occurredAt"
@@ -536,7 +536,10 @@ const decodePublicListCursor = (
   }
 };
 
-const duplicateFieldFromError = (error: { constraint?: string; detail?: string }): string => {
+export const duplicateFieldFromError = (error: {
+  constraint?: string;
+  detail?: string;
+}): string => {
   const text = `${error.constraint ?? ""} ${error.detail ?? ""}`.toLowerCase();
   if (text.includes("slug")) {
     return "slug";
@@ -545,7 +548,7 @@ const duplicateFieldFromError = (error: { constraint?: string; detail?: string }
   return "identifier";
 };
 
-const getPgErrorMetadata = (
+export const getPgErrorMetadata = (
   error: unknown
 ): {
   code?: string;

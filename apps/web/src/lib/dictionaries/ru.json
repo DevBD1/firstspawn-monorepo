@@ -733,7 +733,7 @@
     "address": {
       "title": "Где живёт ваш мир?",
       "description": "Сначала мы его пингуем. Листинг строится на том, что мы можем измерить — форма идёт потом.",
-      "hostPlaceholder": "play.yourserver.net",
+      "hostPlaceholder": "play.yourserver.net:{port}",
       "pingingLabel": "Пингуем…",
       "checkServerLabel": "Проверить сервер",
       "stats": {
@@ -741,10 +741,15 @@
         "reachable": "● доступен",
         "version": "Версия",
         "onlineNow": "Сейчас онлайн",
-        "motd": "MOTD"
+        "motd": "MOTD",
+        "software": "Программа"
       },
       "continueLabel": "Всё верно →",
-      "supportNote": "java + bedrock поддерживаются · hytale на запуске"
+      "supportNote": "java · bedrock · hytale — все поддерживаются",
+      "errorUnreachable": "Не удалось подключиться к серверу. Проверьте хост и порт и повторите попытку.",
+      "softwareLabel": "Программа сервера",
+      "geyserLabel": "Этот Java-сервер также принимает игроков Bedrock (GeyserMC / Floodgate).",
+      "errorAddressTaken": "Этот адрес уже добавлен на FirstSpawn. Если он ваш, отправьте жалобу, чтобы заявить права (скоро)."
     },
     "ownership": {
       "title": "Докажите, что он ваш.",
@@ -760,7 +765,12 @@
       "verifiedLabel": "✓ Владение подтверждено",
       "continueLabel": "Продолжить →",
       "checkingLabel": "Проверяем…",
-      "verifyLabel": "Я добавил — проверить"
+      "verifyLabel": "Я добавил — проверить",
+      "selectHint": "Выберите способ, добавьте токен и подтвердите.",
+      "failedLabel": "Мы пока не нашли ваш токен. Добавьте его, подождите немного и повторите попытку.",
+      "motdUnavailable": "Недоступно для Hytale — нет живого MOTD. Используйте DNS.",
+      "dnsUnavailable": "Недоступно для голого IP — направьте домен на сервер, чтобы использовать DNS, или подтвердите через MOTD.",
+      "noMethodHint": "Hytale на голом IP пока нельзя подтвердить. Направьте домен на сервер и подтвердите через DNS."
     },
     "profile": {
       "title": "Представьте свой мир.",
@@ -771,7 +781,8 @@
       "tagsLabel": "Теги · выберите до 4 ({count}/4)",
       "countryLabel": "Страна",
       "countryHint": "где размещён сервер · выберите Global, если играют все",
-      "previewLabel": "Предпросмотр листинга →"
+      "previewLabel": "Предпросмотр листинга →",
+      "nameTakenLabel": "Это имя уже занято. Попробуйте другое."
     },
     "preview": {
       "draftTitle": "Так вас увидят игроки.",
@@ -781,12 +792,15 @@
       "fallbackName": "Ваш сервер",
       "fallbackBlurb": "Сезонное выживание с проводимыми событиями и рынком под управлением игроков.",
       "justListedLabel": "только что добавлен",
-      "onlineMeasuredLabel": "● 87 онлайн · измерено",
+      "onlineMeasuredLabel": "● {count} онлайн · измерено",
       "rankUnrankedLabel": "ранг — без ранга · заработан, не куплен",
       "standingLabel": "статус — Строится",
       "publishLabel": "Опубликовать листинг",
       "editProfileLabel": "← Редактировать профиль",
-      "openConsoleLabel": "Открыть консоль владельца →"
+      "openConsoleLabel": "Открыть консоль владельца →",
+      "publishingLabel": "Публикация…",
+      "publishErrorLabel": "Не удалось опубликовать сервер. Повторите попытку.",
+      "reachableLabel": "● доступен · измерено"
     }
   },
   "ownerConsole": {
@@ -822,7 +836,9 @@
       "signalsNote": "та же формула, что у всех · никогда не продаётся",
       "viewProfileLabel": "Открыть публичный профиль",
       "trailerCtaLabel": "Трейлер мира →",
-      "healthCtaLabel": "Состояние листинга →"
+      "healthCtaLabel": "Состояние листинга →",
+      "deleteLabel": "Удалить объявление",
+      "deletingLabel": "Удаление…"
     },
     "profile": {
       "nameLabel": "Название сервера",
@@ -915,6 +931,7 @@
           "noteUnrendered": "ещё не срендерен — трейлеры повышают вовлечённость"
         }
       }
-    }
+    },
+    "deleteConfirm": "Удалить «{name}»? Объявление и его данные будут удалены безвозвратно."
   }
 }

@@ -721,7 +721,7 @@
     "address": {
       "title": "Où vit votre monde ?",
       "description": "Nous le pinguons d'abord. Votre fiche repose sur ce que nous pouvons mesurer — le formulaire vient ensuite.",
-      "hostPlaceholder": "play.votreserveur.net",
+      "hostPlaceholder": "play.votreserveur.net:{port}",
       "pingingLabel": "Ping en cours…",
       "checkServerLabel": "Vérifier le serveur",
       "stats": {
@@ -729,10 +729,15 @@
         "reachable": "● joignable",
         "version": "Version",
         "onlineNow": "En ligne maintenant",
-        "motd": "MOTD"
+        "motd": "MOTD",
+        "software": "Logiciel"
       },
       "continueLabel": "C'est correct →",
-      "supportNote": "java + bedrock pris en charge · hytale au lancement"
+      "supportNote": "java · bedrock · hytale — tous pris en charge",
+      "errorUnreachable": "Nous n'avons pas pu joindre ce serveur. Vérifie l'hôte et le port, puis réessaie.",
+      "softwareLabel": "Logiciel du serveur",
+      "geyserLabel": "Ce serveur Java accepte aussi les joueurs Bedrock (GeyserMC / Floodgate).",
+      "errorAddressTaken": "Cette adresse est déjà référencée sur FirstSpawn. Si elle vous appartient, envoyez un signalement pour la réclamer (bientôt disponible)."
     },
     "ownership": {
       "title": "Prouvez qu'il est à vous.",
@@ -748,7 +753,12 @@
       "verifiedLabel": "✓ Propriété vérifiée",
       "continueLabel": "Continuer →",
       "checkingLabel": "Vérification…",
-      "verifyLabel": "Je l'ai ajouté — vérifier"
+      "verifyLabel": "Je l'ai ajouté — vérifier",
+      "selectHint": "Choisis une méthode, ajoute le jeton, puis vérifie.",
+      "failedLabel": "Nous n'avons pas encore trouvé ton jeton. Ajoute-le, patiente un instant, puis réessaie.",
+      "motdUnavailable": "Indisponible pour Hytale — aucun MOTD en direct à lire. Utilisez le DNS à la place.",
+      "dnsUnavailable": "Indisponible pour une IP brute — pointez un domaine vers votre serveur pour utiliser le DNS, ou vérifiez par MOTD.",
+      "noMethodHint": "Hytale avec une IP brute ne peut pas encore être vérifié. Pointez un domaine vers votre serveur et vérifiez par DNS."
     },
     "profile": {
       "title": "Présentez votre monde.",
@@ -759,7 +769,8 @@
       "tagsLabel": "Tags · choisissez jusqu'à 4 ({count}/4)",
       "countryLabel": "Pays",
       "countryHint": "où le serveur est hébergé · choisissez Global si vous servez tout le monde",
-      "previewLabel": "Aperçu de la fiche →"
+      "previewLabel": "Aperçu de la fiche →",
+      "nameTakenLabel": "Ce nom est déjà pris. Essayez-en un autre."
     },
     "preview": {
       "draftTitle": "Voici comment les joueurs vous verront.",
@@ -769,12 +780,15 @@
       "fallbackName": "Votre serveur",
       "fallbackBlurb": "Survie saisonnière avec des événements organisés et un marché géré par les joueurs.",
       "justListedLabel": "tout juste listé",
-      "onlineMeasuredLabel": "● 87 en ligne · mesuré",
+      "onlineMeasuredLabel": "● {count} en ligne · mesuré",
       "rankUnrankedLabel": "rang — sans rang · gagné, pas acheté",
       "standingLabel": "statut — En construction",
       "publishLabel": "Publier la fiche",
       "editProfileLabel": "← Modifier le profil",
-      "openConsoleLabel": "Ouvrir la console propriétaire →"
+      "openConsoleLabel": "Ouvrir la console propriétaire →",
+      "publishingLabel": "Publication…",
+      "publishErrorLabel": "Nous n'avons pas pu publier ton annonce. Réessaie.",
+      "reachableLabel": "● accessible · mesuré"
     }
   },
   "ownerConsole": {
@@ -810,7 +824,9 @@
       "signalsNote": "le même calcul pour tous · jamais vendu",
       "viewProfileLabel": "Voir le profil public",
       "trailerCtaLabel": "Bande-annonce du monde →",
-      "healthCtaLabel": "Santé de la fiche →"
+      "healthCtaLabel": "Santé de la fiche →",
+      "deleteLabel": "Supprimer le référencement",
+      "deletingLabel": "Suppression…"
     },
     "profile": {
       "nameLabel": "Nom du serveur",
@@ -903,6 +919,7 @@
           "noteUnrendered": "pas encore générée — les bandes-annonces stimulent l'engagement"
         }
       }
-    }
+    },
+    "deleteConfirm": "Supprimer « {name} » ? Cela retire le référencement et ses données définitivement."
   }
 }

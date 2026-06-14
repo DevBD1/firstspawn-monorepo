@@ -721,7 +721,7 @@
     "address": {
       "title": "Where does your world live?",
       "description": "We ping it first. Your listing is built on what we can measure — the form comes second.",
-      "hostPlaceholder": "play.yourserver.net",
+      "hostPlaceholder": "play.yourserver.net:{port}",
       "pingingLabel": "Pinging…",
       "checkServerLabel": "Check server",
       "stats": {
@@ -729,10 +729,15 @@
         "reachable": "● reachable",
         "version": "Version",
         "onlineNow": "Online now",
-        "motd": "MOTD"
+        "motd": "MOTD",
+        "software": "Software"
       },
       "continueLabel": "Looks right →",
-      "supportNote": "java + bedrock supported · hytale at launch"
+      "supportNote": "java · bedrock · hytale — all supported",
+      "errorUnreachable": "We couldn't reach that server. Double-check the host and port, then try again.",
+      "softwareLabel": "Server software",
+      "geyserLabel": "This Java server also accepts Bedrock players (GeyserMC / Floodgate).",
+      "errorAddressTaken": "This address is already listed on FirstSpawn. If you own it, file a report to claim it (coming soon)."
     },
     "ownership": {
       "title": "Prove it's yours.",
@@ -748,7 +753,12 @@
       "verifiedLabel": "✓ Ownership verified",
       "continueLabel": "Continue →",
       "checkingLabel": "Checking…",
-      "verifyLabel": "I've added it — verify"
+      "verifyLabel": "I've added it — verify",
+      "selectHint": "Pick one method, add the token, then verify.",
+      "failedLabel": "We couldn't find your token yet. Add it, give it a moment, then try again.",
+      "motdUnavailable": "Not available for Hytale — there's no live MOTD to read. Use DNS instead.",
+      "dnsUnavailable": "Not available for a raw IP — point a domain at your server to use DNS, or verify by MOTD.",
+      "noMethodHint": "Hytale on a bare IP can't be verified yet. Point a domain at your server and verify via DNS."
     },
     "profile": {
       "title": "Introduce your world.",
@@ -759,7 +769,8 @@
       "tagsLabel": "Tags · pick up to 4 ({count}/4)",
       "countryLabel": "Country",
       "countryHint": "where the server is hosted · pick Global if you serve everyone",
-      "previewLabel": "Preview listing →"
+      "previewLabel": "Preview listing →",
+      "nameTakenLabel": "That name is already taken. Try another."
     },
     "preview": {
       "draftTitle": "This is how players will see you.",
@@ -769,12 +780,15 @@
       "fallbackName": "Your server",
       "fallbackBlurb": "Seasonal survival with hosted events and a player-run market.",
       "justListedLabel": "just listed",
-      "onlineMeasuredLabel": "● 87 online · measured",
+      "onlineMeasuredLabel": "● {count} online · measured",
       "rankUnrankedLabel": "rank — unranked · earned, not bought",
       "standingLabel": "standing — Building",
       "publishLabel": "Publish listing",
       "editProfileLabel": "← Edit profile",
-      "openConsoleLabel": "Open owner console →"
+      "openConsoleLabel": "Open owner console →",
+      "publishingLabel": "Publishing…",
+      "publishErrorLabel": "We couldn't publish your listing. Please try again.",
+      "reachableLabel": "● reachable · measured"
     }
   },
   "ownerConsole": {
@@ -810,7 +824,9 @@
       "signalsNote": "same math as everyone · never sold",
       "viewProfileLabel": "View public profile",
       "trailerCtaLabel": "World trailer →",
-      "healthCtaLabel": "Listing health →"
+      "healthCtaLabel": "Listing health →",
+      "deleteLabel": "Delete listing",
+      "deletingLabel": "Deleting…"
     },
     "profile": {
       "nameLabel": "Server name",
@@ -903,6 +919,7 @@
           "noteUnrendered": "not rendered yet — trailers drive engagement"
         }
       }
-    }
+    },
+    "deleteConfirm": "Delete “{name}”? This removes the listing and its data for good."
   }
 }
