@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Sigil, WLButton } from "@firstspawn/ui";
 import { PageBackdrop } from "@/components/ui/PagePrimitives";
@@ -144,8 +144,9 @@ export default function NotFound() {
 
   const [reduced, setReduced] = useState(false);
   const [revealed, setRevealed] = useState(0); // characters revealed across all lines
-  const [coords, setCoords] = useState({ x: 0, y: 0, z: 0 });
+  const [coords, setCoords] = useState<{ x: number; y: number; z: number } | null>(null);
   const [regen, setRegen] = useState(false);
+  const regenTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pick the initial void coordinates on the client (avoids hydration drift).
   useEffect(() => {
@@ -196,7 +197,19 @@ export default function NotFound() {
   const regenerate = useCallback(() => {
     setCoords(rollCoords());
     setRegen(true);
-    window.setTimeout(() => setRegen(false), 600);
+    // Restart the glitch-burst timer so rapid clicks don't end it early.
+    if (regenTimer.current) clearTimeout(regenTimer.current);
+    regenTimer.current = setTimeout(() => {
+      setRegen(false);
+      regenTimer.current = null;
+    }, 600);
+  }, []);
+
+  // Clear any pending glitch-burst timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (regenTimer.current) clearTimeout(regenTimer.current);
+    };
   }, []);
 
   // Render the partially-typed console lines. `start` is the cumulative char
@@ -217,13 +230,22 @@ export default function NotFound() {
         <div className="fs404-drift absolute left-[12%] top-[22%]" style={{ animationDelay: "0s" }}>
           <Sigil size={26} color="var(--fs-gold)" />
         </div>
-        <div className="fs404-drift absolute right-[14%] top-[30%]" style={{ animationDelay: "1.4s" }}>
+        <div
+          className="fs404-drift absolute right-[14%] top-[30%]"
+          style={{ animationDelay: "1.4s" }}
+        >
           <Sigil size={18} color="var(--primary)" />
         </div>
-        <div className="fs404-drift absolute left-[20%] bottom-[18%]" style={{ animationDelay: "2.6s" }}>
+        <div
+          className="fs404-drift absolute left-[20%] bottom-[18%]"
+          style={{ animationDelay: "2.6s" }}
+        >
           <Sigil size={20} color="var(--primary)" />
         </div>
-        <div className="fs404-drift absolute right-[22%] bottom-[24%]" style={{ animationDelay: "3.8s" }}>
+        <div
+          className="fs404-drift absolute right-[22%] bottom-[24%]"
+          style={{ animationDelay: "3.8s" }}
+        >
           <Sigil size={14} color="var(--fs-gold)" />
         </div>
       </PageBackdrop>
@@ -251,7 +273,7 @@ export default function NotFound() {
             <button
               type="button"
               onClick={regenerate}
-              className="block bg-transparent p-0"
+              className="block rounded-lg bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-bg-panel"
               aria-label={copy.hint}
             >
               <span
@@ -274,17 +296,17 @@ export default function NotFound() {
               {copy.lead}
             </p>
 
-            {/* Terminal log */}
-            <div className="mt-6 rounded-[10px] border border-border bg-background/60 p-4 font-mono text-[12px] leading-relaxed md:text-[13px]">
+            {/* Terminal log — static copy for screen readers, animated for sighted users. */}
+            <div className="sr-only">{lines.join("\n")}</div>
+            <div
+              aria-hidden="true"
+              className="mt-6 rounded-[10px] border border-border bg-background/60 p-4 font-mono text-[12px] leading-relaxed md:text-[13px]"
+            >
               {printed.map((line, i) => {
                 const isError = lines[i].startsWith("!");
                 const isLast = i === lines.length - 1;
                 return (
-                  <div
-                    key={i}
-                    className={isError ? "text-danger" : "text-foreground/75"}
-                    aria-hidden={line.length === 0}
-                  >
+                  <div key={i} className={isError ? "text-danger" : "text-foreground/75"}>
                     {line}
                     {isLast && typingDone ? <span className="wl-blink">▋</span> : null}
                   </div>
@@ -292,12 +314,20 @@ export default function NotFound() {
               })}
             </div>
 
-            {/* Void coordinates (reroll on regenerate) */}
-            <p className="mt-4 font-mono text-[11px] tracking-wide text-foreground/45">
-              <span className="uppercase tracking-[0.2em] text-foreground/35">{copy.coords}:</span>{" "}
-              <span className="text-fs-gold">
-                x {coords.x.toLocaleString()} · y {coords.y} · z {coords.z.toLocaleString()}
-              </span>
+            {/* Void coordinates (reroll on regenerate; null until rolled client-side). */}
+            <p className="mt-4 min-h-[16px] font-mono text-[11px] tracking-wide text-foreground/45">
+              {coords ? (
+                <>
+                  <span className="uppercase tracking-[0.2em] text-foreground/35">
+                    {copy.coords}:
+                  </span>{" "}
+                  <span className="text-fs-gold">
+                    x {coords.x.toLocaleString()} · y {coords.y} · z {coords.z.toLocaleString()}
+                  </span>
+                </>
+              ) : (
+                <span className="invisible">placeholder</span>
+              )}
             </p>
 
             {/* CTAs */}
