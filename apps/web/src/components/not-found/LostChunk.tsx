@@ -146,7 +146,7 @@ export default function LostChunk({ pathname }: { pathname: string }) {
   const coords = rollCoords();
 
   const ctaBase =
-    "wl-btn inline-flex min-h-[44px] items-center justify-center rounded-[var(--radius-control,8px)] border px-5 py-[11px] font-ui text-[13.5px] font-bold no-underline";
+    "wl-btn inline-flex min-h-[44px] items-center justify-center rounded-[var(--radius-control,8px)] border px-5 py-[11px] font-ui text-[13.5px] font-bold no-underline transition-opacity hover:opacity-90 active:opacity-80";
 
   return (
     <main className="relative flex min-h-[calc(100vh-84px)] items-center overflow-hidden bg-background py-12 md:py-16">
