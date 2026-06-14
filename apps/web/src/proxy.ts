@@ -214,7 +214,11 @@ export async function proxy(request: NextRequest) {
     i18n.locales.some((locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`);
 
   if (shouldSkipI18n) {
-    response = NextResponse.next();
+    // Forward the pathname so the (params-less) not-found boundary can resolve
+    // the active locale for the custom 404 page.
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+    response = NextResponse.next({ request: { headers: requestHeaders } });
   } else {
     // Redirect if there is no locale
     const locale = getLocale(request);
