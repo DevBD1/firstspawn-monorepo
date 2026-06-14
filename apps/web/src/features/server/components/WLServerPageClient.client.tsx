@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import { WLButton } from "@firstspawn/ui";
 import type { PublicServerDetail, PublicServerListItem } from "@/lib/servers-api";
+import { TeaserPanel, V2_TARGET_DATE } from "@/components/ui/FeatureTeaser.client";
 import ServerCard from "./ServerCard";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
@@ -117,7 +119,7 @@ export default function WLServerPageClient({
   const rankCopy = dictionary.rankSignals;
   const catalog = dictionary.serverCatalog;
   const linkKinds = dictionary.common.linkKinds;
-  const discussionCopy = profile.discussion;
+  const teaserCopy = profile.discussionTeaser;
   const sidebarCopy = profile.sidebar;
   const joinAddress = s.port === 25565 ? s.host : `${s.host}:${s.port}`;
   const voteKey = s.slug;
@@ -133,58 +135,20 @@ export default function WLServerPageClient({
   const [copied, setCopied] = useState(false);
   const [voted, setVoted] = useState(false);
 
-  interface Post {
-    id: string;
-    author: string;
-    when: string;
-    body: string;
-    replies: number;
-    mine: boolean;
-    ownerReplied?: boolean;
-  }
-
-  // Local storage keys
-  const lsKeyPrefix = `fsproto.${s.id}`;
-  const [mine, setMine] = useState<Post[]>([]);
-  const [reports, setReports] = useState<Record<string, string>>({});
-  const [draft, setDraft] = useState("");
-  const [reportFor, setReportFor] = useState<string | null>(null);
-
-  // Load state from localStorage on mount (SSR-safe: runs post-mount to avoid a
-  // hydration mismatch, so setState inside the effect is intentional).
+  // Load vote state from localStorage on mount (SSR-safe: runs post-mount to
+  // avoid a hydration mismatch, so setState inside the effect is intentional).
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect -- post-mount localStorage hydration */
     try {
       const storedVotes = localStorage.getItem("fsproto.votes");
       if (storedVotes) {
         const votesObj = JSON.parse(storedVotes);
+        /* eslint-disable-next-line react-hooks/set-state-in-effect -- post-mount localStorage hydration */
         setVoted(!!votesObj[voteKey]);
       }
-      const storedPosts = localStorage.getItem(`${lsKeyPrefix}.posts`);
-      if (storedPosts) setMine(JSON.parse(storedPosts));
-      const storedReports = localStorage.getItem(`${lsKeyPrefix}.reports`);
-      if (storedReports) setReports(JSON.parse(storedReports));
     } catch (e) {
       console.error(e);
     }
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [voteKey, lsKeyPrefix]);
-
-  // Save posts
-  const savePosts = (newPosts: typeof mine) => {
-    setMine(newPosts);
-    try {
-      localStorage.setItem(`${lsKeyPrefix}.posts`, JSON.stringify(newPosts));
-    } catch {}
-  };
-
-  // Save reports
-  const saveReports = (newReports: typeof reports) => {
-    setReports(newReports);
-    try {
-      localStorage.setItem(`${lsKeyPrefix}.reports`, JSON.stringify(newReports));
-    } catch {}
-  };
+  }, [voteKey]);
 
   const handleVote = () => {
     const nextVoted = !voted;
@@ -203,20 +167,6 @@ export default function WLServerPageClient({
     } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
-  };
-
-  const submitPost = () => {
-    if (!draft.trim()) return;
-    const newPost: Post = {
-      id: `m${Date.now()}`,
-      author: "wanderer_7",
-      when: "just now",
-      body: draft.trim(),
-      replies: 0,
-      mine: true,
-    };
-    savePosts([newPost, ...mine]);
-    setDraft("");
   };
 
   const sig = getServerSignals(s);
@@ -242,8 +192,9 @@ export default function WLServerPageClient({
     body: catalog.tagFeatures[t].description,
   }));
 
-  // Updates lane (Mock seed content — stands in for owner-authored posts)
-  const updates = [
+  // Decorative seed content rendered (blurred, non-interactive) behind the v2
+  // Discussion teaser — a frosted glimpse of the real experience to come.
+  const previewUpdates = [
     {
       title: "Season update: new region opens Friday",
       when: "3d ago",
@@ -256,38 +207,29 @@ export default function WLServerPageClient({
     },
   ];
 
-  // Base thread posts (Mock seed content — stands in for player-authored posts)
-  const defaultPosts: Post[] = [
+  const previewPosts = [
     {
-      id: "d1",
       author: "emberlyn",
       when: "2h ago",
       body: "Anyone up for the Friday expedition? We need two more for the depth-3 run.",
       replies: 6,
-      mine: false,
       ownerReplied: false,
     },
     {
-      id: "d2",
       author: "Krell",
       when: "9h ago",
       body: "New market district looks great, but stall prices doubled overnight — is that intended?",
       replies: 14,
-      mine: false,
       ownerReplied: true,
     },
     {
-      id: "d3",
       author: "mossfen",
       when: "1d ago",
       body: "Posted my base tour in the gallery channel — honest feedback welcome.",
       replies: 3,
-      mine: false,
       ownerReplied: false,
     },
   ];
-
-  const allPosts = [...mine, ...defaultPosts];
 
   const links = [...s.socials]
     .sort((a, b) => a.display_order - b.display_order)
@@ -397,16 +339,17 @@ export default function WLServerPageClient({
         </button>
         <button
           onClick={() => setTab("discussion")}
-          className={`font-body text-[13.5px] font-bold pb-2.5 border-b-2 cursor-pointer transition-all ${
+          className={`group font-body text-[13.5px] font-bold pb-2.5 border-b-2 cursor-pointer transition-all inline-flex items-center gap-1.5 ${
             tab === "discussion"
               ? "text-foreground border-primary"
               : "text-muted border-transparent hover:text-foreground"
           }`}
         >
-          {profile.tabs.discussion.replace(
-            "{count}",
-            String(allPosts.reduce((n, p) => n + 1 + p.replies, 0))
-          )}
+          <Lock size={12} className="opacity-70" />
+          {profile.tabs.discussion}
+          <span className="font-mono text-[9px] font-bold tracking-wide text-fs-gold border border-fs-gold/30 rounded-full px-1.5 py-0.5 leading-none uppercase select-none">
+            {profile.tabs.discussionBadge}
+          </span>
         </button>
       </div>
 
@@ -566,23 +509,22 @@ export default function WLServerPageClient({
               )}
             </div>
           ) : (
-            // Discussion Tab
-            <div className="flex flex-col gap-6 max-w-[640px]">
-              {/* Updates from team */}
-              <section>
-                <div className="mb-3">
-                  <h2 className="font-display font-medium text-base text-foreground">
-                    {discussionCopy.updatesTitle}
-                  </h2>
-                  <p className="font-mono text-[11px] text-muted mt-0.5">
-                    {discussionCopy.updatesSubtitle}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {updates.map((u) => (
-                    <article
+            // Discussion Tab — gated "coming in v2" teaser over a frosted preview
+            <div className="max-w-[640px]">
+              <div
+                className="relative overflow-hidden rounded-xl border border-border"
+                role="group"
+                aria-label={teaserCopy.previewAria}
+              >
+                {/* Frosted preview of the real experience (decorative only) */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none select-none flex flex-col gap-3 p-4 opacity-30 blur-[7px] saturate-50"
+                >
+                  {previewUpdates.map((u) => (
+                    <div
                       key={u.title}
-                      className="bg-bg-panel border border-border rounded-xl p-3.5 flex flex-col"
+                      className="bg-bg-panel border border-border rounded-xl p-3.5"
                     >
                       <div className="flex justify-between items-baseline gap-3 mb-1.5">
                         <span className="font-body font-bold text-xs text-foreground">
@@ -592,145 +534,47 @@ export default function WLServerPageClient({
                           {u.when}
                         </span>
                       </div>
-                      <p className="font-body text-[12.5px] leading-relaxed text-foreground/80 margin-0">
+                      <p className="font-body text-[12.5px] leading-relaxed text-foreground/80">
                         {u.body}
                       </p>
-                      <div className="mt-2 font-body text-[10px] font-bold text-fs-gold">
-                        {discussionCopy.staffBadge.replace("{name}", s.name)}
+                    </div>
+                  ))}
+                  {previewPosts.map((p) => (
+                    <div
+                      key={p.author}
+                      className="bg-bg-panel border border-border rounded-xl p-3.5"
+                    >
+                      <div className="flex justify-between items-baseline gap-3 mb-1.5">
+                        <span className="font-mono text-xs font-bold text-primary">{p.author}</span>
+                        <span className="font-mono text-[10.5px] text-muted shrink-0">
+                          {p.when}
+                        </span>
                       </div>
-                    </article>
+                      <p className="font-body text-[12.5px] leading-relaxed text-foreground/80">
+                        {p.body}
+                      </p>
+                    </div>
                   ))}
                 </div>
-              </section>
 
-              {/* Player thread */}
-              <section>
-                <div className="mb-3">
-                  <h2 className="font-display font-medium text-base text-foreground">
-                    {discussionCopy.threadTitle}
-                  </h2>
-                  <p className="font-mono text-[11px] text-muted mt-0.5">
-                    {discussionCopy.threadSubtitle}
-                  </p>
+                {/* Teaser overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-bg-panel/50 via-bg-panel/80 to-bg-panel/95 p-5 md:p-8">
+                  <TeaserPanel
+                    dense
+                    badge={teaserCopy.badge}
+                    title={teaserCopy.headline}
+                    tagline={teaserCopy.tagline}
+                    features={teaserCopy.features}
+                    waitlistNote={teaserCopy.waitlistNote}
+                    waitlistCount={baseVotes}
+                    notifyCta={teaserCopy.notifyCta}
+                    notifiedLabel={teaserCopy.notifiedLabel}
+                    targetDate={V2_TARGET_DATE}
+                    countdownDaysLabel={teaserCopy.countdownDaysLabel}
+                    countdownUntilLabel={teaserCopy.countdownUntilLabel}
+                  />
                 </div>
-                <div className="flex flex-col gap-3">
-                  {/* Composer */}
-                  <div className="bg-bg-panel border border-border rounded-xl p-3.5 flex flex-col gap-2.5">
-                    <textarea
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      placeholder={discussionCopy.composerPlaceholder.replace("{name}", s.name)}
-                      rows={2}
-                      className="font-body text-xs leading-relaxed p-2.5 bg-secondary border border-border rounded-lg outline-none resize-y min-h-[52px] text-foreground focus:border-primary"
-                    ></textarea>
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <span className="font-mono text-[10px] text-muted">
-                        {discussionCopy.postingAsNote.replace("{username}", "wanderer_7")}
-                      </span>
-                      <WLButton
-                        variant="primary"
-                        size="sm"
-                        onClick={submitPost}
-                        disabled={!draft.trim()}
-                        className={draft.trim() ? "opacity-100" : "opacity-55"}
-                      >
-                        {discussionCopy.postLabel}
-                      </WLButton>
-                    </div>
-                  </div>
-
-                  {/* Thread posts */}
-                  {allPosts.map((p) => {
-                    const reported = reports[p.id || p.author];
-                    return (
-                      <article
-                        key={p.id || p.author}
-                        className={`bg-bg-panel border border-border rounded-xl p-3.5 flex flex-col transition-all duration-150 ${reported ? "opacity-55" : "opacity-100"}`}
-                      >
-                        <div className="flex justify-between items-baseline gap-3 mb-1.5">
-                          <span
-                            className={`font-mono text-xs font-bold ${p.mine ? "text-success" : "text-primary"}`}
-                          >
-                            {p.author}
-                            {p.mine ? ` ${discussionCopy.youSuffix}` : ""}
-                          </span>
-                          <span className="font-mono text-[10.5px] text-muted shrink-0">
-                            {p.when}
-                          </span>
-                        </div>
-                        <p className="font-body text-[12.5px] leading-relaxed text-foreground/80">
-                          {p.body}
-                        </p>
-                        <div className="mt-2.5 flex items-baseline gap-3 font-body text-[11px] font-semibold text-muted">
-                          <span>
-                            {discussionCopy.repliesLabel.replace("{count}", String(p.replies))}
-                          </span>
-                          {p.ownerReplied && (
-                            <span className="text-success">{discussionCopy.ownerRepliedLabel}</span>
-                          )}
-                          <span className="ml-auto"></span>
-                          {p.mine ? (
-                            <button
-                              onClick={() => {
-                                const newPosts = mine.filter((x) => x.id !== p.id);
-                                savePosts(newPosts);
-                              }}
-                              className="text-muted hover:text-foreground cursor-pointer font-bold"
-                            >
-                              {discussionCopy.deleteLabel}
-                            </button>
-                          ) : reported ? (
-                            <span className="text-danger font-bold">
-                              {discussionCopy.underReviewLabel.replace("{reason}", reported)}
-                            </span>
-                          ) : reportFor === (p.id || p.author) ? null : (
-                            <button
-                              onClick={() => setReportFor(p.id || p.author)}
-                              className="text-muted hover:text-foreground cursor-pointer font-bold"
-                            >
-                              {discussionCopy.reportLabel}
-                            </button>
-                          )}
-                        </div>
-
-                        {reportFor === (p.id || p.author) && !reported && (
-                          <div className="mt-3.5 border-t border-border pt-3">
-                            <div className="font-body text-xs font-bold text-foreground mb-2">
-                              {discussionCopy.reportPromptTitle}
-                            </div>
-                            <div className="flex gap-1.5 flex-wrap">
-                              {[
-                                discussionCopy.reportReasons.spam,
-                                discussionCopy.reportReasons.harassment,
-                                discussionCopy.reportReasons.misleading,
-                                discussionCopy.reportReasons.offTopic,
-                              ].map((r) => (
-                                <button
-                                  key={r}
-                                  onClick={() => {
-                                    const newReports = { ...reports, [p.id || p.author]: r };
-                                    saveReports(newReports);
-                                    setReportFor(null);
-                                  }}
-                                  className="font-body text-[11px] font-semibold text-muted border border-border rounded-full px-2.5 py-1 bg-transparent hover:bg-secondary/40 cursor-pointer"
-                                >
-                                  {r}
-                                </button>
-                              ))}
-                              <button
-                                onClick={() => setReportFor(null)}
-                                className="font-body text-[11px] font-bold text-muted border border-border rounded-full px-2.5 py-1 bg-transparent hover:bg-secondary/40 cursor-pointer"
-                              >
-                                {discussionCopy.cancelLabel}
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </article>
-                    );
-                  })}
-                </div>
-              </section>
+              </div>
             </div>
           )}
         </div>

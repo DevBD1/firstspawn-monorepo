@@ -482,7 +482,8 @@
       },
       "tabs": {
         "overview": "Aperçu",
-        "discussion": "Discussion · {count}"
+        "discussion": "Discussion",
+        "discussionBadge": "v2"
       },
       "about": {
         "title": "À propos de ce monde"
@@ -503,29 +504,31 @@
       "similar": {
         "title": "Mondes similaires"
       },
-      "discussion": {
-        "updatesTitle": "Nouvelles de l'équipe",
-        "updatesSubtitle": "publications signées du propriétaire vérifié — épinglées au-dessus du fil",
-        "staffBadge": "✓ équipe {name}",
-        "threadTitle": "Fil des joueurs",
-        "threadSubtitle": "ouvert automatiquement avec cette fiche · appartient aux joueurs, modéré par FirstSpawn",
-        "composerPlaceholder": "Posez une question sur {name}, ou racontez aux joueurs comment c'est…",
-        "postingAsNote": "publié en tant que {username} · un compte, une réputation",
-        "postLabel": "Publier",
-        "youSuffix": "(vous)",
-        "repliesLabel": "{count} réponses",
-        "ownerRepliedLabel": "le propriétaire a répondu",
-        "deleteLabel": "supprimer",
-        "reportLabel": "signaler",
-        "underReviewLabel": "⚑ en cours d'examen · {reason}",
-        "reportPromptTitle": "Signaler aux modérateurs FirstSpawn — pas au propriétaire du serveur :",
-        "reportReasons": {
-          "spam": "Spam ou publicité",
-          "harassment": "Harcèlement",
-          "misleading": "Trompeur sur le serveur",
-          "offTopic": "Hors sujet"
-        },
-        "cancelLabel": "annuler"
+      "discussionTeaser": {
+        "badge": "Arrive en v2",
+        "lockLabel": "Verrouillé",
+        "headline": "Le lieu où la réputation se mérite.",
+        "tagline": "Discussion vérifiée et conditionnée au temps de jeu — un compte, une réputation. Sans bots, sans cabales, sans hype acheté.",
+        "features": [
+          {
+            "title": "Des voix qui ont joué",
+            "body": "Seuls les joueurs ayant vraiment accumulé des heures peuvent publier — une réputation qui ne se farme pas."
+          },
+          {
+            "title": "Nouvelles signées du propriétaire",
+            "body": "Notes de patch et événements publiés par le propriétaire vérifié, épinglés au-dessus du bruit."
+          },
+          {
+            "title": "Modéré par FirstSpawn",
+            "body": "Les signalements arrivent à notre équipe, pas au propriétaire — pour que les retours restent honnêtes."
+          }
+        ],
+        "waitlistNote": "{count} joueurs déjà sur la liste d'attente",
+        "notifyCta": "Préviens-moi au lancement",
+        "notifiedLabel": "Vous êtes sur la liste",
+        "countdownDaysLabel": "{count} jours",
+        "countdownUntilLabel": "avant la v2",
+        "previewAria": "Aperçu de la future expérience de discussion"
       },
       "sidebar": {
         "joinTitle": "Rejoindre",
@@ -577,9 +580,30 @@
     }
   },
   "communityPage": {
-    "badge": "Bientôt disponible",
-    "title": "COMMUNAUTÉ",
-    "description": "Les passeports de joueur, les journaux de serveur et les contributions de la communauté arrivent. Cet espace sera débloqué lors de la prochaine étape de publication."
+    "badge": "Arrive en v2",
+    "eyebrow": "Communauté",
+    "title": "Un foyer pour celles et ceux qui font les mondes.",
+    "tagline": "Passeports de joueur, journaux de serveur et coups de projecteur sur les créateurs — tout votre parcours au même endroit.",
+    "description": "Nous construisons une couche communautaire où réputation, contributions et mondes que vous aimez se rejoignent. Tout se débloque avec la v2.",
+    "features": [
+      {
+        "title": "Passeports de joueur",
+        "body": "Un profil qui vous suit — temps de jeu, badges et serveurs que vous recommandez."
+      },
+      {
+        "title": "Journaux de serveur vivants",
+        "body": "Suivez les mondes qui comptent et ne manquez jamais une saison, un événement ou un reset."
+      },
+      {
+        "title": "Coups de projecteur créateurs",
+        "body": "Bâtisseurs, auteurs de mods et organisateurs reçoivent le crédit qu'ils ont vraiment mérité."
+      }
+    ],
+    "waitlistNote": "{count} joueurs déjà sur la liste d'attente",
+    "notifyCta": "Préviens-moi au lancement",
+    "notifiedLabel": "Vous êtes sur la liste",
+    "countdownDaysLabel": "{count} jours",
+    "countdownUntilLabel": "avant la v2"
   },
   "consolePage": {
     "badge": "COMMAND TERMINAL ONLINE",
@@ -588,9 +612,30 @@
     "fallbackUsername": "Operator"
   },
   "lootPage": {
-    "badge": "PLAYER INVENTORY LINKED",
-    "title": "MY LOOT",
-    "description": "{username}, your progression inventory hub is now unlocked. Reward drops, puzzle keys, and badge claims will appear here.",
+    "badge": "Arrive en v2",
+    "eyebrow": "Mon butin",
+    "title": "Votre coffre à butin est sur le point de s'ouvrir.",
+    "tagline": "Récompenses, clés d'énigmes et badges à réclamer — tout ce que vous gagnez, dans un seul inventaire.",
+    "description": "{username}, votre hub de progression est en forge. Récompenses, clés d'événements et badges vérifiés atterriront tous ici à la sortie de la v2.",
+    "features": [
+      {
+        "title": "Récompenses",
+        "body": "Réclamez le butin saisonnier et les récompenses d'événements des serveurs où vous jouez vraiment."
+      },
+      {
+        "title": "Clés d'énigmes",
+        "body": "Débloquez des défis cachés et des chasses à durée limitée sur tout le réseau."
+      },
+      {
+        "title": "Badges mérités",
+        "body": "Affichez des succès vérifiés qui prouvent ce que vous avez fait, pas ce que vous avez acheté."
+      }
+    ],
+    "waitlistNote": "{count} joueurs déjà sur la liste d'attente",
+    "notifyCta": "Préviens-moi au lancement",
+    "notifiedLabel": "Vous êtes sur la liste",
+    "countdownDaysLabel": "{count} jours",
+    "countdownUntilLabel": "avant la v2",
     "fallbackUsername": "Operator"
   },
   "debugPages": {

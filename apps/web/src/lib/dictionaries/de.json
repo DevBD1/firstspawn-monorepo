@@ -482,7 +482,8 @@
       },
       "tabs": {
         "overview": "Übersicht",
-        "discussion": "Diskussion · {count}"
+        "discussion": "Diskussion",
+        "discussionBadge": "v2"
       },
       "about": {
         "title": "Über diese Welt"
@@ -503,29 +504,31 @@
       "similar": {
         "title": "Ähnliche Welten"
       },
-      "discussion": {
-        "updatesTitle": "Updates vom Team",
-        "updatesSubtitle": "signierte Beiträge des verifizierten Inhabers — über dem Thread angepinnt",
-        "staffBadge": "✓ {name}-Team",
-        "threadTitle": "Spieler-Thread",
-        "threadSubtitle": "automatisch mit diesem Eintrag eröffnet · gehört den Spielern, moderiert von FirstSpawn",
-        "composerPlaceholder": "Frag etwas über {name} oder erzähl Spielern, wie es dort ist…",
-        "postingAsNote": "gepostet als {username} · ein Konto, eine Reputation",
-        "postLabel": "Posten",
-        "youSuffix": "(du)",
-        "repliesLabel": "{count} Antworten",
-        "ownerRepliedLabel": "Inhaber hat geantwortet",
-        "deleteLabel": "löschen",
-        "reportLabel": "melden",
-        "underReviewLabel": "⚑ wird geprüft · {reason}",
-        "reportPromptTitle": "An FirstSpawn-Moderatoren melden — nicht an den Serverinhaber:",
-        "reportReasons": {
-          "spam": "Spam oder Werbung",
-          "harassment": "Belästigung",
-          "misleading": "Irreführend über den Server",
-          "offTopic": "Off-Topic"
-        },
-        "cancelLabel": "abbrechen"
+      "discussionTeaser": {
+        "badge": "Kommt in v2",
+        "lockLabel": "Gesperrt",
+        "headline": "Der Ort, an dem Reputation verdient wird.",
+        "tagline": "Verifizierte, spielzeit-gebundene Diskussion — ein Konto, eine Reputation. Keine Bots, keine Brigaden, kein gekaufter Hype.",
+        "features": [
+          {
+            "title": "Spielzeit-gebundene Stimmen",
+            "body": "Nur Spieler mit echten Spielstunden können posten — Reputation, die man nicht farmen kann."
+          },
+          {
+            "title": "Vom Inhaber signierte Updates",
+            "body": "Patchnotes und Events vom verifizierten Inhaber, über dem Rauschen angepinnt."
+          },
+          {
+            "title": "Von FirstSpawn moderiert",
+            "body": "Meldungen erreichen unser Team, nicht den Inhaber — so bleibt das Feedback ehrlich."
+          }
+        ],
+        "waitlistNote": "{count} Spieler bereits auf der Warteliste",
+        "notifyCta": "Benachrichtige mich zum Start",
+        "notifiedLabel": "Du bist auf der Liste",
+        "countdownDaysLabel": "{count} Tage",
+        "countdownUntilLabel": "bis v2",
+        "previewAria": "Vorschau auf die kommende Diskussions-Erfahrung"
       },
       "sidebar": {
         "joinTitle": "Beitreten",
@@ -577,9 +580,30 @@
     }
   },
   "communityPage": {
-    "badge": "Demnächst",
-    "title": "COMMUNITY",
-    "description": "Spielerpässe, Server-Logs und Community-Beiträge sind in Arbeit. Dieser Bereich wird in der nächsten Release-Phase freigeschaltet."
+    "badge": "Kommt in v2",
+    "eyebrow": "Community",
+    "title": "Ein Zuhause für die Menschen hinter den Welten.",
+    "tagline": "Spielerpässe, Server-Logs und Creator-Spotlights — deine ganze Reise an einem Ort.",
+    "description": "Wir bauen eine Community-Ebene, in der Reputation, Beiträge und die Welten, die du liebst, zusammenkommen. Sie wird mit v2 freigeschaltet.",
+    "features": [
+      {
+        "title": "Spielerpässe",
+        "body": "Ein Profil, das mit dir reist — Spielzeit, Badges und die Server, für die du bürgst."
+      },
+      {
+        "title": "Lebendige Server-Logs",
+        "body": "Folge den Welten, die dir wichtig sind, und verpasse keine Saison, kein Event und keinen Wipe."
+      },
+      {
+        "title": "Creator-Spotlights",
+        "body": "Bauer, Mod-Autoren und Event-Hosts bekommen die Anerkennung, die sie wirklich verdient haben."
+      }
+    ],
+    "waitlistNote": "{count} Spieler bereits auf der Warteliste",
+    "notifyCta": "Benachrichtige mich zum Start",
+    "notifiedLabel": "Du bist auf der Liste",
+    "countdownDaysLabel": "{count} Tage",
+    "countdownUntilLabel": "bis v2"
   },
   "consolePage": {
     "badge": "KOMMANDO-TERMINAL ONLINE",
@@ -588,9 +612,30 @@
     "fallbackUsername": "Operator"
   },
   "lootPage": {
-    "badge": "SPIELER-INVENTAR VERKNÜPFT",
-    "title": "MEINE BEUTE",
-    "description": "{username}, dein Fortschritts-Inventar ist jetzt freigeschaltet. Belohnungen, Schlüssel und Badge-Ansprüche erscheinen hier.",
+    "badge": "Kommt in v2",
+    "eyebrow": "Meine Beute",
+    "title": "Deine Beutekammer öffnet bald.",
+    "tagline": "Belohnungen, Rätselschlüssel und Badge-Ansprüche — alles, was du verdienst, in einem Inventar.",
+    "description": "{username}, dein Fortschritts-Hub wird geschmiedet. Belohnungen, Event-Schlüssel und verifizierte Badges landen alle hier, wenn v2 erscheint.",
+    "features": [
+      {
+        "title": "Belohnungen",
+        "body": "Hol dir saisonale Beute und Event-Belohnungen von den Servern, die du wirklich spielst."
+      },
+      {
+        "title": "Rätselschlüssel",
+        "body": "Schalte versteckte Herausforderungen und zeitlich begrenzte Jagden im gesamten Netzwerk frei."
+      },
+      {
+        "title": "Verdiente Badges",
+        "body": "Zeige verifizierte Erfolge, die beweisen, was du geleistet hast — nicht, was du gekauft hast."
+      }
+    ],
+    "waitlistNote": "{count} Spieler bereits auf der Warteliste",
+    "notifyCta": "Benachrichtige mich zum Start",
+    "notifiedLabel": "Du bist auf der Liste",
+    "countdownDaysLabel": "{count} Tage",
+    "countdownUntilLabel": "bis v2",
     "fallbackUsername": "Operator"
   },
   "debugPages": {
