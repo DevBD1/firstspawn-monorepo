@@ -351,6 +351,7 @@ export const serverSocials = pgTable(
 export const serverMedia = pgTable(
   "server_media",
   {
+    id: uuid("id").primaryKey().defaultRandom(),
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),

@@ -1,4 +1,5 @@
 CREATE TABLE "server_media" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"server_id" uuid NOT NULL,
 	"url" varchar(2048) NOT NULL,
 	"kind" varchar(20) NOT NULL,

@@ -163,6 +163,7 @@ erDiagram
     }
 
     server_media {
+        uuid id PK "uuidv4"
         uuid server_id FK "indexed, cascade"
         varchar(2048) url
         varchar(20) kind "build | banner | screenshot | logo"
