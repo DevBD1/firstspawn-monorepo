@@ -9,7 +9,7 @@
     "start": "node dist/src/index.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "corepack pnpm exec vitest run",
     "clean": "rm -rf dist coverage .vitest"
   },
   "dependencies": {

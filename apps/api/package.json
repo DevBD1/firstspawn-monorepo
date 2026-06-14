@@ -9,7 +9,7 @@
     "start": "node dist/src/index.js",
     "lint": "eslint .",
     "typecheck": "corepack pnpm --filter @firstspawn/database build && tsc --noEmit",
-    "test": "corepack pnpm --filter @firstspawn/database build && vitest run",
+    "test": "corepack pnpm --filter @firstspawn/database build && corepack pnpm exec vitest run",
     "clean": "rm -rf dist coverage .vitest",
     "migrate": "pnpm --dir ../../packages/database run migrate",
     "migrate:generate": "pnpm --dir ../../packages/database run generate"
