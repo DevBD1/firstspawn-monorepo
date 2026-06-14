@@ -13,11 +13,14 @@ const currentFile = fileURLToPath(import.meta.url);
 const currentDir = path.dirname(currentFile);
 const migrationsFolder = path.resolve(currentDir, "../../../packages/database/migrations");
 
+// Match drizzle.config.ts: the host-exposed Postgres port defaults to 55432 locally.
+const testHostPort = (): string => process.env.POSTGRES_HOST_PORT || "55432";
+
 const normalizeTestDatabaseUrl = (connectionString: string): string => {
   const synthesized = connectionString.includes("${DB_")
     ? `postgresql://${encodeURIComponent(process.env.DB_USER ?? "firstspawn")}:${encodeURIComponent(
         process.env.DB_PASSWORD ?? "firstspawn"
-      )}@localhost:5432/${encodeURIComponent(process.env.DB_NAME ?? "firstspawn")}`
+      )}@localhost:${testHostPort()}/${encodeURIComponent(process.env.DB_NAME ?? "firstspawn")}`
     : connectionString;
   const normalized = synthesized.replace("postgresql+psycopg://", "postgresql://");
   const url = new URL(normalized);
@@ -45,7 +48,7 @@ export const createTestApp = async (): Promise<TestContext> => {
     process.env.API_TEST_DATABASE_URL ??
     `postgresql://${encodeURIComponent(process.env.DB_USER ?? "firstspawn")}:${encodeURIComponent(
       process.env.DB_PASSWORD ?? "firstspawn"
-    )}@localhost:5432/${encodeURIComponent(process.env.DB_NAME ?? "firstspawn")}`;
+    )}@localhost:${testHostPort()}/${encodeURIComponent(process.env.DB_NAME ?? "firstspawn")}`;
   const normalizedBaseUrl = normalizeTestDatabaseUrl(baseUrl);
   const schemaName = `test_api_${randomUUID().replaceAll("-", "")}`;
 

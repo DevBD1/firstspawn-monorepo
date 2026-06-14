@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { WLButton } from "@firstspawn/ui";
-import type { PublicServerListItem } from "@/lib/servers-api";
+import { deleteListingAction, type MyListing } from "@/app/actions/listing";
 import type {
   AppDictionary,
   OwnerConsoleDictionary,
@@ -19,8 +19,8 @@ const getEmptySnapshot = () => "";
 const getProvenanceDateSnapshot = () =>
   new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
-// Console server records merge catalog rows with locally-stored custom drafts,
-// so only the fields the console reads are typed; the rest stay opaque.
+// The console reads owned-server rows; `pending` means no heartbeat has landed yet
+// (the first crawl is still underway), and `tags` carries the persisted feature tags.
 interface ConsoleServer {
   id: string;
   slug: string;
@@ -28,6 +28,7 @@ interface ConsoleServer {
   description?: string | null;
   country_code?: string | null;
   pending?: boolean;
+  tags?: string[];
   latest_metrics?: { online_players?: number | null } | null;
   [key: string]: unknown;
 }
@@ -66,6 +67,9 @@ function getServerSignals(name: string): Signals {
 }
 
 function getConsoleServerTags(server: ConsoleServer): string[] {
+  if (server.tags && server.tags.length > 0) {
+    return server.tags;
+  }
   const haystack = `${server.name} ${server.description || ""}`.toLowerCase();
   return WL_ALL_TAGS.filter((tag) => haystack.includes(tag.toLowerCase()));
 }
@@ -546,7 +550,7 @@ export default function WLOwnerConsoleClient({
   lang,
   dictionary,
 }: {
-  initialServers: PublicServerListItem[];
+  initialServers: MyListing[];
   lang: string;
   dictionary: AppDictionary;
 }) {
@@ -557,36 +561,27 @@ export default function WLOwnerConsoleClient({
   const countryOptions = useMemo(() => getCountryOptions(lang, countries), [lang, countries]);
   const linkKinds = dictionary.common.linkKinds;
 
-  const [servers, setServers] = useState<ConsoleServer[]>([]);
-  const [serverId, setServerId] = useState("");
-  const [section, setSection] = useState<ConsoleSectionId>("overview");
+  // A server is "pending" until its first heartbeat lands (first crawl underway).
+  const mappedServers = useMemo<ConsoleServer[]>(
+    () =>
+      initialServers.map((s) => ({
+        ...s,
+        pending: s.freshness_status !== "online",
+      })),
+    [initialServers]
+  );
 
-  // Custom states
+  const [servers, setServers] = useState<ConsoleServer[]>(mappedServers);
+  const [serverId, setServerId] = useState(mappedServers[0]?.id ?? "");
+  const [section, setSection] = useState<ConsoleSectionId>("overview");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Trailer publish state stays client-only (the trailer studio is still a mock).
   const [trailerPublishedMap, setTrailerPublishedMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    // Load custom servers and trailers from localStorage (SSR-safe: runs post-mount
-    // to avoid a hydration mismatch, so setState inside the effect is intentional).
     /* eslint-disable react-hooks/set-state-in-effect -- post-mount localStorage hydration */
     try {
-      const customServersStr = localStorage.getItem("fsproto.custom_servers");
-      const customServers = customServersStr ? JSON.parse(customServersStr) : [];
-
-      const combined = [
-        ...customServers,
-        ...initialServers.map((s) => ({
-          ...s,
-          id: s.slug,
-          pending: false,
-        })),
-      ];
-
-      setServers(combined);
-
-      if (combined.length > 0) {
-        setServerId(combined[0].id);
-      }
-
       const storedTrailers = localStorage.getItem("fsproto.published_trailers");
       if (storedTrailers) {
         setTrailerPublishedMap(JSON.parse(storedTrailers));
@@ -595,7 +590,7 @@ export default function WLOwnerConsoleClient({
       console.error(e);
     }
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [initialServers]);
+  }, []);
 
   const activeServer = servers.find((s) => s.id === serverId) || servers[0];
 
@@ -614,12 +609,30 @@ export default function WLOwnerConsoleClient({
 
   const sig = getServerSignals(activeServer.name);
   const baseVotes = 1200 + activeServer.name.charCodeAt(0) * 15;
-  const isCustomServer = !!activeServer.pending;
+  // Owner-side profile editing has no API yet, so the form stays read-only for now.
+  const isCustomServer = false;
 
   const handleServerSaved = (updatedServer: ConsoleServer) => {
     setServers((current) =>
       current.map((s) => (s.id === updatedServer.id ? { ...s, ...updatedServer } : s))
     );
+  };
+
+  const handleDelete = async () => {
+    if (deletingId) return;
+    if (!window.confirm(consoleCopy.deleteConfirm.replace("{name}", activeServer.name))) {
+      return;
+    }
+    setDeletingId(activeServer.id);
+    const result = await deleteListingAction(activeServer.id);
+    if (result.ok) {
+      const remaining = servers.filter((s) => s.id !== activeServer.id);
+      setServers(remaining);
+      setServerId(remaining[0]?.id ?? "");
+      setSection("overview");
+      router.refresh();
+    }
+    setDeletingId(null);
   };
 
   const handlePublishTrailer = () => {
@@ -823,6 +836,16 @@ export default function WLOwnerConsoleClient({
                 </WLButton>
                 <WLButton variant="outline" onClick={() => setSection("health")}>
                   {consoleCopy.overview.healthCtaLabel}
+                </WLButton>
+                <WLButton
+                  variant="outline"
+                  onClick={handleDelete}
+                  disabled={deletingId === activeServer.id}
+                  className="text-danger border-danger/50 hover:border-danger"
+                >
+                  {deletingId === activeServer.id
+                    ? consoleCopy.overview.deletingLabel
+                    : consoleCopy.overview.deleteLabel}
                 </WLButton>
               </div>
             </div>

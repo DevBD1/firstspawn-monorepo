@@ -187,3 +187,76 @@ export const decodeRefreshToken = (token: string, config: AppConfig): RefreshCla
   }
   return payload as unknown as RefreshClaims;
 };
+
+const LISTING_VERIFY_PURPOSE = "listing-verify";
+const LISTING_OWNERSHIP_TYP = "listing_ownership" as const;
+const LISTING_OWNERSHIP_TTL_SECONDS = 15 * 60;
+
+export interface ListingVerificationTarget {
+  userId: string;
+  host: string;
+  port: number;
+}
+
+/**
+ * Derives the deterministic ownership-verification token a server owner pastes
+ * into their MOTD or a DNS TXT record. The same (user, host, port) always maps
+ * to the same token, so it can be shown and re-derived without persistence.
+ */
+export const deriveListingVerificationToken = (
+  target: ListingVerificationTarget,
+  config: Pick<AppConfig, "API_TOKEN_HASH_SECRET">
+): string => {
+  const digest = createHmac("sha256", config.API_TOKEN_HASH_SECRET)
+    .update(`${LISTING_VERIFY_PURPOSE}:${target.userId}:${target.host}:${target.port}`)
+    .digest("hex");
+  return `fs-verify-${digest.slice(0, 12).toUpperCase()}`;
+};
+
+export interface ListingOwnershipClaims {
+  iss: string;
+  sub: string;
+  typ: typeof LISTING_OWNERSHIP_TYP;
+  host: string;
+  port: number;
+  iat: number;
+  exp: number;
+}
+
+/**
+ * Issues a short-lived signed proof that a user has verified ownership of a
+ * specific host:port. The create-listing endpoint requires this proof so that
+ * verification cannot be skipped or replayed against a different listing.
+ */
+export const issueListingOwnershipProof = (
+  target: ListingVerificationTarget,
+  config: AppConfig
+): { token: string; expiresIn: number } => {
+  const now = Math.floor(Date.now() / 1000);
+  const payload: ListingOwnershipClaims = {
+    iss: config.API_JWT_ISSUER,
+    sub: target.userId,
+    typ: LISTING_OWNERSHIP_TYP,
+    host: target.host,
+    port: target.port,
+    iat: now,
+    exp: now + LISTING_OWNERSHIP_TTL_SECONDS,
+  };
+
+  return {
+    token: encodeJwt(payload, config.API_JWT_SECRET),
+    expiresIn: LISTING_OWNERSHIP_TTL_SECONDS,
+  };
+};
+
+/** Validates and decodes a listing ownership proof, enforcing signature, type, and expiry. */
+export const decodeListingOwnershipProof = (
+  token: string,
+  config: AppConfig
+): ListingOwnershipClaims => {
+  const payload = decodeJwt(token, config.API_JWT_SECRET);
+  if (payload.typ !== LISTING_OWNERSHIP_TYP) {
+    throw new TokenDecodeError("Unexpected token type.");
+  }
+  return payload as unknown as ListingOwnershipClaims;
+};

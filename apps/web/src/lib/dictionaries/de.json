@@ -676,7 +676,7 @@
     "address": {
       "title": "Wo lebt deine Welt?",
       "description": "Wir pingen sie zuerst. Dein Eintrag basiert auf dem, was wir messen können — das Formular kommt danach.",
-      "hostPlaceholder": "play.deinserver.net",
+      "hostPlaceholder": "play.deinserver.net:{port}",
       "pingingLabel": "Ping läuft…",
       "checkServerLabel": "Server prüfen",
       "stats": {
@@ -684,10 +684,15 @@
         "reachable": "● erreichbar",
         "version": "Version",
         "onlineNow": "Jetzt online",
-        "motd": "MOTD"
+        "motd": "MOTD",
+        "software": "Software"
       },
       "continueLabel": "Sieht richtig aus →",
-      "supportNote": "java + bedrock unterstützt · hytale zum Start"
+      "supportNote": "java · bedrock · hytale – alle unterstützt",
+      "errorUnreachable": "Wir konnten diesen Server nicht erreichen. Überprüfe Host und Port und versuche es erneut.",
+      "softwareLabel": "Server-Software",
+      "geyserLabel": "Dieser Java-Server akzeptiert auch Bedrock-Spieler (GeyserMC / Floodgate).",
+      "errorAddressTaken": "Diese Adresse ist bereits auf FirstSpawn gelistet. Wenn sie dir gehört, melde sie, um sie zu beanspruchen (bald verfügbar)."
     },
     "ownership": {
       "title": "Beweise, dass er dir gehört.",
@@ -703,7 +708,12 @@
       "verifiedLabel": "✓ Inhaberschaft verifiziert",
       "continueLabel": "Weiter →",
       "checkingLabel": "Prüfung läuft…",
-      "verifyLabel": "Ich habe es hinzugefügt — verifizieren"
+      "verifyLabel": "Ich habe es hinzugefügt — verifizieren",
+      "selectHint": "Wähle eine Methode, füge den Token hinzu und verifiziere dann.",
+      "failedLabel": "Wir konnten deinen Token noch nicht finden. Füge ihn hinzu, warte kurz und versuche es erneut.",
+      "motdUnavailable": "Für Hytale nicht verfügbar – es gibt keine Live-MOTD. Nutze stattdessen DNS.",
+      "dnsUnavailable": "Für eine reine IP nicht verfügbar – richte eine Domain auf deinen Server, um DNS zu nutzen, oder verifiziere per MOTD.",
+      "noMethodHint": "Hytale mit reiner IP lässt sich noch nicht verifizieren. Richte eine Domain auf deinen Server und verifiziere per DNS."
     },
     "profile": {
       "title": "Stelle deine Welt vor.",
@@ -714,7 +724,8 @@
       "tagsLabel": "Tags · wähle bis zu 4 ({count}/4)",
       "countryLabel": "Land",
       "countryHint": "wo der Server gehostet ist · wähle Global, wenn du alle bedienst",
-      "previewLabel": "Eintrag ansehen →"
+      "previewLabel": "Eintrag ansehen →",
+      "nameTakenLabel": "Dieser Name ist bereits vergeben. Versuche einen anderen."
     },
     "preview": {
       "draftTitle": "So werden Spieler dich sehen.",
@@ -724,12 +735,15 @@
       "fallbackName": "Dein Server",
       "fallbackBlurb": "Saisonales Survival mit gehosteten Events und einem von Spielern geführten Markt.",
       "justListedLabel": "gerade gelistet",
-      "onlineMeasuredLabel": "● 87 online · gemessen",
+      "onlineMeasuredLabel": "● {count} online · gemessen",
       "rankUnrankedLabel": "Rang — ungerankt · verdient, nicht gekauft",
       "standingLabel": "Ansehen — Aufbau",
       "publishLabel": "Eintrag veröffentlichen",
       "editProfileLabel": "← Profil bearbeiten",
-      "openConsoleLabel": "Inhaber-Konsole öffnen →"
+      "openConsoleLabel": "Inhaber-Konsole öffnen →",
+      "publishingLabel": "Wird veröffentlicht…",
+      "publishErrorLabel": "Wir konnten dein Listing nicht veröffentlichen. Bitte versuche es erneut.",
+      "reachableLabel": "● erreichbar · gemessen"
     }
   },
   "ownerConsole": {
@@ -765,7 +779,9 @@
       "signalsNote": "gleiche Mathematik wie alle · niemals verkauft",
       "viewProfileLabel": "Öffentliches Profil ansehen",
       "trailerCtaLabel": "Welt-Trailer →",
-      "healthCtaLabel": "Eintragsgesundheit →"
+      "healthCtaLabel": "Eintragsgesundheit →",
+      "deleteLabel": "Eintrag löschen",
+      "deletingLabel": "Wird gelöscht…"
     },
     "profile": {
       "nameLabel": "Servername",
@@ -858,6 +874,7 @@
           "noteUnrendered": "noch nicht gerendert — Trailer fördern Engagement"
         }
       }
-    }
+    },
+    "deleteConfirm": "„{name}“ löschen? Das entfernt den Eintrag und seine Daten endgültig."
   }
 }

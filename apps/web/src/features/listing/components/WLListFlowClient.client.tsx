@@ -1,10 +1,39 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WLButton } from "@firstspawn/ui";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import { getCountryOptions } from "@/lib/countries";
+import {
+  checkAvailabilityAction,
+  checkVerificationAction,
+  probeServerAction,
+  publishServerAction,
+  requestVerificationTokenAction,
+  type ListingGame,
+  type ProbeResult,
+  type VerificationMethod,
+} from "@/app/actions/listing";
+
+const WL_GAMES: ReadonlyArray<{ id: ListingGame; defaultPort: number }> = [
+  { id: "mc_java", defaultPort: 25565 },
+  { id: "mc_bedrock", defaultPort: 19132 },
+  { id: "hytale", defaultPort: 25565 },
+];
+
+const defaultPortFor = (game: ListingGame): number =>
+  WL_GAMES.find((g) => g.id === game)?.defaultPort ?? 25565;
+
+const gameSupportsMotd = (game: ListingGame): boolean => game !== "hytale";
+
+/** A bare IPv4/IPv6 literal has no domain to host a DNS TXT record. */
+function isIpLiteral(host: string): boolean {
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+    return true;
+  }
+  return host.includes(":");
+}
 
 const WL_TAG_FEATURES = [
   "Survival",
@@ -23,6 +52,19 @@ const WL_TAG_FEATURES = [
   "Dungeons",
   "Family-friendly",
 ];
+
+/** Splits a "host" or "host:port" string into its parts, defaulting the game's port. */
+function parseAddress(raw: string, defaultPort: number): { host: string; port: number } {
+  const trimmed = raw.trim();
+  const match = trimmed.match(/^(.+):(\d{1,5})$/);
+  if (match) {
+    const port = Number(match[2]);
+    if (port >= 1 && port <= 65535) {
+      return { host: match[1], port };
+    }
+  }
+  return { host: trimmed, port: defaultPort };
+}
 
 function WLStepDots({ idx, steps }: { idx: number; steps: string[] }) {
   return (
@@ -67,90 +109,200 @@ export default function WLListFlowClient({
   const countryOptions = useMemo(() => getCountryOptions(lang, countries), [lang, countries]);
   const steps = [copy.steps.address, copy.steps.ownership, copy.steps.profile, copy.steps.publish];
   const [idx, setIdx] = useState(0);
+
+  // Step 1 — address & probe
+  const [game, setGame] = useState<ListingGame>("mc_java");
+  const [geyser, setGeyser] = useState(false);
   const [addr, setAddr] = useState("");
-  const [pinged, setPinged] = useState(false);
-  const [pinging, setPinging] = useState(false);
+  const [probing, setProbing] = useState(false);
+  const [probe, setProbe] = useState<ProbeResult | null>(null);
+  const [probeError, setProbeError] = useState<string | null>(null);
+  const [addressTaken, setAddressTaken] = useState(false);
+
+  // Step 2 — ownership verification
+  const [token, setToken] = useState<string | null>(null);
+  const [dnsRecordName, setDnsRecordName] = useState<string | null>(null);
+  const [method, setMethod] = useState<VerificationMethod>("motd");
+  const [copied, setCopied] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [name, setName] = useState("Emberfall");
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [ownershipProof, setOwnershipProof] = useState<string | null>(null);
+
+  // Step 3 — profile
+  const [name, setName] = useState("");
   const [blurb, setBlurb] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [country, setCountry] = useState("WW");
+  const [nameAvailable, setNameAvailable] = useState<boolean | null>(null);
+
+  // Step 4 — publish
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const [published, setPublished] = useState(false);
+  const [createdSlug, setCreatedSlug] = useState<string | null>(null);
 
   const slug =
     (name || "your-server")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "") || "unnamed-server";
+  const profileSlug = createdSlug ?? slug;
 
-  const doPing = () => {
-    if (!addr.trim()) return;
-    setPinging(true);
-    setTimeout(() => {
-      setPinging(false);
-      setPinged(true);
-    }, 900);
+  const parsed = useMemo(() => parseAddress(addr, defaultPortFor(game)), [addr, game]);
+  const hostIsIp = useMemo(() => isIpLiteral(parsed.host), [parsed.host]);
+  // DNS needs a domain; MOTD needs a status protocol (Hytale has none).
+  const dnsAvailable = !hostIsIp;
+  const motdAvailable = gameSupportsMotd(game);
+  const noVerificationMethod = !dnsAvailable && !motdAvailable;
+  // The method actually used, constrained to what the game/address supports.
+  const effectiveMethod: VerificationMethod = !motdAvailable
+    ? "dns"
+    : !dnsAvailable
+      ? "motd"
+      : method;
+  const gameCopy = dictionary.serverCatalog.games;
+  const gameLabel = (g: ListingGame): string =>
+    g === "mc_bedrock" ? gameCopy.mcBedrock : g === "hytale" ? gameCopy.hytale : gameCopy.mcJava;
+
+  // Fetch a real verification token when the ownership step opens.
+  useEffect(() => {
+    if (idx !== 1 || token || !addr.trim()) {
+      return;
+    }
+    let active = true;
+    requestVerificationTokenAction(parsed.host, parsed.port).then((result) => {
+      if (!active) return;
+      if (result.ok) {
+        setToken(result.data.token);
+        setDnsRecordName(result.data.dns_record_name);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [idx, addr, token, parsed.host, parsed.port]);
+
+  // Debounced live check that the chosen name isn't already taken (Step 3).
+  // All state updates run inside the timeout (async), never synchronously in the effect.
+  useEffect(() => {
+    const trimmed = name.trim();
+    let active = true;
+    const tooShort = idx !== 2 || trimmed.length < 2;
+    const handle = setTimeout(
+      () => {
+        if (!active) return;
+        if (tooShort) {
+          setNameAvailable(null);
+          return;
+        }
+        checkAvailabilityAction({ name: trimmed }).then((result) => {
+          if (active && result.ok) {
+            setNameAvailable(result.data.name_available);
+          }
+        });
+      },
+      tooShort ? 0 : 400
+    );
+    return () => {
+      active = false;
+      clearTimeout(handle);
+    };
+  }, [name, idx]);
+
+  const resetVerification = () => {
+    setToken(null);
+    setDnsRecordName(null);
+    setVerified(false);
+    setOwnershipProof(null);
+    setVerifyError(null);
   };
 
-  const doVerify = () => {
+  const doPing = async () => {
+    if (!addr.trim() || probing) return;
+    setProbing(true);
+    setProbeError(null);
+    setProbe(null);
+    setAddressTaken(false);
+    const result = await probeServerAction(parsed.host, parsed.port, game);
+    if (result.ok && result.data.reachable) {
+      // Only block on a taken address once we know the server is real.
+      const availability = await checkAvailabilityAction({
+        host: parsed.host,
+        port: parsed.port,
+      });
+      setProbing(false);
+      if (availability.ok && availability.data.address_available === false) {
+        setAddressTaken(true);
+        return;
+      }
+      setProbe(result.data);
+    } else if (result.ok) {
+      setProbing(false);
+      setProbeError(copy.address.errorUnreachable);
+    } else {
+      setProbing(false);
+      setProbeError(result.message || copy.address.errorUnreachable);
+    }
+  };
+
+  const copyToken = async () => {
+    if (!token) return;
+    try {
+      await navigator.clipboard.writeText(token);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard unavailable — the token remains selectable on screen.
+    }
+  };
+
+  const doVerify = async () => {
+    if (verifying) return;
     setVerifying(true);
-    setTimeout(() => {
-      setVerifying(false);
+    setVerifyError(null);
+    const result = await checkVerificationAction(parsed.host, parsed.port, effectiveMethod, game);
+    setVerifying(false);
+    if (result.ok) {
+      setOwnershipProof(result.data.ownership_proof);
       setVerified(true);
-    }, 1100);
+    } else {
+      setVerifyError(
+        result.code === "VERIFICATION_FAILED" ? copy.ownership.failedLabel : result.message
+      );
+    }
   };
 
   const toggleTag = (t: string) => {
     setTags(tags.includes(t) ? tags.filter((x) => x !== t) : tags.length < 4 ? [...tags, t] : tags);
   };
 
-  const handlePublish = () => {
-    // Save to localStorage as a custom server for this user so it appears in owner console switcher
-    try {
-      const customServersStr = localStorage.getItem("fsproto.custom_servers");
-      const customServers = customServersStr ? JSON.parse(customServersStr) : [];
-
-      const newServer = {
-        id: slug,
-        slug: slug,
-        name: name,
-        description: blurb || copy.preview.fallbackBlurb,
-        game: "mc_java",
-        catalog_status: "active",
-        freshness_status: "online",
-        auth_mode: "official",
-        country_code: country,
-        logo_url: null,
-        banner_url: null,
-        last_ping_at: new Date().toISOString(),
-        latest_metrics: {
-          ping_ms: 41,
-          online_players: 87,
-          max_players: 150,
-          minecraft_version: "1.21.4 · Java",
-          occurred_at: new Date().toISOString(),
-        },
-        host: addr,
-        port: 25565,
-        socials: [
-          { platform: "website", url: `https://${slug}.net`, display_order: 0 },
-          { platform: "discord", url: `https://discord.gg/${slug}`, display_order: 1 },
-        ],
-        supported_clients: [{ client_name: "mc_java", client_version: "1.21.4" }],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        pending: true, // Marks it as pending crawl on the console dashboard
-      };
-
-      // Exclude previous duplicates of this server
-      const filtered = customServers.filter((s: { slug: string }) => s.slug !== slug);
-      localStorage.setItem("fsproto.custom_servers", JSON.stringify([...filtered, newServer]));
-    } catch (e) {
-      console.error(e);
+  const handlePublish = async () => {
+    if (publishing || !ownershipProof) return;
+    setPublishing(true);
+    setPublishError(null);
+    const result = await publishServerAction({
+      name: name.trim(),
+      description: (blurb.trim() || copy.preview.fallbackBlurb).slice(0, 4000),
+      host: parsed.host,
+      port: parsed.port,
+      game,
+      geyser_enabled: game === "mc_java" && geyser,
+      country_code: country,
+      method: effectiveMethod,
+      ownership_proof: ownershipProof,
+      tags,
+    });
+    setPublishing(false);
+    if (result.ok) {
+      setCreatedSlug(result.data.slug);
+      setPublished(true);
+    } else {
+      setPublishError(result.message || copy.preview.publishErrorLabel);
     }
-    setPublished(true);
   };
+
+  const canPublish = name.trim().length >= 2 && !!ownershipProof && nameAvailable !== false;
 
   const pingRow = (k: string, v: string, colorClass = "text-foreground") => (
     <div className="flex justify-between items-baseline gap-2">
@@ -179,31 +331,102 @@ export default function WLListFlowClient({
           <p className="font-body text-xs text-muted leading-relaxed mb-4">
             {copy.address.description}
           </p>
+
+          {/* Software / game selector — changes the probe protocol and default port. */}
+          <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-2">
+            {copy.address.softwareLabel}
+          </div>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {WL_GAMES.map(({ id }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  if (id === game) return;
+                  setGame(id);
+                  setProbe(null);
+                  setProbeError(null);
+                  setAddressTaken(false);
+                  resetVerification();
+                }}
+                className={`font-body text-xs font-bold rounded-lg px-3 py-2 border cursor-pointer transition ${
+                  game === id
+                    ? "border-primary bg-secondary/40 text-foreground"
+                    : "border-border text-muted hover:border-foreground"
+                }`}
+              >
+                {gameLabel(id)}
+              </button>
+            ))}
+          </div>
+          {game === "mc_java" && (
+            <label className="flex items-start gap-2 mb-4 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={geyser}
+                onChange={(e) => setGeyser(e.target.checked)}
+                className="mt-0.5 accent-[var(--primary)]"
+              />
+              <span className="font-body text-[11.5px] leading-relaxed text-muted">
+                {copy.address.geyserLabel}
+              </span>
+            </label>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               value={addr}
               onChange={(e) => {
                 setAddr(e.target.value);
-                setPinged(false);
+                setProbe(null);
+                setProbeError(null);
+                setAddressTaken(false);
+                // A changed address invalidates any verification tied to the old one.
+                resetVerification();
               }}
-              placeholder={copy.address.hostPlaceholder}
+              placeholder={copy.address.hostPlaceholder.replace(
+                "{port}",
+                String(defaultPortFor(game))
+              )}
               className="font-mono text-xs leading-relaxed p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground focus:border-primary flex-1"
             />
-            <WLButton variant="primary" onClick={doPing} disabled={!addr.trim() || pinging}>
-              {pinging ? copy.address.pingingLabel : copy.address.checkServerLabel}
+            <WLButton variant="primary" onClick={doPing} disabled={!addr.trim() || probing}>
+              {probing ? copy.address.pingingLabel : copy.address.checkServerLabel}
             </WLButton>
           </div>
-          {pinged ? (
+          {probe ? (
             <div className="mt-4 bg-secondary border border-border rounded-xl p-4 flex flex-col gap-2.5">
               {pingRow(copy.address.stats.status, copy.address.stats.reachable, "text-success")}
-              {pingRow(copy.address.stats.version, "1.21.4 · Java")}
-              {pingRow(copy.address.stats.onlineNow, "87 players", "text-success")}
-              {pingRow(copy.address.stats.motd, "“Emberfall — seasonal survival”")}
+              {pingRow(copy.address.stats.software, gameLabel(game))}
+              {/* Hytale has no status protocol, so version/players/MOTD aren't available. */}
+              {game !== "hytale" && (
+                <>
+                  {pingRow(copy.address.stats.version, probe.minecraft_version ?? "—")}
+                  {pingRow(
+                    copy.address.stats.onlineNow,
+                    probe.online_players != null
+                      ? `${probe.online_players}${probe.max_players != null ? ` / ${probe.max_players}` : ""}`
+                      : "—",
+                    "text-success"
+                  )}
+                  {pingRow(copy.address.stats.motd, probe.motd ? `“${probe.motd}”` : "—")}
+                </>
+              )}
               <div className="flex justify-end mt-2">
                 <WLButton variant="primary" size="sm" onClick={() => setIdx(1)}>
                   {copy.address.continueLabel}
                 </WLButton>
               </div>
+            </div>
+          ) : addressTaken ? (
+            <div className="mt-4 bg-secondary border border-danger/40 rounded-xl p-4">
+              <span className="font-body text-xs text-danger leading-relaxed">
+                {copy.address.errorAddressTaken}
+              </span>
+            </div>
+          ) : probeError ? (
+            <div className="mt-4 bg-secondary border border-danger/40 rounded-xl p-4">
+              <span className="font-body text-xs text-danger leading-relaxed">{probeError}</span>
             </div>
           ) : (
             <div className="font-mono text-[10px] text-muted mt-3">{copy.address.supportNote}</div>
@@ -223,34 +446,79 @@ export default function WLListFlowClient({
           <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-2">
             {copy.ownership.tokenLabel}
           </div>
-          <div className="flex items-center justify-between bg-secondary border border-border rounded-lg p-2.5 mb-4 select-all">
-            <span className="font-mono text-xs text-foreground font-bold tracking-wider">
-              fs-verify-7K2M9X
+          <button
+            type="button"
+            onClick={copyToken}
+            className="flex items-center justify-between bg-secondary border border-border rounded-lg p-2.5 mb-4 text-left cursor-pointer hover:border-foreground transition"
+          >
+            <span className="font-mono text-xs text-foreground font-bold tracking-wider select-all">
+              {token ?? "…"}
             </span>
             <span className="font-body text-[10px] font-bold text-muted uppercase">
-              {copy.ownership.copyLabel}
+              {copied ? "✓" : copy.ownership.copyLabel}
             </span>
+          </button>
+          <div className="font-body text-[11px] text-muted leading-relaxed mb-2">
+            {copy.ownership.selectHint}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-            <div className="border border-border rounded-xl p-3 flex flex-col">
+            <button
+              type="button"
+              disabled={!motdAvailable}
+              onClick={() => motdAvailable && setMethod("motd")}
+              className={`border rounded-xl p-3 flex flex-col text-left transition ${
+                !motdAvailable
+                  ? "border-border opacity-50 cursor-not-allowed"
+                  : effectiveMethod === "motd"
+                    ? "border-primary bg-secondary/40 cursor-pointer"
+                    : "border-border hover:border-foreground cursor-pointer"
+              }`}
+            >
               <div className="font-body font-bold text-xs text-foreground mb-1">
                 {copy.ownership.motdTitle}
               </div>
               <div className="font-body text-[11.5px] leading-relaxed text-muted">
-                {copy.ownership.motdBody}
+                {motdAvailable ? copy.ownership.motdBody : copy.ownership.motdUnavailable}
               </div>
-            </div>
-            <div className="border border-border rounded-xl p-3 flex flex-col">
+            </button>
+            <button
+              type="button"
+              disabled={!dnsAvailable}
+              onClick={() => dnsAvailable && setMethod("dns")}
+              className={`border rounded-xl p-3 flex flex-col text-left transition ${
+                !dnsAvailable
+                  ? "border-border opacity-50 cursor-not-allowed"
+                  : effectiveMethod === "dns"
+                    ? "border-primary bg-secondary/40 cursor-pointer"
+                    : "border-border hover:border-foreground cursor-pointer"
+              }`}
+            >
               <div className="font-body font-bold text-xs text-foreground mb-1">
                 {copy.ownership.dnsTitle}
               </div>
               <div className="font-body text-[11.5px] leading-relaxed text-muted">
-                {copy.ownership.dnsBodyPrefix}{" "}
-                <span className="font-mono text-[10.5px] bg-secondary px-1 py-0.5 rounded">{`_firstspawn.${addr.replace(/^play\./, "") || copy.ownership.dnsFallbackDomain}`}</span>
-                {copy.ownership.dnsBodySuffix}
+                {dnsAvailable ? (
+                  <>
+                    {copy.ownership.dnsBodyPrefix}{" "}
+                    <span className="font-mono text-[10.5px] bg-secondary px-1 py-0.5 rounded">
+                      {dnsRecordName ?? `_firstspawn.${copy.ownership.dnsFallbackDomain}`}
+                    </span>
+                    {copy.ownership.dnsBodySuffix}
+                  </>
+                ) : (
+                  copy.ownership.dnsUnavailable
+                )}
               </div>
-            </div>
+            </button>
           </div>
+          {noVerificationMethod && (
+            <div className="font-body text-xs text-danger leading-relaxed mb-3">
+              {copy.ownership.noMethodHint}
+            </div>
+          )}
+          {verifyError && (
+            <div className="font-body text-xs text-danger leading-relaxed mb-3">{verifyError}</div>
+          )}
           {verified ? (
             <div className="flex items-center gap-3 flex-wrap">
               <span className="font-body text-xs font-bold text-success">
@@ -261,7 +529,11 @@ export default function WLListFlowClient({
               </WLButton>
             </div>
           ) : (
-            <WLButton variant="primary" onClick={doVerify} disabled={verifying}>
+            <WLButton
+              variant="primary"
+              onClick={doVerify}
+              disabled={verifying || !token || noVerificationMethod}
+            >
               {verifying ? copy.ownership.checkingLabel : copy.ownership.verifyLabel}
             </WLButton>
           )}
@@ -287,9 +559,20 @@ export default function WLListFlowClient({
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="font-body text-xs leading-relaxed p-2.5 bg-secondary border border-border rounded-lg outline-none text-foreground focus:border-primary w-full"
+                placeholder={copy.preview.fallbackName}
+                className={`font-body text-xs leading-relaxed p-2.5 bg-secondary border rounded-lg outline-none text-foreground w-full ${
+                  nameAvailable === false
+                    ? "border-danger focus:border-danger"
+                    : "border-border focus:border-primary"
+                }`}
               />
-              <div className="font-mono text-[10px] text-muted mt-1.5">{`firstspawn.com/${lang}/server/${slug}`}</div>
+              {nameAvailable === false ? (
+                <div className="font-body text-[10.5px] text-danger mt-1.5">
+                  {copy.profile.nameTakenLabel}
+                </div>
+              ) : (
+                <div className="font-mono text-[10px] text-muted mt-1.5">{`firstspawn.com/${lang}/server/${slug}`}</div>
+              )}
             </div>
             <div>
               <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
@@ -348,7 +631,11 @@ export default function WLListFlowClient({
               </div>
             </div>
             <div className="flex justify-end mt-2">
-              <WLButton variant="primary" onClick={() => setIdx(3)}>
+              <WLButton
+                variant="primary"
+                onClick={() => setIdx(3)}
+                disabled={name.trim().length < 2 || nameAvailable === false}
+              >
                 {copy.profile.previewLabel}
               </WLButton>
             </div>
@@ -386,8 +673,9 @@ export default function WLListFlowClient({
                 {name || copy.preview.fallbackName}
               </span>
               <span className="font-body text-[11px] font-semibold text-muted">
-                {dictionary.serverCatalog.games.mcJava} · {countries[country]} ·{" "}
-                {copy.preview.justListedLabel}
+                {gameLabel(game)}
+                {game === "mc_java" && geyser ? ` (+${gameCopy.mcBedrock})` : ""} ·{" "}
+                {countries[country]} · {copy.preview.justListedLabel}
               </span>
             </div>
             <p className="font-body text-xs leading-relaxed text-muted">
@@ -404,26 +692,44 @@ export default function WLListFlowClient({
               ))}
             </div>
             <div className="flex flex-wrap gap-4 font-mono text-[10.5px] text-muted">
-              <span className="text-success font-bold">{copy.preview.onlineMeasuredLabel}</span>
+              <span className="text-success font-bold">
+                {probe?.online_players != null
+                  ? copy.preview.onlineMeasuredLabel.replace(
+                      "{count}",
+                      String(probe.online_players)
+                    )
+                  : copy.preview.reachableLabel}
+              </span>
               <span>{copy.preview.rankUnrankedLabel}</span>
               <span>{copy.preview.standingLabel}</span>
             </div>
           </div>
 
+          {publishError && (
+            <div className="font-body text-xs text-danger leading-relaxed mb-3">{publishError}</div>
+          )}
+
           {!published ? (
             <div className="flex gap-3 flex-wrap">
-              <WLButton variant="primary" onClick={handlePublish}>
-                {copy.preview.publishLabel}
+              <WLButton
+                variant="primary"
+                onClick={handlePublish}
+                disabled={!canPublish || publishing}
+              >
+                {publishing ? copy.preview.publishingLabel : copy.preview.publishLabel}
               </WLButton>
-              <WLButton variant="outline" onClick={() => setIdx(2)}>
+              <WLButton variant="outline" onClick={() => setIdx(2)} disabled={publishing}>
                 {copy.preview.editProfileLabel}
               </WLButton>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-              <span className="font-mono text-xs text-muted border border-border rounded-lg p-2 bg-secondary select-all text-center flex-1">
-                {`firstspawn.com/${lang}/server/${slug}`}
-              </span>
+              <a
+                href={`/${lang}/server/${profileSlug}`}
+                className="font-mono text-xs text-muted border border-border rounded-lg p-2 bg-secondary select-all text-center flex-1 hover:border-foreground transition"
+              >
+                {`firstspawn.com/${lang}/server/${profileSlug}`}
+              </a>
               <WLButton variant="primary" onClick={() => router.push(`/${lang}/console`)}>
                 {copy.preview.openConsoleLabel}
               </WLButton>

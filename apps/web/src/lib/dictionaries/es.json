@@ -676,7 +676,7 @@
     "address": {
       "title": "¿Dónde vive tu mundo?",
       "description": "Primero le hacemos ping. Tu listado se construye sobre lo que podemos medir — el formulario viene después.",
-      "hostPlaceholder": "play.tuservidor.net",
+      "hostPlaceholder": "play.tuservidor.net:{port}",
       "pingingLabel": "Haciendo ping…",
       "checkServerLabel": "Comprobar servidor",
       "stats": {
@@ -684,10 +684,15 @@
         "reachable": "● accesible",
         "version": "Versión",
         "onlineNow": "En línea ahora",
-        "motd": "MOTD"
+        "motd": "MOTD",
+        "software": "Software"
       },
       "continueLabel": "Se ve bien →",
-      "supportNote": "java + bedrock compatibles · hytale en el lanzamiento"
+      "supportNote": "java · bedrock · hytale — todos compatibles",
+      "errorUnreachable": "No pudimos conectar con ese servidor. Revisa el host y el puerto e inténtalo de nuevo.",
+      "softwareLabel": "Software del servidor",
+      "geyserLabel": "Este servidor de Java también acepta jugadores de Bedrock (GeyserMC / Floodgate).",
+      "errorAddressTaken": "Esta dirección ya está publicada en FirstSpawn. Si es tuya, envía un reporte para reclamarla (próximamente)."
     },
     "ownership": {
       "title": "Demuestra que es tuyo.",
@@ -703,7 +708,12 @@
       "verifiedLabel": "✓ Propiedad verificada",
       "continueLabel": "Continuar →",
       "checkingLabel": "Comprobando…",
-      "verifyLabel": "Ya lo añadí — verificar"
+      "verifyLabel": "Ya lo añadí — verificar",
+      "selectHint": "Elige un método, añade el token y luego verifica.",
+      "failedLabel": "Todavía no encontramos tu token. Añádelo, espera un momento e inténtalo de nuevo.",
+      "motdUnavailable": "No disponible para Hytale: no hay MOTD en vivo. Usa DNS en su lugar.",
+      "dnsUnavailable": "No disponible para una IP pura: apunta un dominio a tu servidor para usar DNS, o verifica por MOTD.",
+      "noMethodHint": "Hytale con una IP pura aún no se puede verificar. Apunta un dominio a tu servidor y verifica por DNS."
     },
     "profile": {
       "title": "Presenta tu mundo.",
@@ -714,7 +724,8 @@
       "tagsLabel": "Etiquetas · elige hasta 4 ({count}/4)",
       "countryLabel": "País",
       "countryHint": "donde se aloja el servidor · elige Global si sirves a todos",
-      "previewLabel": "Vista previa del listado →"
+      "previewLabel": "Vista previa del listado →",
+      "nameTakenLabel": "Ese nombre ya está en uso. Prueba con otro."
     },
     "preview": {
       "draftTitle": "Así te verán los jugadores.",
@@ -724,12 +735,15 @@
       "fallbackName": "Tu servidor",
       "fallbackBlurb": "Supervivencia por temporadas con eventos organizados y un mercado gestionado por jugadores.",
       "justListedLabel": "recién listado",
-      "onlineMeasuredLabel": "● 87 en línea · medido",
+      "onlineMeasuredLabel": "● {count} en línea · medido",
       "rankUnrankedLabel": "rango — sin rango · ganado, no comprado",
       "standingLabel": "reputación — En construcción",
       "publishLabel": "Publicar listado",
       "editProfileLabel": "← Editar perfil",
-      "openConsoleLabel": "Abrir consola del propietario →"
+      "openConsoleLabel": "Abrir consola del propietario →",
+      "publishingLabel": "Publicando…",
+      "publishErrorLabel": "No pudimos publicar tu listado. Inténtalo de nuevo.",
+      "reachableLabel": "● accesible · medido"
     }
   },
   "ownerConsole": {
@@ -765,7 +779,9 @@
       "signalsNote": "la misma matemática que todos · nunca se vende",
       "viewProfileLabel": "Ver perfil público",
       "trailerCtaLabel": "Tráiler del mundo →",
-      "healthCtaLabel": "Salud del listado →"
+      "healthCtaLabel": "Salud del listado →",
+      "deleteLabel": "Eliminar listado",
+      "deletingLabel": "Eliminando…"
     },
     "profile": {
       "nameLabel": "Nombre del servidor",
@@ -858,6 +874,7 @@
           "noteUnrendered": "aún sin generar — los tráileres impulsan la participación"
         }
       }
-    }
+    },
+    "deleteConfirm": "¿Eliminar «{name}»? Esto borra el listado y sus datos de forma permanente."
   }
 }

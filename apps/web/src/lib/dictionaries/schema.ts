@@ -349,18 +349,24 @@ export interface ListFlowDictionary {
   address: {
     title: string;
     description: string;
+    softwareLabel: string;
+    geyserLabel: string;
+    /** Supports a {port} placeholder (the game's default port). */
     hostPlaceholder: string;
     pingingLabel: string;
     checkServerLabel: string;
     stats: {
       status: string;
       reachable: string;
+      software: string;
       version: string;
       onlineNow: string;
       motd: string;
     };
     continueLabel: string;
     supportNote: string;
+    errorUnreachable: string;
+    errorAddressTaken: string;
   };
   ownership: {
     title: string;
@@ -369,19 +375,25 @@ export interface ListFlowDictionary {
     copyLabel: string;
     motdTitle: string;
     motdBody: string;
+    motdUnavailable: string;
     dnsTitle: string;
     dnsBodyPrefix: string;
     dnsFallbackDomain: string;
     dnsBodySuffix: string;
+    dnsUnavailable: string;
+    noMethodHint: string;
     verifiedLabel: string;
     continueLabel: string;
     checkingLabel: string;
     verifyLabel: string;
+    selectHint: string;
+    failedLabel: string;
   };
   profile: {
     title: string;
     description: string;
     nameLabel: string;
+    nameTakenLabel: string;
     /** Supports a {count} placeholder (characters left). */
     blurbLabel: string;
     blurbPlaceholder: string;
@@ -399,12 +411,16 @@ export interface ListFlowDictionary {
     fallbackName: string;
     fallbackBlurb: string;
     justListedLabel: string;
+    /** Supports a {count} placeholder (measured online players). */
     onlineMeasuredLabel: string;
+    reachableLabel: string;
     rankUnrankedLabel: string;
     standingLabel: string;
     publishLabel: string;
     editProfileLabel: string;
     openConsoleLabel: string;
+    publishingLabel: string;
+    publishErrorLabel: string;
   };
 }
 
@@ -648,6 +664,8 @@ export interface OwnerConsoleDictionary {
     title: string;
     ctaLabel: string;
   };
+  /** Supports a {name} placeholder (server being deleted). */
+  deleteConfirm: string;
   switcher: {
     pendingBadge: string;
   };
@@ -666,6 +684,8 @@ export interface OwnerConsoleDictionary {
     viewProfileLabel: string;
     trailerCtaLabel: string;
     healthCtaLabel: string;
+    deleteLabel: string;
+    deletingLabel: string;
   };
   profile: {
     nameLabel: string;

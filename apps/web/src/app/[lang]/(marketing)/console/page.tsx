@@ -3,7 +3,7 @@ import { getAuthState } from "@/lib/auth";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 import { getDictionary } from "@/lib/get-dictionary";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
-import { fetchServers } from "@/lib/servers-api";
+import { fetchMyListingsAction, type MyListing } from "@/app/actions/listing";
 import WLOwnerConsoleClient from "@/features/console/components/WLOwnerConsoleClient.client";
 
 export default async function ConsolePage({ params }: { params: Promise<{ lang: string }> }) {
@@ -17,13 +17,13 @@ export default async function ConsolePage({ params }: { params: Promise<{ lang: 
     redirect(`/${lang}/login?next=/${lang}/console`);
   }
 
-  // Load catalog servers as candidate choices in console switcher
-  let initialServers: Awaited<ReturnType<typeof fetchServers>>["servers"] = [];
-  try {
-    const serversRes = await fetchServers({ limit: 12, sort: "players" });
-    initialServers = serversRes.servers;
-  } catch (err) {
-    console.error("Failed to load catalog servers for console:", err);
+  // The console shows the servers this user actually owns.
+  let initialServers: MyListing[] = [];
+  const result = await fetchMyListingsAction();
+  if (result.ok) {
+    initialServers = result.data;
+  } else {
+    console.error("Failed to load owned servers for console:", result.code, result.message);
   }
 
   return (
