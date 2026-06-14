@@ -10,6 +10,8 @@ import type {
   RankSignalsDictionary,
   ServerCatalogDictionary,
 } from "@/lib/dictionaries/schema";
+import { getCountryName as getLocalizedCountryName } from "@/lib/countries";
+import ServerQuickPeekModal from "@/features/server/components/ServerQuickPeekModal.client";
 
 type ServerRowCopy = ServerCatalogDictionary["row"];
 
@@ -280,10 +282,15 @@ export default function WLLandingClient({
   const [q, setQ] = useState("");
   const [votes, setVotes] = useState<Record<string, boolean>>({});
   const [rankPop, setRankPop] = useState<string | null>(null);
+  const [peekServer, setPeekServer] = useState<PublicServerListItem | null>(null);
 
   const copy = dictionary.landing;
   const rowCopy = dictionary.serverCatalog.row;
   const rankCopy = dictionary.rankSignals;
+  const modalCopy = dictionary.serverCatalog.modal;
+
+  const getCountryName = (code: string | null) =>
+    getLocalizedCountryName((code || "WW").toUpperCase(), lang, dictionary.common.countries);
 
   // Load votes from localStorage
   useEffect(() => {
@@ -333,6 +340,10 @@ export default function WLLandingClient({
   }, [initialServers]);
 
   const handleOpenServer = (s: PublicServerListItem) => {
+    setPeekServer(s);
+  };
+
+  const handleOpenFull = (s: PublicServerListItem) => {
     router.push(`/${lang}/server/${s.slug}`);
   };
 
@@ -491,6 +502,25 @@ export default function WLLandingClient({
           </div>
         </div>
       </div>
+
+      {peekServer && (
+        <ServerQuickPeekModal
+          server={peekServer}
+          lang={lang}
+          voted={!!votes[peekServer.slug]}
+          onVote={() => handleVote(peekServer.slug)}
+          onClose={() => setPeekServer(null)}
+          onOpenFull={() => {
+            const target = peekServer;
+            setPeekServer(null);
+            handleOpenFull(target);
+          }}
+          rowCopy={rowCopy}
+          rankCopy={rankCopy}
+          modalCopy={modalCopy}
+          getCountryName={getCountryName}
+        />
+      )}
     </div>
   );
 }

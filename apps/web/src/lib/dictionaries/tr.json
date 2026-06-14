@@ -365,6 +365,20 @@
         "unknown": "bilinmiyor"
       }
     },
+    "modal": {
+      "bannerLabel": "{name} · afiş / dünya görüntüsü",
+      "closeLabel": "Kapat",
+      "onlineNowLabel": "şu an çevrimiçi",
+      "uptimeLabel": "çalışma süresi",
+      "votesLabel": "oylar",
+      "standingLabel": "itibar",
+      "verifiedStanding": "Doğrulanmış",
+      "copyAddressLabel": "Sunucu adresini kopyala",
+      "copiedLabel": "kopyalandı ✓",
+      "voteLabel": "▲ Oy ver",
+      "votedLabel": "✓ Bugün oy verildi",
+      "viewFullProfileLabel": "Tam profili görüntüle →"
+    },
     "tagFeatures": {
       "Survival": {
         "title": "Hayatta kalma oynanışı",

@@ -335,6 +335,20 @@
         "unknown": "unbekannt"
       }
     },
+    "modal": {
+      "bannerLabel": "{name} · Banner / Welt-Render",
+      "closeLabel": "Schließen",
+      "onlineNowLabel": "jetzt online",
+      "uptimeLabel": "Uptime",
+      "votesLabel": "Stimmen",
+      "standingLabel": "Ansehen",
+      "verifiedStanding": "Verifiziert",
+      "copyAddressLabel": "Serveradresse kopieren",
+      "copiedLabel": "kopiert ✓",
+      "voteLabel": "▲ Abstimmen",
+      "votedLabel": "✓ Heute abgestimmt",
+      "viewFullProfileLabel": "Vollständiges Profil ansehen →"
+    },
     "tagFeatures": {
       "Survival": {
         "title": "Survival-Gameplay",

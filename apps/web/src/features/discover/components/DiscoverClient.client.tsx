@@ -15,6 +15,7 @@ import type {
 } from "@/lib/servers-api";
 import { loadMoreServers, getServerStats } from "@/app/actions/servers";
 import { getCountryName as getLocalizedCountryName, getCountryOptions } from "@/lib/countries";
+import ServerQuickPeekModal from "@/features/server/components/ServerQuickPeekModal.client";
 
 type ServerRowCopy = ServerCatalogDictionary["row"];
 
@@ -319,6 +320,7 @@ interface DiscoverClientProps {
   copy: DiscoverDictionary["page"];
   rowCopy: ServerRowCopy;
   rankCopy: RankSignalsDictionary;
+  modalCopy: ServerCatalogDictionary["modal"];
   countries: Record<string, string>;
   lang: string;
   initialServers: PublicServerListItem[];
@@ -331,6 +333,7 @@ export default function DiscoverClient({
   copy,
   rowCopy,
   rankCopy,
+  modalCopy,
   countries,
   lang,
   initialServers,
@@ -350,6 +353,7 @@ export default function DiscoverClient({
 
   const [votes, setVotes] = useState<Record<string, boolean>>({});
   const [rankPop, setRankPop] = useState<string | null>(null);
+  const [peekServer, setPeekServer] = useState<PublicServerListItem | null>(null);
 
   // Filters State
   const [selectedGame, setSelectedGame] = useState<"All" | "Minecraft" | "Hytale">("All");
@@ -584,6 +588,10 @@ export default function DiscoverClient({
   }, [nextCursor, isLoadingMore, isRefreshing, loadMore]);
 
   const handleOpenServer = (s: PublicServerListItem) => {
+    setPeekServer(s);
+  };
+
+  const handleOpenFull = (s: PublicServerListItem) => {
     router.push(`/${lang}/server/${s.slug}`);
   };
 
@@ -797,6 +805,25 @@ export default function DiscoverClient({
           </div>
         </div>
       </div>
+
+      {peekServer && (
+        <ServerQuickPeekModal
+          server={peekServer}
+          lang={lang}
+          voted={!!votes[peekServer.slug]}
+          onVote={() => handleVote(peekServer.slug)}
+          onClose={() => setPeekServer(null)}
+          onOpenFull={() => {
+            const target = peekServer;
+            setPeekServer(null);
+            handleOpenFull(target);
+          }}
+          rowCopy={rowCopy}
+          rankCopy={rankCopy}
+          modalCopy={modalCopy}
+          getCountryName={getCountryName}
+        />
+      )}
     </div>
   );
 }

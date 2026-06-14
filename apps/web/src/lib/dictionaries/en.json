@@ -365,6 +365,20 @@
         "unknown": "unknown"
       }
     },
+    "modal": {
+      "bannerLabel": "{name} · banner / world render",
+      "closeLabel": "Close",
+      "onlineNowLabel": "online now",
+      "uptimeLabel": "uptime",
+      "votesLabel": "votes",
+      "standingLabel": "standing",
+      "verifiedStanding": "Verified",
+      "copyAddressLabel": "Copy server address",
+      "copiedLabel": "copied ✓",
+      "voteLabel": "▲ Vote",
+      "votedLabel": "✓ Voted today",
+      "viewFullProfileLabel": "View full profile →"
+    },
     "tagFeatures": {
       "Survival": {
         "title": "Survival gameplay",

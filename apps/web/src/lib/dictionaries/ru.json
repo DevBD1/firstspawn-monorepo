@@ -335,6 +335,20 @@
         "unknown": "неизвестно"
       }
     },
+    "modal": {
+      "bannerLabel": "{name} · баннер / рендер мира",
+      "closeLabel": "Закрыть",
+      "onlineNowLabel": "сейчас онлайн",
+      "uptimeLabel": "аптайм",
+      "votesLabel": "голоса",
+      "standingLabel": "статус",
+      "verifiedStanding": "Проверен",
+      "copyAddressLabel": "Скопировать адрес сервера",
+      "copiedLabel": "скопировано ✓",
+      "voteLabel": "▲ Голосовать",
+      "votedLabel": "✓ Голос за сегодня",
+      "viewFullProfileLabel": "Открыть профиль полностью →"
+    },
     "tagFeatures": {
       "Survival": {
         "title": "Режим выживания",

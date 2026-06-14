@@ -335,6 +335,20 @@
         "unknown": "inconnu"
       }
     },
+    "modal": {
+      "bannerLabel": "{name} · bannière / rendu du monde",
+      "closeLabel": "Fermer",
+      "onlineNowLabel": "en ligne",
+      "uptimeLabel": "disponibilité",
+      "votesLabel": "votes",
+      "standingLabel": "réputation",
+      "verifiedStanding": "Vérifié",
+      "copyAddressLabel": "Copier l'adresse du serveur",
+      "copiedLabel": "copié ✓",
+      "voteLabel": "▲ Voter",
+      "votedLabel": "✓ Voté aujourd'hui",
+      "viewFullProfileLabel": "Voir le profil complet →"
+    },
     "tagFeatures": {
       "Survival": {
         "title": "Gameplay survie",

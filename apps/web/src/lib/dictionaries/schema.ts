@@ -466,6 +466,22 @@ export interface ServerCatalogDictionary {
       unknown: string;
     };
   };
+  /** Copy for the quick-peek server modal opened from list rows and cards. */
+  modal: {
+    /** Supports a {name} placeholder. */
+    bannerLabel: string;
+    closeLabel: string;
+    onlineNowLabel: string;
+    uptimeLabel: string;
+    votesLabel: string;
+    standingLabel: string;
+    verifiedStanding: string;
+    copyAddressLabel: string;
+    copiedLabel: string;
+    voteLabel: string;
+    votedLabel: string;
+    viewFullProfileLabel: string;
+  };
   sortHighlights: {
     lowerIsBetter: string;
     rankedBy: string;
