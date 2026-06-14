@@ -512,7 +512,8 @@
       },
       "tabs": {
         "overview": "Genel bakış",
-        "discussion": "Tartışma · {count}"
+        "discussion": "Tartışma",
+        "discussionBadge": "v2"
       },
       "about": {
         "title": "Bu dünya hakkında"
@@ -533,29 +534,31 @@
       "similar": {
         "title": "Benzer dünyalar"
       },
-      "discussion": {
-        "updatesTitle": "Ekipten güncellemeler",
-        "updatesSubtitle": "doğrulanmış sahipten imzalı gönderiler — konunun üstüne sabitlenir",
-        "staffBadge": "✓ {name} ekibi",
-        "threadTitle": "Oyuncu konusu",
-        "threadSubtitle": "bu listelemeyle otomatik açıldı · oyunculara ait, FirstSpawn moderasyonunda",
-        "composerPlaceholder": "{name} hakkında soru sor veya oyunculara nasıl olduğunu anlat…",
-        "postingAsNote": "{username} olarak gönderiliyor · tek hesap, tek itibar",
-        "postLabel": "Gönder",
-        "youSuffix": "(sen)",
-        "repliesLabel": "{count} yanıt",
-        "ownerRepliedLabel": "sahip yanıtladı",
-        "deleteLabel": "sil",
-        "reportLabel": "bildir",
-        "underReviewLabel": "⚑ inceleniyor · {reason}",
-        "reportPromptTitle": "FirstSpawn moderatörlerine bildir — sunucu sahibine değil:",
-        "reportReasons": {
-          "spam": "Spam veya reklam",
-          "harassment": "Taciz",
-          "misleading": "Sunucu hakkında yanıltıcı",
-          "offTopic": "Konu dışı"
-        },
-        "cancelLabel": "iptal"
+      "discussionTeaser": {
+        "badge": "v2'de geliyor",
+        "lockLabel": "Kilitli",
+        "headline": "İtibarın kazanıldığı yer.",
+        "tagline": "Doğrulanmış, oyun süresine bağlı tartışma — tek hesap, tek itibar. Bot yok, linç yok, satın alınmış hype yok.",
+        "features": [
+          {
+            "title": "Oyun saati olan sesler",
+            "body": "Yalnızca gerçekten saat biriktiren oyuncular gönderi atabilir — farm edilemeyen bir itibar."
+          },
+          {
+            "title": "Sahip imzalı güncellemeler",
+            "body": "Doğrulanmış sahibin yama notları ve etkinlikleri, gürültünün üstüne sabitlenir."
+          },
+          {
+            "title": "FirstSpawn moderasyonu",
+            "body": "Bildirimler sahibe değil ekibimize ulaşır — böylece geri bildirim dürüst kalır."
+          }
+        ],
+        "waitlistNote": "{count} oyuncu şimdiden bekleme listesinde",
+        "notifyCta": "Lansmanda bana haber ver",
+        "notifiedLabel": "Listedesin",
+        "countdownDaysLabel": "{count} gün",
+        "countdownUntilLabel": "v2'ye kalan",
+        "previewAria": "Yaklaşan tartışma deneyiminin önizlemesi"
       },
       "sidebar": {
         "joinTitle": "Katıl",
@@ -607,9 +610,30 @@
     }
   },
   "communityPage": {
-    "badge": "Çok yakında",
-    "title": "TOPLULUK",
-    "description": "Oyuncu pasaportları, sunucu kayıtları ve topluluk katkıları yolda. Bu alan bir sonraki sürüm aşamasında açılacak."
+    "badge": "v2'de geliyor",
+    "eyebrow": "Topluluk",
+    "title": "Dünyaların ardındaki insanlara bir yuva.",
+    "tagline": "Oyuncu pasaportları, sunucu kayıtları ve içerik üreticisi vitrinleri — tüm yolculuğun tek bir yerde.",
+    "description": "İtibarın, katkıların ve sevdiğin dünyaların birbirine bağlandığı bir topluluk katmanı kuruyoruz. v2 ile açılıyor.",
+    "features": [
+      {
+        "title": "Oyuncu pasaportları",
+        "body": "Seninle gezen tek bir profil — oyun süresi, rozetler ve kefil olduğun sunucular."
+      },
+      {
+        "title": "Canlı sunucu kayıtları",
+        "body": "Önemsediğin dünyaları takip et; hiçbir sezonu, etkinliği ya da sıfırlamayı kaçırma."
+      },
+      {
+        "title": "İçerik üreticisi vitrinleri",
+        "body": "Yapımcılar, mod yazarları ve etkinlik sahipleri gerçekten hak ettikleri takdiri alır."
+      }
+    ],
+    "waitlistNote": "{count} oyuncu şimdiden bekleme listesinde",
+    "notifyCta": "Lansmanda bana haber ver",
+    "notifiedLabel": "Listedesin",
+    "countdownDaysLabel": "{count} gün",
+    "countdownUntilLabel": "v2'ye kalan"
   },
   "consolePage": {
     "badge": "KOMUT TERMİNALİ AKTİF",
@@ -618,9 +642,30 @@
     "fallbackUsername": "Operatör"
   },
   "lootPage": {
-    "badge": "OYUNCU ENVANTERİ BAĞLANDI",
-    "title": "GANİMETİM",
-    "description": "{username}, ilerleme envanteri merkezinin kilidi açıldı. Ödül düşüşleri, bulmaca anahtarları ve rozet talepleri burada görünecek.",
+    "badge": "v2'de geliyor",
+    "eyebrow": "Ganimetim",
+    "title": "Ganimet kasan açılmak üzere.",
+    "tagline": "Ödül düşüşleri, bulmaca anahtarları ve rozet talepleri — kazandığın her şey tek bir envanterde.",
+    "description": "{username}, ilerleme merkezin dövülüyor. Ödül düşüşleri, etkinlik anahtarları ve doğrulanmış rozetler v2 çıktığında burada toplanacak.",
+    "features": [
+      {
+        "title": "Ödül düşüşleri",
+        "body": "Gerçekten oynadığın sunuculardan sezonluk ganimet ve etkinlik ödüllerini topla."
+      },
+      {
+        "title": "Bulmaca anahtarları",
+        "body": "Ağ genelinde gizli görevlerin ve süreli avların kilidini aç."
+      },
+      {
+        "title": "Kazanılmış rozetler",
+        "body": "Satın aldığını değil, başardığını kanıtlayan doğrulanmış başarımları sergile."
+      }
+    ],
+    "waitlistNote": "{count} oyuncu şimdiden bekleme listesinde",
+    "notifyCta": "Lansmanda bana haber ver",
+    "notifiedLabel": "Listedesin",
+    "countdownDaysLabel": "{count} gün",
+    "countdownUntilLabel": "v2'ye kalan",
     "fallbackUsername": "Operatör"
   },
   "debugPages": {

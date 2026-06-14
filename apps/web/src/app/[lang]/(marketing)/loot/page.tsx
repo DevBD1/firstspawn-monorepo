@@ -3,7 +3,7 @@ import { getAuthState } from "@/lib/auth";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import { getDictionary } from "@/lib/get-dictionary";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
-import { CenteredPageShell } from "@/components/ui/PageShells";
+import FeatureTeaser, { V2_TARGET_DATE } from "@/components/ui/FeatureTeaser.client";
 
 export default async function LootPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: langParam } = await params;
@@ -18,5 +18,11 @@ export default async function LootPage({ params }: { params: Promise<{ lang: str
   const username = session.user?.username || copy.fallbackUsername;
   const description = copy.description.replace("{username}", username);
 
-  return <CenteredPageShell badge={copy.badge} description={description} title={copy.title} />;
+  return (
+    <FeatureTeaser
+      copy={{ ...copy, description }}
+      targetDate={V2_TARGET_DATE}
+      waitlistCount={1893}
+    />
+  );
 }

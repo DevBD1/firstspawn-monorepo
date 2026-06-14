@@ -512,7 +512,8 @@
       },
       "tabs": {
         "overview": "Overview",
-        "discussion": "Discussion · {count}"
+        "discussion": "Discussion",
+        "discussionBadge": "v2"
       },
       "about": {
         "title": "About this world"
@@ -533,29 +534,31 @@
       "similar": {
         "title": "Similar worlds"
       },
-      "discussion": {
-        "updatesTitle": "Updates from the team",
-        "updatesSubtitle": "signed posts from the verified owner — pinned above the thread",
-        "staffBadge": "✓ {name} staff",
-        "threadTitle": "Player thread",
-        "threadSubtitle": "opened automatically with this listing · player-owned, FirstSpawn-moderated",
-        "composerPlaceholder": "Ask about {name}, or tell players what it's like…",
-        "postingAsNote": "posting as {username} · one account, one reputation",
-        "postLabel": "Post",
-        "youSuffix": "(you)",
-        "repliesLabel": "{count} replies",
-        "ownerRepliedLabel": "owner replied",
-        "deleteLabel": "delete",
-        "reportLabel": "report",
-        "underReviewLabel": "⚑ under review · {reason}",
-        "reportPromptTitle": "Report to FirstSpawn moderators — not the server owner:",
-        "reportReasons": {
-          "spam": "Spam or ads",
-          "harassment": "Harassment",
-          "misleading": "Misleading about the server",
-          "offTopic": "Off-topic"
-        },
-        "cancelLabel": "cancel"
+      "discussionTeaser": {
+        "badge": "Arriving in v2",
+        "lockLabel": "Locked",
+        "headline": "The room where reputation is earned.",
+        "tagline": "Verified, playtime-gated discussion — one account, one reputation. No bots, no brigading, no bought hype.",
+        "features": [
+          {
+            "title": "Playtime-gated voices",
+            "body": "Only players who've actually logged hours can post — reputation you can't farm."
+          },
+          {
+            "title": "Owner-signed updates",
+            "body": "Patch notes and events posted by the verified owner, pinned above the noise."
+          },
+          {
+            "title": "FirstSpawn-moderated",
+            "body": "Reports reach our team, not the owner — so the feedback stays honest."
+          }
+        ],
+        "waitlistNote": "{count} players already on the waitlist",
+        "notifyCta": "Notify me at launch",
+        "notifiedLabel": "You're on the list",
+        "countdownDaysLabel": "{count} days",
+        "countdownUntilLabel": "until v2",
+        "previewAria": "Preview of the upcoming discussion experience"
       },
       "sidebar": {
         "joinTitle": "Join",
@@ -607,9 +610,30 @@
     }
   },
   "communityPage": {
-    "badge": "Coming soon",
-    "title": "COMMUNITY",
-    "description": "Player passports, server logs, and community contributions are on the way. This space will unlock in the next release stage."
+    "badge": "Arriving in v2",
+    "eyebrow": "Community",
+    "title": "A home for the people behind the worlds.",
+    "tagline": "Player passports, server logs, and creator spotlights — your whole journey, in one place.",
+    "description": "We're building a community layer where reputation, contributions, and the worlds you love all connect. It unlocks with v2.",
+    "features": [
+      {
+        "title": "Player passports",
+        "body": "One profile that travels with you — playtime, badges, and the servers you vouch for."
+      },
+      {
+        "title": "Living server logs",
+        "body": "Follow the worlds you care about and never miss a season, event, or wipe."
+      },
+      {
+        "title": "Creator spotlights",
+        "body": "Builders, mod authors, and event hosts get the credit they actually earned."
+      }
+    ],
+    "waitlistNote": "{count} players already on the waitlist",
+    "notifyCta": "Notify me at launch",
+    "notifiedLabel": "You're on the list",
+    "countdownDaysLabel": "{count} days",
+    "countdownUntilLabel": "until v2"
   },
   "consolePage": {
     "badge": "COMMAND TERMINAL ONLINE",
@@ -618,9 +642,30 @@
     "fallbackUsername": "Operator"
   },
   "lootPage": {
-    "badge": "PLAYER INVENTORY LINKED",
-    "title": "MY LOOT",
-    "description": "{username}, your progression inventory hub is now unlocked. Reward drops, puzzle keys, and badge claims will appear here.",
+    "badge": "Arriving in v2",
+    "eyebrow": "My Loot",
+    "title": "Your loot vault is almost open.",
+    "tagline": "Reward drops, puzzle keys, and badge claims — everything you earn, in one inventory.",
+    "description": "{username}, your progression hub is being forged. Reward drops, event keys, and verified badges all land here when v2 ships.",
+    "features": [
+      {
+        "title": "Reward drops",
+        "body": "Claim seasonal loot and event rewards from the servers you actually play."
+      },
+      {
+        "title": "Puzzle keys",
+        "body": "Unlock hidden challenges and time-limited hunts across the network."
+      },
+      {
+        "title": "Earned badges",
+        "body": "Showcase verified achievements that prove what you've done, not what you bought."
+      }
+    ],
+    "waitlistNote": "{count} players already on the waitlist",
+    "notifyCta": "Notify me at launch",
+    "notifiedLabel": "You're on the list",
+    "countdownDaysLabel": "{count} days",
+    "countdownUntilLabel": "until v2",
     "fallbackUsername": "Operator"
   },
   "debugPages": {

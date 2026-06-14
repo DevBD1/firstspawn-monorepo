@@ -531,8 +531,9 @@ export interface ServerDetailDictionary {
     };
     tabs: {
       overview: string;
-      /** Supports a {count} placeholder (total posts + replies). */
       discussion: string;
+      /** Small badge rendered on the gated Discussion tab, e.g. "v2". */
+      discussionBadge: string;
     };
     about: {
       title: string;
@@ -553,34 +554,27 @@ export interface ServerDetailDictionary {
     similar: {
       title: string;
     };
-    discussion: {
-      updatesTitle: string;
-      updatesSubtitle: string;
-      /** Supports a {name} placeholder (server name). */
-      staffBadge: string;
-      threadTitle: string;
-      threadSubtitle: string;
-      /** Supports a {name} placeholder (server name). */
-      composerPlaceholder: string;
-      /** Supports a {username} placeholder. */
-      postingAsNote: string;
-      postLabel: string;
-      youSuffix: string;
-      /** Supports a {count} placeholder. */
-      repliesLabel: string;
-      ownerRepliedLabel: string;
-      deleteLabel: string;
-      reportLabel: string;
-      /** Supports a {reason} placeholder. */
-      underReviewLabel: string;
-      reportPromptTitle: string;
-      reportReasons: {
-        spam: string;
-        harassment: string;
-        misleading: string;
-        offTopic: string;
-      };
-      cancelLabel: string;
+    /**
+     * "Coming in v2" teaser shown in place of the live Discussion experience.
+     * The flagship feature, so this gets a bespoke locked/blurred preview
+     * rather than the shared FeatureTeaser layout.
+     */
+    discussionTeaser: {
+      badge: string;
+      lockLabel: string;
+      headline: string;
+      /** One-line hook hinting at what makes discussion special. */
+      tagline: string;
+      /** Exactly three locked-feature highlights. */
+      features: TeaserFeatureItem[];
+      /** Social-proof line; supports a {count} placeholder. */
+      waitlistNote: string;
+      notifyCta: string;
+      notifiedLabel: string;
+      /** Countdown unit label; supports a {count} placeholder (days remaining). */
+      countdownDaysLabel: string;
+      countdownUntilLabel: string;
+      previewAria: string;
     };
     sidebar: {
       joinTitle: string;
@@ -748,11 +742,38 @@ export interface LegalPageCopy {
   noticeBody: string;
 }
 
-export interface CommunityPageCopy {
-  badge: string;
+/** A single locked-feature highlight shown on a v2 teaser surface. */
+export interface TeaserFeatureItem {
   title: string;
-  description: string;
+  body: string;
 }
+
+/**
+ * Copy for a "coming in v2" feature teaser — a locked/anticipation state used
+ * in place of an unfinished MVP feature. Shared by the Community and My Loot
+ * pages and mirrored (with a bespoke layout) by the server Discussion tab.
+ */
+export interface FeatureTeaserCopy {
+  /** Small gold pill, e.g. "Arriving in v2". */
+  badge: string;
+  /** Uppercase eyebrow above the title. */
+  eyebrow: string;
+  title: string;
+  /** One-line hook that hints at what makes the feature special. */
+  tagline: string;
+  description: string;
+  /** Exactly three locked-feature highlights. */
+  features: TeaserFeatureItem[];
+  /** Social-proof line; supports a {count} placeholder. */
+  waitlistNote: string;
+  notifyCta: string;
+  notifiedLabel: string;
+  /** Countdown unit label; supports a {count} placeholder (days remaining). */
+  countdownDaysLabel: string;
+  countdownUntilLabel: string;
+}
+
+export type CommunityPageCopy = FeatureTeaserCopy;
 
 export interface ConsolePageCopy {
   badge: string;
@@ -761,11 +782,9 @@ export interface ConsolePageCopy {
   description: string;
 }
 
-export interface LootPageCopy {
-  badge: string;
+export interface LootPageCopy extends FeatureTeaserCopy {
+  /** Used to greet signed-in players when their username is unavailable. */
   fallbackUsername: string;
-  title: string;
-  description: string;
 }
 
 export interface DebugPageCopy {
