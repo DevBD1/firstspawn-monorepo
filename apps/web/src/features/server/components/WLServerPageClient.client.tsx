@@ -142,8 +142,10 @@ export default function WLServerPageClient({
       const storedVotes = localStorage.getItem("fsproto.votes");
       if (storedVotes) {
         const votesObj = JSON.parse(storedVotes);
-        /* eslint-disable-next-line react-hooks/set-state-in-effect -- post-mount localStorage hydration */
-        setVoted(!!votesObj[voteKey]);
+        if (votesObj && typeof votesObj === "object") {
+          /* eslint-disable-next-line react-hooks/set-state-in-effect -- post-mount localStorage hydration */
+          setVoted(!!votesObj[voteKey]);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -512,7 +514,7 @@ export default function WLServerPageClient({
             // Discussion Tab — gated "coming in v2" teaser over a frosted preview
             <div className="max-w-[640px]">
               <div
-                className="relative overflow-hidden rounded-xl border border-border"
+                className="relative overflow-hidden rounded-xl border border-border min-h-[560px] sm:min-h-[460px]"
                 role="group"
                 aria-label={teaserCopy.previewAria}
               >
