@@ -213,3 +213,137 @@ select:focus {
     display: none;
   }
 }
+
+/* -------------------------------------------------------------------------
+   404 "Lost Chunk" page — terminal/void aesthetic.
+   Theme-aware (tokens only), reduced-motion safe.
+---------------------------------------------------------------------------- */
+
+/* Giant glitching glyph. Two clipped copies are offset on each keyframe to
+   fake chromatic split using the brand primary + gold rather than red/cyan. */
+.fs404-glitch {
+  position: relative;
+  display: inline-block;
+  line-height: 0.82;
+  letter-spacing: 0.04em;
+  color: var(--foreground);
+  cursor: pointer;
+  user-select: none;
+}
+.fs404-glitch::before,
+.fs404-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.fs404-glitch::before {
+  color: var(--primary);
+  animation: fs404-shift-a 2600ms infinite steps(1);
+}
+.fs404-glitch::after {
+  color: var(--fs-gold);
+  animation: fs404-shift-b 3100ms infinite steps(1);
+}
+/* On easter-egg "regenerate", crank the glitch into a short burst. */
+.fs404-glitch.is-regen::before {
+  animation-duration: 220ms;
+}
+.fs404-glitch.is-regen::after {
+  animation-duration: 260ms;
+}
+@keyframes fs404-shift-a {
+  0%,
+  88%,
+  100% {
+    transform: translate(0, 0);
+    clip-path: none;
+  }
+  90% {
+    transform: translate(-3px, 1px);
+    clip-path: inset(12% 0 58% 0);
+  }
+  93% {
+    transform: translate(2px, -2px);
+    clip-path: inset(64% 0 8% 0);
+  }
+  96% {
+    transform: translate(-2px, 1px);
+    clip-path: inset(40% 0 38% 0);
+  }
+}
+@keyframes fs404-shift-b {
+  0%,
+  85%,
+  100% {
+    transform: translate(0, 0);
+    clip-path: none;
+  }
+  87% {
+    transform: translate(3px, -1px);
+    clip-path: inset(70% 0 6% 0);
+  }
+  91% {
+    transform: translate(-2px, 2px);
+    clip-path: inset(18% 0 54% 0);
+  }
+  95% {
+    transform: translate(2px, -1px);
+    clip-path: inset(46% 0 30% 0);
+  }
+}
+
+/* Drifting pixel sigils in the void. */
+.fs404-drift {
+  animation: fs404-drift 7s ease-in-out infinite;
+}
+@keyframes fs404-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-14px) rotate(8deg);
+    opacity: 0.85;
+  }
+}
+
+/* Faint horizontal scanline sweep over the console panel. */
+.fs404-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--primary) 14%, transparent) 50%,
+    transparent 100%
+  );
+  height: 38%;
+  animation: fs404-scan 4.5s linear infinite;
+  mix-blend-mode: screen;
+}
+@keyframes fs404-scan {
+  0% {
+    transform: translateY(-110%);
+  }
+  100% {
+    transform: translateY(310%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fs404-glitch::before,
+  .fs404-glitch::after,
+  .fs404-drift,
+  .fs404-scan::after {
+    animation: none;
+  }
+  .fs404-glitch::before,
+  .fs404-glitch::after {
+    opacity: 0;
+  }
+}
