@@ -240,12 +240,15 @@ export default function WLGlobe({ servers, lang, copy, countryOverrides, onSelec
     e.currentTarget.style.cursor = "grab";
   }, []);
 
-  // Scroll-to-zoom on the globe (native non-passive listener so we can preventDefault
-  // the page scroll). Mutates scaleRef; the cobe frame + beacon radius read it live.
+  // Ctrl/Cmd + scroll to zoom (native non-passive listener so we can preventDefault).
+  // Gating on the modifier matches map conventions and avoids trapping page scroll
+  // when the cursor merely passes over the large globe. Mutates scaleRef; the cobe
+  // frame + beacon radius read it live.
   useEffect(() => {
     const el = canvasRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
       const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
       scaleRef.current = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scaleRef.current * factor));
@@ -297,6 +300,7 @@ export default function WLGlobe({ servers, lang, copy, countryOverrides, onSelec
             onPointerMove={onPointerMove}
             onPointerUp={endDrag}
             onPointerLeave={endDrag}
+            onPointerCancel={endDrag}
             style={{
               width: size ? `${size}px` : "100%",
               height: size ? `${size}px` : "100%",
@@ -343,6 +347,9 @@ export default function WLGlobe({ servers, lang, copy, countryOverrides, onSelec
           <div
             ref={tooltipRef}
             className="pointer-events-none absolute left-0 top-0 z-[300] w-max max-w-[220px] rounded-xl border border-border bg-bg-panel px-3 py-2 text-left shadow-xl"
+            // Start off-screen so it doesn't flash at the top-left before the next
+            // cobe frame positions it via updateBeacons.
+            style={{ transform: "translate(-9999px, -9999px)" }}
           >
             <div className="font-body text-xs font-bold text-foreground">{hoveredBeacon.name}</div>
             <div className="mt-0.5 font-body text-[11px] text-muted">

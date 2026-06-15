@@ -1033,17 +1033,26 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         patch.authMode = request.body.auth_mode;
       }
       if (request.body.country_code !== undefined || request.body.reach_scope !== undefined) {
-        const origin = resolveOriginAndReach(
+        const nextCountry =
           request.body.country_code !== undefined
             ? request.body.country_code
-            : existing.countryCode,
+            : existing.countryCode;
+        // The new origin is "global-like" if the caller set country_code to "WW"/empty.
+        const switchedToGlobalOrigin =
+          request.body.country_code !== undefined &&
+          ((toNullable(request.body.country_code)?.toUpperCase() ?? null) === null ||
+            toNullable(request.body.country_code)?.toUpperCase() === "WW");
+        // When reach_scope isn't given, preserve the server's current reach — except
+        // when switching to a global-like origin, where the resolver should derive
+        // "global" (pass undefined). This prevents a country-only edit from silently
+        // resetting an existing "global"/"regional" reach back to "local".
+        const reachArg =
           request.body.reach_scope !== undefined
             ? request.body.reach_scope
-            : // Keep the existing reach unless the caller switched to a "WW"/global origin.
-              request.body.country_code !== undefined
+            : switchedToGlobalOrigin
               ? undefined
-              : (existing.reachScope as ReachScope)
-        );
+              : (existing.reachScope as ReachScope);
+        const origin = resolveOriginAndReach(nextCountry, reachArg);
         patch.countryCode = origin.countryCode;
         patch.reachScope = origin.reachScope;
       }

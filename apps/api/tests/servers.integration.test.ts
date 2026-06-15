@@ -135,6 +135,41 @@ describe("servers integration", () => {
     expect(typeof point.longitude).toBe("number");
   });
 
+  it("preserves an existing global reach when only the origin country is edited", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_reach",
+    });
+
+    // Starts global (WW -> US origin + global reach; verified in the test above).
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "reach-server",
+      country_code: "WW",
+    });
+
+    // Editing only the origin to a real country must NOT reset reach to "local".
+    const patched = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${created.id}`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+      payload: { country_code: "DE" },
+    });
+    expect(patched.statusCode).toBe(200);
+    expect(patched.json().data.server.country_code).toBe("DE");
+    expect(patched.json().data.server.reach_scope).toBe("global");
+
+    // Switching the origin back to "WW" should resolve to a global-like origin again.
+    const reglobalized = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${created.id}`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+      payload: { country_code: "WW" },
+    });
+    expect(reglobalized.statusCode).toBe(200);
+    expect(reglobalized.json().data.server.country_code).toBe("US");
+    expect(reglobalized.json().data.server.reach_scope).toBe("global");
+  });
+
   it("blocks non-allowlisted user from admin endpoints", async () => {
     const user = await registerUser({
       email: "normal@example.com",

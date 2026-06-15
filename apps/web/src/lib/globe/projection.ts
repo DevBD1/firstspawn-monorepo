@@ -70,8 +70,9 @@ export function projectMarker(
  */
 export function depthOpacity(depth: number): number {
   if (depth <= 0) return 0;
-  // Ease in over the outer third of the visible hemisphere.
-  return Math.min(1, 0.25 + depth * 1.2);
+  // Linear fade from 0 at the limb so beacons ease in instead of popping to a
+  // partial opacity as they rotate onto the visible hemisphere.
+  return Math.min(1, depth * 3);
 }
 
 /**
