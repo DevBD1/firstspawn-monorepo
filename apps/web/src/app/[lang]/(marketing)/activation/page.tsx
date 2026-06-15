@@ -57,7 +57,7 @@ export default async function ActivationPage({ params, searchParams }: Activatio
             </div>
 
             <div className="mt-4">
-              <WLButton variant="secondary" href={`/${lang}/login`}>
+              <WLButton variant="secondary" href={`/${lang}`}>
                 {copy.backLabel}
               </WLButton>
             </div>
