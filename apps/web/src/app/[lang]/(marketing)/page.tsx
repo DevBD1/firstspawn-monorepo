@@ -23,17 +23,37 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
     total_online_players: 0,
   };
 
-  try {
-    const [serversData, statsData, geoData] = await Promise.all([
-      fetchServers({ limit: 12, sort: "players" }),
-      fetchServerStats(),
-      fetchServerGeo(),
-    ]);
-    servers = serversData.servers;
-    stats = statsData;
-    geo = geoData;
-  } catch (error) {
-    console.error("Failed to fetch landing discovery console data:", error);
+  const [serversResult, statsResult, geoResult] = await Promise.allSettled([
+    fetchServers({ limit: 12, sort: "players" }),
+    fetchServerStats(),
+    fetchServerGeo(),
+  ]);
+
+  if (serversResult.status === "fulfilled") {
+    servers = serversResult.value.servers;
+  } else {
+    console.warn(
+      "Failed to fetch servers for landing:",
+      serversResult.reason instanceof Error ? serversResult.reason.message : serversResult.reason
+    );
+  }
+
+  if (statsResult.status === "fulfilled") {
+    stats = statsResult.value;
+  } else {
+    console.warn(
+      "Failed to fetch stats for landing:",
+      statsResult.reason instanceof Error ? statsResult.reason.message : statsResult.reason
+    );
+  }
+
+  if (geoResult.status === "fulfilled") {
+    geo = geoResult.value;
+  } else {
+    console.warn(
+      "Failed to fetch geo for landing:",
+      geoResult.reason instanceof Error ? geoResult.reason.message : geoResult.reason
+    );
   }
 
   return (

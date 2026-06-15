@@ -35,16 +35,28 @@ export default async function DiscoverPage({ params, searchParams }: DiscoverPag
   };
   let globalStats = { checked_recently: 0, total_active_servers: 0, total_online_players: 0 };
 
-  try {
-    const [serversData, statsData] = await Promise.all([
-      fetchServers({ limit: 24, sort: "players", q: initialQuery || undefined }),
-      fetchServerStats(),
-    ]);
-    initialServers = serversData.servers;
-    initialPagination = serversData.pagination;
-    globalStats = statsData;
-  } catch (err) {
-    console.error("Failed to fetch initial data for discover page:", err);
+  const [serversResult, statsResult] = await Promise.allSettled([
+    fetchServers({ limit: 24, sort: "players", q: initialQuery || undefined }),
+    fetchServerStats(),
+  ]);
+
+  if (serversResult.status === "fulfilled") {
+    initialServers = serversResult.value.servers;
+    initialPagination = serversResult.value.pagination;
+  } else {
+    console.warn(
+      "Failed to fetch servers for discover:",
+      serversResult.reason instanceof Error ? serversResult.reason.message : serversResult.reason
+    );
+  }
+
+  if (statsResult.status === "fulfilled") {
+    globalStats = statsResult.value;
+  } else {
+    console.warn(
+      "Failed to fetch stats for discover:",
+      statsResult.reason instanceof Error ? statsResult.reason.message : statsResult.reason
+    );
   }
 
   return (

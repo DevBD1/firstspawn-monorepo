@@ -46,7 +46,10 @@ export default async function ServerDetailPage({
     const similarRes = await fetchServers({ limit: 4, game: server.game });
     similarServers = similarRes.servers.filter((x) => x.slug !== server.slug).slice(0, 3);
   } catch (err) {
-    console.error("Failed to fetch similar servers for profile page:", err);
+    console.warn(
+      "Failed to fetch similar servers for profile page:",
+      err instanceof Error ? err.message : err
+    );
   }
 
   const websiteSocial = server.socials.find((social) => social.platform === "website");
