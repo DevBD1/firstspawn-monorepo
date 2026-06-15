@@ -42,6 +42,13 @@
       "systemsNormal": "Sistemas Normales",
       "verified": "VERIFICADO"
     },
+    "reach": {
+      "label": "Alcance",
+      "hint": "Dónde está basado frente a hasta dónde sirve.",
+      "local": "Local",
+      "regional": "Regional",
+      "global": "Global"
+    },
     "countries": {
       "WW": "Global",
       "US": "Estados Unidos",
@@ -232,6 +239,23 @@
       "formulaHint": "rango = actividad × confianza × frescura — toca un número de rango",
       "emptyTitle": "No hay clasificaciones calculadas",
       "emptyDescription": "Las clasificaciones se actualizan automáticamente a medida que llegan datos de latido."
+    },
+    "globe": {
+      "title": "Servidores por todo el mundo",
+      "subtitle": "Cada servidor, ubicado donde tiene su hogar. Los servidores globales iluminan su origen y se propagan por todo el planeta.",
+      "serversPlaced": "{count} servidores ubicados",
+      "hint": "Arrastra para girar · haz clic en un faro para visitar",
+      "onlineLabel": "En línea",
+      "offlineLabel": "Desconectado",
+      "playersLabel": "{count} jugadores",
+      "globalLabel": "Global",
+      "reach": {
+        "local": "Local",
+        "regional": "Regional",
+        "global": "Global"
+      },
+      "emptyTitle": "Aún no hay servidores en el mapa",
+      "emptyDescription": "A medida que se publiquen y ubiquen servidores, aparecerán aquí en el globo."
     },
     "ownerCta": {
       "title": "¿Administras un servidor?",

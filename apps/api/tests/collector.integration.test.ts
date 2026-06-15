@@ -46,7 +46,7 @@ describe("collector integration", () => {
         game: "mc_java",
         status: "active",
         authMode: "official",
-        countryCode: "WW",
+        countryCode: "US",
         createdAt: now,
         updatedAt: now,
         ...overrides,
@@ -92,7 +92,7 @@ describe("collector integration", () => {
     expect(pageOne.statusCode).toBe(200);
     expect(pageOne.json().data.targets).toHaveLength(1);
     expect(pageOne.json().data.targets[0].id).toBe(first.id);
-    expect(pageOne.json().data.targets[0].country_code).toBe("WW");
+    expect(pageOne.json().data.targets[0].country_code).toBe("US");
     expect(pageOne.json().data.next_cursor).toBeTruthy();
 
     const pageTwo = await getContext().app.inject({

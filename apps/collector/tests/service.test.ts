@@ -11,7 +11,8 @@ const targetA: CollectorTarget = {
   host: "a.example.com",
   port: 25565,
   game: "mc_java",
-  region: null,
+  country_code: null,
+  created_at: "2026-01-01T00:00:00.000Z",
 };
 
 const targetB: CollectorTarget = {
@@ -20,7 +21,8 @@ const targetB: CollectorTarget = {
   host: "b.example.com",
   port: 25565,
   game: "mc_java",
-  region: null,
+  country_code: null,
+  created_at: "2026-01-01T00:00:00.000Z",
 };
 
 describe("CollectorService", () => {

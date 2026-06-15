@@ -4,6 +4,7 @@ import {
   check,
   customType,
   date,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -249,6 +250,10 @@ export const countries = pgTable(
     isoA2: varchar("iso_a_2", { length: 2 }).primaryKey(),
     isoA3: varchar("iso_a_3", { length: 3 }).notNull(),
     name: varchar("name", { length: 100 }).notNull(),
+    // Deterministic centroid used to place servers on the homepage globe.
+    // Null for the "WW" (Global) pseudo-country, which is never a server origin.
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
   },
   (table) => [uniqueIndex("countries_name_unique").on(table.name)]
 );
@@ -278,9 +283,13 @@ export const servers = pgTable(
     status: varchar("status", { length: 20 }).notNull().default("active"),
 
     authMode: varchar("auth_mode", { length: 20 }).notNull().default("unknown"),
+    // Origin country: always a real place (never "WW"), used as the globe pin.
     countryCode: varchar("country_code", { length: 2 })
       .notNull()
       .references(() => countries.isoA2),
+    // Reach is independent of origin: a server based in one country may serve
+    // its local area, a wider region, or the whole world ("global").
+    reachScope: varchar("reach_scope", { length: 20 }).notNull().default("local"),
 
     logoUrl: varchar("logo_url", { length: 2048 }),
     bannerUrl: varchar("banner_url", { length: 2048 }),
@@ -313,6 +322,8 @@ export const servers = pgTable(
       "chk_servers_probe_status",
       sql`${table.probeStatus} in ('online', 'offline', 'unknown', 'unreachable')`
     ),
+    check("chk_servers_reach_scope", sql`${table.reachScope} in ('local', 'regional', 'global')`),
+    check("chk_servers_country_code_not_global", sql`${table.countryCode} <> 'WW'`),
     check("chk_servers_consecutive_probe_failures", sql`${table.consecutiveProbeFailures} >= 0`),
     check(
       "chk_servers_votifier_port",

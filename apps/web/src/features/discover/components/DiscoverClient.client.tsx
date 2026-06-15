@@ -83,8 +83,6 @@ const WL_QUERY_DEMONYMS: Record<string, string> = {
   finland: "FI",
   brazilian: "BR",
   brazil: "BR",
-  global: "WW",
-  worldwide: "WW",
 };
 
 const WL_ALL_TAGS = Array.from(new Set(Object.values(WL_QUERY_SYNONYMS))).sort();
@@ -365,7 +363,12 @@ export default function DiscoverClient({
   const observerTarget = useRef<HTMLDivElement>(null);
   const refreshRequestIdRef = useRef(0);
   const hasHydratedRef = useRef(false);
-  const countryOptions = useMemo(() => getCountryOptions(lang, countries), [lang, countries]);
+  const countryOptions = useMemo(
+    // Origins are always real countries now (reach is a separate field), so don't
+    // offer "Global"/WW as a country filter — it would match zero servers.
+    () => getCountryOptions(lang, countries, { includeWorldwide: false }),
+    [lang, countries]
+  );
 
   const getCountryName = (code: string | null) => {
     if (!code) return getLocalizedCountryName("WW", lang, countries);

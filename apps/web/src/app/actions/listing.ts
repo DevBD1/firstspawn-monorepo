@@ -83,6 +83,7 @@ export interface PublishListingInput {
   game: ListingGame;
   geyser_enabled?: boolean;
   country_code?: string;
+  reach_scope?: "local" | "regional" | "global";
   method: VerificationMethod;
   ownership_proof: string;
   tags?: string[];

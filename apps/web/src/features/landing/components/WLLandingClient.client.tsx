@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { WLButton } from "@firstspawn/ui";
-import type { PublicServerListItem, PublicServerStats } from "@/lib/servers-api";
+import type { PublicServerListItem, PublicServerStats, ServerGeoPoint } from "@/lib/servers-api";
 import type {
   AppDictionary,
   RankSignalsDictionary,
@@ -13,10 +14,20 @@ import type {
 import { getCountryName as getLocalizedCountryName } from "@/lib/countries";
 import ServerQuickPeekModal from "@/features/server/components/ServerQuickPeekModal.client";
 
+// The globe is WebGL/canvas-only, so render it client-side after first paint to
+// keep it out of the SSR/initial bundle.
+const WLGlobe = dynamic(() => import("./WLGlobe.client"), {
+  ssr: false,
+  loading: () => (
+    <div className="mx-auto aspect-square w-full max-w-[560px] animate-pulse rounded-full bg-bg-panel/40" />
+  ),
+});
+
 type ServerRowCopy = ServerCatalogDictionary["row"];
 
 interface WLLandingClientProps {
   initialServers: PublicServerListItem[];
+  initialGeo: ServerGeoPoint[];
   stats: PublicServerStats;
   lang: string;
   dictionary: AppDictionary;
@@ -274,6 +285,7 @@ function LandingServerRow({
 
 export default function WLLandingClient({
   initialServers,
+  initialGeo,
   stats,
   lang,
   dictionary,
@@ -347,6 +359,17 @@ export default function WLLandingClient({
     router.push(`/${lang}/server/${s.slug}`);
   };
 
+  // Globe beacon click → open the same quick-peek used by the lists. The geo set can
+  // include servers beyond the landing list, so fall back to the profile page.
+  const handleGlobeSelect = (slug: string) => {
+    const match = initialServers.find((s) => s.slug === slug);
+    if (match) {
+      setPeekServer(match);
+    } else {
+      router.push(`/${lang}/server/${slug}`);
+    }
+  };
+
   return (
     <div className="w-full">
       {/* Hero Header Atmospheric Layer */}
@@ -407,6 +430,17 @@ export default function WLLandingClient({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Interactive globe: servers around the world */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-b border-border">
+        <WLGlobe
+          servers={initialGeo}
+          lang={lang}
+          copy={copy.globe}
+          countryOverrides={dictionary.common.countries}
+          onSelect={handleGlobeSelect}
+        />
       </div>
 
       {/* Featured: Active Tonight */}

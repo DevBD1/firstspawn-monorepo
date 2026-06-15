@@ -6,10 +6,12 @@ import { WLButton } from "@firstspawn/ui";
 import { deleteListingAction, type MyListing } from "@/app/actions/listing";
 import type {
   AppDictionary,
+  CommonDictionary,
   OwnerConsoleDictionary,
   RankSignalsDictionary,
 } from "@/lib/dictionaries/schema";
 import { getCountryOptions } from "@/lib/countries";
+import type { ServerReachScope } from "@/lib/servers-api";
 
 const WL_CONSOLE_SECTION_IDS = ["overview", "profile", "media", "trailer", "health"] as const;
 type ConsoleSectionId = (typeof WL_CONSOLE_SECTION_IDS)[number];
@@ -27,6 +29,7 @@ interface ConsoleServer {
   name: string;
   description?: string | null;
   country_code?: string | null;
+  reach_scope?: ServerReachScope | null;
   pending?: boolean;
   tags?: string[];
   latest_metrics?: { online_players?: number | null } | null;
@@ -362,6 +365,7 @@ interface WLProfileFormProps {
   lang: string;
   isCustomServer: boolean;
   copy: OwnerConsoleDictionary["profile"];
+  reachCopy: CommonDictionary["reach"];
   countryOptions: ReturnType<typeof getCountryOptions>;
   links: { kind: string; value: string; verified: boolean }[];
   onServerSaved: (server: ConsoleServer) => void;
@@ -372,6 +376,7 @@ function WLProfileForm({
   lang,
   isCustomServer,
   copy,
+  reachCopy,
   countryOptions,
   links,
   onServerSaved,
@@ -379,7 +384,8 @@ function WLProfileForm({
   const [editName, setEditName] = useState(server.name);
   const [editBlurb, setEditBlurb] = useState(server.description || "");
   const [editTags, setEditTags] = useState(() => getConsoleServerTags(server));
-  const [editCountry, setEditCountry] = useState(server.country_code || "WW");
+  const [editCountry, setEditCountry] = useState(server.country_code || "US");
+  const [editReach, setEditReach] = useState<ServerReachScope>(server.reach_scope || "local");
   const [saved, setSaved] = useState(false);
   const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -419,6 +425,7 @@ function WLProfileForm({
         name: editName,
         description: editBlurb,
         country_code: editCountry,
+        reach_scope: editReach,
       };
 
       customServers[idx] = { ...customServers[idx], ...updatedServer };
@@ -508,6 +515,30 @@ function WLProfileForm({
             ))}
           </select>
         </div>
+
+        <div>
+          <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
+            {reachCopy.label}
+          </div>
+          <div className="flex gap-2">
+            {(["local", "regional", "global"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                disabled={!isCustomServer}
+                onClick={() => setEditReach(value)}
+                className={`font-body text-xs font-semibold px-3 py-2 rounded-lg border transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                  editReach === value
+                    ? "bg-primary border-primary text-on-primary"
+                    : "border-border text-muted hover:border-foreground"
+                }`}
+              >
+                {reachCopy[value]}
+              </button>
+            ))}
+          </div>
+          <div className="font-mono text-[10px] text-muted mt-1.5">{reachCopy.hint}</div>
+        </div>
       </div>
 
       <div className="bg-bg-panel border border-border rounded-xl p-5 flex flex-col shadow-sm">
@@ -558,7 +589,11 @@ export default function WLOwnerConsoleClient({
   const consoleCopy = dictionary.ownerConsole;
   const rankCopy = dictionary.rankSignals;
   const countries = dictionary.common.countries;
-  const countryOptions = useMemo(() => getCountryOptions(lang, countries), [lang, countries]);
+  const countryOptions = useMemo(
+    () => getCountryOptions(lang, countries, { includeWorldwide: false }),
+    [lang, countries]
+  );
+  const reachCopy = dictionary.common.reach;
   const linkKinds = dictionary.common.linkKinds;
 
   // A server is "pending" until its first heartbeat lands (first crawl underway).
@@ -858,6 +893,7 @@ export default function WLOwnerConsoleClient({
               lang={lang}
               isCustomServer={isCustomServer}
               copy={consoleCopy.profile}
+              reachCopy={reachCopy}
               countryOptions={countryOptions}
               links={links}
               onServerSaved={handleServerSaved}

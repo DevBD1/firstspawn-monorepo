@@ -42,6 +42,13 @@
       "systemsNormal": "Sistemler Normal",
       "verified": "DOĞRULANMIŞ"
     },
+    "reach": {
+      "label": "Erişim",
+      "hint": "Nerede konumlandığı ve ne kadar geniş hizmet verdiği.",
+      "local": "Yerel",
+      "regional": "Bölgesel",
+      "global": "Küresel"
+    },
     "countries": {
       "WW": "Küresel",
       "US": "Amerika Birleşik Devletleri",
@@ -262,6 +269,23 @@
       "formulaHint": "sıralama = aktivite × güven × tazelik — bir sıra numarasına dokunun",
       "emptyTitle": "Hesaplanmış sıralama yok",
       "emptyDescription": "Sıralamalar, kalp atışı verileri biriktikçe otomatik olarak güncellenir."
+    },
+    "globe": {
+      "title": "Dünyanın dört bir yanından sunucular",
+      "subtitle": "Her sunucu, yuvasının olduğu yere yerleştirildi. Küresel sunucular kökenlerinde parlar ve gezegenin her yerine yayılır.",
+      "serversPlaced": "{count} sunucu yerleştirildi",
+      "hint": "Döndürmek için sürükleyin · ziyaret etmek için bir işarete tıklayın",
+      "onlineLabel": "Çevrimiçi",
+      "offlineLabel": "Çevrimdışı",
+      "playersLabel": "{count} oyuncu",
+      "globalLabel": "Küresel",
+      "reach": {
+        "local": "Yerel",
+        "regional": "Bölgesel",
+        "global": "Küresel"
+      },
+      "emptyTitle": "Haritada henüz sunucu yok",
+      "emptyDescription": "Sunucular listelenip konumlandırıldıkça burada, küre üzerinde görünecekler."
     },
     "ownerCta": {
       "title": "Sunucu mu işletiyorsun?",

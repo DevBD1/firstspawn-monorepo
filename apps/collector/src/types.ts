@@ -4,7 +4,8 @@ export interface CollectorTarget {
   host: string;
   port: number;
   game: "mc_java";
-  region: string | null;
+  country_code: string | null;
+  created_at: string;
 }
 
 export interface CollectorTargetsPage {

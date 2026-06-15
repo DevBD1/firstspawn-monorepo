@@ -42,6 +42,13 @@
       "systemsNormal": "Systeme Normal",
       "verified": "VERIFIZIERT"
     },
+    "reach": {
+      "label": "Reichweite",
+      "hint": "Wo er beheimatet ist – und wie weit er reicht.",
+      "local": "Lokal",
+      "regional": "Regional",
+      "global": "Global"
+    },
     "countries": {
       "WW": "Global",
       "US": "Vereinigte Staaten",
@@ -232,6 +239,23 @@
       "formulaHint": "Rang = Aktivität × Vertrauen × Frische — tippe auf eine Rangnummer",
       "emptyTitle": "Keine Rankings berechnet",
       "emptyDescription": "Rankings aktualisieren sich automatisch, sobald Heartbeat-Daten eintreffen."
+    },
+    "globe": {
+      "title": "Server rund um die Welt",
+      "subtitle": "Jeder Server dort, wo er zu Hause ist. Globale Server leuchten an ihrem Ursprung auf und pulsieren über den ganzen Planeten.",
+      "serversPlaced": "{count} Server platziert",
+      "hint": "Zum Drehen ziehen · Klicke ein Leuchtfeuer zum Besuchen",
+      "onlineLabel": "Online",
+      "offlineLabel": "Offline",
+      "playersLabel": "{count} Spieler",
+      "globalLabel": "Global",
+      "reach": {
+        "local": "Lokal",
+        "regional": "Regional",
+        "global": "Global"
+      },
+      "emptyTitle": "Noch keine Server auf der Karte",
+      "emptyDescription": "Sobald Server gelistet und verortet sind, erscheinen sie hier auf dem Globus."
     },
     "ownerCta": {
       "title": "Du betreibst einen Server?",

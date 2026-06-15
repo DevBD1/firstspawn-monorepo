@@ -50,6 +50,14 @@ export interface CommonDictionary {
     systemsNormal: string;
     verified: string;
   };
+  /** Server reach: where a server is based vs how far it serves. */
+  reach: {
+    label: string;
+    hint: string;
+    local: string;
+    regional: string;
+    global: string;
+  };
 }
 
 export interface NavigationDictionary {
@@ -254,6 +262,25 @@ export interface LandingDictionary {
   ranking: {
     title: string;
     formulaHint: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
+  globe: {
+    title: string;
+    subtitle: string;
+    /** Supports {count}. */
+    serversPlaced: string;
+    hint: string;
+    onlineLabel: string;
+    offlineLabel: string;
+    /** Supports {count}. */
+    playersLabel: string;
+    globalLabel: string;
+    reach: {
+      local: string;
+      regional: string;
+      global: string;
+    };
     emptyTitle: string;
     emptyDescription: string;
   };

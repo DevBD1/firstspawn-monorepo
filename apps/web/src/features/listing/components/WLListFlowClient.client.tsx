@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { WLButton } from "@firstspawn/ui";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 import { getCountryOptions } from "@/lib/countries";
+import type { ServerReachScope } from "@/lib/servers-api";
 import {
   checkAvailabilityAction,
   checkVerificationAction,
@@ -106,7 +107,11 @@ export default function WLListFlowClient({
   const router = useRouter();
   const copy = dictionary.listFlow;
   const countries = dictionary.common.countries;
-  const countryOptions = useMemo(() => getCountryOptions(lang, countries), [lang, countries]);
+  const reachCopy = dictionary.common.reach;
+  const countryOptions = useMemo(
+    () => getCountryOptions(lang, countries, { includeWorldwide: false }),
+    [lang, countries]
+  );
   const steps = [copy.steps.address, copy.steps.ownership, copy.steps.profile, copy.steps.publish];
   const [idx, setIdx] = useState(0);
 
@@ -133,7 +138,8 @@ export default function WLListFlowClient({
   const [name, setName] = useState("");
   const [blurb, setBlurb] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [country, setCountry] = useState("WW");
+  const [country, setCountry] = useState("US");
+  const [reach, setReach] = useState<ServerReachScope>("local");
   const [nameAvailable, setNameAvailable] = useState<boolean | null>(null);
 
   // Step 4 — publish
@@ -289,6 +295,7 @@ export default function WLListFlowClient({
       game,
       geyser_enabled: game === "mc_java" && geyser,
       country_code: country,
+      reach_scope: reach,
       method: effectiveMethod,
       ownership_proof: ownershipProof,
       tags,
@@ -629,6 +636,28 @@ export default function WLListFlowClient({
               <div className="font-mono text-[10px] text-muted mt-1.5">
                 {copy.profile.countryHint}
               </div>
+            </div>
+            <div>
+              <div className="font-body text-[10.5px] font-bold tracking-widest text-muted uppercase mb-1.5">
+                {reachCopy.label}
+              </div>
+              <div className="flex gap-2">
+                {(["local", "regional", "global"] as const).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setReach(value)}
+                    className={`font-body text-xs font-semibold px-3 py-2 rounded-lg border transition-colors ${
+                      reach === value
+                        ? "bg-primary border-primary text-on-primary"
+                        : "border-border text-muted hover:border-foreground"
+                    }`}
+                  >
+                    {reachCopy[value]}
+                  </button>
+                ))}
+              </div>
+              <div className="font-mono text-[10px] text-muted mt-1.5">{reachCopy.hint}</div>
             </div>
             <div className="flex justify-end mt-2">
               <WLButton
