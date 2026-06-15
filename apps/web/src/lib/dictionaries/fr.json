@@ -42,6 +42,13 @@
       "systemsNormal": "Systèmes Normaux",
       "verified": "VÉRIFIÉ"
     },
+    "reach": {
+      "label": "Portée",
+      "hint": "Où il est basé par rapport à sa portée.",
+      "local": "Local",
+      "regional": "Régional",
+      "global": "Mondial"
+    },
     "countries": {
       "WW": "Mondial",
       "US": "États-Unis",
@@ -232,6 +239,23 @@
       "formulaHint": "rang = activité × confiance × fraîcheur — touchez un numéro de rang",
       "emptyTitle": "Aucun classement calculé",
       "emptyDescription": "Les classements se mettent à jour automatiquement au fil des données de heartbeat."
+    },
+    "globe": {
+      "title": "Des serveurs partout dans le monde",
+      "subtitle": "Chaque serveur, placé là où il se sent chez lui. Les serveurs mondiaux illuminent leur origine et rayonnent sur toute la planète.",
+      "serversPlaced": "{count} serveurs placés",
+      "hint": "Glissez pour faire tourner · cliquez sur une balise pour visiter",
+      "onlineLabel": "En ligne",
+      "offlineLabel": "Hors ligne",
+      "playersLabel": "{count} joueurs",
+      "globalLabel": "Mondial",
+      "reach": {
+        "local": "Local",
+        "regional": "Régional",
+        "global": "Mondial"
+      },
+      "emptyTitle": "Aucun serveur sur la carte pour l'instant",
+      "emptyDescription": "À mesure que les serveurs sont référencés et localisés, ils apparaîtront ici sur le globe."
     },
     "ownerCta": {
       "title": "Vous gérez un serveur ?",

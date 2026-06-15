@@ -4,8 +4,10 @@ import WLLandingClient from "@/features/landing/components/WLLandingClient.clien
 import {
   fetchServers,
   fetchServerStats,
+  fetchServerGeo,
   type PublicServerListItem,
   type PublicServerStats,
+  type ServerGeoPoint,
 } from "@/lib/servers-api";
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
@@ -14,6 +16,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   const dictionary = await getDictionary(lang);
 
   let servers: PublicServerListItem[] = [];
+  let geo: ServerGeoPoint[] = [];
   let stats: PublicServerStats = {
     checked_recently: 0,
     total_active_servers: 0,
@@ -21,19 +24,27 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
   };
 
   try {
-    const [serversData, statsData] = await Promise.all([
+    const [serversData, statsData, geoData] = await Promise.all([
       fetchServers({ limit: 12, sort: "players" }),
       fetchServerStats(),
+      fetchServerGeo(),
     ]);
     servers = serversData.servers;
     stats = statsData;
+    geo = geoData;
   } catch (error) {
     console.error("Failed to fetch landing discovery console data:", error);
   }
 
   return (
     <main className="relative w-full bg-background overflow-hidden min-h-screen">
-      <WLLandingClient initialServers={servers} stats={stats} lang={lang} dictionary={dictionary} />
+      <WLLandingClient
+        initialServers={servers}
+        initialGeo={geo}
+        stats={stats}
+        lang={lang}
+        dictionary={dictionary}
+      />
     </main>
   );
 }

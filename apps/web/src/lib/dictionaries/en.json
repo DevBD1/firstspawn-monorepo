@@ -42,6 +42,13 @@
       "systemsNormal": "Systems Normal",
       "verified": "VERIFIED"
     },
+    "reach": {
+      "label": "Reach",
+      "hint": "Where it's based vs how far it serves.",
+      "local": "Local",
+      "regional": "Regional",
+      "global": "Global"
+    },
     "countries": {
       "WW": "Global",
       "US": "United States",
@@ -262,6 +269,23 @@
       "formulaHint": "rank = activity × trust × freshness — tap a rank number",
       "emptyTitle": "No rankings calculated",
       "emptyDescription": "Rankings update automatically as heartbeat data accrues."
+    },
+    "globe": {
+      "title": "Servers around the world",
+      "subtitle": "Every server, placed where it calls home. Global servers light up their origin and pulse out across the planet.",
+      "serversPlaced": "{count} servers placed",
+      "hint": "Drag to spin · click a beacon to visit",
+      "onlineLabel": "Online",
+      "offlineLabel": "Offline",
+      "playersLabel": "{count} players",
+      "globalLabel": "Global",
+      "reach": {
+        "local": "Local",
+        "regional": "Regional",
+        "global": "Global"
+      },
+      "emptyTitle": "No servers on the map yet",
+      "emptyDescription": "As servers are listed and located, they'll appear here on the globe."
     },
     "ownerCta": {
       "title": "Run a server?",

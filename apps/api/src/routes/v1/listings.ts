@@ -34,7 +34,8 @@ import {
   getPgErrorMetadata,
   normalizeMetricsPayload,
   normalizeServerPayload,
-  toNullable,
+  reachScopeSchema,
+  resolveOriginAndReach,
 } from "./servers.js";
 
 // Mirrors WL_TAG_FEATURES in apps/web .../listing/components/WLListFlowClient.client.tsx.
@@ -103,6 +104,7 @@ const createListingBodySchema = z.object({
   game: gameSchema.default("mc_java"),
   geyser_enabled: z.boolean().default(false),
   country_code: z.string().trim().length(2).nullable().optional(),
+  reach_scope: reachScopeSchema.optional(),
   method: verificationMethodSchema,
   ownership_proof: z.string().trim().min(1),
   tags: z.array(z.enum(LISTING_TAGS)).max(4).optional(),
@@ -455,7 +457,7 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
               game: body.game,
               status: "active",
               authMode: "unknown",
-              countryCode: toNullable(body.country_code) ?? "WW",
+              ...resolveOriginAndReach(body.country_code, body.reach_scope),
               verificationMethod: body.method,
               verificationToken,
               verifiedAt: now,

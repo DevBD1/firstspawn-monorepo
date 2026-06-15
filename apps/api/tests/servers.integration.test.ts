@@ -58,7 +58,7 @@ describe("servers integration", () => {
         port: 25565,
         game: "mc_java",
         auth_mode: "official",
-        country_code: "WW",
+        country_code: "US",
         ...overrides,
       },
     });
@@ -97,6 +97,42 @@ describe("servers integration", () => {
     });
 
     expect(server.slug.startsWith("hypixel-network-")).toBe(true);
+  });
+
+  it("resolves a 'WW' origin to a real origin + global reach and places it on the globe", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_user",
+    });
+
+    const created = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/admin/servers",
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+      payload: {
+        name: "Worldwide Network",
+        description: "Test description",
+        host: "play.example.com",
+        port: 25565,
+        game: "mc_java",
+        auth_mode: "official",
+        country_code: "WW",
+      },
+    });
+
+    expect(created.statusCode).toBe(201);
+    const server = created.json().data.server;
+    expect(server.country_code).toBe("US");
+    expect(server.reach_scope).toBe("global");
+
+    const geo = await getContext().app.inject({ method: "GET", url: "/api/v1/servers/geo" });
+    expect(geo.statusCode).toBe(200);
+    const point = geo.json().data.servers.find((s: { slug: string }) => s.slug === server.slug);
+    expect(point).toBeTruthy();
+    expect(point.country_code).toBe("US");
+    expect(point.reach_scope).toBe("global");
+    expect(typeof point.latitude).toBe("number");
+    expect(typeof point.longitude).toBe("number");
   });
 
   it("blocks non-allowlisted user from admin endpoints", async () => {
@@ -180,7 +216,7 @@ describe("servers integration", () => {
         port: 25566,
         game: "mc_java",
         auth_mode: "official",
-        country_code: "WW",
+        country_code: "US",
       },
     });
 
@@ -266,7 +302,7 @@ describe("servers integration", () => {
       logo_url: "https://cdn.example.com/logo.png",
       banner_url: "https://cdn.example.com/banner.png",
       auth_mode: "official",
-      country_code: "WW",
+      country_code: "US",
     });
     expect(detail.json().data.server.socials).toEqual([
       {
@@ -355,7 +391,7 @@ describe("servers integration", () => {
         port: 25565,
         game: "mc_java",
         auth_mode: "official",
-        country_code: "WW",
+        country_code: "US",
         socials: [
           {
             platform: "website",

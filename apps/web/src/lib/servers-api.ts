@@ -68,6 +68,21 @@ export interface PublicServerDetail {
   updated_at: string;
 }
 
+export type ServerReachScope = "local" | "regional" | "global";
+
+export interface ServerGeoPoint {
+  slug: string;
+  name: string;
+  game: PublicServerGame;
+  /** Origin country (always a real place, never "WW"). */
+  country_code: string;
+  latitude: number;
+  longitude: number;
+  reach_scope: ServerReachScope;
+  online_players: number | null;
+  freshness_status: "online" | "offline" | "unknown";
+}
+
 export interface FetchServersParams {
   q?: string;
   freshness_status?: string;
@@ -156,6 +171,25 @@ export async function fetchServerStats(
     total_active_servers: payload.data.total_active_servers,
     total_online_players: payload.data.total_online_players,
   };
+}
+
+export async function fetchServerGeo(
+  init: FetchInit = defaultFetchInit()
+): Promise<ServerGeoPoint[]> {
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}/servers/geo`;
+
+  const response = await fetch(url, {
+    headers: getHeaders(),
+    ...init,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch server geo: ${response.status} ${response.statusText}`);
+  }
+
+  const payload = await response.json();
+  return payload.data.servers as ServerGeoPoint[];
 }
 
 export async function fetchServerDetail(

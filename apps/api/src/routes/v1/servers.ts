@@ -53,11 +53,26 @@ type PublicStatsRow = {
   total_active_servers: number;
   total_online_players: number;
 };
+type PublicGeoRow = {
+  slug: string;
+  name: string;
+  game: "mc_java" | "mc_bedrock" | "hytale";
+  countryCode: string;
+  latitude: number;
+  longitude: number;
+  reachScope: "local" | "regional" | "global";
+  onlinePlayers: number | null;
+  status: "active" | "suspended" | "archived";
+  lastPingAt: Date | null;
+  lastProbeAttemptAt: Date | null;
+  probeStatus: "online" | "offline" | "unknown" | "unreachable";
+};
 
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
 const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
 const authModeSchema = z.enum(["official", "offline_allowed", "unknown"]);
+export const reachScopeSchema = z.enum(["local", "regional", "global"]);
 const publicListSortSchema = z.enum(["players", "ping"]);
 const publicTierSchema = z.enum(["common", "rare", "epic", "legendary"]);
 const serverSocialPlatformSchema = z.enum([
@@ -145,6 +160,7 @@ const serverBaseSchema = z.object({
   freshness_status: freshnessStatusSchema,
   auth_mode: authModeSchema,
   country_code: z.string().nullable(),
+  reach_scope: reachScopeSchema,
   logo_url: z.string().nullable(),
   banner_url: z.string().nullable(),
 
@@ -191,6 +207,7 @@ const adminCreateBodySchema = z.object({
   status: adminStatusSchema.default("active"),
   auth_mode: authModeSchema.default("official"),
   country_code: z.string().trim().length(2).nullable().optional(),
+  reach_scope: reachScopeSchema.optional(),
   logo_url: z.string().url().max(2048).nullable().optional(),
   banner_url: z.string().url().max(2048).nullable().optional(),
   socials: serverSocialsBodySchema.optional(),
@@ -206,6 +223,7 @@ const adminUpdateBodySchema = z
     port: z.number().int().min(1).max(65535).optional(),
     auth_mode: authModeSchema.optional(),
     country_code: z.string().trim().length(2).nullable().optional(),
+    reach_scope: reachScopeSchema.optional(),
     logo_url: z.string().url().max(2048).nullable().optional(),
     banner_url: z.string().url().max(2048).nullable().optional(),
     socials: serverSocialsBodySchema.optional(),
@@ -293,6 +311,24 @@ const publicStatsResponseSchema = envelopeSchema(
   })
 );
 
+const publicGeoResponseSchema = envelopeSchema(
+  z.object({
+    servers: z.array(
+      z.object({
+        slug: z.string(),
+        name: z.string(),
+        game: gameSchema,
+        country_code: z.string(),
+        latitude: z.number(),
+        longitude: z.number(),
+        reach_scope: reachScopeSchema,
+        online_players: z.number().int().nonnegative().nullable(),
+        freshness_status: freshnessStatusSchema,
+      })
+    ),
+  })
+);
+
 export const toNullable = (value?: string | null): string | null => {
   if (!value) {
     return null;
@@ -300,6 +336,27 @@ export const toNullable = (value?: string | null): string | null => {
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+};
+
+type ReachScope = z.infer<typeof reachScopeSchema>;
+
+// Default origin for servers that don't declare a real country (or use the legacy
+// "WW" sentinel). Origin must always be a real place for the homepage globe, while
+// worldwide availability is expressed via reach_scope.
+const DEFAULT_GLOBAL_ORIGIN = "US";
+
+// A server's origin is always a real country; "WW" (or an empty value) is treated as
+// "global reach from a default origin". An explicit reach_scope always wins.
+export const resolveOriginAndReach = (
+  countryCode: string | null | undefined,
+  reachScope: ReachScope | undefined
+): { countryCode: string; reachScope: ReachScope } => {
+  const raw = toNullable(countryCode ?? null)?.toUpperCase() ?? null;
+  const isGlobalLike = raw === null || raw === "WW";
+  return {
+    countryCode: isGlobalLike ? DEFAULT_GLOBAL_ORIGIN : raw,
+    reachScope: reachScope ?? (isGlobalLike ? "global" : "local"),
+  };
 };
 
 const slugify = (value: string): string =>
@@ -394,6 +451,7 @@ export const normalizeServerPayload = (
   freshness_status: "online" | "offline" | "unknown";
   auth_mode: "official" | "offline_allowed" | "unknown";
   country_code: string | null;
+  reach_scope: "local" | "regional" | "global";
   logo_url: string | null;
   banner_url: string | null;
 
@@ -412,6 +470,7 @@ export const normalizeServerPayload = (
   freshness_status: freshnessFromServer(server, nowMs),
   auth_mode: server.authMode as "official" | "offline_allowed" | "unknown",
   country_code: server.countryCode,
+  reach_scope: server.reachScope as "local" | "regional" | "global",
   logo_url: server.logoUrl,
   banner_url: server.bannerUrl,
   last_ping_at: server.lastPingAt ? server.lastPingAt.toISOString() : null,
@@ -601,6 +660,13 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
   } | null = null;
   const STATS_CACHE_TTL_MS = 60 * 1000; // 1 minute
 
+  // Cache for the homepage globe payload (origin coordinates rarely change).
+  let cachedGeo: {
+    servers: z.infer<typeof publicGeoResponseSchema>["data"]["servers"];
+    last_fetched_at: number;
+  } | null = null;
+  const GEO_CACHE_TTL_MS = 60 * 1000; // 1 minute
+
   app.get(
     "/api/v1/servers/stats",
     {
@@ -665,6 +731,71 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       };
 
       return successEnvelope(stats, request.id);
+    }
+  );
+
+  app.get(
+    "/api/v1/servers/geo",
+    {
+      schema: {
+        response: {
+          200: publicGeoResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      const now = Date.now();
+      if (cachedGeo && now - cachedGeo.last_fetched_at < GEO_CACHE_TTL_MS) {
+        return successEnvelope({ servers: cachedGeo.servers }, request.id);
+      }
+
+      // Lightweight payload for the homepage globe: active servers placed at their
+      // origin-country centroid. Servers whose origin has no coordinates are skipped.
+      const rowsResult = await app.db.pool.query<PublicGeoRow>(`
+        select
+          s.slug::text as slug,
+          s.name,
+          s.game,
+          s.country_code as "countryCode",
+          c.latitude as "latitude",
+          c.longitude as "longitude",
+          s.reach_scope as "reachScope",
+          latest.online_players as "onlinePlayers",
+          s.status as "status",
+          s.last_ping_at as "lastPingAt",
+          s.last_probe_attempt_at as "lastProbeAttemptAt",
+          s.probe_status as "probeStatus"
+        from servers s
+        join countries c on c.iso_a_2 = s.country_code
+        left join lateral (
+          select hb.online_players
+          from server_heartbeats hb
+          where hb.server_id = s.id
+          order by hb.occurred_at desc, hb.created_at desc, hb.id desc
+          limit 1
+        ) latest on true
+        where s.game = 'mc_java'
+          and s.status = 'active'
+          and c.latitude is not null
+          and c.longitude is not null
+        order by coalesce(latest.online_players, 0) desc, s.id asc
+        limit 500
+      `);
+
+      const geoServers = rowsResult.rows.map((row) => ({
+        slug: row.slug,
+        name: row.name,
+        game: row.game,
+        country_code: row.countryCode,
+        latitude: row.latitude,
+        longitude: row.longitude,
+        reach_scope: row.reachScope,
+        online_players: row.onlinePlayers,
+        freshness_status: freshnessFromServer(row, now),
+      }));
+
+      cachedGeo = { servers: geoServers, last_fetched_at: now };
+      return successEnvelope({ servers: geoServers }, request.id);
     }
   );
 
@@ -742,6 +873,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const now = new Date();
       const generatedSlug = payload.slug ?? buildTemporarySlug(payload.name);
 
+      const origin = resolveOriginAndReach(payload.country_code, payload.reach_scope);
+
       let created: ServerRecord;
       try {
         created = await app.db.db.transaction(async (tx) => {
@@ -757,7 +890,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
               game: "mc_java",
               status: payload.status,
               authMode: payload.auth_mode,
-              countryCode: toNullable(payload.country_code) ?? "WW",
+              countryCode: origin.countryCode,
+              reachScope: origin.reachScope,
               logoUrl: toNullable(payload.logo_url),
               bannerUrl: toNullable(payload.banner_url),
               updatedAt: now,
@@ -898,8 +1032,20 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       if (request.body.auth_mode !== undefined) {
         patch.authMode = request.body.auth_mode;
       }
-      if (request.body.country_code !== undefined) {
-        patch.countryCode = toNullable(request.body.country_code) ?? "WW";
+      if (request.body.country_code !== undefined || request.body.reach_scope !== undefined) {
+        const origin = resolveOriginAndReach(
+          request.body.country_code !== undefined
+            ? request.body.country_code
+            : existing.countryCode,
+          request.body.reach_scope !== undefined
+            ? request.body.reach_scope
+            : // Keep the existing reach unless the caller switched to a "WW"/global origin.
+              request.body.country_code !== undefined
+              ? undefined
+              : (existing.reachScope as ReachScope)
+        );
+        patch.countryCode = origin.countryCode;
+        patch.reachScope = origin.reachScope;
       }
       if (request.body.logo_url !== undefined) {
         patch.logoUrl = toNullable(request.body.logo_url);

@@ -276,17 +276,18 @@ export function getCountryName(
 
 export function getCountryOptions(
   locale: string,
-  overrides?: CountryNameOverrides
+  overrides?: CountryNameOverrides,
+  options?: { includeWorldwide?: boolean }
 ): Array<{ code: CountryCode; name: string }> {
-  const options = COUNTRY_CODES.map((code) => ({
+  const includeWorldwide = options?.includeWorldwide ?? true;
+  const all = COUNTRY_CODES.map((code) => ({
     code,
     name: getCountryName(code, locale, overrides),
   }));
-  const [worldwide, ...countries] = options;
+  const [worldwide, ...countries] = all;
+  const sorted = countries.sort((a, b) => a.name.localeCompare(b.name, locale));
 
-  if (!worldwide) {
-    return [];
-  }
-
-  return [worldwide, ...countries.sort((a, b) => a.name.localeCompare(b.name, locale))];
+  // "WW" (worldwide) is a reach, not an origin — exclude it where a real
+  // origin country must be chosen.
+  return includeWorldwide && worldwide ? [worldwide, ...sorted] : sorted;
 }
