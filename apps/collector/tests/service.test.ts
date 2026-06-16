@@ -123,10 +123,14 @@ describe("CollectorService", () => {
 
     const probe = vi
       .fn<(target: CollectorTarget, timeoutMs: number) => Promise<ProbeResult>>()
-      .mockRejectedValue(new Error("probe timeout"));
+      .mockRejectedValue(new Error("Server is offline or unreachable"));
     const probeClient = {
       probe,
     } as unknown as MinecraftProbeClient;
+    const logger = {
+      info: vi.fn(),
+      error: vi.fn(),
+    };
 
     const service = new CollectorService({
       apiClient,
@@ -137,10 +141,7 @@ describe("CollectorService", () => {
       concurrency: 1,
       probeTimeoutMs: 2000,
       now: () => new Date("2026-04-10T08:00:00.000Z"),
-      logger: {
-        info: vi.fn(),
-        error: vi.fn(),
-      },
+      logger,
     });
 
     const result = await service.runCycle();
@@ -155,10 +156,67 @@ describe("CollectorService", () => {
           server_id: "srv-a",
           occurred_at: "2026-04-10T08:00:00.000Z",
           result: "failure",
-          error_code: "timeout",
+          error_code: "offline_or_unreachable",
         },
       ],
     });
+    expect(logger.error).toHaveBeenCalledWith(
+      "[collector] probe failed server=srv-a host=a.example.com error_code=offline_or_unreachable"
+    );
+  });
+
+  it("classifies socket-closed probe failures without logging stack objects", async () => {
+    const batchIngest = vi.fn<ApiClient["batchIngest"]>().mockImplementation(async (payload) => ({
+      accepted: true,
+      heartbeats: [],
+      failures: payload.failures.map((f) => ({
+        server_id: f.server_id,
+      })),
+    }));
+    const fetchAllTargets = vi.fn<() => Promise<CollectorTarget[]>>().mockResolvedValue([targetA]);
+    const apiClient = {
+      fetchAllTargets,
+      batchIngest,
+    } as unknown as ApiClient;
+    const probe = vi
+      .fn<(target: CollectorTarget, timeoutMs: number) => Promise<ProbeResult>>()
+      .mockRejectedValue(new Error("Socket closed unexpectedly while waiting for data"));
+    const probeClient = {
+      probe,
+    } as unknown as MinecraftProbeClient;
+    const logger = {
+      info: vi.fn(),
+      error: vi.fn(),
+    };
+
+    const service = new CollectorService({
+      apiClient,
+      probeClient,
+      metrics: new CollectorMetrics(),
+      pingIntervalSeconds: 300,
+      payloadIntervalSeconds: 1800,
+      concurrency: 1,
+      probeTimeoutMs: 2000,
+      now: () => new Date("2026-04-10T08:00:00.000Z"),
+      logger,
+    });
+
+    await service.runCycle();
+
+    expect(batchIngest).toHaveBeenCalledWith({
+      heartbeats: [],
+      failures: [
+        {
+          server_id: "srv-a",
+          occurred_at: "2026-04-10T08:00:00.000Z",
+          result: "failure",
+          error_code: "socket_closed",
+        },
+      ],
+    });
+    expect(logger.error).toHaveBeenCalledWith(
+      "[collector] probe failed server=srv-a host=a.example.com error_code=socket_closed"
+    );
   });
 
   it("chunks mixed batch ingest payloads and continues after a chunk failure", async () => {

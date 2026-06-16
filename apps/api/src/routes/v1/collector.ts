@@ -59,7 +59,7 @@ const probeAttemptBodySchema = z.object({
 const collectorTargetSchema = z.object({
   id: z.string().uuid(),
   slug: z.string(),
-  host: z.string(),
+  host: z.string().trim().min(1).max(255),
   port: z.number().int().positive(),
   game: z.literal("mc_java"),
   country_code: z.string().nullable(),
@@ -349,6 +349,7 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
       const baseWhere = and(
         eq(servers.status, "active"),
         eq(servers.game, "mc_java"),
+        sql`length(trim(${servers.host})) > 0`,
         dueCondition
       );
       const createdAtCursorExpr = sql<Date>`date_trunc('milliseconds', ${servers.createdAt})`;

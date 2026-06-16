@@ -23,6 +23,15 @@ interface PendingPayloads {
   failures: ProbeFailurePayload[];
 }
 
+type ProbeErrorCode =
+  | "connection_refused"
+  | "dns"
+  | "timeout"
+  | "network_unreachable"
+  | "offline_or_unreachable"
+  | "socket_closed"
+  | "probe_failed";
+
 interface CollectorServiceOptions {
   apiClient: ApiClient;
   probeClient: MinecraftProbeClient;
@@ -103,13 +112,13 @@ const chunkPendingPayloads = (pendingPayloads: PendingPayloads): PendingPayloads
   return chunks;
 };
 
-const probeErrorCode = (error: unknown): string => {
+const probeErrorCode = (error: unknown): ProbeErrorCode => {
   const code = (error as { code?: unknown; cause?: { code?: unknown } }).code;
   const causeCode = (error as { cause?: { code?: unknown } }).cause?.code;
   const rawCode = typeof code === "string" ? code : typeof causeCode === "string" ? causeCode : "";
   const message = error instanceof Error ? error.message.toLowerCase() : "";
 
-  if (rawCode.includes("TIMEOUT") || message.includes("timeout")) {
+  if (rawCode.includes("TIMEOUT") || message.includes("timeout") || rawCode === "ETIMEDOUT") {
     return "timeout";
   }
   if (rawCode.includes("ENOTFOUND") || rawCode.includes("EAI_AGAIN")) {
@@ -120,6 +129,12 @@ const probeErrorCode = (error: unknown): string => {
   }
   if (rawCode.includes("ENETUNREACH") || rawCode.includes("EHOSTUNREACH")) {
     return "network_unreachable";
+  }
+  if (message.includes("server is offline or unreachable")) {
+    return "offline_or_unreachable";
+  }
+  if (message.includes("socket closed unexpectedly")) {
+    return "socket_closed";
   }
 
   return "probe_failed";
@@ -299,13 +314,16 @@ export class CollectorService {
       });
     } catch (error) {
       this.metrics.observeProbeFailure();
-      this.logger.error(`[collector] probe failed server=${target.id} host=${target.host}`, error);
+      const errorCode = probeErrorCode(error);
+      this.logger.error(
+        `[collector] probe failed server=${target.id} host=${target.host} error_code=${errorCode}`
+      );
 
       pendingPayloads.failures.push({
         server_id: target.id,
         occurred_at: occurredAtIso,
         result: "failure",
-        error_code: probeErrorCode(error),
+        error_code: errorCode,
       });
     }
   }

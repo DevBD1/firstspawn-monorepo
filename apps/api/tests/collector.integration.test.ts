@@ -180,6 +180,35 @@ describe("collector integration", () => {
     expect(ids).toContain(oldActive.id);
   });
 
+  it("excludes active targets with blank or whitespace hosts", async () => {
+    const valid = await createServer({
+      slug: "valid-host-target",
+      host: "play.example.com",
+    });
+    const blank = await createServer({
+      slug: "blank-host-target",
+      host: "",
+    });
+    const whitespace = await createServer({
+      slug: "whitespace-host-target",
+      host: "   ",
+    });
+
+    const response = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/collector/targets?limit=10",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const ids = response.json().data.targets.map((target: { id: string }) => target.id);
+    expect(ids).toContain(valid.id);
+    expect(ids).not.toContain(blank.id);
+    expect(ids).not.toContain(whitespace.id);
+  });
+
   it("rejects requests with bad collector key", async () => {
     const response = await getContext().app.inject({
       method: "GET",
