@@ -1,4 +1,6 @@
 import type {
+  BatchIngestPayload,
+  BatchIngestResult,
   CollectorTarget,
   CollectorTargetsPage,
   HeartbeatPayload,
@@ -182,5 +184,32 @@ export class ApiClient {
     if (payload.error) {
       throw new Error(`Probe attempt ingest failed: ${payload.error.code}`);
     }
+  }
+
+  public async batchIngest(payloadBody: BatchIngestPayload): Promise<BatchIngestResult> {
+    const url = toUrl(this.baseUrl, "/collector/batch-ingest");
+
+    const response = await this.fetchImpl(url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-collector-key": this.collectorKey,
+      },
+      body: JSON.stringify(payloadBody),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Batch ingest failed with status ${response.status}${await readErrorBody(response)}`
+      );
+    }
+
+    const payload = (await response.json()) as Envelope<BatchIngestResult>;
+
+    if (payload.error) {
+      throw new Error(`Batch ingest failed: ${payload.error.code}`);
+    }
+
+    return payload.data;
   }
 }

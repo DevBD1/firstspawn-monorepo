@@ -296,7 +296,7 @@ erDiagram
 
 ## Retention And Lifecycle
 
-- Raw `server_heartbeats` retention: 14 days for all servers.
+- Raw `server_heartbeats` retention: 7 days for all servers.
 - Server archive policy:
   - Archive only from explicit catalog/admin evidence.
   - Collector silence, stale `last_ping_at`, failed probes, DNS failures, or network reachability failures must not archive rows.

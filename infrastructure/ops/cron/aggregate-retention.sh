@@ -6,7 +6,7 @@ if [[ -z "${API_DATABASE_URL:-}" ]]; then
   exit 1
 fi
 
-RETENTION_DAYS="${RETENTION_DAYS:-14}"
+RETENTION_DAYS="${RETENTION_DAYS:-7}"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 

@@ -1,7 +1,7 @@
 -- Aggregates raw heartbeats older than retention window into hourly/daily rollups,
 -- then deletes those raw rows.
 -- Usage (example):
---   psql "$API_DATABASE_URL" -v retention_days=14 -f packages/database/jobs/rollup_retention.sql
+--   psql "$API_DATABASE_URL" -v retention_days=7 -f packages/database/jobs/rollup_retention.sql
 
 \set ON_ERROR_STOP on
 

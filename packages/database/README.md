@@ -49,7 +49,7 @@ psql "$API_DATABASE_URL" -f packages/database/seeds/0001_demo_server.sql
 Retention + rollup SQL:
 
 ```bash
-API_DATABASE_URL=postgresql://... RETENTION_DAYS=14 \
+API_DATABASE_URL=postgresql://... RETENTION_DAYS=7 \
   ./infrastructure/ops/cron/aggregate-retention.sh
 ```
 

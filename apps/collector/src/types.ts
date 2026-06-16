@@ -46,3 +46,19 @@ export interface ProbeResult {
   minecraftVersion: string | null;
   payload: Record<string, unknown>;
 }
+
+export interface BatchIngestPayload {
+  heartbeats: HeartbeatPayload[];
+  failures: ProbeFailurePayload[];
+}
+
+export interface BatchIngestResult {
+  accepted: boolean;
+  heartbeats: {
+    server_id: string;
+    duplicate: boolean;
+  }[];
+  failures: {
+    server_id: string;
+  }[];
+}

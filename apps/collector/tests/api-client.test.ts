@@ -179,4 +179,80 @@ describe("ApiClient", () => {
       })
     ).rejects.toThrow("Expected integer");
   });
+
+  it("sends batch ingest payload", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(
+        JSON.stringify(
+          envelope({
+            accepted: true,
+            heartbeats: [{ server_id: "srv-a", duplicate: false }],
+            failures: [],
+          })
+        ),
+        { status: 200 }
+      )
+    );
+
+    const client = new ApiClient({
+      baseUrl: "http://localhost:8000/api/v1",
+      collectorKey: "secret",
+      pageSize: 1,
+      fetchImpl: fetchMock,
+    });
+
+    const result = await client.batchIngest({
+      heartbeats: [
+        {
+          server_id: "srv-a",
+          occurred_at: "2026-04-10T08:00:00.000Z",
+          idempotency_key: "key-1",
+          ping_ms: 12,
+          online_players: 5,
+          max_players: 100,
+          protocol_version: 765,
+          minecraft_version: "1.20.4",
+        },
+      ],
+      failures: [
+        {
+          server_id: "srv-b",
+          occurred_at: "2026-04-10T08:00:00.000Z",
+          result: "failure",
+          error_code: "timeout",
+        },
+      ],
+    });
+
+    expect(result.accepted).toBe(true);
+    expect(result.heartbeats).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      new URL("http://localhost:8000/api/v1/collector/batch-ingest"),
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          heartbeats: [
+            {
+              server_id: "srv-a",
+              occurred_at: "2026-04-10T08:00:00.000Z",
+              idempotency_key: "key-1",
+              ping_ms: 12,
+              online_players: 5,
+              max_players: 100,
+              protocol_version: 765,
+              minecraft_version: "1.20.4",
+            },
+          ],
+          failures: [
+            {
+              server_id: "srv-b",
+              occurred_at: "2026-04-10T08:00:00.000Z",
+              result: "failure",
+              error_code: "timeout",
+            },
+          ],
+        }),
+      })
+    );
+  });
 });

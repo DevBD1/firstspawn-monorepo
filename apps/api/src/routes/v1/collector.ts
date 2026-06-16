@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, or, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
@@ -15,6 +15,7 @@ import {
 } from "./collector-helpers.js";
 
 const MAX_TARGET_LIMIT = 200;
+const MAX_BATCH_INGEST_ITEMS = 200;
 
 const targetsQuerySchema = z.object({
   cursor: z.string().optional(),
@@ -96,6 +97,38 @@ const probeAttemptResponseSchema = envelopeSchema(
     accepted: z.literal(true),
     server_id: z.string().uuid(),
     occurred_at: z.string().datetime(),
+  })
+);
+
+const batchIngestBodySchema = z
+  .object({
+    heartbeats: z.array(heartbeatBodySchema),
+    failures: z.array(probeAttemptBodySchema),
+  })
+  .superRefine((value, ctx) => {
+    if (value.heartbeats.length + value.failures.length > MAX_BATCH_INGEST_ITEMS) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Batch ingest accepts at most ${MAX_BATCH_INGEST_ITEMS} total records.`,
+        path: [],
+      });
+    }
+  });
+
+const batchIngestResponseSchema = envelopeSchema(
+  z.object({
+    accepted: z.literal(true),
+    heartbeats: z.array(
+      z.object({
+        server_id: z.string().uuid(),
+        duplicate: z.boolean(),
+      })
+    ),
+    failures: z.array(
+      z.object({
+        server_id: z.string().uuid(),
+      })
+    ),
   })
 );
 
@@ -301,7 +334,23 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
       const cursor = parseCursor(request.query.cursor);
       const limit = request.query.limit;
 
-      const baseWhere = and(eq(servers.status, "active"), eq(servers.game, "mc_java"));
+      const dueCondition = sql`
+        (${servers.lastProbeAttemptAt} IS NULL OR
+          CASE
+            WHEN ${servers.probeStatus} IN ('unreachable', 'offline') AND now() - COALESCE(${servers.lastProbeSuccessAt}, ${servers.createdAt}) > INTERVAL '24 hours'
+              THEN ${servers.lastProbeAttemptAt} <= now() - INTERVAL '350 minutes'
+            WHEN ${servers.probeStatus} IN ('unreachable', 'offline') AND now() - COALESCE(${servers.lastProbeSuccessAt}, ${servers.createdAt}) > INTERVAL '1 hour'
+              THEN ${servers.lastProbeAttemptAt} <= now() - INTERVAL '28 minutes'
+            ELSE
+              ${servers.lastProbeAttemptAt} <= now() - INTERVAL '270 seconds'
+          END
+        )
+      `;
+      const baseWhere = and(
+        eq(servers.status, "active"),
+        eq(servers.game, "mc_java"),
+        dueCondition
+      );
       const createdAtCursorExpr = sql<Date>`date_trunc('milliseconds', ${servers.createdAt})`;
       const whereCondition = cursor
         ? and(
@@ -406,6 +455,267 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
           accepted: true as const,
           server_id: request.body.server_id,
           occurred_at: new Date(request.body.occurred_at).toISOString(),
+        },
+        request.id
+      );
+    }
+  );
+
+  app.post(
+    "/batch-ingest",
+    {
+      schema: {
+        body: batchIngestBodySchema,
+        response: {
+          200: batchIngestResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      requireCollectorKey(app, request.headers["x-collector-key"]);
+
+      const { heartbeats, failures } = request.body;
+      const now = new Date();
+
+      // 1. Check all server IDs for existence and active status in one query
+      const serverIds = [
+        ...new Set([...heartbeats.map((h) => h.server_id), ...failures.map((f) => f.server_id)]),
+      ];
+
+      let dbServers: { id: string; status: string; game: string }[] = [];
+      if (serverIds.length > 0) {
+        dbServers = await app.db.db
+          .select({
+            id: servers.id,
+            status: servers.status,
+            game: servers.game,
+          })
+          .from(servers)
+          .where(
+            and(
+              eq(servers.status, "active"),
+              eq(servers.game, "mc_java"),
+              inArray(servers.id, serverIds)
+            )
+          );
+      }
+
+      const activeServerIds = new Set(dbServers.map((s) => s.id));
+
+      // Filter input sets by active servers
+      const validHeartbeats = heartbeats.filter((h) => activeServerIds.has(h.server_id));
+      const validFailures = failures.filter((f) => activeServerIds.has(f.server_id));
+
+      // 2. Fetch cached state from Redis for the valid heartbeats
+      interface CachedState {
+        status: string;
+        onlinePlayers: number | null;
+        maxPlayers: number | null;
+        lastDbWriteAt: string; // ISO string
+      }
+
+      const redisKeys = validHeartbeats.map((h) => `server:heartbeat:state:${h.server_id}`);
+      const cachedStrings = redisKeys.length > 0 ? await app.redis.mget(...redisKeys) : [];
+
+      const cachedStateMap = new Map<string, CachedState | null>();
+      validHeartbeats.forEach((h, index) => {
+        const cachedStr = cachedStrings[index];
+        if (cachedStr) {
+          try {
+            cachedStateMap.set(h.server_id, JSON.parse(cachedStr) as CachedState);
+          } catch {
+            cachedStateMap.set(h.server_id, null);
+          }
+        } else {
+          cachedStateMap.set(h.server_id, null);
+        }
+      });
+
+      // 3. Process heartbeats, determining which need a DB insert
+      const heartbeatsToInsert: (typeof serverHeartbeats.$inferInsert)[] = [];
+      const redisUpdates: { key: string; state: CachedState }[] = [];
+      const heartbeatsOutput: { server_id: string; duplicate: boolean }[] = [];
+
+      for (const h of validHeartbeats) {
+        const cached = cachedStateMap.get(h.server_id);
+        const occurredAtDate = new Date(h.occurred_at);
+
+        let shouldWrite = false;
+        if (!cached) {
+          shouldWrite = true;
+        } else {
+          // Condition A: Status changed
+          if (cached.status !== "online") {
+            shouldWrite = true;
+          }
+
+          // Condition B: Player count changed significantly (5% or +/- 2 players)
+          if (!shouldWrite) {
+            const prev = cached.onlinePlayers;
+            const current = h.online_players ?? null;
+            if (prev !== current) {
+              if (prev === null || current === null) {
+                shouldWrite = true;
+              } else {
+                const absDiff = Math.abs(current - prev);
+                if (absDiff >= 2) {
+                  shouldWrite = true;
+                } else if (prev > 0 && absDiff / prev >= 0.05) {
+                  shouldWrite = true;
+                }
+              }
+            }
+          }
+
+          // Condition C: At least 1 forced DB write per hour
+          if (!shouldWrite && cached.lastDbWriteAt) {
+            const lastWriteTime = new Date(cached.lastDbWriteAt).getTime();
+            if (occurredAtDate.getTime() - lastWriteTime >= 60 * 60 * 1000) {
+              shouldWrite = true;
+            }
+          }
+        }
+
+        const nextDbWriteAt = shouldWrite
+          ? h.occurred_at
+          : (cached?.lastDbWriteAt ?? h.occurred_at);
+
+        // Prepare Redis cache update state
+        redisUpdates.push({
+          key: `server:heartbeat:state:${h.server_id}`,
+          state: {
+            status: "online",
+            onlinePlayers: h.online_players ?? null,
+            maxPlayers: h.max_players ?? null,
+            lastDbWriteAt: nextDbWriteAt,
+          },
+        });
+
+        if (shouldWrite) {
+          heartbeatsToInsert.push({
+            id: randomUUID(),
+            serverId: h.server_id,
+            occurredAt: occurredAtDate,
+            collectedAt: now,
+            idempotencyKey: h.idempotency_key,
+            pingMs: h.ping_ms,
+            onlinePlayers: h.online_players ?? null,
+            maxPlayers: h.max_players ?? null,
+            uptimeSeconds: h.uptime_seconds ?? null,
+            protocolVersion: h.protocol_version ?? null,
+            minecraftVersion: h.minecraft_version ?? null,
+            payload: h.payload,
+            updatedAt: now,
+          });
+        } else {
+          // Skipped, so duplicate is false
+          heartbeatsOutput.push({
+            server_id: h.server_id,
+            duplicate: false,
+          });
+        }
+      }
+
+      // 4. Perform bulk Postgres inserts
+      const insertedSet = new Set<string>(); // "serverId:idempotencyKey"
+      if (heartbeatsToInsert.length > 0) {
+        const insertedRows = await app.db.db
+          .insert(serverHeartbeats)
+          .values(heartbeatsToInsert)
+          .onConflictDoNothing({
+            target: [serverHeartbeats.serverId, serverHeartbeats.idempotencyKey],
+          })
+          .returning({
+            serverId: serverHeartbeats.serverId,
+            idempotencyKey: serverHeartbeats.idempotencyKey,
+          });
+
+        for (const row of insertedRows) {
+          insertedSet.add(`${row.serverId}:${row.idempotencyKey}`);
+        }
+
+        // Add back to outputs, determining duplicate status
+        for (const h of heartbeatsToInsert) {
+          const wasInserted = insertedSet.has(`${h.serverId}:${h.idempotencyKey}`);
+          heartbeatsOutput.push({
+            server_id: h.serverId,
+            duplicate: !wasInserted,
+          });
+        }
+      }
+
+      // 5. Bulk update the servers table for successes
+      if (validHeartbeats.length > 0) {
+        const successRows = validHeartbeats.map(
+          (h) => sql`(${h.server_id}::uuid, ${new Date(h.occurred_at)}::timestamptz)`
+        );
+
+        // We run bulk update in SQL
+        await app.db.db.execute(sql`
+          UPDATE servers AS s
+          SET
+            last_ping_at = GREATEST(COALESCE(s.last_ping_at, v.occurred_at), v.occurred_at),
+            last_probe_attempt_at = GREATEST(COALESCE(s.last_probe_attempt_at, v.occurred_at), v.occurred_at),
+            last_probe_success_at = GREATEST(COALESCE(s.last_probe_success_at, v.occurred_at), v.occurred_at),
+            consecutive_probe_failures = 0,
+            last_probe_error_code = NULL,
+            probe_status = 'online',
+            updated_at = ${now}
+          FROM (VALUES ${sql.join(successRows, sql`, `)}) AS v(id, occurred_at)
+          WHERE s.id = v.id;
+        `);
+      }
+
+      // 6. Bulk update the servers table for failures
+      const failuresOutput: { server_id: string }[] = [];
+      if (validFailures.length > 0) {
+        const failureRows = validFailures.map(
+          (f) =>
+            sql`(${f.server_id}::uuid, ${new Date(f.occurred_at)}::timestamptz, ${f.error_code})`
+        );
+
+        await app.db.db.execute(sql`
+          UPDATE servers AS s
+          SET
+            last_probe_attempt_at = GREATEST(COALESCE(s.last_probe_attempt_at, v.occurred_at), v.occurred_at),
+            last_probe_failure_at = GREATEST(COALESCE(s.last_probe_failure_at, v.occurred_at), v.occurred_at),
+            consecutive_probe_failures = s.consecutive_probe_failures + 1,
+            last_probe_error_code = v.error_code,
+            probe_status = 'unreachable',
+            updated_at = ${now}
+          FROM (VALUES ${sql.join(failureRows, sql`, `)}) AS v(id, occurred_at, error_code)
+          WHERE s.id = v.id AND s.status = 'active' AND s.game = 'mc_java';
+        `);
+
+        for (const f of validFailures) {
+          failuresOutput.push({ server_id: f.server_id });
+
+          redisUpdates.push({
+            key: `server:heartbeat:state:${f.server_id}`,
+            state: {
+              status: "unreachable",
+              onlinePlayers: null,
+              maxPlayers: null,
+              lastDbWriteAt: f.occurred_at,
+            },
+          });
+        }
+      }
+
+      // 7. Write all states to Redis in one pipeline
+      if (redisUpdates.length > 0) {
+        const pipeline = app.redis.pipeline();
+        for (const update of redisUpdates) {
+          pipeline.set(update.key, JSON.stringify(update.state), "EX", 86400 * 7); // Cache for 7 days
+        }
+        await pipeline.exec();
+      }
+
+      return successEnvelope(
+        {
+          accepted: true as const,
+          heartbeats: heartbeatsOutput,
+          failures: failuresOutput,
         },
         request.id
       );

@@ -421,4 +421,128 @@ describe("collector integration", () => {
     expect(suspendedRes.statusCode).toBe(409);
     expect(suspendedRes.json().error.code).toBe("SERVER_NOT_COLLECTABLE");
   });
+
+  it("batch-ingest processes heartbeats and failures, caching in Redis and writing to DB conditionally", async () => {
+    const server1 = await createServer();
+    const server2 = await createServer();
+    const server3 = await createServer();
+
+    const payload = {
+      heartbeats: [
+        {
+          server_id: server1.id,
+          occurred_at: "2026-04-10T10:00:00.000Z",
+          idempotency_key: "batch-key-1",
+          ping_ms: 10,
+          online_players: 5,
+          max_players: 100,
+        },
+        {
+          server_id: server2.id,
+          occurred_at: "2026-04-10T10:00:00.000Z",
+          idempotency_key: "batch-key-2",
+          ping_ms: 20,
+          online_players: 10,
+          max_players: 100,
+        },
+      ],
+      failures: [
+        {
+          server_id: server3.id,
+          occurred_at: "2026-04-10T10:00:00.000Z",
+          result: "failure",
+          error_code: "timeout",
+        },
+      ],
+    };
+
+    const firstRes = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/batch-ingest",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload,
+    });
+
+    expect(firstRes.statusCode).toBe(200);
+    expect(firstRes.json().data.accepted).toBe(true);
+    expect(firstRes.json().data.heartbeats).toEqual([
+      { server_id: server1.id, duplicate: false },
+      { server_id: server2.id, duplicate: false },
+    ]);
+    expect(firstRes.json().data.failures).toEqual([{ server_id: server3.id }]);
+
+    const dbHb1Count = await getContext().app.db.db.query.serverHeartbeats.findMany({
+      where: (table, { eq }) => eq(table.serverId, server1.id),
+    });
+    expect(dbHb1Count).toHaveLength(1);
+
+    const payload2 = {
+      heartbeats: [
+        {
+          server_id: server1.id,
+          occurred_at: "2026-04-10T10:10:00.000Z",
+          idempotency_key: "batch-key-1-2",
+          ping_ms: 11,
+          online_players: 5,
+          max_players: 100,
+        },
+        {
+          server_id: server2.id,
+          occurred_at: "2026-04-10T10:10:00.000Z",
+          idempotency_key: "batch-key-2-2",
+          ping_ms: 22,
+          online_players: 13,
+          max_players: 100,
+        },
+      ],
+      failures: [],
+    };
+
+    const secondRes = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/batch-ingest",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: payload2,
+    });
+
+    expect(secondRes.statusCode).toBe(200);
+
+    const dbHb1After = await getContext().app.db.db.query.serverHeartbeats.findMany({
+      where: (table, { eq }) => eq(table.serverId, server1.id),
+    });
+    expect(dbHb1After).toHaveLength(1);
+
+    const dbHb2After = await getContext().app.db.db.query.serverHeartbeats.findMany({
+      where: (table, { eq }) => eq(table.serverId, server2.id),
+    });
+    expect(dbHb2After).toHaveLength(2);
+  });
+
+  it("rejects batch-ingest payloads above the total record limit", async () => {
+    const heartbeats = Array.from({ length: 201 }, (_, index) => ({
+      server_id: randomUUID(),
+      occurred_at: "2026-04-10T10:00:00.000Z",
+      idempotency_key: `oversized-batch-${index}`,
+      ping_ms: 10,
+    }));
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/batch-ingest",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        heartbeats,
+        failures: [],
+      },
+    });
+
+    expect(response.statusCode).toBe(422);
+    expect(response.json().error.code).toBe("VALIDATION_ERROR");
+  });
 });
