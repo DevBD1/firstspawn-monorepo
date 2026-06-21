@@ -1,11 +1,8 @@
 import type {
-  BatchIngestPayload,
-  BatchIngestResult,
   CollectorTarget,
   CollectorTargetsPage,
-  HeartbeatPayload,
-  IngestResult,
-  ProbeFailurePayload,
+  ProbeCycleIngestResult,
+  ProbeCyclePayload,
 } from "./types.js";
 
 interface ApiClientOptions {
@@ -14,35 +11,25 @@ interface ApiClientOptions {
   pageSize: number;
   fetchImpl?: typeof fetch;
 }
-
 interface WaitUntilReadyOptions {
   retryDelayMs?: number;
   sleep?: (ms: number) => Promise<void>;
   logger?: Pick<Console, "info">;
 }
-
 interface Envelope<T> {
   data: T;
-  meta: {
-    request_id: string | null;
-  };
-  error: {
-    code: string;
-    message: string;
-    details: Record<string, unknown>;
-  } | null;
+  meta: { request_id: string | null };
+  error: { code: string; message: string } | null;
 }
 
-const toUrl = (baseUrl: string, path: string): URL => {
-  const normalized = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
-  return new URL(`${normalized}${path}`);
-};
-
+const toUrl = (baseUrl: string, path: string): URL =>
+  new URL(`${baseUrl.replace(/\/$/, "")}${path}`);
 const readErrorBody = async (response: Response): Promise<string> => {
   const body = await response.text();
-  return body.length > 0 ? `: ${body.slice(0, 500)}` : "";
+  return body ? `: ${body.slice(0, 500)}` : "";
 };
 
+/** Minimal authenticated client for target snapshots and atomic probe cycles. */
 export class ApiClient {
   private readonly baseUrl: string;
   private readonly collectorKey: string;
@@ -59,157 +46,61 @@ export class ApiClient {
   public async fetchTargetsPage(cursor: string | null = null): Promise<CollectorTargetsPage> {
     const url = toUrl(this.baseUrl, "/collector/targets");
     url.searchParams.set("limit", String(this.pageSize));
-    if (cursor) {
-      url.searchParams.set("cursor", cursor);
-    }
-
+    if (cursor) url.searchParams.set("cursor", cursor);
     const response = await this.fetchImpl(url, {
-      method: "GET",
-      headers: {
-        "x-collector-key": this.collectorKey,
-      },
+      headers: { "x-collector-key": this.collectorKey },
     });
-
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error(
         `Target fetch failed with status ${response.status}${await readErrorBody(response)}`
       );
-    }
-
     const payload = (await response.json()) as Envelope<{
       targets: CollectorTarget[];
       next_cursor: string | null;
     }>;
-
-    if (payload.error) {
-      throw new Error(`Target fetch failed: ${payload.error.code}`);
-    }
-
-    return {
-      items: payload.data.targets,
-      nextCursor: payload.data.next_cursor,
-    };
+    if (payload.error) throw new Error(`Target fetch failed: ${payload.error.code}`);
+    return { items: payload.data.targets, nextCursor: payload.data.next_cursor };
   }
 
   public async fetchAllTargets(): Promise<CollectorTarget[]> {
-    const allTargets: CollectorTarget[] = [];
+    const targets: CollectorTarget[] = [];
     let cursor: string | null = null;
-
-    while (true) {
+    do {
       const page = await this.fetchTargetsPage(cursor);
-      allTargets.push(...page.items);
+      targets.push(...page.items);
       cursor = page.nextCursor;
-      if (!cursor) {
-        break;
-      }
-    }
-
-    return allTargets;
+    } while (cursor);
+    return targets;
   }
 
   public async waitUntilReady(options: WaitUntilReadyOptions = {}): Promise<void> {
-    const retryDelayMs = options.retryDelayMs ?? 2000;
     const sleep =
-      options.sleep ??
-      (async (ms: number): Promise<void> =>
-        new Promise((resolve) => {
-          setTimeout(resolve, ms);
-        }));
-    const logger = options.logger ?? console;
-
+      options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
     while (true) {
       try {
-        await this.fetchTargetsPage(null);
+        await this.fetchTargetsPage();
         return;
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error";
-        logger.info(`[collector] waiting for api readiness: ${message}`);
-        await sleep(retryDelayMs);
+        options.logger?.info(
+          `[collector] waiting for api readiness: ${error instanceof Error ? error.message : "Unknown error"}`
+        );
+        await sleep(options.retryDelayMs ?? 2_000);
       }
     }
   }
 
-  public async ingestHeartbeat(payloadBody: HeartbeatPayload): Promise<IngestResult> {
-    const url = toUrl(this.baseUrl, "/collector/heartbeats");
-
-    const response = await this.fetchImpl(url, {
+  public async ingestProbeCycle(body: ProbeCyclePayload): Promise<ProbeCycleIngestResult> {
+    const response = await this.fetchImpl(toUrl(this.baseUrl, "/collector/probe-cycles"), {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-collector-key": this.collectorKey,
-      },
-      body: JSON.stringify(payloadBody),
+      headers: { "content-type": "application/json", "x-collector-key": this.collectorKey },
+      body: JSON.stringify(body),
     });
-
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error(
-        `Heartbeat ingest failed with status ${response.status}${await readErrorBody(response)}`
+        `Probe cycle ingest failed with status ${response.status}${await readErrorBody(response)}`
       );
-    }
-
-    const payload = (await response.json()) as Envelope<{
-      accepted: boolean;
-      duplicate: boolean;
-    }>;
-
-    if (payload.error) {
-      throw new Error(`Heartbeat ingest failed: ${payload.error.code}`);
-    }
-
-    return payload.data;
-  }
-
-  public async recordProbeFailure(payloadBody: ProbeFailurePayload): Promise<void> {
-    const url = toUrl(this.baseUrl, "/collector/probe-attempts");
-
-    const response = await this.fetchImpl(url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-collector-key": this.collectorKey,
-      },
-      body: JSON.stringify(payloadBody),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Probe attempt ingest failed with status ${response.status}${await readErrorBody(response)}`
-      );
-    }
-
-    const payload = (await response.json()) as Envelope<{
-      accepted: boolean;
-    }>;
-
-    if (payload.error) {
-      throw new Error(`Probe attempt ingest failed: ${payload.error.code}`);
-    }
-  }
-
-  public async batchIngest(payloadBody: BatchIngestPayload): Promise<BatchIngestResult> {
-    const url = toUrl(this.baseUrl, "/collector/batch-ingest");
-
-    const response = await this.fetchImpl(url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-collector-key": this.collectorKey,
-      },
-      body: JSON.stringify(payloadBody),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Batch ingest failed with status ${response.status}${await readErrorBody(response)}`
-      );
-    }
-
-    const payload = (await response.json()) as Envelope<BatchIngestResult>;
-
-    if (payload.error) {
-      throw new Error(`Batch ingest failed: ${payload.error.code}`);
-    }
-
+    const payload = (await response.json()) as Envelope<ProbeCycleIngestResult>;
+    if (payload.error) throw new Error(`Probe cycle ingest failed: ${payload.error.code}`);
     return payload.data;
   }
 }

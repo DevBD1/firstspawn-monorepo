@@ -12,7 +12,6 @@ INSERT INTO servers (
   auth_mode,
   country_code,
   probe_status,
-  last_ping_at,
   last_probe_attempt_at,
   last_probe_success_at,
   created_at,
@@ -30,7 +29,6 @@ VALUES (
   'official',
   'US',
   'online',
-  now(),
   now(),
   now(),
   now(),
@@ -83,32 +81,21 @@ CROSS JOIN (
 WHERE s.slug = 'aurora-smp'
 ON CONFLICT DO NOTHING;
 
-INSERT INTO server_heartbeats (
-  id,
-  server_id,
-  occurred_at,
-  collected_at,
-  ping_ms,
-  online_players,
-  max_players,
-  minecraft_version,
-  idempotency_key,
-  created_at,
-  updated_at
+INSERT INTO collector_probe_cycles (
+  id, submission_id, collector_instance_id, slot_start, started_at, completed_at,
+  target_count, success_count, failure_count, classification, created_at, updated_at
+) VALUES (
+  '00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000102', 'demo',
+  date_trunc('minute', now()), now(), now(), 1, 1, 0, 'accepted', now(), now()
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO server_probe_observations (
+  cycle_id, server_id, slot_start, observed_at, outcome, online_players, created_at, updated_at
 )
 SELECT
-  '00000000-0000-4000-8000-000000000101',
-  s.id,
-  now(),
-  now(),
-  42,
-  87,
-  240,
-  '1.21.4',
-  'demo-aurora-smp-live-metrics',
-  now(),
-  now()
-FROM servers AS s
+  '00000000-0000-4000-8000-000000000101', s.id,
+  date_trunc('minute', now()), now(), 'online', 87, now(), now()
+FROM servers s
 WHERE s.slug = 'aurora-smp'
 ON CONFLICT DO NOTHING;
 

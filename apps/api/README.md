@@ -36,9 +36,9 @@ and database schema/client primitives consumed from `@firstspawn/database`.
 - Public server list/detail endpoints (slug detail)
 - Catalog server metadata uses `auth_mode`, `country_code`, `logo_url`,
   `banner_url`, embedded `socials`, and embedded `supported_clients`
-- Collector target, heartbeat ingestion, and probe-failure ingestion endpoints
-- Freshness derived from probe state plus `servers.last_ping_at` (15 minute online window)
-- Heartbeat idempotency by `(server_id, idempotency_key)`
+- Collector targets and atomic fixed-slot probe-cycle ingestion
+- Two-failure offline confirmation and a 30-minute stale-to-unknown window
+- Fleet-baseline quarantine plus coverage-aware availability analytics
 
 ### Not Implemented Yet
 
@@ -99,11 +99,12 @@ FRONTEND_URL=https://firstspawn.com
 Collector and scheduler companion env values are documented in root `.env.example`:
 
 - `COLLECTOR_API_BASE_URL`
-- `COLLECTOR_PING_INTERVAL_SECONDS`
-- `COLLECTOR_PAYLOAD_INTERVAL_SECONDS`
+- `COLLECTOR_INSTANCE_ID` (required and unique per running collector replica)
+- `COLLECTOR_PROBE_INTERVAL_SECONDS`
 - `COLLECTOR_CONCURRENCY`
 - `COLLECTOR_TARGET_PAGE_SIZE`
 - `COLLECTOR_PROBE_TIMEOUT_MS`
+- `SCHEDULE_PROBE_ROLLUPS`
 - `SCHEDULE_ARCHIVE_INACTIVE`
 - `SCHEDULE_ROLLUP_RETENTION`
 - `SCHEDULE_PURGE_DELETED_USERS`
@@ -172,7 +173,8 @@ Test isolation uses per-test PostgreSQL schemas via `search_path` (no create-dat
 - `PATCH /api/v1/admin/servers/:id/status`
 - `GET /api/v1/servers`
 - `GET /api/v1/servers/:slug`
+- `GET /api/v1/servers/:slug/analytics`
 - `GET /api/v1/collector/targets`
-- `POST /api/v1/collector/heartbeats`
+- `POST /api/v1/collector/probe-cycles`
 - `GET /docs`
 - `GET /openapi.json`

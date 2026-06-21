@@ -63,7 +63,6 @@ export default async function DiscoverPage({ params, searchParams }: DiscoverPag
     <DiscoverClient
       copy={copy.page}
       rowCopy={dictionary.serverCatalog.row}
-      rankCopy={dictionary.rankSignals}
       modalCopy={dictionary.serverCatalog.modal}
       countries={dictionary.common.countries}
       lang={lang}

@@ -371,7 +371,9 @@
       "copiedLabel": "copiado ✓",
       "voteLabel": "▲ Votar",
       "votedLabel": "✓ Votado hoy",
-      "viewFullProfileLabel": "Ver perfil completo →"
+      "viewFullProfileLabel": "Ver perfil completo →",
+      "provenanceNote": "Medición de FirstSpawn · el recuento de jugadores de la consulta pública no está verificado",
+      "coverageLabel": "cobertura"
     },
     "tagFeatures": {
       "Survival": {
@@ -488,14 +490,16 @@
     },
     "status": {
       "online": "ONLINE",
-      "offline": "OFFLINE"
+      "offline": "OFFLINE",
+      "unknown": "DESCONOCIDO"
     },
     "profile": {
       "breadcrumbBack": "← Descubrir",
       "gameNames": {
         "mcJava": "Minecraft Java",
         "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale"
+        "hytale": "Hytale",
+        "fallback": "Juego"
       },
       "updatedJustNow": "actualizado justo ahora",
       "updatedRecently": "actualizado recientemente",
@@ -527,6 +531,14 @@
       },
       "similar": {
         "title": "Mundos similares"
+      },
+      "analytics": {
+        "title": "Historial medido",
+        "availabilityLabel": "Disponibilidad",
+        "playersLabel": "Jugadores en línea",
+        "coverageLabel": "cobertura",
+        "provenanceNote": "Medición de FirstSpawn · el recuento de jugadores de la consulta pública no está verificado",
+        "ownerDeclaredNote": "Declarado por el propietario del servidor"
       },
       "discussionTeaser": {
         "badge": "Llega en la v2",

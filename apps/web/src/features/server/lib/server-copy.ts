@@ -10,6 +10,28 @@ export const getServerCatalogCopy = (dictionary: AppDictionary): ServerCatalogDi
 export const getServerDetailCopy = (dictionary: AppDictionary): ServerDetailDictionary =>
   dictionary.serverDetail;
 
+/** Localized display names for a game enum token, with a fallback for unknown values. */
+export interface GameNameCopy {
+  mcJava: string;
+  mcBedrock: string;
+  hytale: string;
+  fallback: string;
+}
+
+/** Maps a raw game enum token (e.g. "mc_java") to its localized display name. */
+export const getGameName = (game: string, copy: GameNameCopy): string => {
+  switch (game) {
+    case "mc_java":
+      return copy.mcJava;
+    case "mc_bedrock":
+      return copy.mcBedrock;
+    case "hytale":
+      return copy.hytale;
+    default:
+      return copy.fallback;
+  }
+};
+
 export interface ServerCardCopy {
   active: string;
   address: string;

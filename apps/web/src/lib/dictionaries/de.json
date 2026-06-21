@@ -342,7 +342,7 @@
       "verifiedBadge": "✓ Verifiziert",
       "votedLabel": "✓ Abgestimmt",
       "onlineCountLabel": "{count} online",
-      "uptimeLabel": "Uptime {value}%",
+      "uptimeLabel": "Verfügbarkeit {value}%",
       "globalRegionLabel": "Global",
       "noDescription": "Keine Beschreibung vorhanden.",
       "gameNames": {
@@ -363,7 +363,7 @@
       "bannerLabel": "{name} · Banner / Welt-Render",
       "closeLabel": "Schließen",
       "onlineNowLabel": "jetzt online",
-      "uptimeLabel": "Uptime",
+      "uptimeLabel": "Verfügbarkeit (30 T.)",
       "votesLabel": "Stimmen",
       "standingLabel": "Ansehen",
       "verifiedStanding": "Verifiziert",
@@ -371,7 +371,9 @@
       "copiedLabel": "kopiert ✓",
       "voteLabel": "▲ Abstimmen",
       "votedLabel": "✓ Heute abgestimmt",
-      "viewFullProfileLabel": "Vollständiges Profil ansehen →"
+      "viewFullProfileLabel": "Vollständiges Profil ansehen →",
+      "provenanceNote": "FirstSpawn-Messung · Spielerzahlen aus der öffentlichen Abfrage sind unverifiziert",
+      "coverageLabel": "Abdeckung"
     },
     "tagFeatures": {
       "Survival": {
@@ -488,14 +490,16 @@
     },
     "status": {
       "online": "ONLINE",
-      "offline": "OFFLINE"
+      "offline": "OFFLINE",
+      "unknown": "UNBEKANNT"
     },
     "profile": {
       "breadcrumbBack": "← Entdecken",
       "gameNames": {
         "mcJava": "Minecraft Java",
         "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale"
+        "hytale": "Hytale",
+        "fallback": "Spiel"
       },
       "updatedJustNow": "gerade aktualisiert",
       "updatedRecently": "kürzlich aktualisiert",
@@ -527,6 +531,14 @@
       },
       "similar": {
         "title": "Ähnliche Welten"
+      },
+      "analytics": {
+        "title": "Gemessener Verlauf",
+        "availabilityLabel": "Verfügbarkeit",
+        "playersLabel": "Spieler online",
+        "coverageLabel": "Abdeckung",
+        "provenanceNote": "FirstSpawn-Messung · Spielerzahlen aus der öffentlichen Abfrage sind unverifiziert",
+        "ownerDeclaredNote": "Vom Serverbetreiber angegeben"
       },
       "discussionTeaser": {
         "badge": "Kommt in v2",
@@ -562,7 +574,7 @@
         "votedLabel": "✓ Heute abgestimmt",
         "stats": {
           "onlineNow": "Jetzt online",
-          "uptime30d": "Uptime (30 T.)",
+          "uptime30d": "Verfügbarkeit (30 T.)",
           "votes": "Stimmen",
           "standing": "Ansehen"
         },
