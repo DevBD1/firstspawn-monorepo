@@ -69,7 +69,7 @@ export class CollectorMetrics {
       "# HELP collector_ingest_failure_total Total failed ingest requests.",
       "# TYPE collector_ingest_failure_total counter",
       `collector_ingest_failure_total ${formatNumber(this.ingestFailureTotal)}`,
-      "# HELP collector_ingest_duplicate_total Total successful duplicate ingest requests.",
+      "# HELP collector_ingest_duplicate_total Total duplicate ingest accepts.",
       "# TYPE collector_ingest_duplicate_total counter",
       `collector_ingest_duplicate_total ${formatNumber(this.ingestDuplicateTotal)}`,
       "# HELP collector_last_cycle_duration_seconds Duration of last completed cycle.",

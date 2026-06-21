@@ -342,7 +342,7 @@
       "verifiedBadge": "✓ Проверено",
       "votedLabel": "✓ Голос учтён",
       "onlineCountLabel": "{count} онлайн",
-      "uptimeLabel": "доступность {value}%",
+      "uptimeLabel": "аптайм {value}%",
       "globalRegionLabel": "Весь мир",
       "noDescription": "Описание отсутствует.",
       "gameNames": {
@@ -363,7 +363,7 @@
       "bannerLabel": "{name} · баннер / рендер мира",
       "closeLabel": "Закрыть",
       "onlineNowLabel": "сейчас онлайн",
-      "uptimeLabel": "доступность (30 дн.)",
+      "uptimeLabel": "аптайм",
       "votesLabel": "голоса",
       "standingLabel": "статус",
       "verifiedStanding": "Проверен",
@@ -371,9 +371,7 @@
       "copiedLabel": "скопировано ✓",
       "voteLabel": "▲ Голосовать",
       "votedLabel": "✓ Голос за сегодня",
-      "viewFullProfileLabel": "Открыть профиль полностью →",
-      "provenanceNote": "Измерение FirstSpawn · число игроков из публичного запроса не проверено",
-      "coverageLabel": "покрытие"
+      "viewFullProfileLabel": "Открыть профиль полностью →"
     },
     "tagFeatures": {
       "Survival": {
@@ -502,16 +500,14 @@
     },
     "status": {
       "online": "ONLINE",
-      "offline": "OFFLINE",
-      "unknown": "НЕИЗВЕСТНО"
+      "offline": "OFFLINE"
     },
     "profile": {
       "breadcrumbBack": "← Поиск",
       "gameNames": {
         "mcJava": "Minecraft Java",
         "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale",
-        "fallback": "Игра"
+        "hytale": "Hytale"
       },
       "updatedJustNow": "обновлено только что",
       "updatedRecently": "обновлено недавно",
@@ -543,14 +539,6 @@
       },
       "similar": {
         "title": "Похожие миры"
-      },
-      "analytics": {
-        "title": "История измерений",
-        "availabilityLabel": "Доступность",
-        "playersLabel": "Игроки онлайн",
-        "coverageLabel": "покрытие",
-        "provenanceNote": "Измерение FirstSpawn · число игроков из публичного запроса не проверено",
-        "ownerDeclaredNote": "Указано владельцем сервера"
       },
       "discussionTeaser": {
         "badge": "Появится в v2",
@@ -586,7 +574,7 @@
         "votedLabel": "✓ Голос за сегодня",
         "stats": {
           "onlineNow": "Сейчас онлайн",
-          "uptime30d": "Доступность (30 дн)",
+          "uptime30d": "Аптайм (30 дн)",
           "votes": "Голоса",
           "standing": "Репутация"
         },

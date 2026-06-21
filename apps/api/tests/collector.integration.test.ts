@@ -1,168 +1,424 @@
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { serverProbeObservations, servers } from "@firstspawn/database/schema";
+
+import { servers } from "@firstspawn/database/schema";
 import { createTestApp, type TestContext } from "./helpers.js";
 
-describe("collector probe cycles", () => {
-  let context: TestContext;
-  const key = "test-collector-key";
+describe("collector integration", () => {
+  let context: TestContext | undefined;
+
+  const getContext = (): TestContext => {
+    if (!context) {
+      throw new Error("Test context is not initialized.");
+    }
+
+    return context;
+  };
+
+  const collectorKey = "test-collector-key";
+
   beforeEach(async () => {
-    process.env.API_COLLECTOR_KEY = key;
+    process.env.API_COLLECTOR_KEY = collectorKey;
     context = await createTestApp();
   });
+
   afterEach(async () => {
     delete process.env.API_COLLECTOR_KEY;
-    await context.close();
+
+    if (context) {
+      await context.close();
+      context = undefined;
+    }
   });
-  const createServer = async () =>
-    (
-      await context.app.db.db
-        .insert(servers)
-        .values({
-          id: randomUUID(),
-          slug: `server-${randomUUID()}`,
-          name: `Server ${randomUUID()}`,
-          description: "Test",
-          host: "127.0.0.1",
-          port: 25565,
-          game: "mc_java",
-          status: "active",
-          authMode: "official",
-          countryCode: "US",
-        })
-        .returning()
-    )[0]!;
-  const cycle = (serverId: string, slot: string, result: "online" | "failure") => ({
-    submission_id: randomUUID(),
-    collector_instance_id: "primary",
-    slot_start: slot,
-    started_at: slot,
-    completed_at: new Date(new Date(slot).getTime() + 1_000).toISOString(),
-    observations: [
-      result === "online"
-        ? { server_id: serverId, observed_at: slot, result, online_players: 5 }
-        : { server_id: serverId, observed_at: slot, result, error_code: "timeout" },
-    ],
-  });
-  const post = (body: object) =>
-    context.app.inject({
-      method: "POST",
-      url: "/api/v1/collector/probe-cycles",
-      headers: { "x-collector-key": key },
-      payload: body,
+
+  const createServer = async (overrides: Partial<typeof servers.$inferInsert> = {}) => {
+    const now = new Date();
+    const serverId = randomUUID();
+    const [row] = await getContext()
+      .app.db.db.insert(servers)
+      .values({
+        id: serverId,
+        slug: `srv-${randomUUID().slice(0, 8)}`,
+        name: `Test Server ${serverId.slice(0, 8)}`,
+        description: "Test",
+        host: "127.0.0.1",
+        port: 25565,
+        game: "mc_java",
+        status: "active",
+        authMode: "official",
+        countryCode: "US",
+        createdAt: now,
+        updatedAt: now,
+        ...overrides,
+      })
+      .returning();
+
+    return row;
+  };
+
+  it("supports cursor pagination for active mc_java targets only", async () => {
+    const base = new Date("2026-04-10T00:00:00.000Z");
+    const first = await createServer({
+      slug: "first",
+      createdAt: new Date(base.getTime() + 1000),
+      updatedAt: new Date(base.getTime() + 1000),
+    });
+    await createServer({
+      slug: "ignored-archived",
+      status: "archived",
+      createdAt: new Date(base.getTime() + 1500),
+      updatedAt: new Date(base.getTime() + 1500),
+    });
+    await createServer({
+      slug: "ignored-bedrock",
+      game: "mc_bedrock",
+      createdAt: new Date(base.getTime() + 1600),
+      updatedAt: new Date(base.getTime() + 1600),
+    });
+    const second = await createServer({
+      slug: "second",
+      createdAt: new Date(base.getTime() + 2000),
+      updatedAt: new Date(base.getTime() + 2000),
     });
 
-  it("returns every active target without adaptive backoff", async () => {
-    const server = await createServer();
-    await context.app.db.db.update(servers).set({
-      probeStatus: "offline",
-      consecutiveProbeFailures: 20,
-      lastProbeAttemptAt: new Date(),
+    const pageOne = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/collector/targets?limit=1",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
     });
-    const response = await context.app.inject({
+
+    expect(pageOne.statusCode).toBe(200);
+    expect(pageOne.json().data.targets).toHaveLength(1);
+    expect(pageOne.json().data.targets[0].id).toBe(first.id);
+    expect(pageOne.json().data.targets[0].country_code).toBe("US");
+    expect(pageOne.json().data.next_cursor).toBeTruthy();
+
+    const pageTwo = await getContext().app.inject({
+      method: "GET",
+      url: `/api/v1/collector/targets?limit=1&cursor=${encodeURIComponent(pageOne.json().data.next_cursor)}`,
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(pageTwo.statusCode).toBe(200);
+    expect(pageTwo.json().data.targets).toHaveLength(1);
+    expect(pageTwo.json().data.targets[0].id).toBe(second.id);
+    expect(pageTwo.json().data.next_cursor).toBeNull();
+  });
+
+  it("does not duplicate targets when multiple rows share a cursor timestamp", async () => {
+    const createdAt = new Date("2026-04-10T00:00:00.000Z");
+    const first = await createServer({
+      slug: "same-time-first",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const second = await createServer({
+      slug: "same-time-second",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const third = await createServer({
+      slug: "same-time-third",
+      createdAt,
+      updatedAt: createdAt,
+    });
+    const expectedIds = [first.id, second.id, third.id].sort();
+
+    const pageOne = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/collector/targets?limit=2",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(pageOne.statusCode).toBe(200);
+    expect(pageOne.json().data.targets).toHaveLength(2);
+    expect(pageOne.json().data.next_cursor).toBeTruthy();
+
+    const pageTwo = await getContext().app.inject({
+      method: "GET",
+      url: `/api/v1/collector/targets?limit=2&cursor=${encodeURIComponent(pageOne.json().data.next_cursor)}`,
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(pageTwo.statusCode).toBe(200);
+    expect(pageTwo.json().data.targets).toHaveLength(1);
+    expect(pageTwo.json().data.next_cursor).toBeNull();
+
+    const actualIds = [
+      ...pageOne.json().data.targets.map((target: { id: string }) => target.id),
+      ...pageTwo.json().data.targets.map((target: { id: string }) => target.id),
+    ].sort();
+    expect(actualIds).toEqual(expectedIds);
+  });
+
+  it("keeps old never-probed active servers in collector targets", async () => {
+    const oldActive = await createServer({
+      slug: "old-never-probed",
+      createdAt: new Date("2026-04-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-04-01T00:00:00.000Z"),
+      lastPingAt: null,
+    });
+
+    const response = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/collector/targets?limit=10",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const ids = response.json().data.targets.map((target: { id: string }) => target.id);
+    expect(ids).toContain(oldActive.id);
+  });
+
+  it("rejects requests with bad collector key", async () => {
+    const response = await getContext().app.inject({
       method: "GET",
       url: "/api/v1/collector/targets",
-      headers: { "x-collector-key": key },
+      headers: {
+        "x-collector-key": "wrong",
+      },
     });
-    expect(
-      response.json().data.targets.some((target: { id: string }) => target.id === server.id)
-    ).toBe(true);
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json().error.code).toBe("AUTH_FORBIDDEN");
   });
 
-  it("records warmup outcomes symmetrically and deduplicates an exact retry", async () => {
+  it("returns duplicate success for repeated idempotency key", async () => {
     const server = await createServer();
-    const body = cycle(server.id, "2026-06-21T00:00:00.000Z", "failure");
-    const first = await post(body);
-    const duplicate = await post(body);
-    expect(first.json().data.classification).toBe("warmup");
+
+    const first = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "same-key",
+        ping_ms: 42,
+      },
+    });
+
+    expect(first.statusCode).toBe(200);
+    expect(first.json().data.duplicate).toBe(false);
+
+    const duplicate = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "same-key",
+        ping_ms: 42,
+      },
+    });
+
+    expect(duplicate.statusCode).toBe(200);
     expect(duplicate.json().data.duplicate).toBe(true);
-    const observations = await context.app.db.db.select().from(serverProbeObservations);
-    expect(observations).toHaveLength(1);
-    expect(observations[0]?.outcome).toBe("offline");
   });
 
-  it("rejects a different submission that reuses an instance slot", async () => {
+  it("accepts explicit null optional heartbeat metrics", async () => {
     const server = await createServer();
-    const body = cycle(server.id, "2026-06-21T00:00:00.000Z", "online");
-    expect((await post(body)).statusCode).toBe(200);
-    const conflict = await post({ ...body, submission_id: randomUUID() });
-    expect(conflict.statusCode).toBe(409);
-    expect(conflict.json().error.code).toBe("COLLECTOR_SLOT_CONFLICT");
-  });
 
-  it("accepts cycles larger than the former 2000-observation ceiling", async () => {
-    const slot = "2026-06-21T00:00:00.000Z";
-    const response = await post({
-      submission_id: randomUUID(),
-      collector_instance_id: "large-fleet",
-      slot_start: slot,
-      started_at: slot,
-      completed_at: "2026-06-21T00:00:01.000Z",
-      observations: Array.from({ length: 2_001 }, () => ({
-        server_id: randomUUID(),
-        observed_at: slot,
-        result: "failure" as const,
-        error_code: "timeout",
-      })),
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "null-metrics",
+        ping_ms: 42,
+        online_players: null,
+        max_players: null,
+        uptime_seconds: null,
+        protocol_version: null,
+        minecraft_version: null,
+      },
     });
+
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.accepted_observations).toBe(0);
-    expect(response.json().data.rejected_server_ids).toHaveLength(2_001);
   });
 
-  it("marks offline only after two usable failures", async () => {
+  it("accepts out-of-order samples but keeps last_ping_at monotonic", async () => {
     const server = await createServer();
-    for (const slot of ["00:00", "00:10", "00:20"])
-      await post(cycle(server.id, `2026-06-21T${slot}:00.000Z`, "online"));
-    await post(cycle(server.id, "2026-06-21T00:30:00.000Z", "failure"));
-    let state = await context.app.db.db.query.servers.findFirst({
-      where: (table, { eq }) => eq(table.id, server.id),
+
+    const newer = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T11:00:00.000Z",
+        idempotency_key: "newer",
+        ping_ms: 33,
+      },
     });
-    expect(state?.probeStatus).toBe("online");
-    await post(cycle(server.id, "2026-06-21T00:40:00.000Z", "failure"));
-    state = await context.app.db.db.query.servers.findFirst({
-      where: (table, { eq }) => eq(table.id, server.id),
+
+    expect(newer.statusCode).toBe(200);
+
+    const older = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "older",
+        ping_ms: 55,
+      },
     });
-    expect(state?.probeStatus).toBe("offline");
+
+    expect(older.statusCode).toBe(200);
+
+    const updated = await getContext().app.db.db.query.servers.findFirst({
+      where: (table, { eq }) => eq(table.id, server.id),
+      columns: { lastPingAt: true },
+    });
+
+    expect(updated?.lastPingAt?.toISOString()).toBe("2026-04-10T11:00:00.000Z");
   });
 
-  it("turns every quarantined result into unknown and preserves current state", async () => {
-    const fleet = await Promise.all(Array.from({ length: 100 }, () => createServer()));
-    const makeFleetCycle = (slot: string, successCount: number) => ({
-      submission_id: randomUUID(),
-      collector_instance_id: "quarantine-test",
-      slot_start: slot,
-      started_at: slot,
-      completed_at: new Date(new Date(slot).getTime() + 1_000).toISOString(),
-      observations: fleet.map((server, index) =>
-        index < successCount
-          ? {
-              server_id: server.id,
-              observed_at: slot,
-              result: "online" as const,
-              online_players: 5,
-            }
-          : {
-              server_id: server.id,
-              observed_at: slot,
-              result: "failure" as const,
-              error_code: "timeout",
-            }
-      ),
+  it("persists probe failure state without changing catalog status", async () => {
+    const server = await createServer();
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/probe-attempts",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T12:00:00.000Z",
+        result: "failure",
+        error_code: "network_unreachable",
+      },
     });
-    for (const slot of ["00:00", "00:10", "00:20"])
-      await post(makeFleetCycle(`2026-06-21T${slot}:00.000Z`, 100));
-    const quarantined = await post(makeFleetCycle("2026-06-21T00:30:00.000Z", 1));
-    expect(quarantined.json().data.classification).toBe("quarantined");
-    const observations = await context.app.db.db.query.serverProbeObservations.findMany({
-      where: (table, { eq }) => eq(table.slotStart, new Date("2026-06-21T00:30:00.000Z")),
+
+    expect(response.statusCode).toBe(200);
+
+    const updated = await getContext().app.db.db.query.servers.findFirst({
+      where: (table, { eq }) => eq(table.id, server.id),
+      columns: {
+        status: true,
+        lastProbeAttemptAt: true,
+        lastProbeFailureAt: true,
+        consecutiveProbeFailures: true,
+        lastProbeErrorCode: true,
+        probeStatus: true,
+      },
     });
-    expect(observations).toHaveLength(100);
-    expect(observations.every((observation) => observation.outcome === "unknown")).toBe(true);
-    expect(observations.every((observation) => observation.onlinePlayers === null)).toBe(true);
-    const state = await context.app.db.db.query.servers.findFirst({
-      where: (table, { eq }) => eq(table.id, fleet[0]!.id),
+
+    expect(updated).toMatchObject({
+      status: "active",
+      consecutiveProbeFailures: 1,
+      lastProbeErrorCode: "network_unreachable",
+      probeStatus: "unreachable",
     });
-    expect(state?.probeStatus).toBe("online");
+    expect(updated?.lastProbeAttemptAt?.toISOString()).toBe("2026-04-10T12:00:00.000Z");
+    expect(updated?.lastProbeFailureAt?.toISOString()).toBe("2026-04-10T12:00:00.000Z");
+  });
+
+  it("resets probe failure state on successful heartbeat", async () => {
+    const server = await createServer({
+      consecutiveProbeFailures: 3,
+      lastProbeErrorCode: "timeout",
+      probeStatus: "unreachable",
+      lastProbeAttemptAt: new Date("2026-04-10T09:00:00.000Z"),
+      lastProbeFailureAt: new Date("2026-04-10T09:00:00.000Z"),
+    });
+
+    const response = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: server.id,
+        occurred_at: "2026-04-10T13:00:00.000Z",
+        idempotency_key: "success-after-failure",
+        ping_ms: 21,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const updated = await getContext().app.db.db.query.servers.findFirst({
+      where: (table, { eq }) => eq(table.id, server.id),
+      columns: {
+        lastProbeAttemptAt: true,
+        lastProbeSuccessAt: true,
+        consecutiveProbeFailures: true,
+        lastProbeErrorCode: true,
+        probeStatus: true,
+      },
+    });
+
+    expect(updated?.lastProbeAttemptAt?.toISOString()).toBe("2026-04-10T13:00:00.000Z");
+    expect(updated?.lastProbeSuccessAt?.toISOString()).toBe("2026-04-10T13:00:00.000Z");
+    expect(updated?.consecutiveProbeFailures).toBe(0);
+    expect(updated?.lastProbeErrorCode).toBeNull();
+    expect(updated?.probeStatus).toBe("online");
+  });
+
+  it("returns 409 for archived or suspended targets", async () => {
+    const archived = await createServer({ status: "archived", slug: "archived-srv" });
+    const suspended = await createServer({ status: "suspended", slug: "suspended-srv" });
+
+    const archivedRes = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: archived.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "archived-key",
+        ping_ms: 12,
+      },
+    });
+
+    expect(archivedRes.statusCode).toBe(409);
+    expect(archivedRes.json().error.code).toBe("SERVER_NOT_COLLECTABLE");
+
+    const suspendedRes = await getContext().app.inject({
+      method: "POST",
+      url: "/api/v1/collector/heartbeats",
+      headers: {
+        "x-collector-key": collectorKey,
+      },
+      payload: {
+        server_id: suspended.id,
+        occurred_at: "2026-04-10T10:00:00.000Z",
+        idempotency_key: "suspended-key",
+        ping_ms: 12,
+      },
+    });
+
+    expect(suspendedRes.statusCode).toBe(409);
+    expect(suspendedRes.json().error.code).toBe("SERVER_NOT_COLLECTABLE");
   });
 });

@@ -22,8 +22,8 @@ const main = async (): Promise<void> => {
     apiClient,
     probeClient,
     metrics,
-    collectorInstanceId: config.COLLECTOR_INSTANCE_ID,
-    probeIntervalSeconds: config.COLLECTOR_PROBE_INTERVAL_SECONDS,
+    pingIntervalSeconds: config.COLLECTOR_PING_INTERVAL_SECONDS,
+    payloadIntervalSeconds: config.COLLECTOR_PAYLOAD_INTERVAL_SECONDS,
     concurrency: config.COLLECTOR_CONCURRENCY,
     probeTimeoutMs: config.COLLECTOR_PROBE_TIMEOUT_MS,
   });

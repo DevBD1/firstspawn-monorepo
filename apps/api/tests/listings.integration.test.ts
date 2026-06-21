@@ -146,6 +146,8 @@ describe("listings integration", () => {
     const data = response.json().data;
     expect(data.reachable).toBe(true);
     expect(data.online_players).toBe(87);
+    expect(data.minecraft_version).toBe("1.21.4");
+    expect(data.motd).toContain("Emberfall");
     expect(mocks.status).toHaveBeenCalledWith(
       HOST,
       PORT,
