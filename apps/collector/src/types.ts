@@ -13,29 +13,29 @@ export interface CollectorTargetsPage {
   nextCursor: string | null;
 }
 
-export interface OnlineProbeObservation {
+export interface HeartbeatPayload {
   server_id: string;
-  observed_at: string;
-  result: "online";
+  occurred_at: string;
+  idempotency_key: string;
+  ping_ms: number;
   online_players: number | null;
+  max_players: number | null;
+  protocol_version: number | null;
+  minecraft_version: string | null;
+  uptime_seconds?: number | null;
+  payload?: Record<string, unknown>;
 }
 
-export interface FailedProbeObservation {
+export interface ProbeFailurePayload {
   server_id: string;
-  observed_at: string;
+  occurred_at: string;
   result: "failure";
   error_code: string;
 }
 
-export type ProbeObservation = OnlineProbeObservation | FailedProbeObservation;
-
-export interface ProbeCyclePayload {
-  submission_id: string;
-  collector_instance_id: string;
-  slot_start: string;
-  started_at: string;
-  completed_at: string;
-  observations: ProbeObservation[];
+export interface IngestResult {
+  accepted: boolean;
+  duplicate: boolean;
 }
 
 export interface ProbeResult {
@@ -45,13 +45,4 @@ export interface ProbeResult {
   protocolVersion: number | null;
   minecraftVersion: string | null;
   payload: Record<string, unknown>;
-}
-
-export interface ProbeCycleIngestResult {
-  accepted: boolean;
-  duplicate: boolean;
-  cycle_id: string;
-  classification: "accepted" | "warmup" | "quarantined";
-  accepted_observations: number;
-  rejected_server_ids: string[];
 }

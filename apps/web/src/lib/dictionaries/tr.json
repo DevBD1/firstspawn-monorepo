@@ -372,7 +372,7 @@
       "verifiedBadge": "✓ Doğrulanmış",
       "votedLabel": "✓ Oy verildi",
       "onlineCountLabel": "{count} çevrimiçi",
-      "uptimeLabel": "erişilebilirlik %{value}",
+      "uptimeLabel": "çalışma %{value}",
       "globalRegionLabel": "Küresel",
       "noDescription": "Açıklama sağlanmamış.",
       "gameNames": {
@@ -393,7 +393,7 @@
       "bannerLabel": "{name} · afiş / dünya görüntüsü",
       "closeLabel": "Kapat",
       "onlineNowLabel": "şu an çevrimiçi",
-      "uptimeLabel": "erişilebilirlik (30g)",
+      "uptimeLabel": "çalışma süresi",
       "votesLabel": "oylar",
       "standingLabel": "itibar",
       "verifiedStanding": "Doğrulanmış",
@@ -401,9 +401,7 @@
       "copiedLabel": "kopyalandı ✓",
       "voteLabel": "▲ Oy ver",
       "votedLabel": "✓ Bugün oy verildi",
-      "viewFullProfileLabel": "Tam profili görüntüle →",
-      "provenanceNote": "FirstSpawn ölçümü · herkese açık sorgudaki oyuncu sayıları doğrulanmamıştır",
-      "coverageLabel": "kapsama"
+      "viewFullProfileLabel": "Tam profili görüntüle →"
     },
     "tagFeatures": {
       "Survival": {
@@ -520,16 +518,14 @@
     },
     "status": {
       "online": "ONLINE",
-      "offline": "OFFLINE",
-      "unknown": "BİLİNMİYOR"
+      "offline": "OFFLINE"
     },
     "profile": {
       "breadcrumbBack": "← Keşfet",
       "gameNames": {
         "mcJava": "Minecraft Java",
         "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale",
-        "fallback": "Oyun"
+        "hytale": "Hytale"
       },
       "updatedJustNow": "az önce güncellendi",
       "updatedRecently": "yakın zamanda güncellendi",
@@ -561,14 +557,6 @@
       },
       "similar": {
         "title": "Benzer dünyalar"
-      },
-      "analytics": {
-        "title": "Ölçülen geçmiş",
-        "availabilityLabel": "Erişilebilirlik",
-        "playersLabel": "Çevrimiçi oyuncular",
-        "coverageLabel": "kapsama",
-        "provenanceNote": "FirstSpawn ölçümü · herkese açık sorgudaki oyuncu sayıları doğrulanmamıştır",
-        "ownerDeclaredNote": "Sunucu sahibi tarafından beyan edilmiştir"
       },
       "discussionTeaser": {
         "badge": "v2'de geliyor",
@@ -604,7 +592,7 @@
         "votedLabel": "✓ Bugün oy verildi",
         "stats": {
           "onlineNow": "Şu an çevrimiçi",
-          "uptime30d": "Erişilebilirlik (30g)",
+          "uptime30d": "Çalışma süresi (30g)",
           "votes": "Oylar",
           "standing": "İtibar"
         },

@@ -524,8 +524,6 @@ export interface ServerCatalogDictionary {
     voteLabel: string;
     votedLabel: string;
     viewFullProfileLabel: string;
-    provenanceNote: string;
-    coverageLabel: string;
   };
   sortHighlights: {
     lowerIsBetter: string;
@@ -566,7 +564,6 @@ export interface ServerDetailDictionary {
       mcJava: string;
       mcBedrock: string;
       hytale: string;
-      fallback: string;
     };
     updatedJustNow: string;
     updatedRecently: string;
@@ -599,14 +596,6 @@ export interface ServerDetailDictionary {
     };
     similar: {
       title: string;
-    };
-    analytics: {
-      title: string;
-      availabilityLabel: string;
-      playersLabel: string;
-      coverageLabel: string;
-      provenanceNote: string;
-      ownerDeclaredNote: string;
     };
     /**
      * "Coming in v2" teaser shown in place of the live Discussion experience.
@@ -674,7 +663,6 @@ export interface ServerDetailDictionary {
   status: {
     offline: string;
     online: string;
-    unknown: string;
   };
 }
 

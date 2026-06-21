@@ -404,14 +404,19 @@ export default function WLListFlowClient({
           {probe ? (
             <div className="mt-4 bg-secondary border border-border rounded-xl p-4 flex flex-col gap-2.5">
               {pingRow(copy.address.stats.status, copy.address.stats.reachable, "text-success")}
-              {/* The public probe is authoritative only for reachability and current players. */}
+              {pingRow(copy.address.stats.software, gameLabel(game))}
+              {/* Hytale has no status protocol, so version/players/MOTD aren't available. */}
               {game !== "hytale" && (
                 <>
+                  {pingRow(copy.address.stats.version, probe.minecraft_version ?? "—")}
                   {pingRow(
                     copy.address.stats.onlineNow,
-                    probe.online_players != null ? `${probe.online_players}` : "—",
+                    probe.online_players != null
+                      ? `${probe.online_players}${probe.max_players != null ? ` / ${probe.max_players}` : ""}`
+                      : "—",
                     "text-success"
                   )}
+                  {pingRow(copy.address.stats.motd, probe.motd ? `“${probe.motd}”` : "—")}
                 </>
               )}
               <div className="flex justify-end mt-2">

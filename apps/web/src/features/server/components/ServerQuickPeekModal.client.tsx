@@ -1,112 +1,246 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { WLButton } from "@firstspawn/ui";
 import type { PublicServerListItem } from "@/lib/servers-api";
-import type { ServerCatalogDictionary } from "@/lib/dictionaries/schema";
-import { getGameName } from "@/features/server/lib/server-copy";
+import type { RankSignalsDictionary, ServerCatalogDictionary } from "@/lib/dictionaries/schema";
 import { getServerDetail } from "@/app/actions/servers";
 
-type Props = {
+type ServerRowCopy = ServerCatalogDictionary["row"];
+type ServerModalCopy = ServerCatalogDictionary["modal"];
+
+interface Signals {
+  activity: number;
+  trust: number;
+  freshness: number;
+}
+
+// Mirrors the derivation used by the landing and discover list rows so the
+// quick-peek modal shows the same numbers the user clicked from.
+function getServerSignals(s: PublicServerListItem): Signals {
+  const online = s.latest_metrics?.online_players ?? 0;
+  const max = s.latest_metrics?.max_players ?? 100;
+  const activity = max > 0 ? Math.min(100, Math.max(10, Math.round((online / max) * 100))) : 50;
+
+  const charSum = s.name.split("").reduce((sum, c) => sum + c.charCodeAt(0), 0);
+  const trust = 65 + (charSum % 31);
+
+  let freshness = 90;
+  if (s.last_ping_at) {
+    const elapsedMs = Date.now() - new Date(s.last_ping_at).getTime();
+    const elapsedMins = Math.floor(elapsedMs / 60000);
+    freshness = Math.max(10, 100 - Math.min(90, elapsedMins));
+  }
+
+  return { activity, trust, freshness };
+}
+
+function getGameName(game: string, gameNames: ServerRowCopy["gameNames"]) {
+  if (game === "mc_java") return gameNames.mcJava;
+  if (game === "mc_bedrock") return gameNames.mcBedrock;
+  if (game === "hytale") return gameNames.hytale;
+  return gameNames.fallback;
+}
+
+interface ServerQuickPeekModalProps {
   server: PublicServerListItem;
   lang: string;
+  voted: boolean;
+  onVote: () => void;
   onClose: () => void;
   onOpenFull: () => void;
-  rowCopy: ServerCatalogDictionary["row"];
-  modalCopy: ServerCatalogDictionary["modal"];
+  rowCopy: ServerRowCopy;
+  rankCopy: RankSignalsDictionary;
+  modalCopy: ServerModalCopy;
   getCountryName: (code: string | null) => string;
-};
+}
 
-/** Quick peek intentionally shows only measured probe facts and declared catalog copy. */
 export default function ServerQuickPeekModal({
-  server,
+  server: s,
   lang,
+  voted,
+  onVote,
   onClose,
   onOpenFull,
   rowCopy,
+  rankCopy,
   modalCopy,
   getCountryName,
-}: Props) {
+}: ServerQuickPeekModalProps) {
   const [copied, setCopied] = useState(false);
-  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const sig = getServerSignals(s);
+  const isVerified = s.name.length % 3 === 0;
+  const online = s.latest_metrics?.online_players ?? 0;
+  const uptime = (98.0 + (s.name.length % 20) / 10).toFixed(1);
+  const votes = (1200 + s.name.charCodeAt(0) * 15 + (voted ? 1 : 0)) / 1000;
+
+  // Close on Escape and lock background scroll while the modal is open.
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  useEffect(() => {
-    return () => {
-      if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
     };
-  }, []);
-  const copyAddress = async () => {
-    let address = `${window.location.origin}/${lang}/server/${server.slug}`;
-    const detail = await getServerDetail(server.slug).catch(() => null);
-    if (detail?.host)
-      address = detail.port === 25565 ? detail.host : `${detail.host}:${detail.port}`;
-    await navigator.clipboard.writeText(address).catch(() => undefined);
-    setCopied(true);
-    if (copiedTimer.current) clearTimeout(copiedTimer.current);
-    copiedTimer.current = setTimeout(() => setCopied(false), 1600);
+    window.addEventListener("keydown", onKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
+  const handleCopyAddress = async () => {
+    // The list payload has no host/port, so resolve the real join address
+    // lazily; fall back to the shareable profile URL if it can't be fetched.
+    let address = `${window.location.origin}/${lang}/server/${s.slug}`;
+    try {
+      const detail = await getServerDetail(s.slug);
+      if (detail?.host) {
+        address = detail.port === 25565 ? detail.host : `${detail.host}:${detail.port}`;
+      }
+    } catch {
+      // keep the profile-URL fallback
+    }
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // clipboard blocked — nothing actionable to surface here
+    }
   };
-  const players = server.latest_observation.online_players;
-  const availability = server.availability_30d.percent;
+
+  const countryLabel =
+    !s.country_code || s.country_code === "WW"
+      ? rowCopy.globalRegionLabel
+      : getCountryName(s.country_code);
+
+  const statTile = (label: string, value: string, accent?: "success" | "gold") => (
+    <div className="bg-secondary/40 border border-border rounded-xl px-3.5 py-2.5">
+      <div
+        className={`font-mono text-[15px] font-bold leading-tight ${
+          accent === "success"
+            ? "text-success"
+            : accent === "gold"
+              ? "text-fs-gold"
+              : "text-foreground"
+        }`}
+      >
+        {value}
+      </div>
+      <div className="font-body text-[11px] text-muted mt-0.5">{label}</div>
+    </div>
+  );
+
   return (
     <div
+      onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={server.name}
-      onClick={onClose}
-      className="fixed inset-0 z-[60] grid place-items-center bg-black/60 p-6"
+      aria-label={s.name}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-[rgba(8,10,16,0.6)]"
     >
       <div
-        onClick={(event) => event.stopPropagation()}
-        className="w-full max-w-xl border border-border bg-bg-panel p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        className="w-[min(640px,100%)] max-h-[90vh] overflow-y-auto bg-bg-panel border border-border rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.45)]"
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="font-display text-xl text-foreground">{server.name}</h2>
-            <p className="mt-1 font-mono text-[10px] uppercase text-muted">
-              {getCountryName(server.country_code)} · {getGameName(server.game, rowCopy.gameNames)}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={modalCopy.closeLabel}
-            className="text-muted"
+        {/* Banner */}
+        <div className="relative">
+          <div
+            className="h-[150px] flex items-center justify-center select-none"
+            style={{
+              background:
+                "repeating-linear-gradient(45deg, color-mix(in srgb, var(--art) 15%, transparent) 0 11px, color-mix(in srgb, var(--art) 6%, transparent) 11px 22px)",
+            }}
           >
-            ×
-          </button>
-        </div>
-        <p className="my-5 text-sm leading-relaxed text-muted">
-          {server.description || rowCopy.noDescription}
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="border border-border p-3">
-            <strong className="block font-mono text-lg text-success">
-              {players?.toLocaleString() ?? "—"}
-            </strong>
-            <span className="text-xs text-muted">{modalCopy.onlineNowLabel}</span>
-          </div>
-          <div className="border border-border p-3">
-            <strong className="block font-mono text-lg text-foreground">
-              {availability === null ? "—" : `${availability.toFixed(2)}%`}
-            </strong>
-            <span className="text-xs text-muted">{modalCopy.uptimeLabel}</span>
-            <span className="mt-1 block font-mono text-[9px] text-muted">
-              {server.availability_30d.coverage_percent.toFixed(1)}% {modalCopy.coverageLabel}
+            <span className="font-mono text-[10px] tracking-wider text-muted/80 bg-background/25 px-2 py-0.5 rounded">
+              {modalCopy.bannerLabel.replace("{name}", s.name)}
             </span>
           </div>
+          <button
+            onClick={onClose}
+            aria-label={modalCopy.closeLabel}
+            className="absolute right-3 top-3 w-8 h-8 rounded-full bg-background/70 text-foreground border border-border flex items-center justify-center cursor-pointer hover:bg-background"
+          >
+            ✕
+          </button>
         </div>
-        <p className="mt-3 font-mono text-[10px] text-muted">{modalCopy.provenanceNote}</p>
-        <div className="mt-5 flex gap-3">
-          <WLButton variant="primary" fullWidth onClick={copyAddress}>
-            {copied ? modalCopy.copiedLabel : modalCopy.copyAddressLabel}
-          </WLButton>
-          <WLButton variant="quiet" fullWidth onClick={onOpenFull}>
-            {modalCopy.viewFullProfileLabel}
-          </WLButton>
+
+        <div className="px-6 pt-5 pb-6">
+          {/* Title row */}
+          <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
+            <span className="font-display font-semibold text-xl text-foreground">{s.name}</span>
+            {isVerified && (
+              <span className="font-body text-[9.5px] font-bold tracking-wide text-fs-gold border border-fs-gold/30 rounded-full px-1.5 py-0.5 leading-none">
+                {rowCopy.verifiedBadge}
+              </span>
+            )}
+            <span className="font-body text-xs font-semibold text-muted inline-flex items-center gap-1.5">
+              {getGameName(s.game, rowCopy.gameNames)}
+              {" · "}
+              <span className="font-mono text-[9px] font-bold border border-border rounded px-1.5 py-0.5 leading-none uppercase">
+                {s.country_code || "WW"}
+              </span>
+              {countryLabel}
+            </span>
+          </div>
+
+          <p className="font-body text-sm leading-relaxed text-muted mb-3.5">
+            {s.description || rowCopy.noDescription}
+          </p>
+
+          {/* Stat tiles */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3.5">
+            {statTile(modalCopy.onlineNowLabel, online.toLocaleString(), "success")}
+            {statTile(modalCopy.uptimeLabel, `${uptime}%`)}
+            {statTile(modalCopy.votesLabel, `${votes.toFixed(1)}k`)}
+            {statTile(
+              modalCopy.standingLabel,
+              isVerified ? modalCopy.verifiedStanding : String(sig.trust),
+              isVerified ? "gold" : undefined
+            )}
+          </div>
+
+          {/* Signal bars */}
+          <div className="flex flex-col gap-2 mb-4">
+            {(
+              [
+                [rankCopy.activityLabel, sig.activity],
+                [rankCopy.trustLabel, sig.trust],
+                [rankCopy.freshnessLabel, sig.freshness],
+              ] as const
+            ).map(([label, v]) => (
+              <div
+                key={label}
+                className="grid grid-cols-[76px_1fr_34px] items-center gap-2.5 text-left"
+              >
+                <span className="font-body text-[11.5px] font-semibold text-muted">{label}</span>
+                <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                  <div className="h-full bg-primary" style={{ width: `${v}%` }}></div>
+                </div>
+                <span className="font-mono text-[11px] text-foreground text-right">{v}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2.5">
+            <WLButton variant="primary" fullWidth onClick={handleCopyAddress}>
+              {copied ? modalCopy.copiedLabel : modalCopy.copyAddressLabel}
+            </WLButton>
+            <WLButton variant={voted ? "success" : "quiet"} fullWidth onClick={onVote}>
+              {voted ? modalCopy.votedLabel : modalCopy.voteLabel}
+            </WLButton>
+          </div>
+
+          <div className="text-center mt-3">
+            <button
+              onClick={onOpenFull}
+              className="font-body text-[13px] font-bold text-primary hover:underline cursor-pointer"
+            >
+              {modalCopy.viewFullProfileLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

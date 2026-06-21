@@ -7,7 +7,7 @@
 \set ON_ERROR_STOP on
 
 with archived as (
-  select s.id, s.slug, s.last_probe_attempt_at, s.created_at
+  select s.id, s.slug, s.last_ping_at, s.created_at
   from servers s
   where false
 )

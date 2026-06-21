@@ -29,10 +29,10 @@ import {
 import {
   buildTemporarySlug,
   duplicateFieldFromError,
-  findLatestObservations,
+  findLatestHeartbeats,
   findServerMetadata,
   getPgErrorMetadata,
-  normalizeObservationPayload,
+  normalizeMetricsPayload,
   normalizeServerPayload,
   reachScopeSchema,
   resolveOriginAndReach,
@@ -132,7 +132,11 @@ const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 
 const probeResultSchema = z.object({
   reachable: z.boolean(),
+  ping_ms: z.number().int().nonnegative().nullable(),
   online_players: z.number().int().nonnegative().nullable(),
+  max_players: z.number().int().nonnegative().nullable(),
+  minecraft_version: z.string().nullable(),
+  motd: z.string().nullable(),
 });
 
 const probeResponseSchema = envelopeSchema(probeResultSchema);
@@ -151,11 +155,12 @@ const verificationCheckResponseSchema = envelopeSchema(
   })
 );
 
-const latestObservationSchema = z.object({
-  status: z.enum(["online", "offline", "unknown"]),
-  observed_at: z.string().datetime().nullable(),
+const latestMetricsSchema = z.object({
+  ping_ms: z.number().int().nonnegative().nullable(),
   online_players: z.number().int().nonnegative().nullable(),
-  source: z.literal("firstspawn_probe"),
+  max_players: z.number().int().nonnegative().nullable(),
+  minecraft_version: z.string().nullable(),
+  occurred_at: z.string().datetime().nullable(),
 });
 
 const createListingResponseSchema = envelopeSchema(
@@ -174,10 +179,10 @@ const createListingResponseSchema = envelopeSchema(
       country_code: z.string().nullable(),
       logo_url: z.string().nullable(),
       banner_url: z.string().nullable(),
-      monitoring_started_at: z.string().datetime(),
+      last_ping_at: z.string().datetime().nullable(),
       created_at: z.string().datetime(),
       updated_at: z.string().datetime(),
-      latest_observation: latestObservationSchema,
+      latest_metrics: latestMetricsSchema,
       socials: z.array(listingSocialSchema),
       supported_clients: z.array(
         z.object({
@@ -214,7 +219,7 @@ const listingSummarySchema = z.object({
   verification_method: z.enum(["motd", "dns"]).nullable(),
   created_at: z.string().datetime(),
   tags: z.array(z.string()),
-  latest_observation: latestObservationSchema,
+  latest_metrics: latestMetricsSchema,
 });
 
 const myListingsResponseSchema = envelopeSchema(
@@ -262,7 +267,11 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
       return successEnvelope(
         {
           reachable: probe.reachable,
+          ping_ms: probe.pingMs,
           online_players: probe.onlinePlayers,
+          max_players: probe.maxPlayers,
+          minecraft_version: probe.minecraftVersion,
+          motd: probe.motd,
         },
         request.id
       );
@@ -524,7 +533,7 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
           {
             server: {
               ...normalizeServerPayload(created, Date.now()),
-              latest_observation: normalizeObservationPayload(created, null, Date.now()),
+              latest_metrics: normalizeMetricsPayload(null),
               ...metadata,
               tags: tagRows.map((row) => row.tag),
             },
@@ -595,8 +604,8 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
         .orderBy(servers.createdAt);
 
       const serverIds = ownedRows.map((row) => row.id);
-      const [observations, tagRows] = await Promise.all([
-        findLatestObservations(app, serverIds),
+      const [heartbeats, tagRows] = await Promise.all([
+        findLatestHeartbeats(app, serverIds),
         serverIds.length > 0
           ? app.db.db.select().from(serverTags).where(inArray(serverTags.serverId, serverIds))
           : Promise.resolve([] as Array<{ serverId: string; tag: string }>),
@@ -629,11 +638,7 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
           verification_method: (row.verificationMethod as "motd" | "dns" | null) ?? null,
           created_at: base.created_at,
           tags: tagsByServer.get(row.id) ?? [],
-          latest_observation: normalizeObservationPayload(
-            row,
-            observations.get(row.id) ?? null,
-            nowMs
-          ),
+          latest_metrics: normalizeMetricsPayload(heartbeats.get(row.id) ?? null),
         };
       });
 

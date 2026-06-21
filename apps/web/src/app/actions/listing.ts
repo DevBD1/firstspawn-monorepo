@@ -19,7 +19,11 @@ export type ListingActionResult<T> =
 
 export interface ProbeResult {
   reachable: boolean;
+  ping_ms: number | null;
   online_players: number | null;
+  max_players: number | null;
+  minecraft_version: string | null;
+  motd: string | null;
 }
 
 export interface VerificationToken {
@@ -62,11 +66,12 @@ export interface MyListing {
   verification_method: VerificationMethod | null;
   created_at: string;
   tags: string[];
-  latest_observation: {
-    status: "online" | "offline" | "unknown";
-    observed_at: string | null;
+  latest_metrics: {
+    ping_ms: number | null;
     online_players: number | null;
-    source: "firstspawn_probe";
+    max_players: number | null;
+    minecraft_version: string | null;
+    occurred_at: string | null;
   };
 }
 

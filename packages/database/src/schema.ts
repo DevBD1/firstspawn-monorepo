@@ -7,9 +7,11 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   numeric,
   pgTable,
   primaryKey,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -292,20 +294,13 @@ export const servers = pgTable(
     logoUrl: varchar("logo_url", { length: 2048 }),
     bannerUrl: varchar("banner_url", { length: 2048 }),
 
-    monitoringStartedAt: timestamp("monitoring_started_at", { withTimezone: true, mode: "date" })
-      .notNull()
-      .defaultNow(),
+    lastPingAt: timestamp("last_ping_at", { withTimezone: true, mode: "date" }),
     lastProbeAttemptAt: timestamp("last_probe_attempt_at", { withTimezone: true, mode: "date" }),
     lastProbeSuccessAt: timestamp("last_probe_success_at", { withTimezone: true, mode: "date" }),
     lastProbeFailureAt: timestamp("last_probe_failure_at", { withTimezone: true, mode: "date" }),
     consecutiveProbeFailures: integer("consecutive_probe_failures").notNull().default(0),
     lastProbeErrorCode: varchar("last_probe_error_code", { length: 80 }),
-    probeStatus: varchar("probe_status", {
-      length: 20,
-      enum: ["online", "offline", "unknown"],
-    })
-      .notNull()
-      .default("unknown"),
+    probeStatus: varchar("probe_status", { length: 20 }).notNull().default("unknown"),
 
     ...timestamps,
   },
@@ -325,7 +320,7 @@ export const servers = pgTable(
     ),
     check(
       "chk_servers_probe_status",
-      sql`${table.probeStatus} in ('online', 'offline', 'unknown')`
+      sql`${table.probeStatus} in ('online', 'offline', 'unknown', 'unreachable')`
     ),
     check("chk_servers_reach_scope", sql`${table.reachScope} in ('local', 'regional', 'global')`),
     check("chk_servers_country_code_not_global", sql`${table.countryCode} <> 'WW'`),
@@ -426,134 +421,113 @@ export const serverSupportedClients = pgTable(
   ]
 );
 
-export const collectorProbeCycles = pgTable(
-  "collector_probe_cycles",
+export const serverHeartbeats = pgTable(
+  "server_heartbeats",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    submissionId: uuid("submission_id").notNull(),
-    collectorInstanceId: varchar("collector_instance_id", { length: 64 }).notNull(),
-    slotStart: timestamp("slot_start", { withTimezone: true, mode: "date" }).notNull(),
-    startedAt: timestamp("started_at", { withTimezone: true, mode: "date" }).notNull(),
-    completedAt: timestamp("completed_at", { withTimezone: true, mode: "date" }).notNull(),
-    targetCount: integer("target_count").notNull(),
-    successCount: integer("success_count").notNull(),
-    failureCount: integer("failure_count").notNull(),
-    classification: varchar("classification", { length: 20 }).notNull(),
-    baselineSuccessMedian: integer("baseline_success_median"),
-    quarantineReason: varchar("quarantine_reason", { length: 80 }),
-    ...timestamps,
-  },
-  (table) => [
-    uniqueIndex("collector_probe_cycles_submission_unique").on(table.submissionId),
-    uniqueIndex("collector_probe_cycles_instance_slot_unique").on(
-      table.collectorInstanceId,
-      table.slotStart
-    ),
-    index("idx_collector_probe_cycles_slot").on(table.slotStart),
-    check(
-      "chk_collector_probe_cycles_counts",
-      sql`${table.targetCount} >= 0 and ${table.successCount} >= 0 and ${table.failureCount} >= 0 and ${table.targetCount} = ${table.successCount} + ${table.failureCount}`
-    ),
-    check("chk_collector_probe_cycles_time", sql`${table.completedAt} >= ${table.startedAt}`),
-    check(
-      "chk_collector_probe_cycles_classification",
-      sql`${table.classification} in ('accepted', 'warmup', 'quarantined')`
-    ),
-  ]
-);
-
-export const serverProbeObservations = pgTable(
-  "server_probe_observations",
-  {
-    cycleId: uuid("cycle_id")
-      .notNull()
-      .references(() => collectorProbeCycles.id, { onDelete: "cascade" }),
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
-    slotStart: timestamp("slot_start", { withTimezone: true, mode: "date" }).notNull(),
-    observedAt: timestamp("observed_at", { withTimezone: true, mode: "date" }).notNull(),
-    outcome: varchar("outcome", { length: 20 }).notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true, mode: "date" }).notNull(),
+    collectedAt: timestamp("collected_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    uptimeSeconds: integer("uptime_seconds"),
+    pingMs: smallint("ping_ms"),
     onlinePlayers: integer("online_players"),
-    errorCode: varchar("error_code", { length: 80 }),
+    maxPlayers: integer("max_players"),
+    payload: jsonb("payload"),
+    protocolVersion: integer("protocol_version"),
+    minecraftVersion: varchar("minecraft_version", { length: 50 }),
+    idempotencyKey: text("idempotency_key"),
     ...timestamps,
   },
   (table) => [
-    primaryKey({ columns: [table.serverId, table.cycleId], name: "pk_server_probe_observations" }),
-    index("idx_server_probe_observations_slot").on(table.slotStart),
-    index("idx_server_probe_observations_server_observed").on(
+    index("idx_server_heartbeats_server_id").on(table.serverId),
+    index("idx_server_heartbeats_occurred_at").on(table.occurredAt),
+    index("idx_server_heartbeats_server_occurred").on(table.serverId, table.occurredAt),
+    index("idx_server_heartbeats_server_latest").on(
       table.serverId,
-      table.observedAt.desc()
+      table.occurredAt.desc(),
+      table.createdAt.desc(),
+      table.id.desc()
+    ),
+    uniqueIndex("idx_server_heartbeats_server_idempotency").on(
+      table.serverId,
+      table.idempotencyKey
+    ),
+    check("chk_server_heartbeats_ping_ms", sql`${table.pingMs} is null or ${table.pingMs} >= 0`),
+    check(
+      "chk_server_heartbeats_players",
+      sql`${table.onlinePlayers} is null or ${table.onlinePlayers} >= 0`
     ),
     check(
-      "chk_server_probe_observations_outcome",
-      sql`${table.outcome} in ('online', 'offline', 'unknown')`
+      "chk_server_heartbeats_max_players",
+      sql`${table.maxPlayers} is null or ${table.maxPlayers} >= 0`
     ),
     check(
-      "chk_server_probe_observations_players",
-      sql`(${table.outcome} = 'online' and (${table.onlinePlayers} is null or ${table.onlinePlayers} >= 0)) or (${table.outcome} <> 'online' and ${table.onlinePlayers} is null)`
+      "chk_server_heartbeats_player_bounds",
+      sql`${table.onlinePlayers} is null or ${table.maxPlayers} is null or ${table.onlinePlayers} <= ${table.maxPlayers}`
     ),
     check(
-      "chk_server_probe_observations_error",
-      sql`(${table.outcome} = 'online' and ${table.errorCode} is null) or ${table.outcome} <> 'online'`
+      "chk_server_heartbeats_uptime_seconds",
+      sql`${table.uptimeSeconds} is null or ${table.uptimeSeconds} >= 0`
     ),
   ]
 );
 
-export const serverProbeHourly = pgTable(
-  "server_probe_hourly",
+export const serverHeartbeatHourly = pgTable(
+  "server_heartbeat_hourly",
   {
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
     bucketStart: timestamp("bucket_start", { withTimezone: true, mode: "date" }).notNull(),
     sampleCount: integer("sample_count").notNull().default(0),
-    onlineCount: integer("online_count").notNull().default(0),
-    offlineCount: integer("offline_count").notNull().default(0),
-    unknownCount: integer("unknown_count").notNull().default(0),
-    playerSampleCount: integer("player_sample_count").notNull().default(0),
-    playersAvg: numeric("players_avg", { precision: 12, scale: 2 }),
+    payloadCount: integer("payload_count").notNull().default(0),
+    pingMinMs: smallint("ping_min_ms"),
+    pingMaxMs: smallint("ping_max_ms"),
+    pingAvgMs: numeric("ping_avg_ms", { precision: 10, scale: 2 }),
+    uptimeMaxSeconds: integer("uptime_max_seconds"),
     playersPeak: integer("players_peak"),
-    lastObservedAt: timestamp("last_observed_at", { withTimezone: true, mode: "date" }).notNull(),
+    maxPlayersPeak: integer("max_players_peak"),
+    lastOccurredAt: timestamp("last_occurred_at", { withTimezone: true, mode: "date" }).notNull(),
     ...timestamps,
   },
   (table) => [
     primaryKey({
       columns: [table.serverId, table.bucketStart],
-      name: "pk_server_probe_hourly",
+      name: "pk_server_heartbeat_hourly",
     }),
-    index("idx_server_probe_hourly_bucket_start").on(table.bucketStart),
-    check(
-      "chk_server_probe_hourly_counts",
-      sql`${table.sampleCount} >= 0 and ${table.onlineCount} >= 0 and ${table.offlineCount} >= 0 and ${table.unknownCount} >= 0 and ${table.playerSampleCount} >= 0 and ${table.sampleCount} = ${table.onlineCount} + ${table.offlineCount} + ${table.unknownCount}`
-    ),
+    index("idx_server_heartbeat_hourly_bucket_start").on(table.bucketStart),
+    check("chk_server_heartbeat_hourly_sample_count", sql`${table.sampleCount} >= 0`),
+    check("chk_server_heartbeat_hourly_payload_count", sql`${table.payloadCount} >= 0`),
   ]
 );
 
-export const serverProbeDaily = pgTable(
-  "server_probe_daily",
+export const serverHeartbeatDaily = pgTable(
+  "server_heartbeat_daily",
   {
     serverId: uuid("server_id")
       .notNull()
       .references(() => servers.id, { onDelete: "cascade" }),
     bucketDate: date("bucket_date", { mode: "date" }).notNull(),
     sampleCount: integer("sample_count").notNull().default(0),
-    onlineCount: integer("online_count").notNull().default(0),
-    offlineCount: integer("offline_count").notNull().default(0),
-    unknownCount: integer("unknown_count").notNull().default(0),
-    playerSampleCount: integer("player_sample_count").notNull().default(0),
-    playersAvg: numeric("players_avg", { precision: 12, scale: 2 }),
+    payloadCount: integer("payload_count").notNull().default(0),
+    pingMinMs: smallint("ping_min_ms"),
+    pingMaxMs: smallint("ping_max_ms"),
+    pingAvgMs: numeric("ping_avg_ms", { precision: 10, scale: 2 }),
+    uptimeMaxSeconds: integer("uptime_max_seconds"),
     playersPeak: integer("players_peak"),
-    lastObservedAt: timestamp("last_observed_at", { withTimezone: true, mode: "date" }).notNull(),
+    maxPlayersPeak: integer("max_players_peak"),
+    lastOccurredAt: timestamp("last_occurred_at", { withTimezone: true, mode: "date" }).notNull(),
     ...timestamps,
   },
   (table) => [
-    primaryKey({ columns: [table.serverId, table.bucketDate], name: "pk_server_probe_daily" }),
-    index("idx_server_probe_daily_bucket_date").on(table.bucketDate),
-    check(
-      "chk_server_probe_daily_counts",
-      sql`${table.sampleCount} >= 0 and ${table.onlineCount} >= 0 and ${table.offlineCount} >= 0 and ${table.unknownCount} >= 0 and ${table.playerSampleCount} >= 0 and ${table.sampleCount} = ${table.onlineCount} + ${table.offlineCount} + ${table.unknownCount}`
-    ),
+    primaryKey({ columns: [table.serverId, table.bucketDate], name: "pk_server_heartbeat_daily" }),
+    index("idx_server_heartbeat_daily_bucket_date").on(table.bucketDate),
+    check("chk_server_heartbeat_daily_sample_count", sql`${table.sampleCount} >= 0`),
+    check("chk_server_heartbeat_daily_payload_count", sql`${table.payloadCount} >= 0`),
   ]
 );
 

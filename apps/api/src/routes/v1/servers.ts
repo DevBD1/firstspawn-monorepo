@@ -4,19 +4,27 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { serverSocials, serverSupportedClients, servers } from "@firstspawn/database/schema";
-import type { serverProbeObservations } from "@firstspawn/database/schema";
+import {
+  serverHeartbeats,
+  serverSocials,
+  serverSupportedClients,
+  servers,
+} from "@firstspawn/database/schema";
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
 import { requireAdminUser } from "../../lib/request-auth.js";
 
-const FRESHNESS_WINDOW_MS = 30 * 60 * 1000;
+const ONLINE_WINDOW_MS = 15 * 60 * 1000;
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PUBLIC_PING_NULL_SORT_VALUE = 2_147_483_647;
 const PUBLIC_PLAYERS_NULL_SORT_VALUE = -1;
 
 type ServerRecord = typeof servers.$inferSelect;
-type ObservationRecord = typeof serverProbeObservations.$inferSelect;
-type FreshnessServerFields = Pick<ServerRecord, "status" | "lastProbeAttemptAt" | "probeStatus">;
+type HeartbeatRecord = typeof serverHeartbeats.$inferSelect;
+type FreshnessServerFields = Pick<
+  ServerRecord,
+  "status" | "lastProbeAttemptAt" | "probeStatus" | "lastPingAt"
+>;
 type PublicServerListRow = {
   id: string;
   slug: string;
@@ -28,13 +36,15 @@ type PublicServerListRow = {
   authMode: "official" | "offline_allowed" | "unknown";
   logoUrl: string | null;
   bannerUrl: string | null;
-  monitoringStartedAt: Date;
+  lastPingAt: Date | null;
   lastProbeAttemptAt: Date | null;
-  probeStatus: "online" | "offline" | "unknown";
+  probeStatus: "online" | "offline" | "unknown" | "unreachable";
+  latestId: string | null;
+  pingMs: number | null;
   onlinePlayers: number | null;
-  observedAt: Date | null;
-  availabilityPercent: number | null;
-  coveragePercent: number;
+  maxPlayers: number | null;
+  minecraftVersion: string | null;
+  occurredAt: Date | null;
   sortPrimary: number;
   sortSecondary: number;
 };
@@ -53,8 +63,9 @@ type PublicGeoRow = {
   reachScope: "local" | "regional" | "global";
   onlinePlayers: number | null;
   status: "active" | "suspended" | "archived";
+  lastPingAt: Date | null;
   lastProbeAttemptAt: Date | null;
-  probeStatus: "online" | "offline" | "unknown";
+  probeStatus: "online" | "offline" | "unknown" | "unreachable";
 };
 
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
@@ -62,7 +73,7 @@ const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
 const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
 const authModeSchema = z.enum(["official", "offline_allowed", "unknown"]);
 export const reachScopeSchema = z.enum(["local", "regional", "global"]);
-const publicListSortSchema = z.enum(["players", "availability"]);
+const publicListSortSchema = z.enum(["players", "ping"]);
 const publicTierSchema = z.enum(["common", "rare", "epic", "legendary"]);
 const serverSocialPlatformSchema = z.enum([
   "website",
@@ -83,17 +94,12 @@ const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
     error: z.null(),
   });
 
-const latestObservationSchema = z.object({
-  status: freshnessStatusSchema,
-  observed_at: z.string().datetime().nullable(),
+const latestMetricsSchema = z.object({
+  ping_ms: z.number().int().nonnegative().nullable(),
   online_players: z.number().int().nonnegative().nullable(),
-  source: z.literal("firstspawn_probe"),
-});
-
-const availabilitySchema = z.object({
-  percent: z.number().min(0).max(100).nullable(),
-  coverage_percent: z.number().min(0).max(100),
-  sufficient_data: z.boolean(),
+  max_players: z.number().int().nonnegative().nullable(),
+  minecraft_version: z.string().nullable(),
+  occurred_at: z.string().datetime().nullable(),
 });
 
 const serverSocialSchema = z.object({
@@ -158,7 +164,7 @@ const serverBaseSchema = z.object({
   logo_url: z.string().nullable(),
   banner_url: z.string().nullable(),
 
-  monitoring_started_at: z.string().datetime(),
+  last_ping_at: z.string().datetime().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
@@ -239,28 +245,6 @@ const slugParamSchema = z.object({
   slug: z.string().trim().min(3).max(120),
 });
 
-const analyticsQuerySchema = z.object({
-  range: z.enum(["24h", "7d", "30d", "90d", "1y"]).default("30d"),
-});
-const analyticsResponseSchema = envelopeSchema(
-  z.object({
-    range: analyticsQuerySchema.shape.range,
-    source: z.literal("firstspawn_probe"),
-    points: z.array(
-      z.object({
-        bucket_start: z.string().datetime(),
-        online_count: z.number().int().nonnegative(),
-        offline_count: z.number().int().nonnegative(),
-        unknown_count: z.number().int().nonnegative(),
-        availability_percent: z.number().min(0).max(100).nullable(),
-        coverage_percent: z.number().min(0).max(100),
-        players_avg: z.number().nonnegative().nullable(),
-        players_peak: z.number().int().nonnegative().nullable(),
-      })
-    ),
-  })
-);
-
 const adminListResponseSchema = envelopeSchema(
   z.object({
     servers: z.array(serverBaseSchema),
@@ -274,8 +258,7 @@ const adminListResponseSchema = envelopeSchema(
 const adminDetailResponseSchema = envelopeSchema(
   z.object({
     server: serverBaseSchema.extend({
-      latest_observation: latestObservationSchema,
-      availability_30d: availabilitySchema,
+      latest_metrics: latestMetricsSchema,
       socials: z.array(serverSocialSchema),
       supported_clients: z.array(serverSupportedClientSchema),
     }),
@@ -297,11 +280,10 @@ const publicListResponseSchema = envelopeSchema(
           country_code: true,
           logo_url: true,
           banner_url: true,
-          monitoring_started_at: true,
+          last_ping_at: true,
         })
         .extend({
-          latest_observation: latestObservationSchema,
-          availability_30d: availabilitySchema,
+          latest_metrics: latestMetricsSchema,
         })
     ),
     pagination: z.object({
@@ -314,8 +296,7 @@ const publicListResponseSchema = envelopeSchema(
 const publicDetailResponseSchema = envelopeSchema(
   z.object({
     server: serverBaseSchema.extend({
-      latest_observation: latestObservationSchema,
-      availability_30d: availabilitySchema,
+      latest_metrics: latestMetricsSchema,
       socials: z.array(serverSocialSchema),
       supported_clients: z.array(serverSupportedClientSchema),
     }),
@@ -404,60 +385,55 @@ const freshnessFromServer = (
   nowMs: number
 ): "online" | "offline" | "unknown" => {
   if (server.status !== "active") {
-    return "unknown";
+    return "offline";
   }
 
   if (!server.lastProbeAttemptAt || server.probeStatus === "unknown") {
     return "unknown";
   }
-  if (nowMs - server.lastProbeAttemptAt.getTime() > FRESHNESS_WINDOW_MS) return "unknown";
-  return server.probeStatus;
+
+  if (!server.lastPingAt) {
+    return "offline";
+  }
+
+  return nowMs - server.lastPingAt.getTime() <= ONLINE_WINDOW_MS ? "online" : "offline";
 };
 
-export const findLatestObservations = async (
+export const findLatestHeartbeats = async (
   app: FastifyInstance,
   serverIds: string[]
-): Promise<Map<string, ObservationRecord>> => {
+): Promise<Map<string, HeartbeatRecord>> => {
   const uniqueServerIds = [...new Set(serverIds)];
   if (uniqueServerIds.length === 0) {
     return new Map();
   }
 
-  // Fetch the single latest online observation per server via a LATERAL top-1,
-  // which idx_server_probe_observations_server_observed (server_id, observed_at desc)
-  // serves directly without materializing/sorting the full online history.
-  const result = await app.db.pool.query<ObservationRecord>(
-    `
-      select
-        latest.cycle_id as "cycleId",
-        latest.server_id as "serverId",
-        latest.slot_start as "slotStart",
-        latest.observed_at as "observedAt",
-        latest.outcome as "outcome",
-        latest.online_players as "onlinePlayers",
-        latest.error_code as "errorCode",
-        latest.created_at as "createdAt",
-        latest.updated_at as "updatedAt"
-      from (select unnest($1::uuid[]) as server_id) req
-      cross join lateral (
-        select o.*
-        from server_probe_observations o
-        where o.server_id = req.server_id and o.outcome = 'online'
-        order by o.observed_at desc, o.created_at desc
-        limit 1
-      ) latest
-    `,
-    [uniqueServerIds]
-  );
+  const rankedHeartbeats = app.db.db
+    .select({
+      id: serverHeartbeats.id,
+      rn: sql<number>`row_number() over (
+        partition by ${serverHeartbeats.serverId}
+        order by ${serverHeartbeats.occurredAt} desc, ${serverHeartbeats.createdAt} desc, ${serverHeartbeats.id} desc
+      )`.as("rn"),
+    })
+    .from(serverHeartbeats)
+    .where(inArray(serverHeartbeats.serverId, uniqueServerIds))
+    .as("ranked_heartbeats");
 
-  return new Map(result.rows.map((observation) => [observation.serverId, observation]));
+  const rows = await app.db.db
+    .select({ heartbeat: serverHeartbeats })
+    .from(serverHeartbeats)
+    .innerJoin(rankedHeartbeats, eq(serverHeartbeats.id, rankedHeartbeats.id))
+    .where(eq(rankedHeartbeats.rn, 1));
+
+  return new Map(rows.map(({ heartbeat }) => [heartbeat.serverId, heartbeat]));
 };
 
-const findLatestObservation = async (
+const findLatestHeartbeat = async (
   app: FastifyInstance,
   serverId: string
-): Promise<ObservationRecord | null> => {
-  return (await findLatestObservations(app, [serverId])).get(serverId) ?? null;
+): Promise<HeartbeatRecord | null> => {
+  return (await findLatestHeartbeats(app, [serverId])).get(serverId) ?? null;
 };
 
 export const normalizeServerPayload = (
@@ -479,7 +455,7 @@ export const normalizeServerPayload = (
   logo_url: string | null;
   banner_url: string | null;
 
-  monitoring_started_at: string;
+  last_ping_at: string | null;
   created_at: string;
   updated_at: string;
 } => ({
@@ -497,7 +473,7 @@ export const normalizeServerPayload = (
   reach_scope: server.reachScope as "local" | "regional" | "global",
   logo_url: server.logoUrl,
   banner_url: server.bannerUrl,
-  monitoring_started_at: server.monitoringStartedAt.toISOString(),
+  last_ping_at: server.lastPingAt ? server.lastPingAt.toISOString() : null,
   created_at: server.createdAt.toISOString(),
   updated_at: server.updatedAt.toISOString(),
 });
@@ -537,42 +513,41 @@ export const findServerMetadata = async (
   };
 };
 
-export const normalizeObservationPayload = (
-  server: FreshnessServerFields,
-  observation: Pick<ObservationRecord, "onlinePlayers" | "observedAt"> | null,
-  nowMs: number
-) => {
-  const status = freshnessFromServer(server, nowMs);
-  return {
-    status,
-    observed_at:
-      server.lastProbeAttemptAt?.toISOString() ?? observation?.observedAt.toISOString() ?? null,
-    online_players: status === "online" ? (observation?.onlinePlayers ?? null) : null,
-    source: "firstspawn_probe" as const,
-  };
-};
+export const normalizeMetricsPayload = (
+  heartbeat: Pick<
+    HeartbeatRecord,
+    "pingMs" | "onlinePlayers" | "maxPlayers" | "minecraftVersion" | "occurredAt"
+  > | null
+): {
+  ping_ms: number | null;
+  online_players: number | null;
+  max_players: number | null;
+  minecraft_version: string | null;
+  occurred_at: string | null;
+} => ({
+  ping_ms: heartbeat?.pingMs ?? null,
+  online_players: heartbeat?.onlinePlayers ?? null,
+  max_players: heartbeat?.maxPlayers ?? null,
+  minecraft_version: heartbeat?.minecraftVersion ?? null,
+  occurred_at: heartbeat?.occurredAt.toISOString() ?? null,
+});
 
-const emptyAvailability = { percent: null, coverage_percent: 0, sufficient_data: false };
+const latestHeartbeatFromPublicRow = (
+  row: PublicServerListRow
+): Pick<
+  HeartbeatRecord,
+  "pingMs" | "onlinePlayers" | "maxPlayers" | "minecraftVersion" | "occurredAt"
+> | null => {
+  if (!row.latestId || !row.occurredAt) {
+    return null;
+  }
 
-const findAvailability30d = async (
-  app: FastifyInstance,
-  server: ServerRecord
-): Promise<{ percent: number | null; coverage_percent: number; sufficient_data: boolean }> => {
-  const result = await app.db.pool.query<{ percent: number | null; coverage: number | null }>(
-    `
-    select
-      round(100.0 * sum(online_count) / nullif(sum(online_count + offline_count), 0), 2)::float8 as percent,
-      least(100.0, coalesce(round(100.0 * sum(online_count + offline_count) / nullif(least(4320, greatest(1, extract(epoch from (now() - $2::timestamptz)) / 600)), 0), 2), 0))::float8 as coverage
-    from server_probe_hourly where server_id = $1 and bucket_start >= greatest(now() - interval '30 days', $2::timestamptz)
-  `,
-    [server.id, server.monitoringStartedAt]
-  );
-  const row = result.rows[0];
-  const coverage = row?.coverage ?? 0;
   return {
-    percent: coverage >= 80 ? (row?.percent ?? null) : null,
-    coverage_percent: coverage,
-    sufficient_data: coverage >= 80,
+    pingMs: row.pingMs,
+    onlinePlayers: row.onlinePlayers,
+    maxPlayers: row.maxPlayers,
+    minecraftVersion: row.minecraftVersion,
+    occurredAt: row.occurredAt,
   };
 };
 
@@ -714,7 +689,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         );
       }
 
-      const threshold = new Date(now - FRESHNESS_WINDOW_MS);
+      const threshold = new Date(now - ONLINE_WINDOW_MS);
 
       const countsResult = await app.db.pool.query<PublicStatsRow>(
         `
@@ -724,7 +699,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             coalesce(
               sum(
                 case
-                  when s.last_probe_attempt_at >= $1 and s.probe_status = 'online' then latest.online_players
+                  when s.last_ping_at >= $1 then latest.online_players
                   else 0
                 end
               ),
@@ -732,10 +707,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             )::integer as total_online_players
           from servers s
           left join lateral (
-            select o.online_players
-            from server_probe_observations o
-            where o.server_id = s.id and o.outcome = 'online'
-            order by o.observed_at desc, o.created_at desc
+            select hb.online_players
+            from server_heartbeats hb
+            where hb.server_id = s.id
+            order by hb.occurred_at desc, hb.created_at desc, hb.id desc
             limit 1
           ) latest on true
           where s.status = 'active'
@@ -787,15 +762,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
           s.reach_scope as "reachScope",
           latest.online_players as "onlinePlayers",
           s.status as "status",
+          s.last_ping_at as "lastPingAt",
           s.last_probe_attempt_at as "lastProbeAttemptAt",
           s.probe_status as "probeStatus"
         from servers s
         join countries c on c.iso_a_2 = s.country_code
         left join lateral (
-          select o.online_players
-          from server_probe_observations o
-          where o.server_id = s.id and o.outcome = 'online'
-          order by o.observed_at desc, o.created_at desc
+          select hb.online_players
+          from server_heartbeats hb
+          where hb.server_id = s.id
+          order by hb.occurred_at desc, hb.created_at desc, hb.id desc
           limit 1
         ) latest on true
         where s.game = 'mc_java'
@@ -968,8 +944,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
           {
             server: {
               ...serverPayload,
-              latest_observation: normalizeObservationPayload(created, null, Date.now()),
-              availability_30d: emptyAvailability,
+              latest_metrics: normalizeMetricsPayload(null),
               ...metadata,
             },
           },
@@ -998,15 +973,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       );
 
       const [latest, metadata] = await Promise.all([
-        findLatestObservation(app, server.id),
+        findLatestHeartbeat(app, server.id),
         findServerMetadata(app, server.id),
       ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
-            latest_observation: normalizeObservationPayload(server, latest, Date.now()),
-            availability_30d: emptyAvailability,
+            latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
         },
@@ -1054,18 +1028,6 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       }
       if (request.body.port !== undefined) {
         patch.port = request.body.port;
-      }
-      if (
-        (request.body.host !== undefined && request.body.host !== existing.host) ||
-        (request.body.port !== undefined && request.body.port !== existing.port)
-      ) {
-        patch.monitoringStartedAt = now;
-        patch.lastProbeAttemptAt = null;
-        patch.lastProbeSuccessAt = null;
-        patch.lastProbeFailureAt = null;
-        patch.consecutiveProbeFailures = 0;
-        patch.lastProbeErrorCode = null;
-        patch.probeStatus = "unknown";
       }
       if (request.body.auth_mode !== undefined) {
         patch.authMode = request.body.auth_mode;
@@ -1158,15 +1120,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       }
 
       const [latest, metadata] = await Promise.all([
-        findLatestObservation(app, updated.id),
+        findLatestHeartbeat(app, updated.id),
         findServerMetadata(app, updated.id),
       ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
-            latest_observation: normalizeObservationPayload(updated, latest, Date.now()),
-            availability_30d: emptyAvailability,
+            latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
         },
@@ -1189,27 +1150,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
     async (request) => {
       await requireAdminUser(app, request.headers.authorization);
 
-      const existing = requireFound(
-        await app.db.db.query.servers.findFirst({
-          where: and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")),
-        })
-      );
-      const restarting = request.body.status === "active" && existing.status !== "active";
       const rows = await app.db.db
         .update(servers)
         .set({
           status: request.body.status,
-          ...(restarting
-            ? {
-                monitoringStartedAt: new Date(),
-                lastProbeAttemptAt: null,
-                lastProbeSuccessAt: null,
-                lastProbeFailureAt: null,
-                consecutiveProbeFailures: 0,
-                lastProbeErrorCode: null,
-                probeStatus: "unknown",
-              }
-            : {}),
           updatedAt: new Date(),
         })
         .where(and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")))
@@ -1218,15 +1162,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const updated = requireFound(rows[0]);
 
       const [latest, metadata] = await Promise.all([
-        findLatestObservation(app, updated.id),
+        findLatestHeartbeat(app, updated.id),
         findServerMetadata(app, updated.id),
       ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
-            latest_observation: normalizeObservationPayload(updated, latest, Date.now()),
-            availability_30d: emptyAvailability,
+            latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
         },
@@ -1270,26 +1213,27 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         filters.push(`(s.name ilike ${q} or s.slug::text ilike ${q} or s.description ilike ${q})`);
       }
 
-      const threshold = new Date(Date.now() - FRESHNESS_WINDOW_MS);
+      const threshold = new Date(Date.now() - ONLINE_WINDOW_MS);
       if (query.freshness_status === "online") {
         filters.push("s.status = 'active'");
-        filters.push(
-          `s.last_probe_attempt_at >= ${addQueryParam(queryParams, threshold)} and s.probe_status = 'online'`
-        );
+        filters.push(`s.last_ping_at >= ${addQueryParam(queryParams, threshold)}`);
       } else if (query.freshness_status === "offline") {
         filters.push(
           `(
-            s.status = 'active' and s.last_probe_attempt_at >= ${addQueryParam(queryParams, threshold)} and s.probe_status = 'offline'
+            s.status = 'archived'
+            or (s.status = 'active' and s.last_ping_at < ${addQueryParam(queryParams, threshold)})
+            or (s.status = 'active' and s.probe_status = 'unreachable')
+            or (s.status = 'active' and s.probe_status = 'offline')
           )`
         );
       } else if (query.freshness_status === "unknown") {
         filters.push(
-          `(s.status = 'archived' or (s.status = 'active' and (s.last_probe_attempt_at is null or s.last_probe_attempt_at < ${addQueryParam(queryParams, threshold)} or s.probe_status = 'unknown')))`
+          "(s.status = 'active' and (s.last_probe_attempt_at is null or s.probe_status = 'unknown'))"
         );
       }
 
       const sortPlayersExpr = `coalesce(latest.online_players, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})::integer`;
-      const sortAvailabilityExpr = `coalesce(availability.percent, -1)::float8`;
+      const sortPingExpr = `coalesce(latest.ping_ms::integer, ${PUBLIC_PING_NULL_SORT_VALUE})`;
       const tierPlayersExpr = "coalesce(latest.online_players, 0)";
       if (query.tier && query.tier.length > 0) {
         const tierFilters = query.tier.map((tier) => {
@@ -1314,24 +1258,24 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
               const id = addQueryParam(queryParams, cursor.id);
               return `(
               ${sortPlayersExpr} < ${primary}
-              or (${sortPlayersExpr} = ${primary} and ${sortAvailabilityExpr} < ${secondary})
+              or (${sortPlayersExpr} = ${primary} and ${sortPingExpr} > ${secondary})
               or (
                 ${sortPlayersExpr} = ${primary}
-                and ${sortAvailabilityExpr} = ${secondary}
+                and ${sortPingExpr} = ${secondary}
                 and s.id > ${id}::uuid
               )
             )`;
             })()
-          : cursor && query.sort === "availability"
+          : cursor && query.sort === "ping"
             ? (() => {
                 const primary = addQueryParam(queryParams, cursor.primary);
                 const secondary = addQueryParam(queryParams, cursor.secondary);
                 const id = addQueryParam(queryParams, cursor.id);
                 return `(
-                ${sortAvailabilityExpr} < ${primary}
-                or (${sortAvailabilityExpr} = ${primary} and ${sortPlayersExpr} < ${secondary})
+                ${sortPingExpr} > ${primary}
+                or (${sortPingExpr} = ${primary} and ${sortPlayersExpr} < ${secondary})
                 or (
-                  ${sortAvailabilityExpr} = ${primary}
+                  ${sortPingExpr} = ${primary}
                   and ${sortPlayersExpr} = ${secondary}
                   and s.id > ${id}::uuid
                 )
@@ -1342,12 +1286,12 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         filters.push(cursorFilter);
       }
 
-      const sortPrimaryExpr = query.sort === "players" ? sortPlayersExpr : sortAvailabilityExpr;
-      const sortSecondaryExpr = query.sort === "players" ? sortAvailabilityExpr : sortPlayersExpr;
+      const sortPrimaryExpr = query.sort === "players" ? sortPlayersExpr : sortPingExpr;
+      const sortSecondaryExpr = query.sort === "players" ? sortPingExpr : sortPlayersExpr;
       const orderClause =
         query.sort === "players"
-          ? `${sortPlayersExpr} desc, ${sortAvailabilityExpr} desc, s.id asc`
-          : `${sortAvailabilityExpr} desc, ${sortPlayersExpr} desc, s.id asc`;
+          ? `${sortPlayersExpr} desc, ${sortPingExpr} asc, s.id asc`
+          : `${sortPingExpr} asc, ${sortPlayersExpr} desc, s.id asc`;
       const limit = addQueryParam(queryParams, query.limit + 1);
       const rowsResult = await app.db.pool.query<PublicServerListRow>(
         `
@@ -1362,32 +1306,32 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             s.auth_mode as "authMode",
             s.logo_url as "logoUrl",
             s.banner_url as "bannerUrl",
-            s.monitoring_started_at as "monitoringStartedAt",
+            s.last_ping_at as "lastPingAt",
             s.last_probe_attempt_at as "lastProbeAttemptAt",
             s.probe_status as "probeStatus",
+            latest.id as "latestId",
+            latest.ping_ms as "pingMs",
             latest.online_players as "onlinePlayers",
-            latest.observed_at as "observedAt",
-            availability.percent as "availabilityPercent",
-            coalesce(availability.coverage_percent, 0)::float8 as "coveragePercent",
+            latest.max_players as "maxPlayers",
+            latest.minecraft_version as "minecraftVersion",
+            latest.occurred_at as "occurredAt",
             ${sortPrimaryExpr} as "sortPrimary",
             ${sortSecondaryExpr} as "sortSecondary"
           from servers s
           left join lateral (
             select
-              o.online_players,
-              o.observed_at
-            from server_probe_observations o
-            where o.server_id = s.id and o.outcome = 'online' and o.observed_at >= s.monitoring_started_at
-            order by o.observed_at desc, o.created_at desc
+              hb.id,
+              hb.ping_ms,
+              hb.online_players,
+              hb.max_players,
+              hb.minecraft_version,
+              hb.occurred_at,
+              hb.created_at
+            from server_heartbeats hb
+            where hb.server_id = s.id
+            order by hb.occurred_at desc, hb.created_at desc, hb.id desc
             limit 1
           ) latest on true
-          left join lateral (
-            select
-              round(100.0 * sum(h.online_count) / nullif(sum(h.online_count + h.offline_count), 0), 2)::float8 as percent,
-              least(100.0, coalesce(round(100.0 * sum(h.online_count + h.offline_count) / nullif(least(4320, greatest(1, extract(epoch from (now() - s.monitoring_started_at)) / 600)), 0), 2), 0))::float8 as coverage_percent
-            from server_probe_hourly h
-            where h.server_id = s.id and h.bucket_start >= greatest(now() - interval '30 days', s.monitoring_started_at)
-          ) availability on true
           where ${filters.join("\n            and ")}
           order by ${orderClause}
           limit ${limit}
@@ -1421,19 +1365,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             country_code: row.countryCode ?? null,
             logo_url: row.logoUrl,
             banner_url: row.bannerUrl,
-            monitoring_started_at: row.monitoringStartedAt.toISOString(),
-            latest_observation: {
-              status: freshnessFromServer(row, nowMs),
-              observed_at: row.lastProbeAttemptAt?.toISOString() ?? null,
-              online_players:
-                freshnessFromServer(row, nowMs) === "online" ? row.onlinePlayers : null,
-              source: "firstspawn_probe" as const,
-            },
-            availability_30d: {
-              percent: row.coveragePercent >= 80 ? row.availabilityPercent : null,
-              coverage_percent: row.coveragePercent,
-              sufficient_data: row.coveragePercent >= 80,
-            },
+            last_ping_at: row.lastPingAt ? row.lastPingAt.toISOString() : null,
+            latest_metrics: normalizeMetricsPayload(latestHeartbeatFromPublicRow(row)),
           })),
           pagination: {
             next_cursor: nextCursor,
@@ -1466,81 +1399,17 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         })
       );
 
-      const [latest, metadata, availability] = await Promise.all([
-        findLatestObservation(app, server.id),
+      const [latest, metadata] = await Promise.all([
+        findLatestHeartbeat(app, server.id),
         findServerMetadata(app, server.id),
-        findAvailability30d(app, server),
       ]);
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
-            latest_observation: normalizeObservationPayload(server, latest, Date.now()),
-            availability_30d: availability,
+            latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
-        },
-        request.id
-      );
-    }
-  );
-
-  app.get(
-    "/api/v1/servers/:slug/analytics",
-    {
-      schema: {
-        params: slugParamSchema,
-        querystring: analyticsQuerySchema,
-        response: { 200: analyticsResponseSchema },
-      },
-    },
-    async (request) => {
-      const server = requireFound(
-        await app.db.db.query.servers.findFirst({
-          where: and(
-            eq(servers.slug, request.params.slug),
-            eq(servers.game, "mc_java"),
-            inArray(servers.status, ["active", "archived"])
-          ),
-        })
-      );
-      const range = request.query.range;
-      type AnalyticsRow = {
-        bucketStart: Date;
-        onlineCount: number;
-        offlineCount: number;
-        unknownCount: number;
-        availabilityPercent: number | null;
-        coveragePercent: number;
-        playersAvg: number | null;
-        playersPeak: number | null;
-      };
-      let queryText: string;
-      if (range === "24h") {
-        queryText = `select observed_at as "bucketStart", (outcome = 'online')::int as "onlineCount", (outcome = 'offline')::int as "offlineCount", (outcome = 'unknown')::int as "unknownCount", case when outcome = 'online' then 100::float8 when outcome = 'offline' then 0::float8 else null end as "availabilityPercent", case when outcome = 'unknown' then 0::float8 else 100::float8 end as "coveragePercent", online_players::float8 as "playersAvg", online_players as "playersPeak" from server_probe_observations where server_id = $1 and observed_at >= greatest(now() - interval '24 hours', $2::timestamptz) order by observed_at`;
-      } else if (range === "1y") {
-        queryText = `select bucket_date::timestamptz as "bucketStart", online_count as "onlineCount", offline_count as "offlineCount", unknown_count as "unknownCount", round(100.0 * online_count / nullif(online_count + offline_count, 0), 2)::float8 as "availabilityPercent", round(100.0 * (online_count + offline_count) / nullif(sample_count, 0), 2)::float8 as "coveragePercent", players_avg::float8 as "playersAvg", players_peak as "playersPeak" from server_probe_daily where server_id = $1 and bucket_date >= greatest(current_date - interval '1 year', $2::timestamptz)::date order by bucket_date`;
-      } else {
-        const interval = range === "7d" ? "7 days" : range === "30d" ? "30 days" : "90 days";
-        queryText = `select bucket_start as "bucketStart", online_count as "onlineCount", offline_count as "offlineCount", unknown_count as "unknownCount", round(100.0 * online_count / nullif(online_count + offline_count, 0), 2)::float8 as "availabilityPercent", round(100.0 * (online_count + offline_count) / nullif(sample_count, 0), 2)::float8 as "coveragePercent", players_avg::float8 as "playersAvg", players_peak as "playersPeak" from server_probe_hourly where server_id = $1 and bucket_start >= greatest(now() - interval '${interval}', $2::timestamptz) order by bucket_start`;
-      }
-      const rows = (
-        await app.db.pool.query<AnalyticsRow>(queryText, [server.id, server.monitoringStartedAt])
-      ).rows;
-      return successEnvelope(
-        {
-          range,
-          source: "firstspawn_probe" as const,
-          points: rows.map((row) => ({
-            bucket_start: row.bucketStart.toISOString(),
-            online_count: row.onlineCount,
-            offline_count: row.offlineCount,
-            unknown_count: row.unknownCount,
-            availability_percent: row.availabilityPercent,
-            coverage_percent: row.coveragePercent,
-            players_avg: row.playersAvg,
-            players_peak: row.playersPeak,
-          })),
         },
         request.id
       );

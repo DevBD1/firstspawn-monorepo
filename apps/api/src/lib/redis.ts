@@ -8,30 +8,15 @@ export interface RedisMulti {
   exec(): Promise<Array<[Error | null, unknown]> | null>;
 }
 
-export interface RedisPipeline {
-  set(key: string, value: string, expiryMode?: "EX", time?: number): RedisPipeline;
-  exec(): Promise<Array<[Error | null, unknown]> | null>;
-}
-
 export interface RedisClient {
   multi(): RedisMulti;
   quit(): Promise<unknown>;
-  get(key: string): Promise<string | null>;
-  set(key: string, value: string, expiryMode?: "EX", time?: number): Promise<string | null>;
-  mget(...keys: string[]): Promise<(string | null)[]>;
-  pipeline(): RedisPipeline;
-}
-
-interface InMemoryStoreEntry {
-  count?: number;
-  value?: string;
-  expiresAt: number | null;
 }
 
 class InMemoryRedisMulti implements RedisMulti {
   private readonly commands: Array<() => [Error | null, unknown]> = [];
 
-  constructor(private readonly store: Map<string, InMemoryStoreEntry>) {}
+  constructor(private readonly store: Map<string, { count: number; expiresAt: number | null }>) {}
 
   incr(key: string): RedisMulti {
     this.commands.push(() => {
@@ -78,27 +63,8 @@ class InMemoryRedisMulti implements RedisMulti {
   }
 }
 
-class InMemoryRedisPipeline implements RedisPipeline {
-  private readonly commands: Array<() => [Error | null, unknown]> = [];
-
-  constructor(private readonly store: Map<string, InMemoryStoreEntry>) {}
-
-  set(key: string, value: string, expiryMode?: "EX", time?: number): RedisPipeline {
-    this.commands.push(() => {
-      const expiresAt = expiryMode === "EX" && time ? Date.now() + time * 1000 : null;
-      this.store.set(key, { value, expiresAt });
-      return [null, "OK"];
-    });
-    return this;
-  }
-
-  async exec(): Promise<Array<[Error | null, unknown]>> {
-    return this.commands.map((command) => command());
-  }
-}
-
 class InMemoryRedisClient implements RedisClient {
-  private readonly store = new Map<string, InMemoryStoreEntry>();
+  private readonly store = new Map<string, { count: number; expiresAt: number | null }>();
 
   multi(): RedisMulti {
     return new InMemoryRedisMulti(this.store);
@@ -107,39 +73,6 @@ class InMemoryRedisClient implements RedisClient {
   async quit(): Promise<"OK"> {
     this.store.clear();
     return "OK";
-  }
-
-  async get(key: string): Promise<string | null> {
-    const now = Date.now();
-    const entry = this.store.get(key);
-    if (!entry) {
-      return null;
-    }
-
-    if (entry.expiresAt !== null && entry.expiresAt <= now) {
-      this.store.delete(key);
-      return null;
-    }
-
-    return entry.value ?? null;
-  }
-
-  async set(key: string, value: string, expiryMode?: "EX", time?: number): Promise<"OK"> {
-    const expiresAt = expiryMode === "EX" && time ? Date.now() + time * 1000 : null;
-    this.store.set(key, { value, expiresAt });
-    return "OK";
-  }
-
-  async mget(...keys: string[]): Promise<(string | null)[]> {
-    const results: (string | null)[] = [];
-    for (const key of keys) {
-      results.push(await this.get(key));
-    }
-    return results;
-  }
-
-  pipeline(): RedisPipeline {
-    return new InMemoryRedisPipeline(this.store);
   }
 }
 
@@ -154,7 +87,7 @@ export function createRedisClient(url: string): RedisClient {
     console.error("Redis Error:", err);
   });
 
-  return client as unknown as RedisClient;
+  return client;
 }
 
 export function createInMemoryRedisClient(): RedisClient {

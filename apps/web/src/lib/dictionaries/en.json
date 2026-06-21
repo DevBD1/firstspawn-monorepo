@@ -372,7 +372,7 @@
       "verifiedBadge": "✓ Verified",
       "votedLabel": "✓ Voted",
       "onlineCountLabel": "{count} online",
-      "uptimeLabel": "availability {value}%",
+      "uptimeLabel": "up {value}%",
       "globalRegionLabel": "Global",
       "noDescription": "No description provided.",
       "gameNames": {
@@ -393,7 +393,7 @@
       "bannerLabel": "{name} · banner / world render",
       "closeLabel": "Close",
       "onlineNowLabel": "online now",
-      "uptimeLabel": "availability (30d)",
+      "uptimeLabel": "uptime",
       "votesLabel": "votes",
       "standingLabel": "standing",
       "verifiedStanding": "Verified",
@@ -401,9 +401,7 @@
       "copiedLabel": "copied ✓",
       "voteLabel": "▲ Vote",
       "votedLabel": "✓ Voted today",
-      "viewFullProfileLabel": "View full profile →",
-      "provenanceNote": "FirstSpawn probe · player counts from the public query are unverified",
-      "coverageLabel": "coverage"
+      "viewFullProfileLabel": "View full profile →"
     },
     "tagFeatures": {
       "Survival": {
@@ -520,16 +518,14 @@
     },
     "status": {
       "online": "ONLINE",
-      "offline": "OFFLINE",
-      "unknown": "UNKNOWN"
+      "offline": "OFFLINE"
     },
     "profile": {
       "breadcrumbBack": "← Discover",
       "gameNames": {
         "mcJava": "Minecraft Java",
         "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale",
-        "fallback": "Game"
+        "hytale": "Hytale"
       },
       "updatedJustNow": "updated just now",
       "updatedRecently": "updated recently",
@@ -561,14 +557,6 @@
       },
       "similar": {
         "title": "Similar worlds"
-      },
-      "analytics": {
-        "title": "Measured history",
-        "availabilityLabel": "Availability",
-        "playersLabel": "Online players",
-        "coverageLabel": "coverage",
-        "provenanceNote": "FirstSpawn probe · player counts from the public query are unverified",
-        "ownerDeclaredNote": "Declared by the server owner"
       },
       "discussionTeaser": {
         "badge": "Arriving in v2",
@@ -604,7 +592,7 @@
         "votedLabel": "✓ Voted today",
         "stats": {
           "onlineNow": "Online now",
-          "uptime30d": "Availability (30d)",
+          "uptime30d": "Uptime (30d)",
           "votes": "Votes",
           "standing": "Standing"
         },

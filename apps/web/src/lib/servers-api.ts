@@ -8,7 +8,7 @@ type FetchInit = RequestInit & {
   };
 };
 
-export type PublicServerSort = "players" | "availability";
+export type PublicServerSort = "players" | "ping";
 export type PublicServerGame = "mc_java" | "mc_bedrock" | "hytale";
 export type PublicServerTier = "common" | "rare" | "epic" | "legendary";
 
@@ -23,14 +23,14 @@ export interface PublicServerListItem {
   country_code: string | null;
   logo_url: string | null;
   banner_url: string | null;
-  monitoring_started_at: string;
-  latest_observation: {
-    status: "online" | "offline" | "unknown";
-    observed_at: string | null;
+  last_ping_at: string | null;
+  latest_metrics: {
+    ping_ms: number | null;
     online_players: number | null;
-    source: "firstspawn_probe";
+    max_players: number | null;
+    minecraft_version: string | null;
+    occurred_at: string | null;
   };
-  availability_30d: { percent: number | null; coverage_percent: number; sufficient_data: boolean };
 }
 
 export interface PublicServerDetail {
@@ -44,14 +44,14 @@ export interface PublicServerDetail {
   country_code: string | null;
   logo_url: string | null;
   banner_url: string | null;
-  monitoring_started_at: string;
-  latest_observation: {
-    status: "online" | "offline" | "unknown";
-    observed_at: string | null;
+  last_ping_at: string | null;
+  latest_metrics: {
+    ping_ms: number | null;
     online_players: number | null;
-    source: "firstspawn_probe";
+    max_players: number | null;
+    minecraft_version: string | null;
+    occurred_at: string | null;
   };
-  availability_30d: { percent: number | null; coverage_percent: number; sufficient_data: boolean };
   host: string;
   port: number;
   id: string;
@@ -214,35 +214,4 @@ export async function fetchServerDetail(
 
   const payload = await response.json();
   return payload.data.server;
-}
-
-export type ServerAnalyticsRange = "24h" | "7d" | "30d" | "90d" | "1y";
-export interface ServerAnalyticsPoint {
-  bucket_start: string;
-  online_count: number;
-  offline_count: number;
-  unknown_count: number;
-  availability_percent: number | null;
-  coverage_percent: number;
-  players_avg: number | null;
-  players_peak: number | null;
-}
-export interface ServerAnalytics {
-  range: ServerAnalyticsRange;
-  source: "firstspawn_probe";
-  points: ServerAnalyticsPoint[];
-}
-
-/** Fetches measured liveness and unverified public-query player history. */
-export async function fetchServerAnalytics(
-  slug: string,
-  range: ServerAnalyticsRange,
-  init: FetchInit = defaultFetchInit()
-): Promise<ServerAnalytics> {
-  const url = new URL(`${getApiBaseUrl()}/servers/${encodeURIComponent(slug)}/analytics`);
-  url.searchParams.set("range", range);
-  const response = await fetch(url, { headers: getHeaders(), ...init });
-  if (!response.ok)
-    throw new Error(`Failed to fetch server analytics: ${response.status} ${response.statusText}`);
-  return (await response.json()).data as ServerAnalytics;
 }

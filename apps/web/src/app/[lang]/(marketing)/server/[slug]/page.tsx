@@ -3,6 +3,7 @@ import { fetchServerDetail, fetchServers } from "@/lib/servers-api";
 import { resolveLocaleParam } from "@/lib/resolve-locale";
 import { getDictionary } from "@/lib/get-dictionary";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
+import { getServerCardCopy } from "@/features/server/lib/server-copy";
 import WLServerPageClient from "@/features/server/components/WLServerPageClient.client";
 import { Metadata } from "next";
 
@@ -31,6 +32,7 @@ export default async function ServerDetailPage({
   const { lang: langParam, slug } = await params;
   const lang = resolveLocaleParam(langParam);
   const dictionary = (await getDictionary(lang)) as AppDictionary;
+  const serverCardCopy = getServerCardCopy(dictionary);
 
   const server = await fetchServerDetail(slug);
 
@@ -83,6 +85,7 @@ export default async function ServerDetailPage({
           s={server}
           lang={lang}
           similarServers={similarServers}
+          serverCardCopy={serverCardCopy}
           dictionary={dictionary}
         />
       </div>
