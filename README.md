@@ -23,8 +23,8 @@ Drizzle stack. The current baseline is:
 - Web app is the primary shipped surface
 - API auth + deletion/restore foundation is implemented
 - Admin/public server catalog routes are implemented
-- Collector target + heartbeat ingestion routes are implemented
-- `apps/collector` now drives heartbeat polling for `mc_java`
+- Collector target + atomic probe-cycle ingestion routes are implemented
+- `apps/collector` probes the full `mc_java` fleet on ten-minute UTC slots
 - Docker scheduler now runs archive / rollup retention / delete purge jobs
 - Reviews, favorites, moderation, plugin telemetry, and agent workflows are
   Phase 2
@@ -39,11 +39,11 @@ Implemented:
 - Soft-delete flow (`delete/request`, `restore/confirm`, `restore/expedite-delete`)
 - Admin catalog endpoints for `mc_java` servers
 - Public server list/detail endpoints
-- Collector target and heartbeat ingestion endpoints
+- Collector target and probe-cycle ingestion endpoints
 - New `apps/collector` service with `/healthz` and `/metrics`
 - Docker scheduler container for daily archive / rollup / purge jobs
 - Rebaselined Drizzle migration history
-- MVP schema foundation (`users`, `sessions`, `verification_tokens`, `user_deletion_requests`, `servers`, server metadata, `server_heartbeats`, hourly/daily rollups)
+- MVP schema foundation (`users`, sessions, catalog metadata, probe cycles, observations, and hourly/daily rollups)
 
 Pending for MVP completion:
 
@@ -78,6 +78,10 @@ pnpm --filter @firstspawn/api dev
 pnpm --filter @firstspawn/collector dev
 pnpm --filter @firstspawn/web dev
 ```
+
+The current development schema is distributed as one clean Drizzle baseline.
+When the baseline changes, recreate only the local PostgreSQL volume, rerun the
+migration, and optionally apply `packages/database/seeds/0001_demo_server.sql`.
 
 If Docker daemon is not running yet:
 
@@ -193,13 +197,14 @@ New backend MVP services require the following environment values in `.env`:
   - `API_ADMIN_EMAIL_ALLOWLIST`
   - `API_COLLECTOR_KEY`
 - Scheduler (UTC cron, daily defaults):
+  - `SCHEDULE_PROBE_ROLLUPS`
   - `SCHEDULE_ARCHIVE_INACTIVE`
   - `SCHEDULE_ROLLUP_RETENTION`
   - `SCHEDULE_PURGE_DELETED_USERS`
 - Collector runtime:
   - `COLLECTOR_API_BASE_URL`
-  - `COLLECTOR_PING_INTERVAL_SECONDS`
-  - `COLLECTOR_PAYLOAD_INTERVAL_SECONDS`
+  - `COLLECTOR_INSTANCE_ID` (required and unique per running replica)
+  - `COLLECTOR_PROBE_INTERVAL_SECONDS`
   - `COLLECTOR_CONCURRENCY`
   - `COLLECTOR_TARGET_PAGE_SIZE`
   - `COLLECTOR_PROBE_TIMEOUT_MS`

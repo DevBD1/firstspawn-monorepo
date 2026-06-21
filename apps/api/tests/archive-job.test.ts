@@ -11,11 +11,11 @@ const archiveJobPath = path.resolve(
 );
 
 describe("archive inactive server job", () => {
-  it("cannot archive imported active rows with null last_ping_at", async () => {
+  it("cannot archive active rows because monitoring is stale", async () => {
     const sql = await readFile(archiveJobPath, "utf8");
 
     expect(sql).not.toMatch(/\bupdate\s+servers\b/i);
-    expect(sql).not.toContain("coalesce(s.last_ping_at, s.created_at)");
+    expect(sql).not.toContain("coalesce(s.last_probe_attempt_at, s.created_at)");
     expect(sql).toContain("where false");
   });
 });

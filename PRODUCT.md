@@ -60,6 +60,9 @@ only on external social channels.
   richer FirstSpawn-specific activity signals.
 - FirstSpawn-native server tooling should provide better data than traditional
   Votifier-only integrations without making older server setups useless.
+- FSVotifier is the future owner-authoritative integration boundary. External
+  probes remain limited to liveness and unverified public-query player counts;
+  plugin ingestion is not part of the current collector implementation.
 - Plugin verification and telemetry should improve server profile trust and
   analytics when server owners opt in.
 - Player identity and reputation should make player contributions visible and

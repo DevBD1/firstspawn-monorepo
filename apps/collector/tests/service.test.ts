@@ -1,152 +1,95 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "../src/api-client.js";
-import { CollectorMetrics } from "../src/metrics.js";
-import type { MinecraftProbeClient } from "../src/probe.js";
 import { CollectorService } from "../src/service.js";
-import type { CollectorTarget, HeartbeatPayload, IngestResult, ProbeResult } from "../src/types.js";
-
-const targetA: CollectorTarget = {
-  id: "srv-a",
-  slug: "srv-a",
-  host: "a.example.com",
-  port: 25565,
-  game: "mc_java",
-  country_code: null,
-  created_at: "2026-01-01T00:00:00.000Z",
-};
-
-const targetB: CollectorTarget = {
-  id: "srv-b",
-  slug: "srv-b",
-  host: "b.example.com",
-  port: 25565,
-  game: "mc_java",
-  country_code: null,
-  created_at: "2026-01-01T00:00:00.000Z",
-};
 
 describe("CollectorService", () => {
-  it("runs one cycle, ingests successful probes, and saves payload by cadence", async () => {
-    const ingestHeartbeat = vi
-      .fn<(payload: HeartbeatPayload) => Promise<IngestResult>>()
-      .mockResolvedValue({ accepted: true, duplicate: false });
-    const recordProbeFailure = vi.fn<ApiClient["recordProbeFailure"]>().mockResolvedValue();
-    const fetchAllTargets = vi
-      .fn<() => Promise<CollectorTarget[]>>()
-      .mockResolvedValue([targetA, targetB]);
-
+  it("probes the fleet and submits one cycle with only liveness and players", async () => {
     const apiClient = {
-      fetchAllTargets,
-      ingestHeartbeat,
-      recordProbeFailure,
-    } as unknown as ApiClient;
-
-    const probe = vi
-      .fn<(target: CollectorTarget, timeoutMs: number) => Promise<ProbeResult>>()
-      .mockImplementation(async (target) => ({
-        pingMs: 20,
-        onlinePlayers: target.id === "srv-a" ? 10 : 20,
-        maxPlayers: 100,
-        protocolVersion: 765,
-        minecraftVersion: "1.20.4",
-        payload: { motd: target.slug },
-      }));
-    const probeClient = {
-      probe,
-    } as unknown as MinecraftProbeClient;
-
-    const nowSequence = [
-      new Date("2026-04-10T08:00:00.000Z"),
-      new Date("2026-04-10T08:00:00.000Z"),
-      new Date("2026-04-10T08:00:00.000Z"),
-      new Date("2026-04-10T08:00:01.000Z"),
-      new Date("2026-04-10T08:00:01.000Z"),
-      new Date("2026-04-10T08:00:01.000Z"),
-    ];
-    const now = vi.fn<() => Date>(
-      () => nowSequence.shift() ?? new Date("2026-04-10T08:00:01.000Z")
-    );
-
-    const logger = {
-      info: vi.fn(),
-      error: vi.fn(),
+      fetchAllTargets: vi.fn().mockResolvedValue([
+        {
+          id: "one",
+          slug: "one",
+          host: "one.test",
+          port: 25565,
+          game: "mc_java",
+          created_at: "2026-06-21T00:00:00.000Z",
+        },
+      ]),
+      ingestProbeCycle: vi.fn().mockResolvedValue({
+        accepted: true,
+        duplicate: false,
+        cycle_id: "cycle",
+        classification: "accepted",
+        accepted_observations: 1,
+        rejected_server_ids: [],
+      }),
     };
-
+    const metrics = {
+      startCycle: vi.fn(),
+      observeTargetProcessed: vi.fn(),
+      observeProbeSuccess: vi.fn(),
+      observeProbeFailure: vi.fn(),
+      observeIngestSuccess: vi.fn(),
+      observeIngestFailure: vi.fn(),
+      finishCycle: vi.fn(),
+    };
     const service = new CollectorService({
-      apiClient,
-      probeClient,
-      metrics: new CollectorMetrics(),
-      pingIntervalSeconds: 300,
-      payloadIntervalSeconds: 1800,
-      concurrency: 2,
-      probeTimeoutMs: 5000,
-      now,
-      logger,
+      apiClient: apiClient as never,
+      probeClient: { probe: vi.fn().mockResolvedValue({ onlinePlayers: 7 }) } as never,
+      metrics: metrics as never,
+      collectorInstanceId: "primary",
+      probeIntervalSeconds: 600,
+      concurrency: 50,
+      probeTimeoutMs: 5_000,
+      now: () => new Date("2026-06-21T00:00:05.000Z"),
+      logger: { info: vi.fn(), error: vi.fn() },
     });
-
-    const first = await service.runCycle();
-    expect(first.targets).toBe(2);
-    expect(first.probeSuccess).toBe(2);
-    expect(first.probeFailure).toBe(0);
-    expect(first.ingestSuccess).toBe(2);
-    expect(first.ingestFailure).toBe(0);
-    expect(ingestHeartbeat).toHaveBeenCalledTimes(2);
-    expect(ingestHeartbeat.mock.calls[0]?.[0].payload).toBeDefined();
-    expect(ingestHeartbeat.mock.calls[1]?.[0].payload).toBeDefined();
-
-    now.mockReturnValue(new Date("2026-04-10T08:05:00.000Z"));
-    await service.runCycle();
-    expect(ingestHeartbeat).toHaveBeenCalledTimes(4);
-    expect(ingestHeartbeat.mock.calls[2]?.[0].payload).toBeUndefined();
-    expect(ingestHeartbeat.mock.calls[3]?.[0].payload).toBeUndefined();
+    await service.runCycle(new Date("2026-06-21T00:00:00.000Z"));
+    expect(apiClient.ingestProbeCycle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        submission_id: expect.any(String),
+        observations: [
+          {
+            server_id: "one",
+            observed_at: "2026-06-21T00:00:05.000Z",
+            result: "online",
+            online_players: 7,
+          },
+        ],
+      })
+    );
+    expect(metrics.observeIngestSuccess).toHaveBeenCalledTimes(1);
+    expect(metrics.observeIngestFailure).not.toHaveBeenCalled();
   });
 
-  it("does not retry failed probes in the same cycle", async () => {
-    const ingestHeartbeat = vi
-      .fn<(payload: HeartbeatPayload) => Promise<IngestResult>>()
-      .mockResolvedValue({ accepted: true, duplicate: false });
-    const recordProbeFailure = vi.fn<ApiClient["recordProbeFailure"]>().mockResolvedValue();
-    const fetchAllTargets = vi.fn<() => Promise<CollectorTarget[]>>().mockResolvedValue([targetA]);
-
-    const apiClient = {
-      fetchAllTargets,
-      ingestHeartbeat,
-      recordProbeFailure,
-    } as unknown as ApiClient;
-
-    const probe = vi
-      .fn<(target: CollectorTarget, timeoutMs: number) => Promise<ProbeResult>>()
-      .mockRejectedValue(new Error("probe timeout"));
-    const probeClient = {
-      probe,
-    } as unknown as MinecraftProbeClient;
-
+  it("counts a failed cycle ingest as one failed request", async () => {
+    const metrics = {
+      startCycle: vi.fn(),
+      observeTargetProcessed: vi.fn(),
+      observeProbeSuccess: vi.fn(),
+      observeProbeFailure: vi.fn(),
+      observeIngestSuccess: vi.fn(),
+      observeIngestFailure: vi.fn(),
+      finishCycle: vi.fn(),
+    };
     const service = new CollectorService({
-      apiClient,
-      probeClient,
-      metrics: new CollectorMetrics(),
-      pingIntervalSeconds: 300,
-      payloadIntervalSeconds: 1800,
-      concurrency: 1,
-      probeTimeoutMs: 2000,
-      now: () => new Date("2026-04-10T08:00:00.000Z"),
-      logger: {
-        info: vi.fn(),
-        error: vi.fn(),
-      },
+      apiClient: {
+        fetchAllTargets: vi.fn().mockResolvedValue([
+          { id: "one", host: "one.test", port: 25565 },
+          { id: "two", host: "two.test", port: 25565 },
+        ]),
+        ingestProbeCycle: vi.fn().mockRejectedValue(new Error("unavailable")),
+      } as never,
+      probeClient: { probe: vi.fn().mockResolvedValue({ onlinePlayers: 1 }) } as never,
+      metrics: metrics as never,
+      collectorInstanceId: "collector-test-1",
+      probeIntervalSeconds: 600,
+      concurrency: 2,
+      probeTimeoutMs: 5_000,
+      now: () => new Date("2026-06-21T00:00:05.000Z"),
+      logger: { info: vi.fn(), error: vi.fn() },
     });
-
-    const result = await service.runCycle();
-    expect(result.targets).toBe(1);
-    expect(result.probeSuccess).toBe(0);
-    expect(result.probeFailure).toBe(1);
-    expect(probe).toHaveBeenCalledTimes(1);
-    expect(recordProbeFailure).toHaveBeenCalledWith({
-      server_id: "srv-a",
-      occurred_at: "2026-04-10T08:00:00.000Z",
-      result: "failure",
-      error_code: "timeout",
-    });
-    expect(ingestHeartbeat).not.toHaveBeenCalled();
+    await service.runCycle(new Date("2026-06-21T00:00:00.000Z"));
+    expect(metrics.observeIngestFailure).toHaveBeenCalledTimes(1);
+    expect(metrics.observeIngestSuccess).not.toHaveBeenCalled();
   });
 });

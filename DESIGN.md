@@ -199,6 +199,12 @@ FirstSpawn is discovery-first.
   and is never sold — surfaces that show rank should say so.
 - Measured data and owner-declared data must stay visually distinct
   (mono + "measured" vs. plain text + "owner-declared").
+- Server analytics use the shared probe-history chart on public profiles and
+  owner consoles. Ranges are `24h`, `7d`, `30d`, `90d`, and `1y`; unknown
+  observations are gaps, coverage is shown separately, and headline
+  availability is withheld below 80% coverage.
+- Public-query player counts are always labeled unverified. Do not present
+  probe-derived ping, capacity, version, uptime, rank, votes, or trust signals.
 - Make available-now features visually concrete; mark coming-soon features
   honestly (dashed border treatment).
 - Keep search and AI-assisted discovery one shared concept across navbar

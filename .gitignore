@@ -51,6 +51,7 @@ infrastructure/nginx/certs/firstspawn.crt
 infrastructure/nginx/certs/firstspawn.key
 
 # local workspace
+.pnpm-store/
 *.mjs
 output
 tmp

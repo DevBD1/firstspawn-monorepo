@@ -1,10 +1,13 @@
-import { and, asc, eq, gt, or, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, lt, ne, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { serverHeartbeats, servers } from "@firstspawn/database/schema";
+import {
+  collectorProbeCycles,
+  serverProbeObservations,
+  servers,
+} from "@firstspawn/database/schema";
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
 import { requireCollectorKey } from "../../lib/request-auth.js";
@@ -14,46 +17,71 @@ import {
   type TargetsCursor,
 } from "./collector-helpers.js";
 
-const MAX_TARGET_LIMIT = 200;
+const MAX_TARGET_LIMIT = 500;
+const PROBE_CYCLE_BODY_LIMIT_BYTES = 32 * 1024 * 1024;
 
 const targetsQuerySchema = z.object({
   cursor: z.string().optional(),
   limit: z.coerce.number().int().positive().max(MAX_TARGET_LIMIT).default(100),
 });
 
-const heartbeatBodySchema = z
-  .object({
-    server_id: z.string().uuid(),
-    occurred_at: z.string().datetime(),
-    idempotency_key: z.string().trim().min(1).max(255),
-    ping_ms: z.number().int().nonnegative(),
-    online_players: z.number().int().nonnegative().nullish(),
-    max_players: z.number().int().nonnegative().nullish(),
-    uptime_seconds: z.number().int().nonnegative().nullish(),
-    protocol_version: z.number().int().nullish(),
-    minecraft_version: z.string().trim().max(50).nullish(),
-    payload: z.unknown().optional(),
-  })
-  .superRefine((value, ctx) => {
-    if (
-      value.online_players != null &&
-      value.max_players != null &&
-      value.online_players > value.max_players
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "online_players cannot exceed max_players.",
-        path: ["online_players"],
-      });
-    }
-  });
-
-const probeAttemptBodySchema = z.object({
+const onlineObservationSchema = z.object({
   server_id: z.string().uuid(),
-  occurred_at: z.string().datetime(),
+  observed_at: z.string().datetime(),
+  result: z.literal("online"),
+  online_players: z.number().int().nonnegative().nullable(),
+});
+
+const failedObservationSchema = z.object({
+  server_id: z.string().uuid(),
+  observed_at: z.string().datetime(),
   result: z.literal("failure"),
   error_code: z.string().trim().min(1).max(80),
 });
+
+const probeCycleBodySchema = z
+  .object({
+    submission_id: z.string().uuid(),
+    collector_instance_id: z.string().trim().min(1).max(64),
+    slot_start: z.string().datetime(),
+    started_at: z.string().datetime(),
+    completed_at: z.string().datetime(),
+    observations: z.array(
+      z.discriminatedUnion("result", [onlineObservationSchema, failedObservationSchema])
+    ),
+  })
+  .superRefine((value, ctx) => {
+    if (new Date(value.completed_at) < new Date(value.started_at)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["completed_at"],
+        message: "completed_at must not precede started_at.",
+      });
+    }
+    const slot = new Date(value.slot_start);
+    if (
+      slot.getUTCMinutes() % 10 !== 0 ||
+      slot.getUTCSeconds() !== 0 ||
+      slot.getUTCMilliseconds() !== 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["slot_start"],
+        message: "slot_start must be aligned to a ten-minute UTC boundary.",
+      });
+    }
+    const seen = new Set<string>();
+    value.observations.forEach((observation, index) => {
+      if (seen.has(observation.server_id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["observations", index, "server_id"],
+          message: "A server may appear only once per cycle.",
+        });
+      }
+      seen.add(observation.server_id);
+    });
+  });
 
 const collectorTargetSchema = z.object({
   id: z.string().uuid(),
@@ -61,16 +89,13 @@ const collectorTargetSchema = z.object({
   host: z.string(),
   port: z.number().int().positive(),
   game: z.literal("mc_java"),
-  country_code: z.string().nullable(),
   created_at: z.string().datetime(),
 });
 
 const envelopeSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     data: dataSchema,
-    meta: z.object({
-      request_id: z.string().uuid().nullable(),
-    }),
+    meta: z.object({ request_id: z.string().uuid().nullable() }),
     error: z.null(),
   });
 
@@ -81,46 +106,30 @@ const targetsResponseSchema = envelopeSchema(
   })
 );
 
-const heartbeatResponseSchema = envelopeSchema(
+const probeCycleResponseSchema = envelopeSchema(
   z.object({
     accepted: z.literal(true),
     duplicate: z.boolean(),
-    server_id: z.string().uuid(),
-    occurred_at: z.string().datetime(),
-    collected_at: z.string().datetime(),
+    cycle_id: z.string().uuid(),
+    classification: z.enum(["accepted", "warmup", "quarantined"]),
+    accepted_observations: z.number().int().nonnegative(),
+    rejected_server_ids: z.array(z.string().uuid()),
   })
 );
 
-const probeAttemptResponseSchema = envelopeSchema(
-  z.object({
-    accepted: z.literal(true),
-    server_id: z.string().uuid(),
-    occurred_at: z.string().datetime(),
-  })
-);
+type CycleClassification = "accepted" | "warmup" | "quarantined";
 
-interface InsertedHeartbeatResult {
-  occurredAt: Date;
-  collectedAt: Date;
-  duplicate: boolean;
-}
-
-const getPgErrorCode = (error: unknown): string | undefined => {
-  const candidate = error as {
-    code?: string;
-    cause?: {
-      code?: string;
-    };
-  };
-
-  return candidate.code ?? candidate.cause?.code;
+const median = (values: number[]): number | null => {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? Math.round((sorted[middle - 1]! + sorted[middle]!) / 2)
+    : sorted[middle]!;
 };
 
 const parseCursor = (cursor: string | undefined): TargetsCursor | null => {
-  if (!cursor) {
-    return null;
-  }
-
+  if (!cursor) return null;
   try {
     return decodeTargetsCursor(cursor);
   } catch {
@@ -128,181 +137,28 @@ const parseCursor = (cursor: string | undefined): TargetsCursor | null => {
       statusCode: 422,
       code: "VALIDATION_ERROR",
       message: "Request validation failed.",
-      details: {
-        errors: [
-          {
-            instancePath: "/cursor",
-            message: "Invalid cursor.",
-          },
-        ],
-      },
+      details: { errors: [{ instancePath: "/cursor", message: "Invalid cursor." }] },
     });
   }
 };
 
-const ensureCollectableServer = async (
-  app: FastifyInstance,
-  serverId: string
-): Promise<{ id: string; status: string; game: string }> => {
-  const server = await app.db.db.query.servers.findFirst({
-    where: eq(servers.id, serverId),
-    columns: {
-      id: true,
-      status: true,
-      game: true,
-    },
-  });
-
-  if (!server) {
-    throw new ApiError({
-      statusCode: 404,
-      code: "SERVER_NOT_FOUND",
-      message: "Server not found.",
-    });
-  }
-
-  if (server.status !== "active" || server.game !== "mc_java") {
-    throw new ApiError({
-      statusCode: 409,
-      code: "SERVER_NOT_COLLECTABLE",
-      message: "Server is not collectable.",
-      details: {
-        status: server.status,
-        game: server.game,
-      },
-    });
-  }
-
-  return server;
-};
-
-const insertHeartbeat = async (
-  app: FastifyInstance,
-  input: z.infer<typeof heartbeatBodySchema>
-): Promise<InsertedHeartbeatResult> => {
-  const now = new Date();
-  const occurredAt = new Date(input.occurred_at);
-
-  try {
-    const inserted = await app.db.db.transaction(async (tx) => {
-      const [heartbeat] = await tx
-        .insert(serverHeartbeats)
-        .values({
-          id: randomUUID(),
-          serverId: input.server_id,
-          occurredAt,
-          collectedAt: now,
-          idempotencyKey: input.idempotency_key,
-          pingMs: input.ping_ms,
-          onlinePlayers: input.online_players ?? null,
-          maxPlayers: input.max_players ?? null,
-          uptimeSeconds: input.uptime_seconds ?? null,
-          protocolVersion: input.protocol_version ?? null,
-          minecraftVersion: input.minecraft_version ?? null,
-          payload: input.payload,
-          updatedAt: now,
-        })
-        .returning({
-          occurredAt: serverHeartbeats.occurredAt,
-          collectedAt: serverHeartbeats.collectedAt,
-        });
-
-      await tx
-        .update(servers)
-        .set({
-          lastPingAt: sql`greatest(coalesce(${servers.lastPingAt}, ${occurredAt}), ${occurredAt})`,
-          lastProbeAttemptAt: sql`greatest(coalesce(${servers.lastProbeAttemptAt}, ${occurredAt}), ${occurredAt})`,
-          lastProbeSuccessAt: sql`greatest(coalesce(${servers.lastProbeSuccessAt}, ${occurredAt}), ${occurredAt})`,
-          consecutiveProbeFailures: 0,
-          lastProbeErrorCode: null,
-          probeStatus: "online",
-          updatedAt: now,
-        })
-        .where(eq(servers.id, input.server_id));
-
-      return heartbeat;
-    });
-
-    return {
-      occurredAt: inserted.occurredAt,
-      collectedAt: inserted.collectedAt,
-      duplicate: false,
-    };
-  } catch (error) {
-    if (getPgErrorCode(error) !== "23505") {
-      throw error;
-    }
-
-    const existing = await app.db.db.query.serverHeartbeats.findFirst({
-      where: and(
-        eq(serverHeartbeats.serverId, input.server_id),
-        eq(serverHeartbeats.idempotencyKey, input.idempotency_key)
-      ),
-      columns: {
-        occurredAt: true,
-        collectedAt: true,
-      },
-    });
-
-    if (!existing) {
-      throw error;
-    }
-
-    return {
-      occurredAt: existing.occurredAt,
-      collectedAt: existing.collectedAt,
-      duplicate: true,
-    };
-  }
-};
-
-const recordProbeFailure = async (
-  app: FastifyInstance,
-  input: z.infer<typeof probeAttemptBodySchema>
-): Promise<void> => {
-  const now = new Date();
-  const occurredAt = new Date(input.occurred_at);
-
-  await app.db.db
-    .update(servers)
-    .set({
-      lastProbeAttemptAt: sql`greatest(coalesce(${servers.lastProbeAttemptAt}, ${occurredAt}), ${occurredAt})`,
-      lastProbeFailureAt: sql`greatest(coalesce(${servers.lastProbeFailureAt}, ${occurredAt}), ${occurredAt})`,
-      consecutiveProbeFailures: sql`${servers.consecutiveProbeFailures} + 1`,
-      lastProbeErrorCode: input.error_code,
-      probeStatus: "unreachable",
-      updatedAt: now,
-    })
-    .where(
-      and(
-        eq(servers.id, input.server_id),
-        eq(servers.status, "active"),
-        eq(servers.game, "mc_java")
-      )
-    );
-};
-
+/** Registers the fixed-cadence collector target and atomic cycle-ingest API. */
 export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
   const app = fastify.withTypeProvider<ZodTypeProvider>();
 
   app.get(
     "/targets",
-    {
-      schema: {
-        querystring: targetsQuerySchema,
-        response: {
-          200: targetsResponseSchema,
-        },
-      },
-    },
+    { schema: { querystring: targetsQuerySchema, response: { 200: targetsResponseSchema } } },
     async (request) => {
       requireCollectorKey(app, request.headers["x-collector-key"]);
-
       const cursor = parseCursor(request.query.cursor);
       const limit = request.query.limit;
-
-      const baseWhere = and(eq(servers.status, "active"), eq(servers.game, "mc_java"));
       const createdAtCursorExpr = sql<Date>`date_trunc('milliseconds', ${servers.createdAt})`;
+      const baseWhere = and(
+        eq(servers.status, "active"),
+        eq(servers.game, "mc_java"),
+        sql`length(trim(${servers.host})) > 0`
+      );
       const whereCondition = cursor
         ? and(
             baseWhere,
@@ -312,26 +168,21 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
             )
           )
         : baseWhere;
-
       const rows = await app.db.db
         .select({
           id: servers.id,
           slug: servers.slug,
           host: servers.host,
           port: servers.port,
-          game: servers.game,
-          countryCode: servers.countryCode,
           createdAt: servers.createdAt,
         })
         .from(servers)
         .where(whereCondition)
         .orderBy(asc(createdAtCursorExpr), asc(servers.id))
         .limit(limit + 1);
-
       const hasMore = rows.length > limit;
       const pageRows = hasMore ? rows.slice(0, limit) : rows;
       const last = pageRows.at(-1);
-
       return successEnvelope(
         {
           targets: pageRows.map((row) => ({
@@ -340,15 +191,11 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
             host: row.host,
             port: row.port,
             game: "mc_java" as const,
-            country_code: row.countryCode ?? null,
             created_at: row.createdAt.toISOString(),
           })),
           next_cursor:
             hasMore && last
-              ? encodeTargetsCursor({
-                  id: last.id,
-                  createdAt: last.createdAt,
-                })
+              ? encodeTargetsCursor({ id: last.id, createdAt: last.createdAt })
               : null,
         },
         request.id
@@ -357,55 +204,220 @@ export const registerCollectorRoutes = (fastify: FastifyInstance): void => {
   );
 
   app.post(
-    "/heartbeats",
+    "/probe-cycles",
     {
-      schema: {
-        body: heartbeatBodySchema,
-        response: {
-          200: heartbeatResponseSchema,
-        },
-      },
+      bodyLimit: PROBE_CYCLE_BODY_LIMIT_BYTES,
+      schema: { body: probeCycleBodySchema, response: { 200: probeCycleResponseSchema } },
     },
     async (request) => {
       requireCollectorKey(app, request.headers["x-collector-key"]);
+      const input = request.body;
+      const slotStart = new Date(input.slot_start);
+      const existing = await app.db.db.query.collectorProbeCycles.findFirst({
+        where: or(
+          eq(collectorProbeCycles.submissionId, input.submission_id),
+          and(
+            eq(collectorProbeCycles.collectorInstanceId, input.collector_instance_id),
+            eq(collectorProbeCycles.slotStart, slotStart)
+          )
+        ),
+      });
+      if (existing) {
+        if (
+          existing.submissionId !== input.submission_id ||
+          existing.collectorInstanceId !== input.collector_instance_id ||
+          existing.slotStart.getTime() !== slotStart.getTime()
+        ) {
+          throw new ApiError({
+            statusCode: 409,
+            code: "COLLECTOR_SLOT_CONFLICT",
+            message: "Another collector submission already owns this instance and slot.",
+          });
+        }
+        return successEnvelope(
+          {
+            accepted: true as const,
+            duplicate: true,
+            cycle_id: existing.id,
+            classification: existing.classification as CycleClassification,
+            accepted_observations: existing.targetCount,
+            rejected_server_ids: [],
+          },
+          request.id
+        );
+      }
 
-      await ensureCollectableServer(app, request.body.server_id);
-      const result = await insertHeartbeat(app, request.body);
+      const requestedIds = input.observations.map((item) => item.server_id);
+      const collectable =
+        requestedIds.length === 0
+          ? []
+          : await app.db.db
+              .select({ id: servers.id })
+              .from(servers)
+              .where(
+                and(
+                  eq(servers.status, "active"),
+                  eq(servers.game, "mc_java"),
+                  inArray(servers.id, requestedIds)
+                )
+              );
+      const collectableIds = new Set(collectable.map((row) => row.id));
+      const observations = input.observations.filter((item) => collectableIds.has(item.server_id));
+      const rejectedServerIds = requestedIds.filter((id) => !collectableIds.has(id));
+      const successCount = observations.filter((item) => item.result === "online").length;
+
+      const previousCycles = await app.db.db
+        .select({
+          successCount: collectorProbeCycles.successCount,
+          classification: collectorProbeCycles.classification,
+        })
+        .from(collectorProbeCycles)
+        .where(
+          and(
+            eq(collectorProbeCycles.collectorInstanceId, input.collector_instance_id),
+            lt(collectorProbeCycles.slotStart, slotStart),
+            ne(collectorProbeCycles.classification, "quarantined")
+          )
+        )
+        .orderBy(sql`${collectorProbeCycles.slotStart} desc`)
+        .limit(12);
+      const baseline = median(previousCycles.map((cycle) => cycle.successCount));
+      let classification: CycleClassification = previousCycles.length < 3 ? "warmup" : "accepted";
+      let quarantineReason: string | null = null;
+      if (
+        classification === "accepted" &&
+        observations.length >= 100 &&
+        baseline !== null &&
+        baseline >= 5 &&
+        successCount < baseline * 0.25
+      ) {
+        classification = "quarantined";
+        quarantineReason = "success_count_below_fleet_baseline";
+      }
+
+      const now = new Date();
+      const result = await app.db.db.transaction(async (tx) => {
+        const [cycle] = await tx
+          .insert(collectorProbeCycles)
+          .values({
+            submissionId: input.submission_id,
+            collectorInstanceId: input.collector_instance_id,
+            slotStart,
+            startedAt: new Date(input.started_at),
+            completedAt: new Date(input.completed_at),
+            targetCount: observations.length,
+            successCount,
+            failureCount: observations.length - successCount,
+            classification,
+            baselineSuccessMedian: baseline,
+            quarantineReason,
+            updatedAt: now,
+          })
+          .onConflictDoNothing()
+          .returning();
+        if (!cycle) return null;
+
+        if (observations.length > 0) {
+          await tx.insert(serverProbeObservations).values(
+            observations.map((observation) => ({
+              cycleId: cycle.id,
+              serverId: observation.server_id,
+              slotStart,
+              observedAt: new Date(observation.observed_at),
+              outcome:
+                classification === "quarantined"
+                  ? "unknown"
+                  : observation.result === "online"
+                    ? "online"
+                    : "offline",
+              onlinePlayers:
+                classification !== "quarantined" && observation.result === "online"
+                  ? observation.online_players
+                  : null,
+              errorCode: observation.result === "failure" ? observation.error_code : null,
+              updatedAt: now,
+            }))
+          );
+        }
+
+        const online =
+          classification === "quarantined"
+            ? []
+            : observations.filter((item) => item.result === "online");
+        if (online.length > 0) {
+          const rows = online.map(
+            (item) => sql`(${item.server_id}::uuid, ${new Date(item.observed_at)}::timestamptz)`
+          );
+          await tx.execute(
+            sql`update servers s set last_probe_attempt_at = v.observed_at, last_probe_success_at = v.observed_at, consecutive_probe_failures = 0, last_probe_error_code = null, probe_status = 'online', updated_at = ${now} from (values ${sql.join(rows, sql`, `)}) v(id, observed_at) where s.id = v.id and (s.last_probe_attempt_at is null or s.last_probe_attempt_at <= v.observed_at)`
+          );
+        }
+        const failures =
+          classification === "quarantined"
+            ? []
+            : observations.filter(
+                (item): item is z.infer<typeof failedObservationSchema> => item.result === "failure"
+              );
+        if (failures.length > 0) {
+          const rows = failures.map(
+            (item) =>
+              sql`(${item.server_id}::uuid, ${new Date(item.observed_at)}::timestamptz, ${item.error_code}::varchar)`
+          );
+          await tx.execute(
+            sql`update servers s set last_probe_attempt_at = v.observed_at, last_probe_failure_at = v.observed_at, consecutive_probe_failures = s.consecutive_probe_failures + 1, last_probe_error_code = v.error_code, probe_status = case when s.consecutive_probe_failures + 1 >= 2 then 'offline' else s.probe_status end, updated_at = ${now} from (values ${sql.join(rows, sql`, `)}) v(id, observed_at, error_code) where s.id = v.id and (s.last_probe_attempt_at is null or s.last_probe_attempt_at <= v.observed_at)`
+          );
+        }
+        return cycle;
+      });
+
+      if (!result) {
+        const duplicate = await app.db.db.query.collectorProbeCycles.findFirst({
+          where: or(
+            eq(collectorProbeCycles.submissionId, input.submission_id),
+            and(
+              eq(collectorProbeCycles.collectorInstanceId, input.collector_instance_id),
+              eq(collectorProbeCycles.slotStart, slotStart)
+            )
+          ),
+        });
+        if (!duplicate)
+          throw new ApiError({
+            statusCode: 409,
+            code: "CYCLE_CONFLICT",
+            message: "Probe cycle could not be recorded.",
+          });
+        if (
+          duplicate.submissionId !== input.submission_id ||
+          duplicate.collectorInstanceId !== input.collector_instance_id ||
+          duplicate.slotStart.getTime() !== slotStart.getTime()
+        ) {
+          throw new ApiError({
+            statusCode: 409,
+            code: "COLLECTOR_SLOT_CONFLICT",
+            message: "Another collector submission already owns this instance and slot.",
+          });
+        }
+        return successEnvelope(
+          {
+            accepted: true as const,
+            duplicate: true,
+            cycle_id: duplicate.id,
+            classification: duplicate.classification as CycleClassification,
+            accepted_observations: duplicate.targetCount,
+            rejected_server_ids: [],
+          },
+          request.id
+        );
+      }
 
       return successEnvelope(
         {
           accepted: true as const,
-          duplicate: result.duplicate,
-          server_id: request.body.server_id,
-          occurred_at: result.occurredAt.toISOString(),
-          collected_at: result.collectedAt.toISOString(),
-        },
-        request.id
-      );
-    }
-  );
-
-  app.post(
-    "/probe-attempts",
-    {
-      schema: {
-        body: probeAttemptBodySchema,
-        response: {
-          200: probeAttemptResponseSchema,
-        },
-      },
-    },
-    async (request) => {
-      requireCollectorKey(app, request.headers["x-collector-key"]);
-
-      await ensureCollectableServer(app, request.body.server_id);
-      await recordProbeFailure(app, request.body);
-
-      return successEnvelope(
-        {
-          accepted: true as const,
-          server_id: request.body.server_id,
-          occurred_at: new Date(request.body.occurred_at).toISOString(),
+          duplicate: false,
+          cycle_id: result.id,
+          classification,
+          accepted_observations: observations.length,
+          rejected_server_ids: rejectedServerIds,
         },
         request.id
       );
