@@ -195,14 +195,26 @@ Base unit: 4px. Content max-width 1200px with 28px gutters.
 FirstSpawn is discovery-first.
 
 - Discovery, trust, server activity, and player relevance drive the UI.
-- Rank is `activity × trust × freshness`, the same math for every server,
-  and is never sold — surfaces that show rank should say so.
+- MVP discovery rank is current UTC calendar-month valid vote count, the same
+  rule for every server, and is never sold. Label it honestly as "Most voted
+  this month" rather than trust or quality.
+- Votes are an engagement/popularity signal, not a trust signal. Verified
+  control, measured uptime, moderation history, and future optional telemetry
+  must be presented separately.
+- Online state and uptime never boost or penalize MVP discovery rank. Region
+  and collector-measured supported-version filters may refine the result set.
+- Future paid event placement must be clearly disclosed, live outside the
+  organic Discover rank, and never alter that rank.
 - Measured data and owner-declared data must stay visually distinct
   (mono + "measured" vs. plain text + "owner-declared").
 - Make available-now features visually concrete; mark coming-soon features
   honestly (dashed border treatment).
+- MVP navigation exposes only working discovery, listing, owner, and auth
+  surfaces. Community, Loot, forum, social, and other future sections stay out
+  of navigation.
 - Keep search and AI-assisted discovery one shared concept across navbar
-  and Discover; interpreted facets are always shown to the user.
+  and Discover when AI-assisted discovery is implemented; interpreted facets
+  are always shown to the user.
 
 ## 10. AI Generation Guardrails
 
