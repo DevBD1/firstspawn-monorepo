@@ -312,7 +312,7 @@ export const servers = pgTable(
     index("idx_servers_game").on(table.game),
     index("idx_servers_probe_status").on(table.probeStatus),
     check("chk_servers_port", sql`${table.port} between 1 and 65535`),
-    check("chk_servers_game", sql`${table.game} in ('mc_java', 'mc_bedrock', 'hytale')`),
+    check("chk_servers_game", sql`${table.game} in ('mc_java')`),
     check("chk_servers_status", sql`${table.status} in ('active', 'suspended', 'archived')`),
     check(
       "chk_servers_auth_mode",
@@ -416,7 +416,7 @@ export const serverSupportedClients = pgTable(
     index("idx_server_supported_clients_server_id").on(table.serverId),
     check(
       "chk_server_supported_clients_client_name",
-      sql`${table.clientName} in ('mc_java', 'mc_bedrock', 'hytale')`
+      sql`${table.clientName} in ('mc_java', 'mc_bedrock')`
     ),
   ]
 );

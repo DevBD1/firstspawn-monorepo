@@ -3,9 +3,6 @@
 
 :root {
   --fs-nav-height: 80px;
-  --discord-brand: #5865f2;
-  --discord-brand-border: #4752c4;
-  --discord-on-brand: #ffffff;
   --hero-gradient: linear-gradient(180deg, #12151e 0%, #1a1c2e 52%, #3a2e33 84%, #6b4a33 100%);
 }
 
@@ -128,12 +125,6 @@ body {
 .wl-link:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
-}
-
-.auth-discord-btn {
-  background: var(--discord-brand) !important;
-  border-color: var(--discord-brand-border) !important;
-  color: var(--discord-on-brand) !important;
 }
 
 .wl-card {

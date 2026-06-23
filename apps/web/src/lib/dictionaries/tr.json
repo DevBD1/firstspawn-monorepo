@@ -72,12 +72,10 @@
     "console": "KONSOL",
     "discover": "KEŞFET",
     "forOwners": "SAHİPLER İÇİN",
-    "community": "TOPLULUK",
     "languageMenuLabel": "DİL",
     "logIn": "LOG IN",
     "logOut": "Çıkış yap",
     "menuLabel": "MENÜ",
-    "myLoot": "GANİMETİM",
     "signIn": "Giriş yap",
     "signUp": "SIGN UP",
     "verifyEmail": "E-POSTAYI DOĞRULA",
@@ -88,7 +86,7 @@
       "brandStatement": {
         "title": "DAHA ADİL BİR OYUN",
         "highlight": "MÜMKÜN.",
-        "description": "Minecraft ve Hytale sunucuları için keşif ekosistemi. Gerçek oyuncular, gerçek güven ve topluluk için kuruldu."
+        "description": "Minecraft sunucuları için keşif ekosistemi. Gerçek oyuncular, gerçek güven ve topluluk için kuruldu."
       },
       "benefitItems": [
         {
@@ -101,7 +99,7 @@
         },
         {
           "title": "OYUNLAR ARASI POTANSİYEL",
-          "description": "Minecraft, Hytale ve gelecekteki dünyalar için tasarlandı."
+          "description": "Minecraft ve gelecekteki dünyalar için tasarlandı."
         }
       ],
       "legalLine": "Topluluk için üretildi."
@@ -115,12 +113,9 @@
       "form": {
         "alternateCta": "SIGN UP",
         "alternatePrompt": "New to FirstSpawn?",
-        "dividerLabel": "OR",
-        "discordCta": "SIGN IN WITH DISCORD",
         "hidePasswordAriaLabel": "Şifreyi gizle",
         "identifierLabel": "EMAIL OR USERNAME",
         "identifierPlaceholder": "steve@craft.com",
-        "passkeyCta": "SIGN IN WITH PASSKEY",
         "passwordLabel": "PASSWORD",
         "passwordPlaceholder": "Enter your password",
         "showPasswordAriaLabel": "Şifreyi göster",
@@ -131,15 +126,13 @@
     "register": {
       "page": {
         "title": "START YOUR JOURNEY",
-        "subtitle": "Join the verified ecosystem for Minecraft and Hytale."
+        "subtitle": "Join the verified ecosystem for Minecraft."
       },
       "form": {
         "alternateCta": "LOG IN",
         "alternatePrompt": "Already have an account?",
         "confirmPasswordLabel": "CONFIRM PASSWORD",
         "confirmPasswordPlaceholder": "Repeat your password",
-        "discordCta": "CONTINUE WITH DISCORD",
-        "dividerLabel": "OR",
         "emailLabel": "EMAIL",
         "emailPlaceholder": "steve@craft.com",
         "hidePasswordAriaLabel": "Şifreleri gizle",
@@ -254,7 +247,7 @@
       "statsLine": "{servers} dünyada {players} oyuncu çevrimiçi",
       "titleLine1": "Bir sonraki dünyan",
       "titleLine2": "seni bekliyor.",
-      "subtitle": "Minecraft ve Hytale için dürüst keşif — gerçek aktivite ve topluluk güvenine göre sıralanır, asla kimin daha çok ödediğine göre değil.",
+      "subtitle": "Minecraft için dürüst keşif — gerçek aktivite ve topluluk güvenine göre sıralanır, asla kimin daha çok ödediğine göre değil.",
       "searchPlaceholder": "Dünyalarda ara — “ekonomili skyblock”",
       "searchSubmitLabel": "Keşfet"
     },
@@ -361,7 +354,6 @@
     "games": {
       "mcJava": "MC JAVA",
       "mcBedrock": "MC BEDROCK",
-      "hytale": "HYTALE",
       "fallback": "SUNUCU"
     },
     "modsRequired": {
@@ -378,7 +370,6 @@
       "gameNames": {
         "mcJava": "Minecraft",
         "mcBedrock": "Bedrock",
-        "hytale": "Hytale",
         "fallback": "Oyun"
       },
       "relativeTime": {
@@ -524,8 +515,7 @@
       "breadcrumbBack": "← Keşfet",
       "gameNames": {
         "mcJava": "Minecraft Java",
-        "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale"
+        "mcBedrock": "Minecraft Bedrock"
       },
       "updatedJustNow": "az önce güncellendi",
       "updatedRecently": "yakın zamanda güncellendi",
@@ -533,11 +523,6 @@
         "verifiedTooltip": "Sahiplik FirstSpawn tarafından doğrulandı",
         "unverifiedTooltip": "Henüz doğrulanmadı",
         "verifiedByNote": "✓ FirstSpawn tarafından doğrulandı"
-      },
-      "tabs": {
-        "overview": "Genel bakış",
-        "discussion": "Tartışma",
-        "discussionBadge": "v2"
       },
       "about": {
         "title": "Bu dünya hakkında"
@@ -557,32 +542,6 @@
       },
       "similar": {
         "title": "Benzer dünyalar"
-      },
-      "discussionTeaser": {
-        "badge": "v2'de geliyor",
-        "lockLabel": "Kilitli",
-        "headline": "İtibarın kazanıldığı yer.",
-        "tagline": "Doğrulanmış, oyun süresine bağlı tartışma — tek hesap, tek itibar. Bot yok, linç yok, satın alınmış hype yok.",
-        "features": [
-          {
-            "title": "Oyun saati olan sesler",
-            "body": "Yalnızca gerçekten saat biriktiren oyuncular gönderi atabilir — farm edilemeyen bir itibar."
-          },
-          {
-            "title": "Sahip imzalı güncellemeler",
-            "body": "Doğrulanmış sahibin yama notları ve etkinlikleri, gürültünün üstüne sabitlenir."
-          },
-          {
-            "title": "FirstSpawn moderasyonu",
-            "body": "Bildirimler sahibe değil ekibimize ulaşır — böylece geri bildirim dürüst kalır."
-          }
-        ],
-        "waitlistNote": "{count} oyuncu şimdiden bekleme listesinde",
-        "notifyCta": "Lansmanda bana haber ver",
-        "notifiedLabel": "Listedesin",
-        "countdownDaysLabel": "{count} gün",
-        "countdownUntilLabel": "v2'ye kalan",
-        "previewAria": "Yaklaşan tartışma deneyiminin önizlemesi"
       },
       "sidebar": {
         "joinTitle": "Katıl",
@@ -610,7 +569,6 @@
           "english": "İngilizce",
           "seasonal": "Sezonluk",
           "nonePlanned": "Planlanmadı",
-          "hytaleRelease": "Sürüm 1.x",
           "mcJavaDefault": "1.21.x · Java"
         },
         "factsFootnote": "bilgiler sahip beyanıdır · canlı ping'lerle karşılaştırılır"
@@ -633,63 +591,10 @@
       "noticeBody": "Tam Gizlilik Politikası'nı yazıyoruz. Yayınlanana kadar yukarıdaki özet verilerinizi nasıl işlediğimizi açıklıyor. Yakında tekrar uğrayın."
     }
   },
-  "communityPage": {
-    "badge": "v2'de geliyor",
-    "eyebrow": "Topluluk",
-    "title": "Dünyaların ardındaki insanlara bir yuva.",
-    "tagline": "Oyuncu pasaportları, sunucu kayıtları ve içerik üreticisi vitrinleri — tüm yolculuğun tek bir yerde.",
-    "description": "İtibarın, katkıların ve sevdiğin dünyaların birbirine bağlandığı bir topluluk katmanı kuruyoruz. v2 ile açılıyor.",
-    "features": [
-      {
-        "title": "Oyuncu pasaportları",
-        "body": "Seninle gezen tek bir profil — oyun süresi, rozetler ve kefil olduğun sunucular."
-      },
-      {
-        "title": "Canlı sunucu kayıtları",
-        "body": "Önemsediğin dünyaları takip et; hiçbir sezonu, etkinliği ya da sıfırlamayı kaçırma."
-      },
-      {
-        "title": "İçerik üreticisi vitrinleri",
-        "body": "Yapımcılar, mod yazarları ve etkinlik sahipleri gerçekten hak ettikleri takdiri alır."
-      }
-    ],
-    "waitlistNote": "{count} oyuncu şimdiden bekleme listesinde",
-    "notifyCta": "Lansmanda bana haber ver",
-    "notifiedLabel": "Listedesin",
-    "countdownDaysLabel": "{count} gün",
-    "countdownUntilLabel": "v2'ye kalan"
-  },
   "consolePage": {
     "badge": "KOMUT TERMİNALİ AKTİF",
     "title": "KONSOL",
     "description": "Tekrar hoş geldin, {username}. Kişisel sunucu analitiği, doğrulama kontrolleri ve hesap araçları bu panelde yer alacak.",
-    "fallbackUsername": "Operatör"
-  },
-  "lootPage": {
-    "badge": "v2'de geliyor",
-    "eyebrow": "Ganimetim",
-    "title": "Ganimet kasan açılmak üzere.",
-    "tagline": "Ödül düşüşleri, bulmaca anahtarları ve rozet talepleri — kazandığın her şey tek bir envanterde.",
-    "description": "{username}, ilerleme merkezin dövülüyor. Ödül düşüşleri, etkinlik anahtarları ve doğrulanmış rozetler v2 çıktığında burada toplanacak.",
-    "features": [
-      {
-        "title": "Ödül düşüşleri",
-        "body": "Gerçekten oynadığın sunuculardan sezonluk ganimet ve etkinlik ödüllerini topla."
-      },
-      {
-        "title": "Bulmaca anahtarları",
-        "body": "Ağ genelinde gizli görevlerin ve süreli avların kilidini aç."
-      },
-      {
-        "title": "Kazanılmış rozetler",
-        "body": "Satın aldığını değil, başardığını kanıtlayan doğrulanmış başarımları sergile."
-      }
-    ],
-    "waitlistNote": "{count} oyuncu şimdiden bekleme listesinde",
-    "notifyCta": "Lansmanda bana haber ver",
-    "notifiedLabel": "Listedesin",
-    "countdownDaysLabel": "{count} gün",
-    "countdownUntilLabel": "v2'ye kalan",
     "fallbackUsername": "Operatör"
   },
   "debugPages": {
@@ -757,7 +662,7 @@
         "software": "Yazılım"
       },
       "continueLabel": "Doğru görünüyor →",
-      "supportNote": "java · bedrock · hytale — hepsi destekleniyor",
+      "supportNote": "java · bedrock — hepsi destekleniyor",
       "errorUnreachable": "Bu sunucuya ulaşamadık. Sunucu adresini ve portu kontrol edip tekrar dene.",
       "softwareLabel": "Sunucu yazılımı",
       "geyserLabel": "Bu Java sunucusu Bedrock oyuncularını da kabul eder (GeyserMC / Floodgate).",
@@ -780,9 +685,7 @@
       "verifyLabel": "Ekledim — doğrula",
       "selectHint": "Bir yöntem seç, jetonu ekle ve doğrula.",
       "failedLabel": "Jetonunu henüz bulamadık. Ekle, biraz bekle ve tekrar dene.",
-      "motdUnavailable": "Hytale için kullanılamaz — okunacak canlı MOTD yok. Bunun yerine DNS kullanın.",
-      "dnsUnavailable": "Çıplak IP için kullanılamaz — DNS kullanmak için sunucuya bir alan adı yönlendirin veya MOTD ile doğrulayın.",
-      "noMethodHint": "Çıplak IP'li Hytale henüz doğrulanamıyor. Sunucunuza bir alan adı yönlendirip DNS ile doğrulayın."
+      "dnsUnavailable": "Çıplak IP için kullanılamaz — DNS kullanmak için sunucuya bir alan adı yönlendirin veya MOTD ile doğrulayın."
     },
     "profile": {
       "title": "Dünyanı tanıt.",

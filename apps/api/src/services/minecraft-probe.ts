@@ -1,13 +1,18 @@
 import { lookup } from "node:dns/promises";
-import { createConnection, isIP } from "node:net";
+import { isIP } from "node:net";
 
 import { ApiError } from "../lib/api-error.js";
 
-/** Game/software families a listing can target. */
-export type ListingGame = "mc_java" | "mc_bedrock" | "hytale";
+/**
+ * Client families a listing can reference. The server platform is always
+ * `mc_java` (PRODUCT.md §3.1); `mc_bedrock` only appears as a supported client
+ * when a Java server enables Geyser.
+ */
+export type ListingGame = "mc_java" | "mc_bedrock";
 
 /** Whether a given game can be probed for a live MOTD (needed for MOTD-based ownership). */
-export const gameSupportsMotd = (game: ListingGame): boolean => game !== "hytale";
+export const gameSupportsMotd = (game: ListingGame): boolean =>
+  game === "mc_java" || game === "mc_bedrock";
 
 /** Result of a live status probe against a server. */
 export interface MinecraftProbeResult {
@@ -218,40 +223,9 @@ const parseStatusResponse = (
 };
 
 /**
- * Hytale (and any non-Minecraft target) has no MOTD status protocol we speak,
- * so reachability is a plain TCP connect within the timeout window.
- */
-const probeTcpReachable = async (
-  host: string,
-  port: number,
-  timeoutMs: number
-): Promise<MinecraftProbeResult> => {
-  const startedAt = Date.now();
-  return new Promise<MinecraftProbeResult>((resolve) => {
-    const socket = createConnection({ host, port });
-    let settled = false;
-    const finish = (reachable: boolean): void => {
-      if (settled) return;
-      settled = true;
-      socket.destroy();
-      resolve(
-        reachable
-          ? { ...UNREACHABLE, reachable: true, pingMs: Math.max(0, Date.now() - startedAt) }
-          : UNREACHABLE
-      );
-    };
-    socket.setTimeout(timeoutMs);
-    socket.once("connect", () => finish(true));
-    socket.once("timeout", () => finish(false));
-    socket.once("error", () => finish(false));
-  });
-};
-
-/**
  * Probes a server for a live status snapshot. Runs the SSRF guard first; a guard
  * failure throws, while an unreachable server resolves to `reachable: false`.
- * Java uses the Java status protocol, Bedrock the RakNet status protocol, and
- * Hytale a plain TCP reachability check (no MOTD/player data available).
+ * Java uses the Java status protocol and Bedrock the RakNet status protocol.
  */
 export const probeServer = async (
   host: string,
@@ -261,10 +235,6 @@ export const probeServer = async (
 ): Promise<MinecraftProbeResult> => {
   await assertPublicHost(host);
   const normalizedHost = normalizeProbeHost(host);
-
-  if (game === "hytale") {
-    return probeTcpReachable(normalizedHost, port, timeoutMs);
-  }
 
   const { status, statusBedrock } = await loadProbe();
   const startedAt = Date.now();

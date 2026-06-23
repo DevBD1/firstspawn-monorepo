@@ -78,7 +78,6 @@ function getRelativeTime(s: PublicServerListItem, rt: ServerRowCopy["relativeTim
 function getGameName(game: string, gameNames: ServerRowCopy["gameNames"]) {
   if (game === "mc_java") return gameNames.mcJava;
   if (game === "mc_bedrock") return gameNames.mcBedrock;
-  if (game === "hytale") return gameNames.hytale;
   return gameNames.fallback;
 }
 

@@ -69,12 +69,6 @@ describe("collector integration", () => {
       createdAt: new Date(base.getTime() + 1500),
       updatedAt: new Date(base.getTime() + 1500),
     });
-    await createServer({
-      slug: "ignored-bedrock",
-      game: "mc_bedrock",
-      createdAt: new Date(base.getTime() + 1600),
-      updatedAt: new Date(base.getTime() + 1600),
-    });
     const second = await createServer({
       slug: "second",
       createdAt: new Date(base.getTime() + 2000),

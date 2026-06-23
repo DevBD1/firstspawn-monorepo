@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { registerAction } from "@/app/actions/auth";
-import { WLButton } from "@firstspawn/ui";
-import DiscordIcon from "@/components/ui/DiscordIcon";
 import { AUTH_ACTION_INITIAL_STATE } from "@/lib/auth-action-state";
 import { usePasswordVisibility } from "@/features/auth/hooks/usePasswordVisibility";
 import type { RegisterFormCopy } from "@/features/auth/types";
@@ -13,7 +11,6 @@ import { Turnstile } from "@marsidev/react-turnstile";
 import AuthSubmitButton from "./AuthSubmitButton.client";
 import {
   AUTH_ALTERNATE_LINK_CLASS,
-  AUTH_DISCORD_BUTTON_CLASS,
   AUTH_FIELD_ERROR_CLASS,
   AUTH_ICON_CLASS,
   AUTH_LABEL_CLASS,
@@ -43,22 +40,6 @@ export default function RegisterForm({ lang, nextPath, copy }: RegisterFormProps
       <input type="hidden" name="next" value={nextPath ?? undefined} />
 
       <div className="space-y-4">
-        <WLButton type="button" variant="primary" fullWidth className={AUTH_DISCORD_BUTTON_CLASS}>
-          <DiscordIcon className="h-5 w-5" />
-          {copy.discordCta}
-        </WLButton>
-
-        <div className="relative py-4">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="bg-bg-panel px-4 font-ui text-base uppercase text-muted">
-              {copy.dividerLabel}
-            </span>
-          </div>
-        </div>
-
         <div className="space-y-4">
           <div className="space-y-2">
             <label className={AUTH_LABEL_CLASS} htmlFor="register-email">

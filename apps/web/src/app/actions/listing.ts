@@ -42,7 +42,7 @@ export interface CreatedListing {
 }
 
 export type VerificationMethod = "motd" | "dns";
-export type ListingGame = "mc_java" | "mc_bedrock" | "hytale";
+export type ListingGame = "mc_java" | "mc_bedrock";
 
 export interface AvailabilityResult {
   name_available: boolean | null;

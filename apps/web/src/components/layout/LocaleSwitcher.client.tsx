@@ -23,9 +23,6 @@ export default function LocaleSwitcher({
     { code: "en", name: "English" },
     { code: "tr", name: "Türkçe" },
     { code: "de", name: "Deutsch" },
-    { code: "ru", name: "Русский" },
-    { code: "es", name: "Español" },
-    { code: "fr", name: "Français" },
   ];
 
   const currentLang = languages.find((language) => language.code === currentLocale) || languages[0];

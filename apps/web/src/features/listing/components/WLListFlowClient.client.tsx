@@ -17,16 +17,15 @@ import {
   type VerificationMethod,
 } from "@/app/actions/listing";
 
+// Minecraft Java is the only supported server platform (PRODUCT.md §3.1). Bedrock
+// client compatibility is surfaced separately via the Geyser flag, not as its own
+// platform.
 const WL_GAMES: ReadonlyArray<{ id: ListingGame; defaultPort: number }> = [
   { id: "mc_java", defaultPort: 25565 },
-  { id: "mc_bedrock", defaultPort: 19132 },
-  { id: "hytale", defaultPort: 25565 },
 ];
 
 const defaultPortFor = (game: ListingGame): number =>
   WL_GAMES.find((g) => g.id === game)?.defaultPort ?? 25565;
-
-const gameSupportsMotd = (game: ListingGame): boolean => game !== "hytale";
 
 /** A bare IPv4/IPv6 literal has no domain to host a DNS TXT record. */
 function isIpLiteral(host: string): boolean {
@@ -157,19 +156,15 @@ export default function WLListFlowClient({
 
   const parsed = useMemo(() => parseAddress(addr, defaultPortFor(game)), [addr, game]);
   const hostIsIp = useMemo(() => isIpLiteral(parsed.host), [parsed.host]);
-  // DNS needs a domain; MOTD needs a status protocol (Hytale has none).
+  // Minecraft Java always exposes a status/MOTD protocol, so MOTD verification is
+  // always available; DNS additionally needs a real domain (an IP literal can't
+  // host a TXT record).
   const dnsAvailable = !hostIsIp;
-  const motdAvailable = gameSupportsMotd(game);
-  const noVerificationMethod = !dnsAvailable && !motdAvailable;
-  // The method actually used, constrained to what the game/address supports.
-  const effectiveMethod: VerificationMethod = !motdAvailable
-    ? "dns"
-    : !dnsAvailable
-      ? "motd"
-      : method;
+  // The method actually used, constrained to what the address supports.
+  const effectiveMethod: VerificationMethod = !dnsAvailable ? "motd" : method;
   const gameCopy = dictionary.serverCatalog.games;
   const gameLabel = (g: ListingGame): string =>
-    g === "mc_bedrock" ? gameCopy.mcBedrock : g === "hytale" ? gameCopy.hytale : gameCopy.mcJava;
+    g === "mc_bedrock" ? gameCopy.mcBedrock : gameCopy.mcJava;
 
   // Fetch a real verification token when the ownership step opens.
   useEffect(() => {
@@ -405,20 +400,15 @@ export default function WLListFlowClient({
             <div className="mt-4 bg-secondary border border-border rounded-xl p-4 flex flex-col gap-2.5">
               {pingRow(copy.address.stats.status, copy.address.stats.reachable, "text-success")}
               {pingRow(copy.address.stats.software, gameLabel(game))}
-              {/* Hytale has no status protocol, so version/players/MOTD aren't available. */}
-              {game !== "hytale" && (
-                <>
-                  {pingRow(copy.address.stats.version, probe.minecraft_version ?? "—")}
-                  {pingRow(
-                    copy.address.stats.onlineNow,
-                    probe.online_players != null
-                      ? `${probe.online_players}${probe.max_players != null ? ` / ${probe.max_players}` : ""}`
-                      : "—",
-                    "text-success"
-                  )}
-                  {pingRow(copy.address.stats.motd, probe.motd ? `“${probe.motd}”` : "—")}
-                </>
+              {pingRow(copy.address.stats.version, probe.minecraft_version ?? "—")}
+              {pingRow(
+                copy.address.stats.onlineNow,
+                probe.online_players != null
+                  ? `${probe.online_players}${probe.max_players != null ? ` / ${probe.max_players}` : ""}`
+                  : "—",
+                "text-success"
               )}
+              {pingRow(copy.address.stats.motd, probe.motd ? `“${probe.motd}”` : "—")}
               <div className="flex justify-end mt-2">
                 <WLButton variant="primary" size="sm" onClick={() => setIdx(1)}>
                   {copy.address.continueLabel}
@@ -471,21 +461,18 @@ export default function WLListFlowClient({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
             <button
               type="button"
-              disabled={!motdAvailable}
-              onClick={() => motdAvailable && setMethod("motd")}
+              onClick={() => setMethod("motd")}
               className={`border rounded-xl p-3 flex flex-col text-left transition ${
-                !motdAvailable
-                  ? "border-border opacity-50 cursor-not-allowed"
-                  : effectiveMethod === "motd"
-                    ? "border-primary bg-secondary/40 cursor-pointer"
-                    : "border-border hover:border-foreground cursor-pointer"
+                effectiveMethod === "motd"
+                  ? "border-primary bg-secondary/40 cursor-pointer"
+                  : "border-border hover:border-foreground cursor-pointer"
               }`}
             >
               <div className="font-body font-bold text-xs text-foreground mb-1">
                 {copy.ownership.motdTitle}
               </div>
               <div className="font-body text-[11.5px] leading-relaxed text-muted">
-                {motdAvailable ? copy.ownership.motdBody : copy.ownership.motdUnavailable}
+                {copy.ownership.motdBody}
               </div>
             </button>
             <button
@@ -518,11 +505,6 @@ export default function WLListFlowClient({
               </div>
             </button>
           </div>
-          {noVerificationMethod && (
-            <div className="font-body text-xs text-danger leading-relaxed mb-3">
-              {copy.ownership.noMethodHint}
-            </div>
-          )}
           {verifyError && (
             <div className="font-body text-xs text-danger leading-relaxed mb-3">{verifyError}</div>
           )}
@@ -536,11 +518,7 @@ export default function WLListFlowClient({
               </WLButton>
             </div>
           ) : (
-            <WLButton
-              variant="primary"
-              onClick={doVerify}
-              disabled={verifying || !token || noVerificationMethod}
-            >
+            <WLButton variant="primary" onClick={doVerify} disabled={verifying || !token}>
               {verifying ? copy.ownership.checkingLabel : copy.ownership.verifyLabel}
             </WLButton>
           )}

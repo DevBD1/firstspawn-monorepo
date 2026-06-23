@@ -38,7 +38,6 @@ function getServerSignals(s: PublicServerListItem): Signals {
 function getGameName(game: string, gameNames: ServerRowCopy["gameNames"]) {
   if (game === "mc_java") return gameNames.mcJava;
   if (game === "mc_bedrock") return gameNames.mcBedrock;
-  if (game === "hytale") return gameNames.hytale;
   return gameNames.fallback;
 }
 

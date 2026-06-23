@@ -58,7 +58,10 @@ const LISTING_TAGS = [
 ] as const;
 
 const verificationMethodSchema = z.enum(["motd", "dns"]);
-const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
+// Minecraft Java is the only supported server platform (PRODUCT.md §3.1).
+const gameSchema = z.literal("mc_java");
+// Bedrock appears only as a supported client when a Java server enables Geyser.
+const clientNameSchema = z.enum(["mc_java", "mc_bedrock"]);
 const serverSocialPlatformSchema = z.enum([
   "website",
   "discord",
@@ -172,7 +175,7 @@ const createListingResponseSchema = envelopeSchema(
       description: z.string(),
       host: z.string(),
       port: z.number().int(),
-      game: z.enum(["mc_java", "mc_bedrock", "hytale"]),
+      game: gameSchema,
       catalog_status: z.enum(["active", "suspended", "archived"]),
       freshness_status: z.enum(["online", "offline", "unknown"]),
       auth_mode: z.enum(["official", "offline_allowed", "unknown"]),
@@ -186,7 +189,7 @@ const createListingResponseSchema = envelopeSchema(
       socials: z.array(listingSocialSchema),
       supported_clients: z.array(
         z.object({
-          client_name: z.enum(["mc_java", "mc_bedrock", "hytale"]),
+          client_name: clientNameSchema,
           client_version: z.string(),
         })
       ),

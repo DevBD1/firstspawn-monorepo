@@ -92,7 +92,6 @@ const formatPing = (copy: ServerCardCopy, value?: number | null) => {
 const getGameLabel = (game: string | null | undefined, copy: ServerCardCopy) => {
   if (game === "mc_java") return copy.gameLabels.mcJava;
   if (game === "mc_bedrock") return copy.gameLabels.mcBedrock;
-  if (game === "hytale") return copy.gameLabels.hytale;
   return game?.toUpperCase() ?? copy.gameLabels.fallback;
 };
 
