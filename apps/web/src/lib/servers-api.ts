@@ -9,7 +9,7 @@ type FetchInit = RequestInit & {
 };
 
 export type PublicServerSort = "players" | "ping";
-export type PublicServerGame = "mc_java" | "mc_bedrock" | "hytale";
+export type PublicServerGame = "mc_java" | "mc_bedrock";
 export type PublicServerTier = "common" | "rare" | "epic" | "legendary";
 
 export interface PublicServerListItem {

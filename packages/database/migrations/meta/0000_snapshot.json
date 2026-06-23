@@ -1,5 +1,5 @@
 {
-  "id": "df6e7375-7b2c-423c-bd7c-c60d900359ea",
+  "id": "4c2988b3-c24e-4a0b-ba3a-25db5b6c35fa",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -25,6 +25,18 @@
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -559,6 +571,96 @@
       },
       "isRLSEnabled": false
     },
+    "public.server_media": {
+      "name": "server_media",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "server_id": {
+          "name": "server_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(2048)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_server_media_server_id": {
+          "name": "idx_server_media_server_id",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "server_media_server_id_servers_id_fk": {
+          "name": "server_media_server_id_servers_id_fk",
+          "tableFrom": "server_media",
+          "tableTo": "servers",
+          "columnsFrom": ["server_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_server_media_kind": {
+          "name": "chk_server_media_kind",
+          "value": "\"server_media\".\"kind\" in ('build', 'banner', 'screenshot', 'logo')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.server_moderation_logs": {
       "name": "server_moderation_logs",
       "schema": "",
@@ -842,9 +944,79 @@
       "checkConstraints": {
         "chk_server_supported_clients_client_name": {
           "name": "chk_server_supported_clients_client_name",
-          "value": "\"server_supported_clients\".\"client_name\" in ('mc_java', 'mc_bedrock', 'hytale')"
+          "value": "\"server_supported_clients\".\"client_name\" in ('mc_java', 'mc_bedrock')"
         }
       },
+      "isRLSEnabled": false
+    },
+    "public.server_tags": {
+      "name": "server_tags",
+      "schema": "",
+      "columns": {
+        "server_id": {
+          "name": "server_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tag": {
+          "name": "tag",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_server_tags_server_id": {
+          "name": "idx_server_tags_server_id",
+          "columns": [
+            {
+              "expression": "server_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "server_tags_server_id_servers_id_fk": {
+          "name": "server_tags_server_id_servers_id_fk",
+          "tableFrom": "server_tags",
+          "tableTo": "servers",
+          "columnsFrom": ["server_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pk_server_tags": {
+          "name": "pk_server_tags",
+          "columns": ["server_id", "tag"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.servers": {
@@ -882,6 +1054,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "long_description": {
+          "name": "long_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "host": {
           "name": "host",
           "type": "varchar(255)",
@@ -893,6 +1071,49 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "votifier_host": {
+          "name": "votifier_host",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "votifier_port": {
+          "name": "votifier_port",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "votifier_public_key": {
+          "name": "votifier_public_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "votifier_enabled": {
+          "name": "votifier_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "verification_method": {
+          "name": "verification_method",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verification_token": {
+          "name": "verification_token",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         },
         "game": {
           "name": "game",
@@ -919,6 +1140,13 @@
           "type": "varchar(2)",
           "primaryKey": false,
           "notNull": true
+        },
+        "reach_scope": {
+          "name": "reach_scope",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'local'"
         },
         "logo_url": {
           "name": "logo_url",
@@ -1113,7 +1341,7 @@
         },
         "chk_servers_game": {
           "name": "chk_servers_game",
-          "value": "\"servers\".\"game\" in ('mc_java', 'mc_bedrock', 'hytale')"
+          "value": "\"servers\".\"game\" in ('mc_java')"
         },
         "chk_servers_status": {
           "name": "chk_servers_status",
@@ -1127,9 +1355,25 @@
           "name": "chk_servers_probe_status",
           "value": "\"servers\".\"probe_status\" in ('online', 'offline', 'unknown', 'unreachable')"
         },
+        "chk_servers_reach_scope": {
+          "name": "chk_servers_reach_scope",
+          "value": "\"servers\".\"reach_scope\" in ('local', 'regional', 'global')"
+        },
+        "chk_servers_country_code_not_global": {
+          "name": "chk_servers_country_code_not_global",
+          "value": "\"servers\".\"country_code\" <> 'WW'"
+        },
         "chk_servers_consecutive_probe_failures": {
           "name": "chk_servers_consecutive_probe_failures",
           "value": "\"servers\".\"consecutive_probe_failures\" >= 0"
+        },
+        "chk_servers_votifier_port": {
+          "name": "chk_servers_votifier_port",
+          "value": "\"servers\".\"votifier_port\" is null or \"servers\".\"votifier_port\" between 1 and 65535"
+        },
+        "chk_servers_verification_method": {
+          "name": "chk_servers_verification_method",
+          "value": "\"servers\".\"verification_method\" is null or \"servers\".\"verification_method\" in ('motd', 'dns')"
         }
       },
       "isRLSEnabled": false

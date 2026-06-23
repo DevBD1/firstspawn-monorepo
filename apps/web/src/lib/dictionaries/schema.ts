@@ -64,12 +64,10 @@ export interface NavigationDictionary {
   console: string;
   discover: string;
   forOwners: string;
-  community: string;
   languageMenuLabel: string;
   logIn: string;
   logOut: string;
   menuLabel: string;
-  myLoot: string;
   signIn: string;
   signUp: string;
   verifyEmail: string;
@@ -181,12 +179,9 @@ export interface AuthLoginCopy {
   form: {
     alternateCta: string;
     alternatePrompt: string;
-    dividerLabel: string;
-    discordCta: string;
     hidePasswordAriaLabel: string;
     identifierLabel: string;
     identifierPlaceholder: string;
-    passkeyCta: string;
     passwordLabel: string;
     passwordPlaceholder: string;
     showPasswordAriaLabel: string;
@@ -205,8 +200,6 @@ export interface AuthRegisterCopy {
     alternatePrompt: string;
     confirmPasswordLabel: string;
     confirmPasswordPlaceholder: string;
-    discordCta: string;
-    dividerLabel: string;
     emailLabel: string;
     emailPlaceholder: string;
     hidePasswordAriaLabel: string;
@@ -402,13 +395,11 @@ export interface ListFlowDictionary {
     copyLabel: string;
     motdTitle: string;
     motdBody: string;
-    motdUnavailable: string;
     dnsTitle: string;
     dnsBodyPrefix: string;
     dnsFallbackDomain: string;
     dnsBodySuffix: string;
     dnsUnavailable: string;
-    noMethodHint: string;
     verifiedLabel: string;
     continueLabel: string;
     checkingLabel: string;
@@ -474,7 +465,6 @@ export interface ServerCatalogDictionary {
   };
   games: {
     fallback: string;
-    hytale: string;
     mcBedrock: string;
     mcJava: string;
   };
@@ -495,7 +485,6 @@ export interface ServerCatalogDictionary {
     gameNames: {
       mcJava: string;
       mcBedrock: string;
-      hytale: string;
       fallback: string;
     };
     relativeTime: {
@@ -563,7 +552,6 @@ export interface ServerDetailDictionary {
     gameNames: {
       mcJava: string;
       mcBedrock: string;
-      hytale: string;
     };
     updatedJustNow: string;
     updatedRecently: string;
@@ -571,12 +559,6 @@ export interface ServerDetailDictionary {
       verifiedTooltip: string;
       unverifiedTooltip: string;
       verifiedByNote: string;
-    };
-    tabs: {
-      overview: string;
-      discussion: string;
-      /** Small badge rendered on the gated Discussion tab, e.g. "v2". */
-      discussionBadge: string;
     };
     about: {
       title: string;
@@ -596,28 +578,6 @@ export interface ServerDetailDictionary {
     };
     similar: {
       title: string;
-    };
-    /**
-     * "Coming in v2" teaser shown in place of the live Discussion experience.
-     * The flagship feature, so this gets a bespoke locked/blurred preview
-     * rather than the shared FeatureTeaser layout.
-     */
-    discussionTeaser: {
-      badge: string;
-      lockLabel: string;
-      headline: string;
-      /** One-line hook hinting at what makes discussion special. */
-      tagline: string;
-      /** Exactly three locked-feature highlights. */
-      features: TeaserFeatureItem[];
-      /** Social-proof line; supports a {count} placeholder. */
-      waitlistNote: string;
-      notifyCta: string;
-      notifiedLabel: string;
-      /** Countdown unit label; supports a {count} placeholder (days remaining). */
-      countdownDaysLabel: string;
-      countdownUntilLabel: string;
-      previewAria: string;
     };
     sidebar: {
       joinTitle: string;
@@ -645,7 +605,6 @@ export interface ServerDetailDictionary {
         english: string;
         seasonal: string;
         nonePlanned: string;
-        hytaleRelease: string;
         mcJavaDefault: string;
       };
       factsFootnote: string;
@@ -789,49 +748,11 @@ export interface LegalPageCopy {
   noticeBody: string;
 }
 
-/** A single locked-feature highlight shown on a v2 teaser surface. */
-export interface TeaserFeatureItem {
-  title: string;
-  body: string;
-}
-
-/**
- * Copy for a "coming in v2" feature teaser — a locked/anticipation state used
- * in place of an unfinished MVP feature. Shared by the Community and My Loot
- * pages and mirrored (with a bespoke layout) by the server Discussion tab.
- */
-export interface FeatureTeaserCopy {
-  /** Small gold pill, e.g. "Arriving in v2". */
-  badge: string;
-  /** Uppercase eyebrow above the title. */
-  eyebrow: string;
-  title: string;
-  /** One-line hook that hints at what makes the feature special. */
-  tagline: string;
-  description: string;
-  /** Exactly three locked-feature highlights. */
-  features: TeaserFeatureItem[];
-  /** Social-proof line; supports a {count} placeholder. */
-  waitlistNote: string;
-  notifyCta: string;
-  notifiedLabel: string;
-  /** Countdown unit label; supports a {count} placeholder (days remaining). */
-  countdownDaysLabel: string;
-  countdownUntilLabel: string;
-}
-
-export type CommunityPageCopy = FeatureTeaserCopy;
-
 export interface ConsolePageCopy {
   badge: string;
   fallbackUsername: string;
   title: string;
   description: string;
-}
-
-export interface LootPageCopy extends FeatureTeaserCopy {
-  /** Used to greet signed-in players when their username is unavailable. */
-  fallbackUsername: string;
 }
 
 export interface DebugPageCopy {
@@ -867,7 +788,6 @@ export interface AppDictionary {
   auth: AuthDictionary;
   captcha: CaptchaDictionary;
   common: CommonDictionary;
-  communityPage: CommunityPageCopy;
   consolePage: ConsolePageCopy;
   cookieConsent: CookieConsentDictionary;
   debugPages: DebugPageCopy;
@@ -879,7 +799,6 @@ export interface AppDictionary {
     terms: LegalPageCopy;
   };
   listFlow: ListFlowDictionary;
-  lootPage: LootPageCopy;
   nav: NavigationDictionary;
   ownerConsole: OwnerConsoleDictionary;
   rankSignals: RankSignalsDictionary;

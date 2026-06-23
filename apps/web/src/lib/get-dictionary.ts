@@ -11,12 +11,6 @@ const dictionaries: Record<Locale, DictionaryLoader> = {
     import("./dictionaries/tr.json").then((module) => module.default as unknown as AppDictionary),
   de: () =>
     import("./dictionaries/de.json").then((module) => module.default as unknown as AppDictionary),
-  ru: () =>
-    import("./dictionaries/ru.json").then((module) => module.default as unknown as AppDictionary),
-  es: () =>
-    import("./dictionaries/es.json").then((module) => module.default as unknown as AppDictionary),
-  fr: () =>
-    import("./dictionaries/fr.json").then((module) => module.default as unknown as AppDictionary),
 };
 
 const isObjectRecord = (value: unknown): value is Record<string, unknown> => {

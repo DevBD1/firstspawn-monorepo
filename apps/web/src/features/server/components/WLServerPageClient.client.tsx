@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Lock } from "lucide-react";
 import { WLButton } from "@firstspawn/ui";
 import type { PublicServerDetail, PublicServerListItem } from "@/lib/servers-api";
-import { TeaserPanel, V2_TARGET_DATE } from "@/components/ui/FeatureTeaser.client";
 import ServerCard from "./ServerCard";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
@@ -119,7 +117,6 @@ export default function WLServerPageClient({
   const rankCopy = dictionary.rankSignals;
   const catalog = dictionary.serverCatalog;
   const linkKinds = dictionary.common.linkKinds;
-  const teaserCopy = profile.discussionTeaser;
   const sidebarCopy = profile.sidebar;
   const joinAddress = s.port === 25565 ? s.host : `${s.host}:${s.port}`;
   const voteKey = s.slug;
@@ -131,7 +128,6 @@ export default function WLServerPageClient({
     return platform;
   };
 
-  const [tab, setTab] = useState<"overview" | "discussion">("overview");
   const [copied, setCopied] = useState(false);
   const [voted, setVoted] = useState(false);
 
@@ -179,12 +175,7 @@ export default function WLServerPageClient({
   const totalVotesCount = baseVotes + (voted ? 1 : 0);
   const canonical = `firstspawn.com/${lang}/server/${s.slug}`;
 
-  const gameName =
-    s.game === "mc_java"
-      ? profile.gameNames.mcJava
-      : s.game === "mc_bedrock"
-        ? profile.gameNames.mcBedrock
-        : profile.gameNames.hytale;
+  const gameName = s.game === "mc_bedrock" ? profile.gameNames.mcBedrock : profile.gameNames.mcJava;
 
   // Feature cards derivation
   const featureTags = tags.filter((t) => catalog.tagFeatures[t]).slice(0, 4);
@@ -193,45 +184,6 @@ export default function WLServerPageClient({
     title: catalog.tagFeatures[t].title,
     body: catalog.tagFeatures[t].description,
   }));
-
-  // Decorative seed content rendered (blurred, non-interactive) behind the v2
-  // Discussion teaser — a frosted glimpse of the real experience to come.
-  const previewUpdates = [
-    {
-      title: "Season update: new region opens Friday",
-      when: "3d ago",
-      body: "The next world region unlocks at 19:00 UTC — expedition signups are in Discord. Old portals stay live for two weeks.",
-    },
-    {
-      title: "Moderation report — June",
-      when: "2w ago",
-      body: "6 actions taken, 2 appeals reviewed, 1 upheld. Full log available to members, as always.",
-    },
-  ];
-
-  const previewPosts = [
-    {
-      author: "emberlyn",
-      when: "2h ago",
-      body: "Anyone up for the Friday expedition? We need two more for the depth-3 run.",
-      replies: 6,
-      ownerReplied: false,
-    },
-    {
-      author: "Krell",
-      when: "9h ago",
-      body: "New market district looks great, but stall prices doubled overnight — is that intended?",
-      replies: 14,
-      ownerReplied: true,
-    },
-    {
-      author: "mossfen",
-      when: "1d ago",
-      body: "Posted my base tour in the gallery channel — honest feedback welcome.",
-      replies: 3,
-      ownerReplied: false,
-    },
-  ];
 
   const links = [...s.socials]
     .sort((a, b) => a.display_order - b.display_order)
@@ -327,258 +279,158 @@ export default function WLServerPageClient({
         </span>
       </div>
 
-      {/* Tabs list */}
-      <div className="flex gap-5 border-b border-border mb-6">
-        <button
-          onClick={() => setTab("overview")}
-          className={`font-body text-[13.5px] font-bold pb-2.5 border-b-2 cursor-pointer transition-all ${
-            tab === "overview"
-              ? "text-foreground border-primary"
-              : "text-muted border-transparent hover:text-foreground"
-          }`}
-        >
-          {profile.tabs.overview}
-        </button>
-        <button
-          onClick={() => setTab("discussion")}
-          className={`group font-body text-[13.5px] font-bold pb-2.5 border-b-2 cursor-pointer transition-all inline-flex items-center gap-1.5 ${
-            tab === "discussion"
-              ? "text-foreground border-primary"
-              : "text-muted border-transparent hover:text-foreground"
-          }`}
-        >
-          <Lock size={12} className="opacity-70" />
-          {profile.tabs.discussion}
-          <span className="font-mono text-[9px] font-bold tracking-wide text-fs-gold border border-fs-gold/30 rounded-full px-1.5 py-0.5 leading-none uppercase select-none">
-            {profile.tabs.discussionBadge}
-          </span>
-        </button>
-      </div>
-
       {/* Core Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-7 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-7 items-start mt-6">
         {/* Main Column */}
         <div className="min-w-0">
-          {tab === "overview" ? (
-            <div className="flex flex-col gap-6">
-              {/* About description */}
-              <section>
-                <h2 className="font-display font-medium text-base text-foreground mb-3">
-                  {profile.about.title}
+          <div className="flex flex-col gap-6">
+            {/* About description */}
+            <section>
+              <h2 className="font-display font-medium text-base text-foreground mb-3">
+                {profile.about.title}
+              </h2>
+              <p className="font-body text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap max-w-[640px]">
+                {s.description || catalog.row.noDescription}
+              </p>
+            </section>
+
+            {/* Signals and rank */}
+            <section>
+              <div className="mb-3">
+                <h2 className="font-display font-medium text-base text-foreground">
+                  {profile.rank.title}
                 </h2>
-                <p className="font-body text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap max-w-[640px]">
-                  {s.description || catalog.row.noDescription}
-                </p>
-              </section>
-
-              {/* Signals and rank */}
-              <section>
-                <div className="mb-3">
-                  <h2 className="font-display font-medium text-base text-foreground">
-                    {profile.rank.title}
-                  </h2>
-                  <p className="font-mono text-[11px] text-muted mt-0.5">{profile.rank.subtitle}</p>
-                </div>
-                <div className="bg-bg-panel border border-border rounded-xl p-4 md:p-5 max-w-[640px]">
-                  <div className="flex flex-col gap-2.5">
-                    {[
-                      [rankCopy.activityLabel, sig.activity, rankCopy.activityHint],
-                      [rankCopy.trustLabel, sig.trust, rankCopy.trustHint],
-                      [rankCopy.freshnessLabel, sig.freshness, rankCopy.freshnessHint],
-                    ].map(([label, v, hint]) => (
-                      <div
-                        key={label as string}
-                        className="grid grid-cols-[80px_1fr_38px] items-center gap-3"
-                      >
-                        <span
-                          title={hint as string}
-                          className="font-body text-xs font-semibold text-muted"
-                        >
-                          {label as string}
-                        </span>
-                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full transition-all duration-300"
-                            style={{ width: `${v}%` }}
-                          ></div>
-                        </div>
-                        <span className="font-mono text-xs text-foreground text-right">{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* What makes it different / Features cards */}
-              {features.length > 0 && (
-                <section>
-                  <div className="mb-3">
-                    <h2 className="font-display font-medium text-base text-foreground">
-                      {profile.featureCards.title}
-                    </h2>
-                    <p className="font-mono text-[11px] text-muted mt-0.5">
-                      {profile.featureCards.subtitle}
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[640px]">
-                    {features.map((f) => (
-                      <div
-                        key={f.tag}
-                        className="bg-bg-panel border border-border rounded-xl overflow-hidden flex flex-col hover:border-primary/50 transition duration-150"
-                      >
-                        <WLPlaceholder
-                          label={`${f.tag.toLowerCase()} · in-game`}
-                          height={86}
-                          tone="#7d8bb0"
-                        />
-                        <div className="p-3">
-                          <div className="font-body font-bold text-xs text-foreground mb-1">
-                            {f.title}
-                          </div>
-                          <div className="font-body text-[11.5px] leading-relaxed text-muted">
-                            {f.body}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Media trailer */}
-              <section>
-                <div className="mb-3">
-                  <h2 className="font-display font-medium text-base text-foreground">
-                    {profile.media.title}
-                  </h2>
-                  <p className="font-mono text-[11px] text-muted mt-0.5">
-                    {profile.media.subtitle}
-                  </p>
-                </div>
-                <div className="relative max-w-[640px] mb-3 rounded-xl overflow-hidden border border-border">
-                  <WLPlaceholder
-                    label={`${s.name} · world trailer (16:9)`}
-                    height={240}
-                    tone="#7d8bb0"
-                  />
-                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center text-lg shadow-lg cursor-pointer hover:scale-105 transition-all">
-                    ▶
-                  </span>
-                  <span className="absolute left-2.5 bottom-2.5 font-mono text-[10px] text-foreground bg-bg-panel/90 border border-border rounded-lg px-2.5 py-1">
-                    {profile.media.provenanceChip}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-3 max-w-[640px]">
-                  <WLPlaceholder
-                    label="spawn"
-                    height={90}
-                    tone="#7d8bb0"
-                    className="rounded-lg border border-border"
-                  />
-                  <WLPlaceholder
-                    label="builds"
-                    height={90}
-                    tone="#7d8bb0"
-                    className="rounded-lg border border-border"
-                  />
-                  <WLPlaceholder
-                    label="events"
-                    height={90}
-                    tone="#7d8bb0"
-                    className="rounded-lg border border-border"
-                  />
-                </div>
-              </section>
-
-              {/* Similar Servers */}
-              {similarServers.length > 0 && (
-                <section className="pt-2">
-                  <h2 className="font-display font-medium text-base text-foreground mb-3">
-                    {profile.similar.title}
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {similarServers.map((x) => (
-                      <ServerCard
-                        key={x.slug}
-                        {...x}
-                        lang={lang}
-                        copy={serverCardCopy}
-                        variant="landing"
-                      />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-          ) : (
-            // Discussion Tab — gated "coming in v2" teaser over a frosted preview
-            <div className="max-w-[640px]">
-              <div
-                className="relative overflow-hidden rounded-xl border border-border min-h-[560px] sm:min-h-[460px]"
-                role="group"
-                aria-label={teaserCopy.previewAria}
-              >
-                {/* Frosted preview of the real experience (decorative only) */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none select-none flex flex-col gap-3 p-4 opacity-30 blur-[7px] saturate-50"
-                >
-                  {previewUpdates.map((u) => (
+                <p className="font-mono text-[11px] text-muted mt-0.5">{profile.rank.subtitle}</p>
+              </div>
+              <div className="bg-bg-panel border border-border rounded-xl p-4 md:p-5 max-w-[640px]">
+                <div className="flex flex-col gap-2.5">
+                  {[
+                    [rankCopy.activityLabel, sig.activity, rankCopy.activityHint],
+                    [rankCopy.trustLabel, sig.trust, rankCopy.trustHint],
+                    [rankCopy.freshnessLabel, sig.freshness, rankCopy.freshnessHint],
+                  ].map(([label, v, hint]) => (
                     <div
-                      key={u.title}
-                      className="bg-bg-panel border border-border rounded-xl p-3.5"
+                      key={label as string}
+                      className="grid grid-cols-[80px_1fr_38px] items-center gap-3"
                     >
-                      <div className="flex justify-between items-baseline gap-3 mb-1.5">
-                        <span className="font-body font-bold text-xs text-foreground">
-                          {u.title}
-                        </span>
-                        <span className="font-mono text-[10.5px] text-muted shrink-0">
-                          {u.when}
-                        </span>
+                      <span
+                        title={hint as string}
+                        className="font-body text-xs font-semibold text-muted"
+                      >
+                        {label as string}
+                      </span>
+                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full transition-all duration-300"
+                          style={{ width: `${v}%` }}
+                        ></div>
                       </div>
-                      <p className="font-body text-[12.5px] leading-relaxed text-foreground/80">
-                        {u.body}
-                      </p>
+                      <span className="font-mono text-xs text-foreground text-right">{v}</span>
                     </div>
                   ))}
-                  {previewPosts.map((p) => (
-                    <div
-                      key={p.author}
-                      className="bg-bg-panel border border-border rounded-xl p-3.5"
-                    >
-                      <div className="flex justify-between items-baseline gap-3 mb-1.5">
-                        <span className="font-mono text-xs font-bold text-primary">{p.author}</span>
-                        <span className="font-mono text-[10.5px] text-muted shrink-0">
-                          {p.when}
-                        </span>
-                      </div>
-                      <p className="font-body text-[12.5px] leading-relaxed text-foreground/80">
-                        {p.body}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Teaser overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-bg-panel/50 via-bg-panel/80 to-bg-panel/95 p-5 md:p-8">
-                  <TeaserPanel
-                    dense
-                    badge={teaserCopy.badge}
-                    title={teaserCopy.headline}
-                    tagline={teaserCopy.tagline}
-                    features={teaserCopy.features}
-                    waitlistNote={teaserCopy.waitlistNote}
-                    waitlistCount={baseVotes}
-                    notifyCta={teaserCopy.notifyCta}
-                    notifiedLabel={teaserCopy.notifiedLabel}
-                    targetDate={V2_TARGET_DATE}
-                    countdownDaysLabel={teaserCopy.countdownDaysLabel}
-                    countdownUntilLabel={teaserCopy.countdownUntilLabel}
-                  />
                 </div>
               </div>
-            </div>
-          )}
+            </section>
+
+            {/* What makes it different / Features cards */}
+            {features.length > 0 && (
+              <section>
+                <div className="mb-3">
+                  <h2 className="font-display font-medium text-base text-foreground">
+                    {profile.featureCards.title}
+                  </h2>
+                  <p className="font-mono text-[11px] text-muted mt-0.5">
+                    {profile.featureCards.subtitle}
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[640px]">
+                  {features.map((f) => (
+                    <div
+                      key={f.tag}
+                      className="bg-bg-panel border border-border rounded-xl overflow-hidden flex flex-col hover:border-primary/50 transition duration-150"
+                    >
+                      <WLPlaceholder
+                        label={`${f.tag.toLowerCase()} · in-game`}
+                        height={86}
+                        tone="#7d8bb0"
+                      />
+                      <div className="p-3">
+                        <div className="font-body font-bold text-xs text-foreground mb-1">
+                          {f.title}
+                        </div>
+                        <div className="font-body text-[11.5px] leading-relaxed text-muted">
+                          {f.body}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Media trailer */}
+            <section>
+              <div className="mb-3">
+                <h2 className="font-display font-medium text-base text-foreground">
+                  {profile.media.title}
+                </h2>
+                <p className="font-mono text-[11px] text-muted mt-0.5">{profile.media.subtitle}</p>
+              </div>
+              <div className="relative max-w-[640px] mb-3 rounded-xl overflow-hidden border border-border">
+                <WLPlaceholder
+                  label={`${s.name} · world trailer (16:9)`}
+                  height={240}
+                  tone="#7d8bb0"
+                />
+                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center text-lg shadow-lg cursor-pointer hover:scale-105 transition-all">
+                  ▶
+                </span>
+                <span className="absolute left-2.5 bottom-2.5 font-mono text-[10px] text-foreground bg-bg-panel/90 border border-border rounded-lg px-2.5 py-1">
+                  {profile.media.provenanceChip}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 max-w-[640px]">
+                <WLPlaceholder
+                  label="spawn"
+                  height={90}
+                  tone="#7d8bb0"
+                  className="rounded-lg border border-border"
+                />
+                <WLPlaceholder
+                  label="builds"
+                  height={90}
+                  tone="#7d8bb0"
+                  className="rounded-lg border border-border"
+                />
+                <WLPlaceholder
+                  label="events"
+                  height={90}
+                  tone="#7d8bb0"
+                  className="rounded-lg border border-border"
+                />
+              </div>
+            </section>
+
+            {/* Similar Servers */}
+            {similarServers.length > 0 && (
+              <section className="pt-2">
+                <h2 className="font-display font-medium text-base text-foreground mb-3">
+                  {profile.similar.title}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {similarServers.map((x) => (
+                    <ServerCard
+                      key={x.slug}
+                      {...x}
+                      lang={lang}
+                      copy={serverCardCopy}
+                      variant="landing"
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
 
         {/* Sidebar */}
@@ -638,10 +490,7 @@ export default function WLServerPageClient({
               {[
                 [
                   sidebarCopy.facts.version,
-                  s.latest_metrics?.minecraft_version ||
-                    (s.game === "hytale"
-                      ? sidebarCopy.factValues.hytaleRelease
-                      : sidebarCopy.factValues.mcJavaDefault),
+                  s.latest_metrics?.minecraft_version || sidebarCopy.factValues.mcJavaDefault,
                 ],
                 [
                   sidebarCopy.facts.crossplay,

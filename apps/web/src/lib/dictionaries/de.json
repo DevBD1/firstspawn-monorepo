@@ -72,12 +72,10 @@
     "console": "KONSOLE",
     "discover": "ENTDECKEN",
     "forOwners": "FÜR EIGENTÜMER",
-    "community": "COMMUNITY",
     "languageMenuLabel": "SPRACHE",
     "logIn": "LOG IN",
     "logOut": "Abmelden",
     "menuLabel": "MENÜ",
-    "myLoot": "MEINE BEUTE",
     "signIn": "Anmelden",
     "signUp": "SIGN UP",
     "verifyEmail": "E-MAIL BESTÄTIGEN",
@@ -88,7 +86,7 @@
       "brandStatement": {
         "title": "EIN FAIRERES SPIEL",
         "highlight": "IST MÖGLICH.",
-        "description": "Das Discovery-Ökosystem für Minecraft- und Hytale-Server. Für echte Spieler, echtes Vertrauen und die Community gebaut."
+        "description": "Das Discovery-Ökosystem für Minecraft-Server. Für echte Spieler, echtes Vertrauen und die Community gebaut."
       },
       "benefitItems": [
         {
@@ -101,7 +99,7 @@
         },
         {
           "title": "SPIELÜBERGREIFENDES POTENZIAL",
-          "description": "Entwickelt für Minecraft, Hytale und zukünftige Welten."
+          "description": "Entwickelt für Minecraft und zukünftige Welten."
         }
       ],
       "legalLine": "Für die Community gebaut."
@@ -115,12 +113,9 @@
       "form": {
         "alternateCta": "SIGN UP",
         "alternatePrompt": "New to FirstSpawn?",
-        "dividerLabel": "OR",
-        "discordCta": "SIGN IN WITH DISCORD",
         "hidePasswordAriaLabel": "Passwort verbergen",
         "identifierLabel": "EMAIL OR USERNAME",
         "identifierPlaceholder": "steve@craft.com",
-        "passkeyCta": "SIGN IN WITH PASSKEY",
         "passwordLabel": "PASSWORD",
         "passwordPlaceholder": "Enter your password",
         "showPasswordAriaLabel": "Passwort anzeigen",
@@ -131,15 +126,13 @@
     "register": {
       "page": {
         "title": "START YOUR JOURNEY",
-        "subtitle": "Join the verified ecosystem for Minecraft and Hytale."
+        "subtitle": "Join the verified ecosystem for Minecraft."
       },
       "form": {
         "alternateCta": "LOG IN",
         "alternatePrompt": "Already have an account?",
         "confirmPasswordLabel": "CONFIRM PASSWORD",
         "confirmPasswordPlaceholder": "Repeat your password",
-        "discordCta": "CONTINUE WITH DISCORD",
-        "dividerLabel": "OR",
         "emailLabel": "EMAIL",
         "emailPlaceholder": "steve@craft.com",
         "hidePasswordAriaLabel": "Passwörter verbergen",
@@ -224,7 +217,7 @@
       "statsLine": "{players} Spieler online in {servers} Welten",
       "titleLine1": "Deine nächste Welt",
       "titleLine2": "ist da draußen.",
-      "subtitle": "Ehrliche Entdeckung für Minecraft & Hytale — sortiert nach echter Aktivität und Community-Vertrauen, nie danach, wer mehr bezahlt hat.",
+      "subtitle": "Ehrliche Entdeckung für Minecraft — sortiert nach echter Aktivität und Community-Vertrauen, nie danach, wer mehr bezahlt hat.",
       "searchPlaceholder": "Welten durchsuchen — “Skyblock mit Wirtschaft”",
       "searchSubmitLabel": "Entdecken"
     },
@@ -331,7 +324,6 @@
     "games": {
       "mcJava": "MC JAVA",
       "mcBedrock": "MC BEDROCK",
-      "hytale": "HYTALE",
       "fallback": "SERVER"
     },
     "modsRequired": {
@@ -348,7 +340,6 @@
       "gameNames": {
         "mcJava": "Minecraft",
         "mcBedrock": "Bedrock",
-        "hytale": "Hytale",
         "fallback": "Spiel"
       },
       "relativeTime": {
@@ -494,8 +485,7 @@
       "breadcrumbBack": "← Entdecken",
       "gameNames": {
         "mcJava": "Minecraft Java",
-        "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale"
+        "mcBedrock": "Minecraft Bedrock"
       },
       "updatedJustNow": "gerade aktualisiert",
       "updatedRecently": "kürzlich aktualisiert",
@@ -503,11 +493,6 @@
         "verifiedTooltip": "Inhaberschaft von FirstSpawn verifiziert",
         "unverifiedTooltip": "Noch nicht verifiziert",
         "verifiedByNote": "✓ verifiziert von FirstSpawn"
-      },
-      "tabs": {
-        "overview": "Übersicht",
-        "discussion": "Diskussion",
-        "discussionBadge": "v2"
       },
       "about": {
         "title": "Über diese Welt"
@@ -527,32 +512,6 @@
       },
       "similar": {
         "title": "Ähnliche Welten"
-      },
-      "discussionTeaser": {
-        "badge": "Kommt in v2",
-        "lockLabel": "Gesperrt",
-        "headline": "Der Ort, an dem Reputation verdient wird.",
-        "tagline": "Verifizierte, spielzeit-gebundene Diskussion — ein Konto, eine Reputation. Keine Bots, keine Brigaden, kein gekaufter Hype.",
-        "features": [
-          {
-            "title": "Spielzeit-gebundene Stimmen",
-            "body": "Nur Spieler mit echten Spielstunden können posten — Reputation, die man nicht farmen kann."
-          },
-          {
-            "title": "Vom Inhaber signierte Updates",
-            "body": "Patchnotes und Events vom verifizierten Inhaber, über dem Rauschen angepinnt."
-          },
-          {
-            "title": "Von FirstSpawn moderiert",
-            "body": "Meldungen erreichen unser Team, nicht den Inhaber — so bleibt das Feedback ehrlich."
-          }
-        ],
-        "waitlistNote": "{count} Spieler bereits auf der Warteliste",
-        "notifyCta": "Benachrichtige mich zum Start",
-        "notifiedLabel": "Du bist auf der Liste",
-        "countdownDaysLabel": "{count} Tage",
-        "countdownUntilLabel": "bis v2",
-        "previewAria": "Vorschau auf die kommende Diskussions-Erfahrung"
       },
       "sidebar": {
         "joinTitle": "Beitreten",
@@ -580,7 +539,6 @@
           "english": "Englisch",
           "seasonal": "Saisonal",
           "nonePlanned": "Keine geplant",
-          "hytaleRelease": "Release 1.x",
           "mcJavaDefault": "1.21.x · Java"
         },
         "factsFootnote": "Fakten sind Inhaberangaben · gegen Live-Pings geprüft"
@@ -603,63 +561,10 @@
       "noticeBody": "Wir schreiben die vollständige Datenschutzerklärung. Bis zur Veröffentlichung beschreibt die obige Zusammenfassung, wie wir mit deinen Daten umgehen. Schau bald wieder vorbei."
     }
   },
-  "communityPage": {
-    "badge": "Kommt in v2",
-    "eyebrow": "Community",
-    "title": "Ein Zuhause für die Menschen hinter den Welten.",
-    "tagline": "Spielerpässe, Server-Logs und Creator-Spotlights — deine ganze Reise an einem Ort.",
-    "description": "Wir bauen eine Community-Ebene, in der Reputation, Beiträge und die Welten, die du liebst, zusammenkommen. Sie wird mit v2 freigeschaltet.",
-    "features": [
-      {
-        "title": "Spielerpässe",
-        "body": "Ein Profil, das mit dir reist — Spielzeit, Badges und die Server, für die du bürgst."
-      },
-      {
-        "title": "Lebendige Server-Logs",
-        "body": "Folge den Welten, die dir wichtig sind, und verpasse keine Saison, kein Event und keinen Wipe."
-      },
-      {
-        "title": "Creator-Spotlights",
-        "body": "Bauer, Mod-Autoren und Event-Hosts bekommen die Anerkennung, die sie wirklich verdient haben."
-      }
-    ],
-    "waitlistNote": "{count} Spieler bereits auf der Warteliste",
-    "notifyCta": "Benachrichtige mich zum Start",
-    "notifiedLabel": "Du bist auf der Liste",
-    "countdownDaysLabel": "{count} Tage",
-    "countdownUntilLabel": "bis v2"
-  },
   "consolePage": {
     "badge": "KOMMANDO-TERMINAL ONLINE",
     "title": "KONSOLE",
     "description": "Willkommen zurück, {username}. Persönliche Server-Analysen, Verifizierungssteuerung und Kontowerkzeuge werden in diesem Bereich leben.",
-    "fallbackUsername": "Operator"
-  },
-  "lootPage": {
-    "badge": "Kommt in v2",
-    "eyebrow": "Meine Beute",
-    "title": "Deine Beutekammer öffnet bald.",
-    "tagline": "Belohnungen, Rätselschlüssel und Badge-Ansprüche — alles, was du verdienst, in einem Inventar.",
-    "description": "{username}, dein Fortschritts-Hub wird geschmiedet. Belohnungen, Event-Schlüssel und verifizierte Badges landen alle hier, wenn v2 erscheint.",
-    "features": [
-      {
-        "title": "Belohnungen",
-        "body": "Hol dir saisonale Beute und Event-Belohnungen von den Servern, die du wirklich spielst."
-      },
-      {
-        "title": "Rätselschlüssel",
-        "body": "Schalte versteckte Herausforderungen und zeitlich begrenzte Jagden im gesamten Netzwerk frei."
-      },
-      {
-        "title": "Verdiente Badges",
-        "body": "Zeige verifizierte Erfolge, die beweisen, was du geleistet hast — nicht, was du gekauft hast."
-      }
-    ],
-    "waitlistNote": "{count} Spieler bereits auf der Warteliste",
-    "notifyCta": "Benachrichtige mich zum Start",
-    "notifiedLabel": "Du bist auf der Liste",
-    "countdownDaysLabel": "{count} Tage",
-    "countdownUntilLabel": "bis v2",
     "fallbackUsername": "Operator"
   },
   "debugPages": {
@@ -757,7 +662,7 @@
         "software": "Software"
       },
       "continueLabel": "Sieht richtig aus →",
-      "supportNote": "java · bedrock · hytale – alle unterstützt",
+      "supportNote": "java · bedrock – alle unterstützt",
       "errorUnreachable": "Wir konnten diesen Server nicht erreichen. Überprüfe Host und Port und versuche es erneut.",
       "softwareLabel": "Server-Software",
       "geyserLabel": "Dieser Java-Server akzeptiert auch Bedrock-Spieler (GeyserMC / Floodgate).",
@@ -780,9 +685,7 @@
       "verifyLabel": "Ich habe es hinzugefügt — verifizieren",
       "selectHint": "Wähle eine Methode, füge den Token hinzu und verifiziere dann.",
       "failedLabel": "Wir konnten deinen Token noch nicht finden. Füge ihn hinzu, warte kurz und versuche es erneut.",
-      "motdUnavailable": "Für Hytale nicht verfügbar – es gibt keine Live-MOTD. Nutze stattdessen DNS.",
-      "dnsUnavailable": "Für eine reine IP nicht verfügbar – richte eine Domain auf deinen Server, um DNS zu nutzen, oder verifiziere per MOTD.",
-      "noMethodHint": "Hytale mit reiner IP lässt sich noch nicht verifizieren. Richte eine Domain auf deinen Server und verifiziere per DNS."
+      "dnsUnavailable": "Für eine reine IP nicht verfügbar – richte eine Domain auf deinen Server, um DNS zu nutzen, oder verifiziere per MOTD."
     },
     "profile": {
       "title": "Stelle deine Welt vor.",

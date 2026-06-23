@@ -10,6 +10,4 @@ export const SOCIAL_LINKS = {
 
 export const EXTERNAL_LINKS = {
   founder: "https://kukso.com",
-  hytale: "https://hytale.com",
-  hytaleCountdown: "https://hytale.com/countdown",
 };

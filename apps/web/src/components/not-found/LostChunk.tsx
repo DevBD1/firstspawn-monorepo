@@ -16,9 +16,9 @@ import { PageBackdrop } from "@/components/ui/PagePrimitives";
  * header the proxy forwards, since not-found files receive no route params.
  */
 
-type Locale = "en" | "tr" | "de" | "ru" | "es" | "fr";
+type Locale = "en" | "tr" | "de";
 
-const LOCALES: readonly Locale[] = ["en", "tr", "de", "ru", "es", "fr"];
+const LOCALES: readonly Locale[] = ["en", "tr", "de"];
 
 interface Copy {
   eyebrow: string;
@@ -74,48 +74,6 @@ const COPY: Record<Locale, Copy> = {
     spawn: "Zum Spawn zurück",
     browse: "Server entdecken",
   },
-  ru: {
-    eyebrow: "Ошибка 404 · Чанк не найден",
-    heading: "Этот узел так и не появился.",
-    lead: "Запрошенные координаты ушли за край загруженного мира. Здесь, в пустоте, ничего не отрисовано.",
-    console: (p) => [
-      `> разрешение маршрута ${p}`,
-      "! чанк не загрузился по запрошенным координатам",
-      "> генератор мира вернул пустое пространство",
-    ],
-    coords: "последняя известная позиция",
-    hint: "этот чанк потерян — вернись в загруженную область",
-    spawn: "Вернуться к спавну",
-    browse: "Смотреть серверы",
-  },
-  es: {
-    eyebrow: "Error 404 · Chunk no encontrado",
-    heading: "Este nodo nunca apareció.",
-    lead: "Las coordenadas que pediste se alejaron del borde del mundo cargado. Aquí, en el vacío, no se renderiza nada.",
-    console: (p) => [
-      `> resolviendo ruta ${p}`,
-      "! el chunk no se cargó en las coordenadas pedidas",
-      "> el generador de mundo devolvió espacio vacío",
-    ],
-    coords: "última posición conocida",
-    hint: "este chunk se perdió — vuelve a una región cargada",
-    spawn: "Volver al spawn",
-    browse: "Explorar servidores",
-  },
-  fr: {
-    eyebrow: "Erreur 404 · Chunk introuvable",
-    heading: "Ce nœud n'est jamais apparu.",
-    lead: "Les coordonnées demandées ont dérivé au-delà du bord du monde chargé. Ici, dans le vide, rien n'est rendu.",
-    console: (p) => [
-      `> résolution de la route ${p}`,
-      "! échec du chargement du chunk aux coordonnées demandées",
-      "> le générateur de monde a renvoyé un espace vide",
-    ],
-    coords: "dernière position connue",
-    hint: "ce chunk a disparu — retournez vers une région chargée",
-    spawn: "Retour au point d'apparition",
-    browse: "Parcourir les serveurs",
-  },
 };
 
 function resolveLocale(pathname: string): Locale {
@@ -141,7 +99,7 @@ export default function LostChunk({ pathname }: { pathname: string }) {
   const copy = COPY[lang];
 
   // Strip the locale prefix so the console reads like an in-world path.
-  const requestedPath = pathname.replace(/^\/(en|tr|de|ru|es|fr)(?=\/|$)/, "") || "/";
+  const requestedPath = pathname.replace(/^\/(en|tr|de)(?=\/|$)/, "") || "/";
   const lines = copy.console(requestedPath);
   const coords = rollCoords();
 

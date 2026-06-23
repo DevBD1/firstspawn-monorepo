@@ -72,12 +72,10 @@
     "console": "CONSOLE",
     "discover": "DISCOVER",
     "forOwners": "FOR OWNERS",
-    "community": "COMMUNITY",
     "languageMenuLabel": "LANGUAGE",
     "logIn": "LOG IN",
     "logOut": "Log out",
     "menuLabel": "MENU",
-    "myLoot": "MY LOOT",
     "signIn": "Sign in",
     "signUp": "SIGN UP",
     "verifyEmail": "VERIFY EMAIL",
@@ -88,7 +86,7 @@
       "brandStatement": {
         "title": "A FAIRER GAME",
         "highlight": "IS POSSIBLE.",
-        "description": "The discovery ecosystem for Minecraft and Hytale servers. Built for real players, real trust, and the community."
+        "description": "The discovery ecosystem for Minecraft servers. Built for real players, real trust, and the community."
       },
       "benefitItems": [
         {
@@ -101,7 +99,7 @@
         },
         {
           "title": "CROSS-GAME POTENTIAL",
-          "description": "Designed for Minecraft, Hytale, and future worlds."
+          "description": "Designed for Minecraft and future worlds."
         }
       ],
       "legalLine": "Built for the community."
@@ -115,12 +113,9 @@
       "form": {
         "alternateCta": "SIGN UP",
         "alternatePrompt": "New to FirstSpawn?",
-        "dividerLabel": "OR",
-        "discordCta": "SIGN IN WITH DISCORD",
         "hidePasswordAriaLabel": "Hide password",
         "identifierLabel": "EMAIL OR USERNAME",
         "identifierPlaceholder": "steve@craft.com",
-        "passkeyCta": "SIGN IN WITH PASSKEY",
         "passwordLabel": "PASSWORD",
         "passwordPlaceholder": "Enter your password",
         "showPasswordAriaLabel": "Show password",
@@ -131,15 +126,13 @@
     "register": {
       "page": {
         "title": "START YOUR JOURNEY",
-        "subtitle": "Join the verified ecosystem for Minecraft and Hytale."
+        "subtitle": "Join the verified ecosystem for Minecraft."
       },
       "form": {
         "alternateCta": "LOG IN",
         "alternatePrompt": "Already have an account?",
         "confirmPasswordLabel": "CONFIRM PASSWORD",
         "confirmPasswordPlaceholder": "Repeat your password",
-        "discordCta": "CONTINUE WITH DISCORD",
-        "dividerLabel": "OR",
         "emailLabel": "EMAIL",
         "emailPlaceholder": "steve@craft.com",
         "hidePasswordAriaLabel": "Hide passwords",
@@ -254,7 +247,7 @@
       "statsLine": "{players} players online across {servers} worlds",
       "titleLine1": "Your next world",
       "titleLine2": "is out there.",
-      "subtitle": "Honest discovery for Minecraft & Hytale — ranked by real activity and community trust, never by who paid more.",
+      "subtitle": "Honest discovery for Minecraft — ranked by real activity and community trust, never by who paid more.",
       "searchPlaceholder": "Search worlds — “skyblock with an economy”",
       "searchSubmitLabel": "Explore"
     },
@@ -361,7 +354,6 @@
     "games": {
       "mcJava": "MC JAVA",
       "mcBedrock": "MC BEDROCK",
-      "hytale": "HYTALE",
       "fallback": "SERVER"
     },
     "modsRequired": {
@@ -378,7 +370,6 @@
       "gameNames": {
         "mcJava": "Minecraft",
         "mcBedrock": "Bedrock",
-        "hytale": "Hytale",
         "fallback": "Game"
       },
       "relativeTime": {
@@ -524,8 +515,7 @@
       "breadcrumbBack": "← Discover",
       "gameNames": {
         "mcJava": "Minecraft Java",
-        "mcBedrock": "Minecraft Bedrock",
-        "hytale": "Hytale"
+        "mcBedrock": "Minecraft Bedrock"
       },
       "updatedJustNow": "updated just now",
       "updatedRecently": "updated recently",
@@ -533,11 +523,6 @@
         "verifiedTooltip": "Ownership verified by FirstSpawn",
         "unverifiedTooltip": "Not yet verified",
         "verifiedByNote": "✓ verified by FirstSpawn"
-      },
-      "tabs": {
-        "overview": "Overview",
-        "discussion": "Discussion",
-        "discussionBadge": "v2"
       },
       "about": {
         "title": "About this world"
@@ -557,32 +542,6 @@
       },
       "similar": {
         "title": "Similar worlds"
-      },
-      "discussionTeaser": {
-        "badge": "Arriving in v2",
-        "lockLabel": "Locked",
-        "headline": "The room where reputation is earned.",
-        "tagline": "Verified, playtime-gated discussion — one account, one reputation. No bots, no brigading, no bought hype.",
-        "features": [
-          {
-            "title": "Playtime-gated voices",
-            "body": "Only players who've actually logged hours can post — reputation you can't farm."
-          },
-          {
-            "title": "Owner-signed updates",
-            "body": "Patch notes and events posted by the verified owner, pinned above the noise."
-          },
-          {
-            "title": "FirstSpawn-moderated",
-            "body": "Reports reach our team, not the owner — so the feedback stays honest."
-          }
-        ],
-        "waitlistNote": "{count} players already on the waitlist",
-        "notifyCta": "Notify me at launch",
-        "notifiedLabel": "You're on the list",
-        "countdownDaysLabel": "{count} days",
-        "countdownUntilLabel": "until v2",
-        "previewAria": "Preview of the upcoming discussion experience"
       },
       "sidebar": {
         "joinTitle": "Join",
@@ -610,7 +569,6 @@
           "english": "English",
           "seasonal": "Seasonal",
           "nonePlanned": "None planned",
-          "hytaleRelease": "Release 1.x",
           "mcJavaDefault": "1.21.x · Java"
         },
         "factsFootnote": "facts are owner-declared · checked against live pings"
@@ -633,63 +591,10 @@
       "noticeBody": "We're writing the full Privacy Policy. Until it's published, the summary above describes how we handle your data. Check back soon for the complete document."
     }
   },
-  "communityPage": {
-    "badge": "Arriving in v2",
-    "eyebrow": "Community",
-    "title": "A home for the people behind the worlds.",
-    "tagline": "Player passports, server logs, and creator spotlights — your whole journey, in one place.",
-    "description": "We're building a community layer where reputation, contributions, and the worlds you love all connect. It unlocks with v2.",
-    "features": [
-      {
-        "title": "Player passports",
-        "body": "One profile that travels with you — playtime, badges, and the servers you vouch for."
-      },
-      {
-        "title": "Living server logs",
-        "body": "Follow the worlds you care about and never miss a season, event, or wipe."
-      },
-      {
-        "title": "Creator spotlights",
-        "body": "Builders, mod authors, and event hosts get the credit they actually earned."
-      }
-    ],
-    "waitlistNote": "{count} players already on the waitlist",
-    "notifyCta": "Notify me at launch",
-    "notifiedLabel": "You're on the list",
-    "countdownDaysLabel": "{count} days",
-    "countdownUntilLabel": "until v2"
-  },
   "consolePage": {
     "badge": "COMMAND TERMINAL ONLINE",
     "title": "CONSOLE",
     "description": "Welcome back, {username}. Personal server analytics, verification controls, and account command tools will live in this panel.",
-    "fallbackUsername": "Operator"
-  },
-  "lootPage": {
-    "badge": "Arriving in v2",
-    "eyebrow": "My Loot",
-    "title": "Your loot vault is almost open.",
-    "tagline": "Reward drops, puzzle keys, and badge claims — everything you earn, in one inventory.",
-    "description": "{username}, your progression hub is being forged. Reward drops, event keys, and verified badges all land here when v2 ships.",
-    "features": [
-      {
-        "title": "Reward drops",
-        "body": "Claim seasonal loot and event rewards from the servers you actually play."
-      },
-      {
-        "title": "Puzzle keys",
-        "body": "Unlock hidden challenges and time-limited hunts across the network."
-      },
-      {
-        "title": "Earned badges",
-        "body": "Showcase verified achievements that prove what you've done, not what you bought."
-      }
-    ],
-    "waitlistNote": "{count} players already on the waitlist",
-    "notifyCta": "Notify me at launch",
-    "notifiedLabel": "You're on the list",
-    "countdownDaysLabel": "{count} days",
-    "countdownUntilLabel": "until v2",
     "fallbackUsername": "Operator"
   },
   "debugPages": {
@@ -757,7 +662,7 @@
         "software": "Software"
       },
       "continueLabel": "Looks right →",
-      "supportNote": "java · bedrock · hytale — all supported",
+      "supportNote": "java · bedrock — all supported",
       "errorUnreachable": "We couldn't reach that server. Double-check the host and port, then try again.",
       "softwareLabel": "Server software",
       "geyserLabel": "This Java server also accepts Bedrock players (GeyserMC / Floodgate).",
@@ -780,9 +685,7 @@
       "verifyLabel": "I've added it — verify",
       "selectHint": "Pick one method, add the token, then verify.",
       "failedLabel": "We couldn't find your token yet. Add it, give it a moment, then try again.",
-      "motdUnavailable": "Not available for Hytale — there's no live MOTD to read. Use DNS instead.",
-      "dnsUnavailable": "Not available for a raw IP — point a domain at your server to use DNS, or verify by MOTD.",
-      "noMethodHint": "Hytale on a bare IP can't be verified yet. Point a domain at your server and verify via DNS."
+      "dnsUnavailable": "Not available for a raw IP — point a domain at your server to use DNS, or verify by MOTD."
     },
     "profile": {
       "title": "Introduce your world.",

@@ -4,8 +4,9 @@ Router and global rules for AI agents working in `firstspawn-monorepo`.
 
 ## Project Snapshot
 
-FirstSpawn is a discovery and trust platform for game servers, starting with
-Hytale and expanding to Minecraft.
+FirstSpawn is a discovery and trust platform for game servers. The MVP is a
+web-first Minecraft Java (`mc_java`) discovery and voting platform; other games
+and platforms are post-MVP (see `PRODUCT.md` §3.1 and §20).
 
 Core thesis:
 

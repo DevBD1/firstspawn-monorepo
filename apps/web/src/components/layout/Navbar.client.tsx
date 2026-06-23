@@ -75,32 +75,6 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
       >
         {dictionary.nav.forOwners.toLowerCase()}
       </Link>
-
-      <Link
-        href={`/${lang}/community`}
-        className={
-          isMobile
-            ? "text-base font-bold text-foreground py-1"
-            : linkClass(isLinkActive(`/${lang}/community`))
-        }
-        onClick={closeMobileIfOpen}
-      >
-        {dictionary.nav.community.toLowerCase()}
-      </Link>
-
-      {isAuthenticated && (
-        <Link
-          href={`/${lang}/loot`}
-          className={
-            isMobile
-              ? "text-base font-bold text-foreground py-1"
-              : linkClass(isLinkActive(`/${lang}/loot`))
-          }
-          onClick={closeMobileIfOpen}
-        >
-          {dictionary.nav.myLoot.toLowerCase()}
-        </Link>
-      )}
     </div>
   );
 

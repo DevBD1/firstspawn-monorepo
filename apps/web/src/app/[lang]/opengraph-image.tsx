@@ -180,7 +180,7 @@ export default async function Image() {
           }}
         >
           Find your forever server. Real performance, genuine community, and rankings that
-          can&apos;t be bought — for Minecraft &amp; Hytale.
+          can&apos;t be bought — for Minecraft.
         </div>
       </div>
     </div>,

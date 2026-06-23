@@ -350,44 +350,6 @@ describe("listings integration", () => {
     expect(second.json().error.code).toBe("VALIDATION_ERROR");
   });
 
-  it("probes a Bedrock server via the Bedrock status protocol", async () => {
-    const user = await registerUser();
-    mocks.statusBedrock.mockResolvedValueOnce({
-      players: { online: 12, max: 40 },
-      version: { name: "1.21.40" },
-      motd: { clean: "Bedrock Realm" },
-    });
-
-    const response = await getContext().app.inject({
-      method: "POST",
-      url: "/api/v1/listings/probe",
-      headers: { authorization: `Bearer ${user.accessToken}` },
-      payload: { host: HOST, port: 19132, game: "mc_bedrock" },
-    });
-
-    expect(response.statusCode).toBe(200);
-    expect(response.json().data.reachable).toBe(true);
-    expect(response.json().data.online_players).toBe(12);
-    expect(mocks.statusBedrock).toHaveBeenCalledWith(HOST, 19132, expect.any(Object));
-    expect(mocks.status).not.toHaveBeenCalled();
-  });
-
-  it("rejects MOTD verification for Hytale (no MOTD protocol)", async () => {
-    const user = await registerUser();
-    await requestToken(user.accessToken);
-
-    const response = await getContext().app.inject({
-      method: "POST",
-      url: "/api/v1/listings/verification/check",
-      headers: { authorization: `Bearer ${user.accessToken}` },
-      payload: { host: HOST, port: PORT, method: "motd", game: "hytale" },
-    });
-
-    expect(response.statusCode).toBe(422);
-    expect(response.json().error.code).toBe("MOTD_UNSUPPORTED");
-    expect(mocks.status).not.toHaveBeenCalled();
-  });
-
   it("records Bedrock as a supported client when Geyser is enabled", async () => {
     const user = await registerUser();
     const proof = await obtainProof(user.accessToken);

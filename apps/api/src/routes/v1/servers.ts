@@ -30,7 +30,7 @@ type PublicServerListRow = {
   slug: string;
   name: string;
   description: string;
-  game: "mc_java" | "mc_bedrock" | "hytale";
+  game: "mc_java";
   status: "active" | "suspended" | "archived";
   countryCode: string | null;
   authMode: "official" | "offline_allowed" | "unknown";
@@ -56,7 +56,7 @@ type PublicStatsRow = {
 type PublicGeoRow = {
   slug: string;
   name: string;
-  game: "mc_java" | "mc_bedrock" | "hytale";
+  game: "mc_java";
   countryCode: string;
   latitude: number;
   longitude: number;
@@ -70,7 +70,10 @@ type PublicGeoRow = {
 
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
-const gameSchema = z.enum(["mc_java", "mc_bedrock", "hytale"]);
+// Minecraft Java is the only supported server platform (PRODUCT.md §3.1).
+const gameSchema = z.literal("mc_java");
+// Bedrock appears only as a supported client when a Java server enables Geyser.
+const clientNameSchema = z.enum(["mc_java", "mc_bedrock"]);
 const authModeSchema = z.enum(["official", "offline_allowed", "unknown"]);
 export const reachScopeSchema = z.enum(["local", "regional", "global"]);
 const publicListSortSchema = z.enum(["players", "ping"]);
@@ -109,7 +112,7 @@ const serverSocialSchema = z.object({
 });
 
 const serverSupportedClientSchema = z.object({
-  client_name: gameSchema,
+  client_name: clientNameSchema,
   client_version: z.string().trim().min(1).max(50),
 });
 
@@ -446,7 +449,7 @@ export const normalizeServerPayload = (
   description: string;
   host: string;
   port: number;
-  game: "mc_java" | "mc_bedrock" | "hytale";
+  game: "mc_java";
   catalog_status: "active" | "suspended" | "archived";
   freshness_status: "online" | "offline" | "unknown";
   auth_mode: "official" | "offline_allowed" | "unknown";
@@ -465,7 +468,7 @@ export const normalizeServerPayload = (
   description: server.description,
   host: server.host,
   port: server.port,
-  game: server.game as "mc_java" | "mc_bedrock" | "hytale",
+  game: server.game as "mc_java",
   catalog_status: server.status as "active" | "suspended" | "archived",
   freshness_status: freshnessFromServer(server, nowMs),
   auth_mode: server.authMode as "official" | "offline_allowed" | "unknown",
@@ -507,7 +510,7 @@ export const findServerMetadata = async (
       display_order: row.displayOrder,
     })),
     supported_clients: clientRows.map((row) => ({
-      client_name: row.clientName as z.infer<typeof gameSchema>,
+      client_name: row.clientName as z.infer<typeof clientNameSchema>,
       client_version: row.clientVersion,
     })),
   };

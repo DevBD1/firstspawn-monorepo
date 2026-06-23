@@ -129,7 +129,6 @@ function getRelativeTime(s: PublicServerListItem, rt: ServerRowCopy["relativeTim
 function getGameName(game: string, gameNames: ServerRowCopy["gameNames"]) {
   if (game === "mc_java") return gameNames.mcJava;
   if (game === "mc_bedrock") return gameNames.mcBedrock;
-  if (game === "hytale") return gameNames.hytale;
   return gameNames.fallback;
 }
 
@@ -301,10 +300,6 @@ function wlInterpretQuery(q: string) {
       out.game = "Minecraft";
       continue;
     }
-    if (t === "hytale") {
-      out.game = "Hytale";
-      continue;
-    }
     if (WL_QUERY_DEMONYMS[t]) {
       out.country = WL_QUERY_DEMONYMS[t];
       continue;
@@ -354,7 +349,7 @@ export default function DiscoverClient({
   const [peekServer, setPeekServer] = useState<PublicServerListItem | null>(null);
 
   // Filters State
-  const [selectedGame, setSelectedGame] = useState<"All" | "Minecraft" | "Hytale">("All");
+  const [selectedGame, setSelectedGame] = useState<"All" | "Minecraft">("All");
   const [selectedCountry, setSelectedCountry] = useState<string>("ALL");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<"Rank" | "Players" | "Votes">("Rank");
@@ -376,10 +371,9 @@ export default function DiscoverClient({
   };
 
   // Internal filter values stay stable tokens; only their labels localize.
-  const gameFilterLabels: Record<"All" | "Minecraft" | "Hytale", string> = {
+  const gameFilterLabels: Record<"All" | "Minecraft", string> = {
     All: copy.filters.allGames,
     Minecraft: "Minecraft",
-    Hytale: "Hytale",
   };
   const sortLabels: Record<"Rank" | "Players" | "Votes", string> = {
     Rank: copy.filters.sortOptions.rank,
@@ -443,12 +437,10 @@ export default function DiscoverClient({
         // Map filters to API parameters
         let apiGame: PublicServerGame | undefined = undefined;
         if (selectedGame === "Minecraft") apiGame = "mc_java";
-        else if (selectedGame === "Hytale") apiGame = "hytale";
 
         // If smart match is active, override with interpreted fields
         if (isSmartActive) {
           if (intent.game === "Minecraft") apiGame = "mc_java";
-          else if (intent.game === "Hytale") apiGame = "hytale";
         }
 
         const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
@@ -529,7 +521,6 @@ export default function DiscoverClient({
     try {
       let apiGame: PublicServerGame | undefined = undefined;
       if (selectedGame === "Minecraft") apiGame = "mc_java";
-      else if (selectedGame === "Hytale") apiGame = "hytale";
       const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
 
       const data = await loadMoreServers({
@@ -674,7 +665,7 @@ export default function DiscoverClient({
           <div>
             <h3 className={filterHeadingClass}>{copy.filters.gameTitle}</h3>
             <div className="flex flex-col gap-1.5">
-              {(["All", "Minecraft", "Hytale"] as const).map((g) => (
+              {(["All", "Minecraft"] as const).map((g) => (
                 <button
                   key={g}
                   onClick={() => setSelectedGame(g)}
