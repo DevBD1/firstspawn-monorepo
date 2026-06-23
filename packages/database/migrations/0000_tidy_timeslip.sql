@@ -252,24 +252,24 @@ CREATE TABLE "verification_tokens" (
 	CONSTRAINT "chk_verification_tokens_purpose" CHECK ("verification_tokens"."purpose" in ('email_verification', 'password_reset', 'account_restore'))
 );
 --> statement-breakpoint
-ALTER TABLE "server_heartbeat_daily" ADD CONSTRAINT "server_heartbeat_daily_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_heartbeat_hourly" ADD CONSTRAINT "server_heartbeat_hourly_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_heartbeats" ADD CONSTRAINT "server_heartbeats_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_media" ADD CONSTRAINT "server_media_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_moderation_logs" ADD CONSTRAINT "server_moderation_logs_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_moderation_logs" ADD CONSTRAINT "server_moderation_logs_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_socials" ADD CONSTRAINT "server_socials_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_supported_clients" ADD CONSTRAINT "server_supported_clients_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "server_tags" ADD CONSTRAINT "server_tags_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "public"."servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "servers" ADD CONSTRAINT "servers_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "servers" ADD CONSTRAINT "servers_country_code_countries_iso_a_2_fk" FOREIGN KEY ("country_code") REFERENCES "public"."countries"("iso_a_2") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_consent_audit_logs" ADD CONSTRAINT "user_consent_audit_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_deletion_requests" ADD CONSTRAINT "user_deletion_requests_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_moderation_logs" ADD CONSTRAINT "user_moderation_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_moderation_logs" ADD CONSTRAINT "user_moderation_logs_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "users" ADD CONSTRAINT "users_country_code_countries_iso_a_2_fk" FOREIGN KEY ("country_code") REFERENCES "public"."countries"("iso_a_2") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "verification_tokens" ADD CONSTRAINT "verification_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_heartbeat_daily" ADD CONSTRAINT "server_heartbeat_daily_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_heartbeat_hourly" ADD CONSTRAINT "server_heartbeat_hourly_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_heartbeats" ADD CONSTRAINT "server_heartbeats_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_media" ADD CONSTRAINT "server_media_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_moderation_logs" ADD CONSTRAINT "server_moderation_logs_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_moderation_logs" ADD CONSTRAINT "server_moderation_logs_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_socials" ADD CONSTRAINT "server_socials_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_supported_clients" ADD CONSTRAINT "server_supported_clients_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "server_tags" ADD CONSTRAINT "server_tags_server_id_servers_id_fk" FOREIGN KEY ("server_id") REFERENCES "servers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "servers" ADD CONSTRAINT "servers_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "servers" ADD CONSTRAINT "servers_country_code_countries_iso_a_2_fk" FOREIGN KEY ("country_code") REFERENCES "countries"("iso_a_2") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_consent_audit_logs" ADD CONSTRAINT "user_consent_audit_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_deletion_requests" ADD CONSTRAINT "user_deletion_requests_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_moderation_logs" ADD CONSTRAINT "user_moderation_logs_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_moderation_logs" ADD CONSTRAINT "user_moderation_logs_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "users" ADD CONSTRAINT "users_country_code_countries_iso_a_2_fk" FOREIGN KEY ("country_code") REFERENCES "countries"("iso_a_2") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "verification_tokens" ADD CONSTRAINT "verification_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "countries_name_unique" ON "countries" USING btree ("name");--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeat_daily_bucket_date" ON "server_heartbeat_daily" USING btree ("bucket_date");--> statement-breakpoint
 CREATE INDEX "idx_server_heartbeat_hourly_bucket_start" ON "server_heartbeat_hourly" USING btree ("bucket_start");--> statement-breakpoint

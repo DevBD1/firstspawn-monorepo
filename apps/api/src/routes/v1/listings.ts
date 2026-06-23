@@ -20,12 +20,7 @@ import {
   issueListingOwnershipProof,
   TokenDecodeError,
 } from "../../lib/security.js";
-import {
-  assertPublicHost,
-  gameSupportsMotd,
-  probeServer,
-  type ListingGame,
-} from "../../services/minecraft-probe.js";
+import { assertPublicHost, probeServer, type ListingGame } from "../../services/minecraft-probe.js";
 import {
   buildTemporarySlug,
   duplicateFieldFromError,
@@ -320,15 +315,6 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
       const port = request.body.port;
       const game = request.body.game;
 
-      if (request.body.method === "motd" && !gameSupportsMotd(game)) {
-        throw new ApiError({
-          statusCode: 422,
-          code: "MOTD_UNSUPPORTED",
-          message: "MOTD verification is not available for this server type. Use DNS instead.",
-          details: { method: "motd", game },
-        });
-      }
-
       const expectedToken = deriveListingVerificationToken(
         { userId: user.id, host, port },
         app.config
@@ -408,15 +394,6 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
       }
 
       await assertPublicHost(host);
-
-      if (body.method === "motd" && !gameSupportsMotd(body.game)) {
-        throw new ApiError({
-          statusCode: 422,
-          code: "MOTD_UNSUPPORTED",
-          message: "MOTD verification is not available for this server type. Use DNS instead.",
-          details: { field: "method", game: body.game },
-        });
-      }
 
       // One active listing per exact host:port (different ports on the same host are allowed).
       const existingAddress = await app.db.db.query.servers.findFirst({

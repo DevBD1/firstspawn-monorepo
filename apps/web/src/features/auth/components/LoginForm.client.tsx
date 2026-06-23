@@ -55,75 +55,73 @@ export default function LoginForm({
       ) : null}
 
       <div className="space-y-4">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className={AUTH_LABEL_CLASS} htmlFor="login-identifier">
-              {copy.identifierLabel}
-            </label>
-            <div className="relative">
-              <Mail className={AUTH_ICON_CLASS} />
-              <input
-                id="login-identifier"
-                name="identifier"
-                type="text"
-                required
-                minLength={3}
-                autoComplete="username"
-                placeholder={copy.identifierPlaceholder}
-                className={authInputClass("px-10")}
-              />
-            </div>
-            {fieldErrors.identifier ? (
-              <p className={AUTH_FIELD_ERROR_CLASS}>{fieldErrors.identifier}</p>
-            ) : null}
+        <div className="space-y-2">
+          <label className={AUTH_LABEL_CLASS} htmlFor="login-identifier">
+            {copy.identifierLabel}
+          </label>
+          <div className="relative">
+            <Mail className={AUTH_ICON_CLASS} />
+            <input
+              id="login-identifier"
+              name="identifier"
+              type="text"
+              required
+              minLength={3}
+              autoComplete="username"
+              placeholder={copy.identifierPlaceholder}
+              className={authInputClass("px-10")}
+            />
           </div>
-
-          <div className="space-y-2">
-            <label className={AUTH_LABEL_CLASS} htmlFor="login-password">
-              {copy.passwordLabel}
-            </label>
-            <div className="relative">
-              <input
-                id="login-password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                required
-                minLength={8}
-                autoComplete="current-password"
-                placeholder={copy.passwordPlaceholder}
-                className={authInputClass("px-4 pr-12")}
-              />
-              <button
-                type="button"
-                onClick={toggle}
-                className={AUTH_PASSWORD_TOGGLE_CLASS}
-                aria-label={showPassword ? copy.hidePasswordAriaLabel : copy.showPasswordAriaLabel}
-              >
-                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-              </button>
-            </div>
-            {fieldErrors.password ? (
-              <p className={AUTH_FIELD_ERROR_CLASS}>{fieldErrors.password}</p>
-            ) : null}
-          </div>
-
-          {message ? (
-            <div className="rounded-control border border-danger/40 bg-danger/10 px-4 py-3 font-ui text-base text-danger">
-              {message}
-            </div>
+          {fieldErrors.identifier ? (
+            <p className={AUTH_FIELD_ERROR_CLASS}>{fieldErrors.identifier}</p>
           ) : null}
-
-          {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
-            <div className="flex justify-center">
-              <Turnstile
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-                options={{ theme: "dark" }}
-              />
-            </div>
-          ) : null}
-
-          <AuthSubmitButton label={copy.submitLabel} pendingLabel={copy.submitPendingLabel} />
         </div>
+
+        <div className="space-y-2">
+          <label className={AUTH_LABEL_CLASS} htmlFor="login-password">
+            {copy.passwordLabel}
+          </label>
+          <div className="relative">
+            <input
+              id="login-password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={8}
+              autoComplete="current-password"
+              placeholder={copy.passwordPlaceholder}
+              className={authInputClass("px-4 pr-12")}
+            />
+            <button
+              type="button"
+              onClick={toggle}
+              className={AUTH_PASSWORD_TOGGLE_CLASS}
+              aria-label={showPassword ? copy.hidePasswordAriaLabel : copy.showPasswordAriaLabel}
+            >
+              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+          {fieldErrors.password ? (
+            <p className={AUTH_FIELD_ERROR_CLASS}>{fieldErrors.password}</p>
+          ) : null}
+        </div>
+
+        {message ? (
+          <div className="rounded-control border border-danger/40 bg-danger/10 px-4 py-3 font-ui text-base text-danger">
+            {message}
+          </div>
+        ) : null}
+
+        {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+              options={{ theme: "dark" }}
+            />
+          </div>
+        ) : null}
+
+        <AuthSubmitButton label={copy.submitLabel} pendingLabel={copy.submitPendingLabel} />
       </div>
 
       <div className="mt-8 border-t border-border pt-6">

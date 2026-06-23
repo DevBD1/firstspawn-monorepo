@@ -10,10 +10,6 @@ import { ApiError } from "../lib/api-error.js";
  */
 export type ListingGame = "mc_java" | "mc_bedrock";
 
-/** Whether a given game can be probed for a live MOTD (needed for MOTD-based ownership). */
-export const gameSupportsMotd = (game: ListingGame): boolean =>
-  game === "mc_java" || game === "mc_bedrock";
-
 /** Result of a live status probe against a server. */
 export interface MinecraftProbeResult {
   reachable: boolean;
