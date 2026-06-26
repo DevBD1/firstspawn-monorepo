@@ -5,7 +5,7 @@ import { ApiError } from "../lib/api-error.js";
 
 /**
  * Client families a listing can reference. The server platform is always
- * `mc_java` (PRODUCT.md §3.1); `mc_bedrock` only appears as a supported client
+ * `mc_java` (docs/releases/v1-mvp.md §3.1); `mc_bedrock` only appears as a supported client
  * when a Java server enables Geyser.
  */
 export type ListingGame = "mc_java" | "mc_bedrock";

@@ -27,7 +27,7 @@
 > - Added two net-new discovery surfaces, "New & rising" and editorial
 >   "Featured" (§8.6), to close a core-promise gap.
 > - Vote rank is stated honestly as inflatable by a determined live server; it
->   is not claimed fraud-proof (`PRODUCT.md` §1.1, §12.5).
+>   is not claimed fraud-proof (`PRODUCT.md` §1.1; §12.5 below).
 > - The public voter leaderboard stays public at a fixed top 10 for MVP
 >   (owner-configurable size is post-MVP) and is now an explicit legal-review
 >   and launch-gate item (§14, §17.1, §19).

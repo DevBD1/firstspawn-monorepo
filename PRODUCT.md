@@ -118,8 +118,9 @@ release file, not by accretion in derived docs.
 
 - Each release has its own scope file under `docs/releases/` and moves through
   `draft → frozen → shipped → superseded`.
-- A new version is a **new file**, never an edit to a shipped one; shipped scope
-  files are immutable historical snapshots.
+- A new version is a **new file**, never an edit to a shipped one. A shipped
+  scope file's *content* is an immutable historical snapshot; the only permitted
+  change is its lifecycle status marker in the header (e.g. `shipped → superseded`).
 - Pure refactors, trims, and production plumbing do not touch `PRODUCT.md` or a
   frozen release file — they are implementation, tracked in `PLAN.md`.
 
@@ -134,7 +135,8 @@ release file, not by accretion in derived docs.
 4. Freeze the release file (`frozen`) before building; sequence the build in
    `PLAN.md`.
 5. On ship: set the release `shipped`, tag the release in git, append a dated
-   `CHANGELOG.md` entry, and mark the prior release `superseded`.
+   `CHANGELOG.md` entry, and mark the prior release `superseded` (a status-only
+   header change permitted by §5.3; its scope content stays frozen).
 
 ### 5.5 Amendments
 
