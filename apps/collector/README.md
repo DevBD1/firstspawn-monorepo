@@ -1,5 +1,10 @@
 # @firstspawn/collector
 
+> **What this answers** — The collector service: runtime, env, heartbeat
+> behavior, and validation.
+>
+> **Open when** — You're working on heartbeat collection or freshness.
+
 Heartbeat collector for active game-server targets. The collector asks the API
 for active targets, probes `mc_java` servers, and sends heartbeat or probe
 failure payloads back to the API.

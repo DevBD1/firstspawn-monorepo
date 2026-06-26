@@ -1,5 +1,9 @@
 # @firstspawn/database
 
+> **What this answers** — The database package: migration workflow and commands.
+>
+> **Open when** — You're generating or running migrations.
+
 Database workspace for the Drizzle runtime schema, shared database client,
 migrations, and local PostgreSQL bootstrap assets.
 

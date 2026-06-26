@@ -41,12 +41,14 @@ Environment, if relevant:
 <!-- Check every source of truth affected by this PR. -->
 
 - [ ] No docs/source-of-truth changes needed
+- [ ] `PRODUCT.md` (vision/principles/governance — rare)
+- [ ] `docs/releases/<active>.md` (version feature scope)
+- [ ] `CHANGELOG.md` (shipped a version)
 - [ ] `DESIGN.md`
 - [ ] Service README
 - [ ] `packages/database/schema-design.md`
-- [ ] `PRODUCT.md`
 - [ ] `PLAN.md`
-- [ ] `docs/implementation-history/`
+- [ ] `docs/archive/` (implementation notes / superseded docs)
 - [ ] `.agents/skills/*`
 
 Repo hygiene:

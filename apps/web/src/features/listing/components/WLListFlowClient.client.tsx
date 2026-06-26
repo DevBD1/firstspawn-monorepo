@@ -17,7 +17,7 @@ import {
   type VerificationMethod,
 } from "@/app/actions/listing";
 
-// Minecraft Java is the only supported server platform (PRODUCT.md §3.1). Bedrock
+// Minecraft Java is the only supported server platform (docs/releases/v1-mvp.md §3.1). Bedrock
 // client compatibility is surfaced separately via the Geyser flag, not as its own
 // platform.
 const WL_GAMES: ReadonlyArray<{ id: ListingGame; defaultPort: number }> = [

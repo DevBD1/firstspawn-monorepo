@@ -1,5 +1,11 @@
 # FirstSpawn Database Schema Design
 
+> **What this answers** — The canonical database design: tables, relationships,
+> and the reasoning behind them.
+>
+> **Open when** — You're changing the schema, writing a migration, or reasoning
+> about the data model.
+
 ## MVP Schema (v1)
 
 v1 is intentionally focused:

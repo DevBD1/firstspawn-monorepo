@@ -1,5 +1,10 @@
 # Design System: FirstSpawn — Worldlight
 
+> **What this answers** — The product UI/UX system: visual language, tokens,
+> components, and screen flows.
+>
+> **Open when** — You're building or changing anything users see.
+>
 > Replaces the retired "Pixel" direction. Drop-in replacement for the
 > root `DESIGN.md`; pair with `handoff/tokens.ts` →
 > `packages/ui/src/branding/tokens.ts`.

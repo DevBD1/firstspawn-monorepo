@@ -1,6 +1,6 @@
 ---
 name: firstspawn-git-release-flow
-description: Use for FirstSpawn git workflow tasks, branch creation, worktree setup, preserving dirty or staged work, pre-commit hook fixes, lint-staged failures, commit and push requests, and release handoff summaries.
+description: Use for FirstSpawn git workflow tasks, branch creation, worktree setup, preserving dirty or staged work, pre-commit hook fixes, lint-staged failures, commit and push requests, release tagging and CHANGELOG updates, and release handoff summaries.
 ---
 
 # FirstSpawn Git Release Flow
@@ -51,6 +51,23 @@ Then verify both trees before editing.
 3. Stage only intended files.
 4. Commit with a concise semantic message.
 5. Push only when the user asked for push.
+
+## Release Publishing
+
+The release lifecycle (`draft → frozen → shipped → superseded`) and the full
+publish process are canonical in `PRODUCT.md` §5.3–§5.4. This skill covers only
+the git-side actions when a version ships:
+
+- A new version is a new `docs/releases/<version>.md` file, never an edit to a
+  shipped one; it must be `frozen` before building.
+- On ship: set the release file to `shipped`, then tag the release with an
+  annotated tag that matches it (e.g. `git tag -a v1-mvp -m "v1 MVP"`).
+- Append a dated entry to `CHANGELOG.md` linking the frozen release file, and
+  mark the prior release `superseded`.
+- Push the branch and tags only when asked: `git push --follow-tags`.
+- Refactors, trims, and production plumbing are implementation, not a release:
+  they never touch `PRODUCT.md` or a frozen release file — track them in
+  `PLAN.md`.
 
 ## Useful Commands
 

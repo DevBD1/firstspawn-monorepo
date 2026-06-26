@@ -53,7 +53,7 @@ const LISTING_TAGS = [
 ] as const;
 
 const verificationMethodSchema = z.enum(["motd", "dns"]);
-// Minecraft Java is the only supported server platform (PRODUCT.md §3.1).
+// Minecraft Java is the only supported server platform (docs/releases/v1-mvp.md §3.1).
 const gameSchema = z.literal("mc_java");
 // Bedrock appears only as a supported client when a Java server enables Geyser.
 const clientNameSchema = z.enum(["mc_java", "mc_bedrock"]);

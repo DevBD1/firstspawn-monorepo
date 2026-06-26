@@ -70,7 +70,7 @@ type PublicGeoRow = {
 
 const adminStatusSchema = z.enum(["active", "suspended", "archived"]);
 const freshnessStatusSchema = z.enum(["online", "offline", "unknown"]);
-// Minecraft Java is the only supported server platform (PRODUCT.md §3.1).
+// Minecraft Java is the only supported server platform (docs/releases/v1-mvp.md §3.1).
 const gameSchema = z.literal("mc_java");
 // Bedrock appears only as a supported client when a Java server enables Geyser.
 const clientNameSchema = z.enum(["mc_java", "mc_bedrock"]);
