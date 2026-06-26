@@ -28,7 +28,7 @@ authoritative only within its own domain (release scope, UI, runtime, schema).
 If any doc contradicts a `PRODUCT.md` principle, `PRODUCT.md` wins.
 
 The full ordered map is canonical in `PRODUCT.md` §5.2 and routed in `AGENTS.md`
-(step 1 of First Check) — read it there rather than maintaining a third copy
+under "Source Of Truth" — read it there rather than maintaining a third copy
 here.
 
 ## Repo Boundaries

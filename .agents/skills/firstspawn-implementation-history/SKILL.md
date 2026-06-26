@@ -28,8 +28,8 @@ Use this after meaningful planned work that future agents should understand. Do 
 - Mention failed or skipped verification when relevant.
 - Do not turn implementation history into a task list. Put roadmap/future standards in `PLAN.md`.
 - Do not duplicate product, UI, API, database, or runtime rulebooks here. A
-  version's feature scope belongs in its `docs/releases/` file and shipped
-  history in `CHANGELOG.md`, not in an implementation-history entry.
+  version's feature scope belongs in its `docs/releases/<version>.md` file and
+  shipped history in `CHANGELOG.md`, not in an implementation-history entry.
 
 ## Entry Shape
 
