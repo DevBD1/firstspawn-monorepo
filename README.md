@@ -1,6 +1,8 @@
 # FirstSpawn
 
-Discovery and trust platform for game servers, starting with Hytale and Minecraft.
+Discovery and trust platform for game servers. The first release is a web-first
+Minecraft Java (`mc_java`) discovery and voting platform; other games and
+platforms are post-MVP.
 
 [![CI](https://github.com/devbd1/firstspawn-monorepo/actions/workflows/ci.yml/badge.svg)](https://github.com/devbd1/firstspawn-monorepo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -271,10 +273,12 @@ pnpm --dir packages/database run generate
 
 ## Documentation
 
-- [`docs/implementation-history/`](docs/implementation-history): completed or accepted implementation notes
-- [`PRODUCT.md`](PRODUCT.md): product scope, users, non-goals, and success criteria
-- [`PLAN.md`](PLAN.md): roadmap and recommended next standards
+- [`PRODUCT.md`](PRODUCT.md): product constitution — vision, principles, identity, and documentation governance (apex source of truth)
+- [`docs/releases/`](docs/releases): per-version frozen feature scope (active: [`v1-mvp.md`](docs/releases/v1-mvp.md))
+- [`CHANGELOG.md`](CHANGELOG.md): append-only ledger of shipped versions
+- [`PLAN.md`](PLAN.md): live execution tracker (now/next/later) for the active release
 - [`DESIGN.md`](DESIGN.md): UI/UX design system baseline (visual language, tokens, component style)
+- [`docs/archive/`](docs/archive): superseded docs and completed implementation notes
 - [`apps/api/README.md`](apps/api/README.md): API runtime, endpoints, and tests
 - [`apps/collector/README.md`](apps/collector/README.md): collector runtime, env, and validation
 - [`packages/database/README.md`](packages/database/README.md): database
@@ -290,7 +294,8 @@ firstspawn-monorepo/
 │   ├── mobile/
 │   └── web/
 ├── docs/
-│   └── implementation-history/
+│   ├── archive/
+│   └── releases/
 ├── infrastructure/
 └── packages/
     ├── config/

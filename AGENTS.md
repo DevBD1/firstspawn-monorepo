@@ -6,7 +6,7 @@ Router and global rules for AI agents working in `firstspawn-monorepo`.
 
 FirstSpawn is a discovery and trust platform for game servers. The MVP is a
 web-first Minecraft Java (`mc_java`) discovery and voting platform; other games
-and platforms are post-MVP (see `PRODUCT.md` §3.1 and §20).
+and platforms are post-MVP (see `docs/releases/v1-mvp.md` §3.1 and §20).
 
 Core thesis:
 
@@ -18,13 +18,21 @@ Core thesis:
 
 When files disagree, use this order:
 
-1. `DESIGN.md`: only product UI/UX source of truth.
-2. Service READMEs: service runtime, setup, commands, and endpoint state.
-3. `packages/database/schema-design.md`: canonical database design.
-4. `PRODUCT.md`: product scope, users, non-goals, and success criteria.
-5. `PLAN.md`: roadmap and recommended next standards.
-6. `.agents/skills/*`: task workflows and checklists only.
-7. Root `README.md`: repo overview and shared setup.
+1. `PRODUCT.md`: product constitution — vision, principles, identity, and
+   governance (apex; nothing may contradict its principles).
+2. `docs/releases/<active>.md`: current version feature scope (active:
+   `docs/releases/v1-mvp.md`).
+3. `DESIGN.md`: product UI/UX source of truth.
+4. Service READMEs: service runtime, setup, commands, and endpoint state.
+5. `packages/database/schema-design.md`: canonical database design.
+6. `PLAN.md`: live execution sequencing for the active release.
+7. `CHANGELOG.md`: shipped-version history.
+8. `.agents/skills/*`: task workflows and checklists only.
+9. Root `README.md`: repo overview and shared setup.
+
+Each domain doc is authoritative within its domain; if one contradicts a
+`PRODUCT.md` principle, `PRODUCT.md` wins and the domain doc is corrected. See
+`PRODUCT.md` §5 for the full document map and release lifecycle.
 
 Keep this file as a router. Do not add detailed UI/UX, API, database,
 collector, or i18n rulebooks here.
@@ -44,7 +52,8 @@ firstspawn-monorepo/
 │   ├── config/           # Shared ESLint config
 │   └── typescript-config/# Shared TS configs
 ├── docs/
-│   └── implementation-history/   # Completed or accepted implementation notes
+│   ├── releases/                 # Per-version frozen feature scope
+│   └── archive/                  # Superseded docs + completed implementation notes
 └── infrastructure/       # Operational scripts and infra notes
 ```
 
@@ -77,9 +86,11 @@ firstspawn-monorepo/
 ## Documentation And Secrets
 
 - Keep `docs/` minimal.
-- Use `docs/implementation-history/` for completed or accepted implementation
-  notes that should survive cleanup.
-- Put product scope and future product ideas in `PRODUCT.md`.
+- Use `docs/archive/` for completed implementation notes and superseded docs
+  that should survive cleanup.
+- Put durable vision, principles, and governance in `PRODUCT.md`; put a
+  version's feature scope and future-feature exclusions in the active release
+  file under `docs/releases/`; record shipped versions in `CHANGELOG.md`.
 - Put service-specific runtime details in the nearest service README.
 - Put product UI/UX baseline changes only in `DESIGN.md`.
 - Never commit `.env` files.

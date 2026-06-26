@@ -1,6 +1,6 @@
 ---
 name: firstspawn-implementation-history
-description: Use after meaningful FirstSpawn implementation work to record concise continuation notes in docs/implementation-history, including plan, implementation, verification, risks, and follow-ups.
+description: Use after meaningful FirstSpawn implementation work to record concise continuation notes in docs/archive, including plan, implementation, verification, risks, and follow-ups.
 ---
 
 # FirstSpawn Implementation History
@@ -9,18 +9,20 @@ Use this after meaningful planned work that future agents should understand. Do 
 
 ## Source Files
 
-- History folder: `docs/implementation-history/`
+- History folder: `docs/archive/`
 - Entry template: `templates/entry.md`
 - Repo router: `AGENTS.md`
-- Product truth: `PRODUCT.md`
-- Roadmap truth: `PLAN.md`
+- Product principles/governance: `PRODUCT.md`
+- Version feature scope: `docs/releases/<active>.md` (active: `docs/releases/v1-mvp.md`)
+- Execution truth: `PLAN.md`
+- Shipped-version history: `CHANGELOG.md`
 - UI/UX truth: `DESIGN.md`
 - Service runtime truth: nearest service README
 
 ## Rules
 
 - Keep entries factual and short.
-- Use one file per meaningful change: `docs/implementation-history/YYYY-MM-DD-short-title.md`.
+- Use one file per meaningful change: `docs/archive/YYYY-MM-DD-short-title.md`.
 - Use `templates/entry.md` as the required entry format.
 - Record what changed, why it matters, and how it was verified.
 - Mention failed or skipped verification when relevant.
