@@ -1,5 +1,9 @@
 # Changelog
 
+> **What this answers** — Which FirstSpawn versions have shipped, and when.
+>
+> **Open when** — You want to know what's been released.
+
 Shipped FirstSpawn versions, newest first. Each entry links the frozen scope
 file in `docs/releases/`. This is the append-only ledger of what shipped; the
 *plan* for current work lives in `PLAN.md`, and durable product governance lives

@@ -1,5 +1,10 @@
 # 🛡️ FirstSpawn Veritabanı Yedekleme ve Kurtarma Rehberi
 
+> **Bu döküman ne anlatır** — Stack'in PostgreSQL veritabanını yedekleme ve geri
+> yükleme adımları.
+>
+> **Ne zaman aç** — Yedek kurarken, alırken veya bir yedeği geri yüklerken.
+
 Bu döküman, FirstSpawn monorepo altyapısının PostgreSQL veritabanını Google Drive üzerine yedekleme ve olası bir felaket anında geri yükleme adımlarını içerir.
 
 ---

@@ -1,5 +1,11 @@
 # FirstSpawn Plan — Execution Tracker
 
+> **What this answers** — What's being worked on now, next, and later for the
+> active release.
+>
+> **Open when** — You want the current state of execution or the next task to
+> pick up.
+
 Live now/next/later for the **active release**. Derived from the current release
 scope; it rolls forward each cycle and is never frozen. For *what a version is*,
 see the release file; for *what has shipped*, see `CHANGELOG.md`; for product

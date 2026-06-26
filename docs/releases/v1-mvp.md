@@ -1,5 +1,11 @@
 # FirstSpawn v1 — MVP (Public Beta) Scope
 
+> **What this answers** — The exact v1 (MVP) feature scope: what ships, what does
+> not, acceptance criteria, and the launch gate.
+>
+> **Open when** — You're building or reviewing a v1 feature and need to know if
+> it's in scope.
+>
 > Status: **frozen 2026-06-22**, amended 2026-06-24. Lifecycle:
 > draft → frozen → shipped → superseded.
 >

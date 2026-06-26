@@ -1,5 +1,10 @@
 # @firstspawn/api
 
+> **What this answers** — The API service: runtime, endpoints, auth, and how to
+> run its tests.
+>
+> **Open when** — You're working on the API.
+
 Fastify production API with Zod validation, Drizzle-backed PostgreSQL access,
 and database schema/client primitives consumed from `@firstspawn/database`.
 

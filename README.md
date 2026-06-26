@@ -1,5 +1,11 @@
 # FirstSpawn
 
+> **What this answers** — What FirstSpawn is, how to set it up and run it
+> locally, and where to find every other doc.
+>
+> **Open when** — You're setting up, running services, or hunting for the right
+> doc to read next.
+
 Discovery and trust platform for game servers. The first release is a web-first
 Minecraft Java (`mc_java`) discovery and voting platform; other games and
 platforms are post-MVP.
@@ -273,16 +279,26 @@ pnpm --dir packages/database run generate
 
 ## Documentation
 
-- [`PRODUCT.md`](PRODUCT.md): product constitution — vision, principles, identity, and documentation governance (apex source of truth)
-- [`docs/releases/`](docs/releases): per-version frozen feature scope (active: [`v1-mvp.md`](docs/releases/v1-mvp.md))
-- [`CHANGELOG.md`](CHANGELOG.md): append-only ledger of shipped versions
-- [`PLAN.md`](PLAN.md): live execution tracker (now/next/later) for the active release
-- [`DESIGN.md`](DESIGN.md): UI/UX design system baseline (visual language, tokens, component style)
-- [`docs/archive/`](docs/archive): superseded docs and completed implementation notes
-- [`apps/api/README.md`](apps/api/README.md): API runtime, endpoints, and tests
-- [`apps/collector/README.md`](apps/collector/README.md): collector runtime, env, and validation
-- [`packages/database/README.md`](packages/database/README.md): database
-  migration workflow
+You don't read these front-to-back. Find the doc by the question you arrive with.
+Every human-facing doc opens with a **What this answers / Open when** header, so
+you can tell in seconds whether to keep reading.
+
+| I want to… | Read |
+| --- | --- |
+| Understand what FirstSpawn is and always will be | [`PRODUCT.md`](PRODUCT.md) — read once |
+| Know if a feature is in scope for v1 | [`docs/releases/v1-mvp.md`](docs/releases/v1-mvp.md) |
+| See what's being worked on now / next | [`PLAN.md`](PLAN.md) |
+| See what has shipped | [`CHANGELOG.md`](CHANGELOG.md) |
+| Build or change something users see | [`DESIGN.md`](DESIGN.md) |
+| Work on the API | [`apps/api/README.md`](apps/api/README.md) |
+| Work on the collector / freshness | [`apps/collector/README.md`](apps/collector/README.md) |
+| Change the database or write a migration | [`schema-design.md`](packages/database/schema-design.md) · [`database/README`](packages/database/README.md) |
+| Set up or restore a backup | [`infrastructure/ops/BACKUP_GUIDE.md`](infrastructure/ops/BACKUP_GUIDE.md) |
+| Dig into a past implementation decision | [`docs/archive/`](docs/archive) |
+
+For **who owns what** and the precedence order when docs disagree, see
+[`PRODUCT.md` §5](PRODUCT.md) — the canonical document map and governance. (The
+`.agents/skills/` files and `AGENTS.md` are written for AI agents, not for you.)
 
 ## Repository Layout
 

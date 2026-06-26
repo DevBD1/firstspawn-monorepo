@@ -1,10 +1,11 @@
 # FirstSpawn Product
 
-> The product constitution: FirstSpawn's durable vision, principles, identity,
-> and documentation governance. It is the apex source of truth — stable and
-> rarely changed. Version-specific feature scope lives in `docs/releases/`
-> (active: `docs/releases/v1-mvp.md`); see §5 for the full document map and the
-> rules for changing any of this.
+> **What this answers** — FirstSpawn's durable vision, principles, identity, and
+> the governance rules every other doc follows. The apex source of truth.
+>
+> **Open when** — You need to know what FirstSpawn always is, or which doc owns
+> what (version scope, UI, schema, runtime all delegate out from §5). Read once;
+> it changes rarely.
 
 ## 1. Product Direction
 
@@ -80,7 +81,9 @@ detail and live in the active release scope.
 `PRODUCT.md` is the **apex** source of truth: it owns vision, principles,
 identity, and these governance rules, and nothing in the repository may
 contradict its principles. It deliberately **delegates** everything else to the
-document that owns that domain.
+document that owns that domain. This section is the authoritative ownership and
+precedence map; for a task-oriented "where do I go" index, see the README's
+Documentation section.
 
 ### 5.1 Document Map
 
