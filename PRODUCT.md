@@ -1,12 +1,29 @@
 # FirstSpawn Product
 
-> Status: approved MVP scope, frozen on 2026-06-22.
+> Status: approved MVP scope, frozen on 2026-06-22. Canonical source of truth.
 >
-> This document defines the target product. It does not claim that every
-> requirement is implemented. Service READMEs describe current runtime and
-> endpoint state; `packages/database/schema-design.md` describes the current
-> canonical database design. `PLAN.md` must be derived from this scope and must
-> not silently redefine it.
+> This document is the single canonical source of truth for FirstSpawn. It
+> defines the target product and the approved MVP scope. It does not claim that
+> every requirement is implemented.
+>
+> `PLAN.md`, `DESIGN.md`, `packages/database/schema-design.md`, and the service
+> READMEs are derived, subordinate documents. They may add implementation,
+> runtime, schema, or UI/UX detail, but must conform to this document and must
+> not redefine, broaden, or contradict its scope. On any conflict, this document
+> prevails and the derived document is corrected.
+>
+> **Amendment 2026-06-24** (design review, via the §21 production-blocker
+> clause; the 2026-06-22 freeze otherwise stands):
+>
+> - Default ranking now excludes fully `offline` servers from the "Most voted"
+>   surface (§8.1).
+> - Added two net-new discovery surfaces, "New & rising" and editorial
+>   "Featured" (§8.6), to close a core-promise gap.
+> - Vote rank is stated honestly as inflatable by a determined live server; it
+>   is not claimed fraud-proof (§1.1, §12.5).
+> - The public voter leaderboard stays public at a fixed top 10 for MVP
+>   (owner-configurable size is post-MVP) and is now an explicit
+>   legal-review and launch-gate item (§14, §17.1, §19).
 
 ## 1. Product Direction
 
@@ -20,9 +37,14 @@ rank.
 
 ### 1.1 Core Principles
 
-- Discovery rank is not for sale.
+- Discovery rank is not for sale: no payment, founding-partner status, or
+  editorial action reorders the "Most voted" ranking. Editorial "Featured"
+  placement (§8.6) is clearly labeled, distinct from rank, and likewise never
+  for sale.
 - Votes measure current community engagement and popularity; they are not a
-  claim of identity, quality, or trust.
+  claim of identity, quality, or trust. Vote rank reflects popularity and can be
+  inflated by a determined live server — FirstSpawn does not claim it is
+  fraud-proof (§12.5).
 - Trust comes from separate evidence: verified control, measured uptime,
   moderation history, and later optional plugin telemetry.
 - Measured data and owner-declared data must remain visibly distinct.
@@ -52,7 +74,7 @@ The MVP must provide one complete loop:
   votes without a FirstSpawn account.
 - **Server owner:** uses an email-verified account to list or claim one or more
   servers and manage approved server data.
-- **Admin:** curates the catalog, moderates requests, manages controlled data,
+- **Admin:** curates the catalog (may add editorial servers -owner is null-), moderates requests, manages controlled data,
   and handles operational support.
 
 There is one owner per server in the MVP. Staff accounts, team roles, and
@@ -69,7 +91,9 @@ account-to-account server transfers are not included.
 ### 3.2 Locales
 
 - Public web and Owner Dashboard: English (`en`), Turkish (`tr`), and German
-  (`de`).
+  (`de`). These three are demand-driven, not premature polish: the launch
+  founding-partner supply and player bases are concentrated in Turkish and
+  German communities, so the locales serve the actual launch audience.
 - Admin panel: English only.
 - Other structurally available locales remain unpublished until translation
   and QA are complete.
@@ -146,7 +170,7 @@ Owner-created servers follow:
 1. Verified owner account starts a listing.
 2. Owner proves technical control through MOTD or DNS verification.
 3. Successful technical verification creates a moderation request.
-4. Admin reviews public content.
+4. Admin reviews public content and server slug.
 5. Approval activates the listing; rejection includes an owner-facing reason.
 
 Technical control verification and public-content moderation are distinct
@@ -171,6 +195,9 @@ decisions. Successful technical verification does not publish content.
 - Admin reviews revision `N` and approves with `expected_revision = N`.
 - If the owner has created `N+1`, the API transaction rejects the stale
   approval with `409 REVIEW_STALE`.
+- If the server owner is making new changes in the revision, but the 
+  most recently submitted revision has already been approved, explicitly 
+  reject the owner.
 - Admin must reload and review the newest revision.
 - Previous revisions are retained for audit.
 
@@ -240,6 +267,10 @@ and owner-to-owner transfers are not included.
 - Manage the controlled tag catalog. Owners select at most four tags; free-text
   tags are not allowed.
 - Manage support requests and verified data-rights requests.
+- Manage editorial "Featured" placements (§8.6): each feature and un-feature is
+  an audited action with a written reason against published selection criteria.
+  Featured placement is never for sale and is never auto-granted by
+  founding-partner or payment status.
 - View operational delivery failures and notification history.
 
 An admin may directly correct an owned public listing only for moderation or
@@ -271,8 +302,14 @@ to the dashboard.
 - The previous month finalizes automatically at the boundary; there is no
   provisional admin review window.
 - All-time vote totals remain available.
-- Online, degraded, offline, uptime, partner status, plugin usage, and paid
-  placement do not boost or penalize this rank.
+- Fully `offline` servers (twelve consecutive valid failures, ~60 min per
+  §10.2) are excluded from this ranked "Most voted" surface until they recover.
+  This is an eligibility gate, not a reordering: offline servers stay in
+  Discover search and filter results and keep working detail pages that show
+  their health and uptime (§8.2). Only the default ranked listing drops them.
+- Within the ranked set, `degraded` state, uptime, partner status, plugin
+  usage, and paid placement do not boost or penalize ordering. The offline gate
+  above is the only health input to discovery.
 - A tie is won by the server that reached the tied count earlier, followed by a
   stable deterministic fallback.
 - Zero-vote servers use a deterministic UTC-day plus server-ID rotation. The
@@ -289,6 +326,8 @@ to the dashboard.
 - Version filters use collector-measured supported client versions.
 - A server without a measured version matrix remains in general Discover but
   is excluded from a specific version filter.
+- Offline servers remain in search and filter results with their offline status
+  shown; only the default "Most voted" ranked surface (§8.1) excludes them.
 - Controlled tags are filterable, with at most four tags per server.
 - Up to three server languages are owner-declared from a controlled list and
   displayed as owner-declared metadata.
@@ -320,7 +359,31 @@ are not implemented.
   `founding_partner`.
 - Status is visible privately in the Owner Dashboard during the MVP.
 - A public partner badge is post-MVP.
-- Partner status never changes discovery rank.
+- Partner status never changes discovery rank and never grants editorial
+  "Featured" placement (§8.6) or any other discovery advantage.
+
+### 8.6 Net-New Discovery Surfaces
+
+These surfaces serve a player who arrives without a server in mind, so discovery
+does not depend solely on vote-driven rank. Neither surface reorders the "Most
+voted" ranking.
+
+**New & rising**
+
+- A labeled Discover section of servers published within the last 14 days.
+- Ordered by the deterministic zero-vote UTC-day rotation in §8.1, so the order
+  is stable within a day, rotates daily, and cannot be gamed by vote volume.
+- Doubles as the cold-start surface for servers without an established vote
+  history.
+
+**Featured**
+
+- An editorial surface, visibly labeled as curated and distinct from ranked
+  results, so players are never misled that it is vote-earned.
+- Never for sale. Never auto-granted by founding-partner status or any payment.
+- Each feature and un-feature is an audited admin action (§7.1, §7.2) with a
+  written reason against published selection criteria.
+- A featured server that violates moderation rules is un-featured immediately.
 
 ## 9. Server Data and Provenance
 
@@ -461,9 +524,12 @@ The limit resets at 00:00 UTC, not after a rolling 24-hour duration.
 
 ### 12.5 Vote Integrity Position
 
-Anonymous votes are not described as trusted identities. MVP enforcement is
-limited to deterministic input rules, Turnstile, rate limits, and the two daily
-uniqueness constraints.
+Anonymous votes are not described as trusted identities, and vote-count rank is
+not claimed to be fraud-proof: a determined live server can inflate its own
+votes, and the MVP accepts this as a known, documented limitation. MVP
+enforcement is limited to deterministic input rules, Turnstile, rate limits, the
+two daily uniqueness constraints, and the offline health gate on the ranked
+surface (§8.1). Acting on collected fraud signals is post-MVP.
 
 There is no complex fraud decision engine, provisional monthly review, or
 routine manual suspicious-vote invalidation in the MVP. Exceptional legal or
@@ -530,9 +596,10 @@ Each Server Detail page exposes two public lists for that server only:
 - current UTC month, live
 - previous UTC month, finalized
 
-Each list contains the top 10 normalized Minecraft names and vote counts. There
-is no global player leaderboard, pagination, or older public month archive in
-the MVP.
+Each list contains the top 10 normalized Minecraft names and vote counts. The
+list size is fixed at top 10 for the MVP; an owner-configurable list size is
+post-MVP. There is no global player leaderboard, pagination, or older public
+month archive in the MVP.
 
 - Every name is labeled as an **Unverified Minecraft name**.
 - The product does not claim that the voter owns that Minecraft identity.
@@ -542,6 +609,9 @@ the MVP.
 - Complaints use the support channel.
 - Identifiable voter names are anonymized after 90 days; anonymous aggregates
   may remain.
+- Because the list publicly displays unverified, possibly-minor pseudonyms, its
+  public display is an explicit item in the pre-beta legal review (§17.1) and a
+  launch-gate condition (§19).
 
 The leaderboard supports owner-run monthly rewards but does not prove reward
 eligibility or identity.
@@ -688,6 +758,10 @@ Public beta requires jurisdiction-appropriate, professionally reviewed:
 - Cookie and analytics consent notice
 - Server listing and content rules
 - Abuse, copyright, security, and data-request process
+- Explicit assessment of the public voter leaderboard (§14), which displays
+  unverified, possibly-minor Minecraft pseudonyms tied to voting behavior. If
+  the review does not bless public display, the fallback is to restrict the
+  leaderboard to the Owner Dashboard before public beta.
 
 The MVP does not include child profiles, messaging, gamified rewards, or onsite
 behavioral advertising.
@@ -780,6 +854,8 @@ Public beta opens only when all of the following are true:
   claim, moderation, Owner Dashboard, admin panel, support, and email critical
   paths pass acceptance tests.
 - Required legal documents and consent behavior are approved.
+- Public voter-leaderboard display has explicit legal sign-off (§17.1), or the
+  Owner Dashboard fallback is in place.
 - Backup/restore, monitoring, alerting, and security gates are satisfied.
 - Production has no known critical security issue or data-loss risk.
 
@@ -808,12 +884,19 @@ uses:
 - Google/Discord/Microsoft OAuth.
 - GlobalPing and public ping measurements.
 - Advanced owner charts and analytics warehouse features.
+- Generic owner notification center; detailed workflow state lives only in the
+  Owner Dashboard.
+- Self-service data export or "download my data"; data-rights requests are
+  handled by verified admin operation.
+- Any web analytics stack beyond GA4, including PostHog.
 - Geo-personalized discovery.
 - Adaptive collector backoff.
 - Complex fraud scoring, automatic fraud invalidation, and routine manual
   suspicious-vote review.
-- Global player leaderboard, leaderboard pagination, and older public monthly
-  archives.
+- Global player leaderboard, leaderboard pagination, older public monthly
+  archives, and owner-configurable voter-leaderboard size.
+- "Active now" / most-online-now discovery lane (player count is
+  server-self-reported in the status ping and therefore gameable).
 - Paid Active Tonight sales, payments, reservations, or event verification.
 - Public founding-partner badges or any partner/plugin ranking advantage.
 - Generic badge system.
@@ -835,6 +918,14 @@ This scope is frozen before sprint planning.
 - No roadmap, sprint, or implementation task may silently broaden this scope.
 - Necessary technical work that directly enables an approved requirement is in
   scope even when it is not a public-facing feature.
-- Product changes must update this document; UI/UX changes must also update
-  `DESIGN.md`, and schema/runtime changes must update their higher-priority
-  canonical sources.
+- This document is canonical and authoritative over every derived document
+  (`PLAN.md`, `DESIGN.md`, `packages/database/schema-design.md`, and the service
+  READMEs). On any conflict, this document prevails and the derived document
+  must be corrected to conform.
+- A scope change lands in this document first; derived documents are then
+  updated to match. UI/UX detail still lives in `DESIGN.md` and schema/runtime
+  detail in their respective files, but neither may diverge from this scope.
+- The 2026-06-24 amendments (see the header changelog) entered under the
+  production-blocker clause above — a discovery-surface gap in the core promise
+  and a children's-data legal risk in the public leaderboard — and are recorded
+  as a dated amendment, not a silent re-freeze.
