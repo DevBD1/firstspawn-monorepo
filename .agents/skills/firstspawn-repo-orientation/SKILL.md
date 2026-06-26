@@ -23,20 +23,13 @@ Use this skill before broad or ambiguous work in this repo. Keep it short, then 
 
 ## Precedence Map
 
-1. `PRODUCT.md`: product constitution — vision, principles, identity, governance
-   (apex; nothing may contradict its principles).
-2. `docs/releases/<active>.md`: current version feature scope (active:
-   `docs/releases/v1-mvp.md`).
-3. `DESIGN.md`: product UI/UX source of truth.
-4. Service READMEs: service runtime, setup, commands, and endpoint state.
-5. `packages/database/schema-design.md`: canonical database design.
-6. `PLAN.md`: live execution sequencing for the active release.
-7. `CHANGELOG.md`: shipped-version history.
-8. `.agents/skills/*`: task workflows and checklists.
-9. Root `README.md`: repo overview and shared setup.
+When docs disagree: `PRODUCT.md` principles are apex; every other doc is
+authoritative only within its own domain (release scope, UI, runtime, schema).
+If any doc contradicts a `PRODUCT.md` principle, `PRODUCT.md` wins.
 
-Each domain doc is authoritative within its domain; if one contradicts a
-`PRODUCT.md` principle, `PRODUCT.md` wins. See `PRODUCT.md` §5.
+The full ordered map is canonical in `PRODUCT.md` §5.2 and routed in `AGENTS.md`
+(step 1 of First Check) — read it there rather than maintaining a third copy
+here.
 
 ## Repo Boundaries
 

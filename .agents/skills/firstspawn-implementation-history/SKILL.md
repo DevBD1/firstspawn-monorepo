@@ -9,7 +9,7 @@ Use this after meaningful planned work that future agents should understand. Do 
 
 ## Source Files
 
-- History folder: `docs/archive/`
+- History folder: `docs/archive/` (shared with superseded/snapshot docs)
 - Entry template: `templates/entry.md`
 - Repo router: `AGENTS.md`
 - Product principles/governance: `PRODUCT.md`
@@ -27,7 +27,9 @@ Use this after meaningful planned work that future agents should understand. Do 
 - Record what changed, why it matters, and how it was verified.
 - Mention failed or skipped verification when relevant.
 - Do not turn implementation history into a task list. Put roadmap/future standards in `PLAN.md`.
-- Do not duplicate product, UI, API, database, or runtime rulebooks here.
+- Do not duplicate product, UI, API, database, or runtime rulebooks here. A
+  version's feature scope belongs in its `docs/releases/` file and shipped
+  history in `CHANGELOG.md`, not in an implementation-history entry.
 
 ## Entry Shape
 
