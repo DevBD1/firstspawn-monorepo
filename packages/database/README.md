@@ -48,6 +48,13 @@ Optional demo data can be applied after migrations:
 psql "$API_DATABASE_URL" -f packages/database/seeds/0001_demo_server.sql
 ```
 
+The Day-1 catalog seed creates active `mc_java` listings and one email-verified
+test owner account for local owner-dashboard work:
+
+```bash
+pnpm --dir packages/database run seed:catalog
+```
+
 ## Operational Jobs
 
 Retention + rollup SQL:
@@ -72,6 +79,12 @@ Purge deleted users:
 ```bash
 API_DATABASE_URL=postgresql://... \
   ./infrastructure/ops/cron/purge-deleted-users.sh
+```
+
+Clear vote IP HMACs after the 48-hour vote-retention window:
+
+```bash
+psql "$API_DATABASE_URL" -f packages/database/jobs/purge_vote_ip_hmacs.sql
 ```
 
 Collector target query (active servers only):

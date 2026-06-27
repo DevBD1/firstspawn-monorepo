@@ -8,6 +8,13 @@
       "when": 1782163692730,
       "tag": "0000_tidy_timeslip",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782494787190,
+      "tag": "0001_amazing_calypso",
+      "breakpoints": true
     }
   ]
 }

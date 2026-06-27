@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { inArray } from "drizzle-orm";
 
-import { serverHeartbeats, servers } from "@firstspawn/database/schema";
+import { serverHeartbeats, serverVoteCounters, servers, votes } from "@firstspawn/database/schema";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("servers integration", () => {
@@ -72,12 +72,42 @@ describe("servers integration", () => {
     };
   };
 
+  const mockTurnstile = (success = true): void => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      json: async () => ({
+        success,
+        action: "vote",
+        hostname: "firstspawn.test",
+        challenge_ts: new Date().toISOString(),
+      }),
+    } as Response);
+  };
+
+  const vote = async (
+    slug: string,
+    input: { username?: string; token?: string; ip?: string } = {}
+  ) =>
+    getContext().app.inject({
+      method: "POST",
+      url: `/api/v1/servers/${slug}/vote`,
+      headers: {
+        "x-forwarded-for": input.ip ?? "203.0.113.10",
+        "user-agent": "vitest",
+      },
+      payload: {
+        username: input.username ?? "Notch",
+        turnstile_token: input.token ?? randomUUID(),
+      },
+    });
+
   beforeEach(async () => {
     process.env.API_ADMIN_EMAIL_ALLOWLIST = "admin@example.com";
     context = await createTestApp();
   });
 
   afterEach(async () => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
     if (context) {
       await context.close();
       context = undefined;
@@ -578,6 +608,224 @@ describe("servers integration", () => {
       minecraft_version: "1.20.4",
       occurred_at: "2026-04-10T11:00:00.000Z",
     });
+  });
+
+  it("casts a vote once and blocks duplicate votes by IP or username for the UTC day", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_votes",
+    });
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "vote-target",
+      name: "Vote Target",
+    });
+
+    mockTurnstile();
+    const first = await vote(created.slug, {
+      username: "Notch",
+      token: "turnstile-first",
+      ip: "203.0.113.10",
+    });
+    expect(first.statusCode).toBe(201);
+    expect(first.json().data.vote).toMatchObject({
+      server_slug: "vote-target",
+      username_normalized: "notch",
+      votes_this_month: 1,
+      votes_all_time: 1,
+    });
+
+    const duplicateIp = await vote(created.slug, {
+      username: "Jeb_",
+      token: "turnstile-dup-ip",
+      ip: "203.0.113.10",
+    });
+    expect(duplicateIp.statusCode).toBe(409);
+    expect(duplicateIp.json().error.code).toBe("ALREADY_VOTED_TODAY");
+
+    const duplicateUsername = await vote(created.slug, {
+      username: "Notch",
+      token: "turnstile-dup-name",
+      ip: "203.0.113.11",
+    });
+    expect(duplicateUsername.statusCode).toBe(409);
+    expect(duplicateUsername.json().error.code).toBe("ALREADY_VOTED_TODAY");
+  });
+
+  it("resets vote uniqueness at the UTC day boundary", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_vote_day",
+    });
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "vote-day-target",
+      name: "Vote Day Target",
+    });
+
+    mockTurnstile();
+    // Fake only the clock; faking all timers freezes the pg driver's internal
+    // timers and hangs the real DB I/O performed by vote().
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-06-27T23:59:00.000Z"));
+    const first = await vote(created.slug, {
+      username: "Boundary",
+      token: "turnstile-day-one",
+      ip: "203.0.113.20",
+    });
+    expect(first.statusCode).toBe(201);
+    expect(first.json().data.vote.voted_on).toBe("2026-06-27");
+
+    vi.setSystemTime(new Date("2026-06-28T00:01:00.000Z"));
+    const second = await vote(created.slug, {
+      username: "Boundary",
+      token: "turnstile-day-two",
+      ip: "203.0.113.20",
+    });
+    expect(second.statusCode).toBe(201);
+    expect(second.json().data.vote.voted_on).toBe("2026-06-28");
+  });
+
+  it("does not create a vote when Turnstile verification fails", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_turnstile",
+    });
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "turnstile-target",
+      name: "Turnstile Target",
+    });
+
+    mockTurnstile(false);
+    const response = await vote(created.slug, {
+      username: "Turnstile",
+      token: "turnstile-fail",
+      ip: "203.0.113.30",
+    });
+    expect(response.statusCode).toBe(403);
+    expect(response.json().error.code).toBe("TURNSTILE_FAILED");
+
+    const rows = await getContext().app.db.db.select().from(votes);
+    expect(rows).toHaveLength(0);
+  });
+
+  it("commits one vote under duplicate submit pressure", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_vote_race",
+    });
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "vote-race-target",
+      name: "Vote Race Target",
+    });
+
+    mockTurnstile();
+    const responses = await Promise.all([
+      vote(created.slug, {
+        username: "RaceUser",
+        token: "turnstile-race-one",
+        ip: "203.0.113.40",
+      }),
+      vote(created.slug, {
+        username: "RaceUser",
+        token: "turnstile-race-two",
+        ip: "203.0.113.40",
+      }),
+    ]);
+
+    expect(responses.map((response) => response.statusCode).sort()).toEqual([201, 409]);
+
+    const rows = await getContext().app.db.db.select().from(votes);
+    expect(rows).toHaveLength(1);
+  });
+
+  it("reports vote-status by client IP and live counts", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_vote_status",
+    });
+    const created = await createServerAsAdmin(admin.accessToken, {
+      slug: "vote-status-target",
+      name: "Vote Status Target",
+    });
+
+    const voteStatus = (ip: string) =>
+      getContext().app.inject({
+        method: "GET",
+        url: `/api/v1/servers/${created.slug}/vote-status`,
+        headers: { "x-forwarded-for": ip },
+      });
+
+    const before = await voteStatus("203.0.113.60");
+    expect(before.statusCode).toBe(200);
+    expect(before.json().data.voted_today).toBe(false);
+    expect(before.json().data.votes_this_month).toBe(0);
+
+    mockTurnstile();
+    const cast = await vote(created.slug, {
+      username: "StatusUser",
+      token: "turnstile-status",
+      ip: "203.0.113.60",
+    });
+    expect(cast.statusCode).toBe(201);
+
+    const after = await voteStatus("203.0.113.60");
+    expect(after.json().data.voted_today).toBe(true);
+    expect(after.json().data.votes_this_month).toBe(1);
+
+    // A different IP sees the live count but has not voted itself.
+    const other = await voteStatus("203.0.113.61");
+    expect(other.json().data.voted_today).toBe(false);
+    expect(other.json().data.votes_this_month).toBe(1);
+  });
+
+  it("excludes offline servers from most_voted but keeps them in other public sorts", async () => {
+    const admin = await registerUser({
+      email: "admin@example.com",
+      username: "admin_vote_rank",
+    });
+    const online = await createServerAsAdmin(admin.accessToken, {
+      slug: "vote-online",
+      name: "Vote Online",
+    });
+    const offline = await createServerAsAdmin(admin.accessToken, {
+      slug: "vote-offline",
+      name: "Vote Offline",
+    });
+    const month = new Date(`${new Date().toISOString().slice(0, 7)}-01T00:00:00.000Z`);
+
+    await getContext()
+      .app.db.db.update(servers)
+      .set({
+        probeStatus: "online",
+        lastProbeAttemptAt: new Date(),
+        lastPingAt: new Date(),
+      })
+      .where(inArray(servers.id, [online.id]));
+    await getContext()
+      .app.db.db.update(servers)
+      .set({ probeStatus: "offline", lastProbeAttemptAt: new Date(), lastPingAt: null })
+      .where(inArray(servers.id, [offline.id]));
+    await getContext()
+      .app.db.db.insert(serverVoteCounters)
+      .values([
+        { serverId: online.id, month, count: 2, firstVoteAt: new Date(), lastVoteAt: new Date() },
+        { serverId: offline.id, month, count: 5, firstVoteAt: new Date(), lastVoteAt: new Date() },
+      ]);
+
+    const mostVoted = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/servers?sort=most_voted&limit=10",
+    });
+    expect(mostVoted.statusCode).toBe(200);
+    const mostVotedSlugs = mostVoted.json().data.servers.map((item: { slug: string }) => item.slug);
+    expect(mostVotedSlugs).toContain("vote-online");
+    expect(mostVotedSlugs).not.toContain("vote-offline");
+
+    const players = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/servers?sort=players&limit=10",
+    });
+    const playersSlugs = players.json().data.servers.map((item: { slug: string }) => item.slug);
+    expect(playersSlugs).toContain("vote-offline");
   });
 
   it("uses latest heartbeat metrics in public stats", async () => {

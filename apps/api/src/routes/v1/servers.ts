@@ -12,7 +12,9 @@ import {
 } from "@firstspawn/database/schema";
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
+import { checkRateLimit } from "../../lib/rate-limit.js";
 import { requireAdminUser } from "../../lib/request-auth.js";
+import { hashToken } from "../../lib/security.js";
 
 const ONLINE_WINDOW_MS = 15 * 60 * 1000;
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -45,8 +47,19 @@ type PublicServerListRow = {
   maxPlayers: number | null;
   minecraftVersion: string | null;
   occurredAt: Date | null;
+  votesThisMonth: number;
+  votesAllTime: number;
   sortPrimary: number;
   sortSecondary: number;
+};
+type VoteCountRow = {
+  serverId: string;
+  votesThisMonth: number;
+  votesAllTime: number;
+};
+type LeaderboardRow = {
+  username: string;
+  votes: number;
 };
 type PublicStatsRow = {
   checked_recently: number;
@@ -76,7 +89,7 @@ const gameSchema = z.literal("mc_java");
 const clientNameSchema = z.enum(["mc_java", "mc_bedrock"]);
 const authModeSchema = z.enum(["official", "offline_allowed", "unknown"]);
 export const reachScopeSchema = z.enum(["local", "regional", "global"]);
-const publicListSortSchema = z.enum(["players", "ping"]);
+const publicListSortSchema = z.enum(["most_voted", "players", "ping"]);
 const publicTierSchema = z.enum(["common", "rare", "epic", "legendary"]);
 const serverSocialPlatformSchema = z.enum([
   "website",
@@ -195,7 +208,7 @@ const publicListQuerySchema = z.object({
     .optional(),
   freshness_status: freshnessStatusSchema.optional(),
   include_archived: z.coerce.boolean().default(false),
-  sort: publicListSortSchema.default("players"),
+  sort: publicListSortSchema.default("most_voted"),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   cursor: z.string().trim().min(1).optional(),
 });
@@ -248,6 +261,15 @@ const slugParamSchema = z.object({
   slug: z.string().trim().min(3).max(120),
 });
 
+const voteBodySchema = z.object({
+  username: z.string().trim().min(1).max(32),
+  turnstile_token: z.string().trim().min(1).optional(),
+});
+
+const leaderboardQuerySchema = z.object({
+  month: z.enum(["current", "previous"]).default("current"),
+});
+
 const adminListResponseSchema = envelopeSchema(
   z.object({
     servers: z.array(serverBaseSchema),
@@ -286,6 +308,8 @@ const publicListResponseSchema = envelopeSchema(
           last_ping_at: true,
         })
         .extend({
+          votes_this_month: z.number().int().nonnegative(),
+          votes_all_time: z.number().int().nonnegative(),
           latest_metrics: latestMetricsSchema,
         })
     ),
@@ -299,10 +323,47 @@ const publicListResponseSchema = envelopeSchema(
 const publicDetailResponseSchema = envelopeSchema(
   z.object({
     server: serverBaseSchema.extend({
+      votes_this_month: z.number().int().nonnegative(),
+      votes_all_time: z.number().int().nonnegative(),
+      votifier_enabled: z.boolean(),
       latest_metrics: latestMetricsSchema,
       socials: z.array(serverSocialSchema),
       supported_clients: z.array(serverSupportedClientSchema),
     }),
+  })
+);
+
+const voteResponseSchema = envelopeSchema(
+  z.object({
+    vote: z.object({
+      server_slug: z.string(),
+      username_normalized: z.string(),
+      voted_on: z.string(),
+      votes_this_month: z.number().int().nonnegative(),
+      votes_all_time: z.number().int().nonnegative(),
+    }),
+  })
+);
+
+const voteStatusResponseSchema = envelopeSchema(
+  z.object({
+    voted_today: z.boolean(),
+    votes_this_month: z.number().int().nonnegative(),
+    votes_all_time: z.number().int().nonnegative(),
+  })
+);
+
+const leaderboardResponseSchema = envelopeSchema(
+  z.object({
+    month: z.string().regex(/^\d{4}-\d{2}$/),
+    finalized: z.boolean(),
+    entries: z.array(
+      z.object({
+        rank: z.number().int().positive(),
+        username: z.string(),
+        votes: z.number().int().positive(),
+      })
+    ),
   })
 );
 
@@ -649,6 +710,222 @@ const requireFound = <T>(value: T | null | undefined): NonNullable<T> => {
   }
 
   return value as NonNullable<T>;
+};
+
+const USERNAME_DENYLIST = new Set([
+  "admin",
+  "administrator",
+  "moderator",
+  "owner",
+  "staff",
+  "fuck",
+  "shit",
+  "bitch",
+  "cunt",
+  "nigger",
+  "nigga",
+]);
+
+const normalizeMinecraftUsername = (username: string): string => {
+  const normalized = username.trim().toLowerCase();
+  if (!/^[a-z0-9_]{3,16}$/.test(normalized) || USERNAME_DENYLIST.has(normalized)) {
+    throw new ApiError({
+      statusCode: 400,
+      code: "INVALID_USERNAME",
+      message: "Minecraft Java username is invalid.",
+      details: { field: "username" },
+    });
+  }
+
+  return normalized;
+};
+
+const utcDateString = (value = new Date()): string => value.toISOString().slice(0, 10);
+
+const utcMonthStartString = (value = new Date()): string =>
+  `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, "0")}-01`;
+
+const leaderboardMonth = (selection: "current" | "previous"): { label: string; start: string } => {
+  const now = new Date();
+  const month = selection === "current" ? now.getUTCMonth() : now.getUTCMonth() - 1;
+  const start = new Date(Date.UTC(now.getUTCFullYear(), month, 1));
+  return {
+    label: start.toISOString().slice(0, 7),
+    start: utcMonthStartString(start),
+  };
+};
+
+const getClientIp = (ip?: string): string | null => {
+  if (!ip) {
+    return null;
+  }
+
+  const first = ip.split(",")[0]?.trim();
+  return first || null;
+};
+
+const dailyIpHmac = (
+  ip: string,
+  votedOn: string,
+  config: { API_TOKEN_HASH_SECRET: string }
+): string => hashToken(`${votedOn}:${ip}`, config);
+
+const normalizeHeader = (value: string | string[] | undefined): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+};
+
+const expectedTurnstileHostname = (frontendUrl: string): string | null => {
+  try {
+    return new URL(frontendUrl).hostname;
+  } catch {
+    return null;
+  }
+};
+
+/** True only for routable public IPs — excludes loopback and private ranges. */
+const isForwardableRemoteIp = (ip: string): boolean => {
+  if (ip === "::1" || ip === "::" || ip.startsWith("127.")) return false;
+  if (ip.startsWith("10.") || ip.startsWith("192.168.")) return false;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return false;
+  if (ip.startsWith("fc") || ip.startsWith("fd")) return false; // IPv6 ULA
+  if (ip.startsWith("::ffff:127.") || ip.startsWith("::ffff:10.")) return false;
+  return true;
+};
+
+const verifyTurnstile = async (
+  token: string | undefined,
+  requestIp: string | null,
+  app: FastifyInstance
+): Promise<void> => {
+  if (!token) {
+    throw new ApiError({
+      statusCode: 400,
+      code: "TURNSTILE_REQUIRED",
+      message: "Turnstile token is required.",
+      details: { field: "turnstile_token" },
+    });
+  }
+
+  const secret = app.config.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    throw new ApiError({
+      statusCode: 403,
+      code: "TURNSTILE_FAILED",
+      message: "Turnstile verification failed.",
+    });
+  }
+
+  const tokenHash = hashToken(token, app.config);
+  const singleUseKey = `turnstile:vote:${tokenHash}`;
+  const singleUseResult = await app.redis
+    .multi()
+    .incr(singleUseKey)
+    .expire(singleUseKey, 300, "NX")
+    .exec();
+  const useCount = singleUseResult?.[0]?.[1];
+  if (typeof useCount !== "number" || useCount > 1) {
+    throw new ApiError({
+      statusCode: 403,
+      code: "TURNSTILE_FAILED",
+      message: "Turnstile verification failed.",
+    });
+  }
+
+  const form = new URLSearchParams({
+    secret,
+    response: token,
+  });
+  // Only forward a real public client IP to Cloudflare. Sending a loopback or
+  // private address (e.g. `::1` from a local BFF->API hop) is meaningless and
+  // can fail siteverify's remoteip validation.
+  if (requestIp && isForwardableRemoteIp(requestIp)) {
+    form.set("remoteip", requestIp);
+  }
+
+  let payload: {
+    success?: boolean;
+    action?: string;
+    hostname?: string;
+    challenge_ts?: string;
+    "error-codes"?: string[];
+  };
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: form,
+    });
+    payload = (await response.json()) as typeof payload;
+  } catch {
+    throw new ApiError({
+      statusCode: 403,
+      code: "TURNSTILE_FAILED",
+      message: "Turnstile verification failed.",
+    });
+  }
+
+  const challengeMs = payload.challenge_ts ? Date.parse(payload.challenge_ts) : Number.NaN;
+  const maxAgeMs = 5 * 60 * 1000;
+  const expectedHostname = expectedTurnstileHostname(app.config.FRONTEND_URL);
+  const hostnameOk = expectedHostname ? payload.hostname === expectedHostname : true;
+
+  if (
+    payload.success !== true ||
+    payload.action !== "vote" ||
+    !hostnameOk ||
+    !Number.isFinite(challengeMs) ||
+    Date.now() - challengeMs > maxAgeMs
+  ) {
+    throw new ApiError({
+      statusCode: 403,
+      code: "TURNSTILE_FAILED",
+      message: "Turnstile verification failed.",
+    });
+  }
+};
+
+export const findVoteCounts = async (
+  app: FastifyInstance,
+  serverIds: string[]
+): Promise<Map<string, { votes_this_month: number; votes_all_time: number }>> => {
+  const uniqueServerIds = [...new Set(serverIds)];
+  if (uniqueServerIds.length === 0) {
+    return new Map();
+  }
+
+  const result = await app.db.pool.query<VoteCountRow>(
+    `
+      select
+        s.id as "serverId",
+        coalesce(current_month.count, 0)::integer as "votesThisMonth",
+        coalesce(sum(c.count), 0)::integer as "votesAllTime"
+      from servers s
+      left join server_vote_counters c on c.server_id = s.id
+      left join server_vote_counters current_month
+        on current_month.server_id = s.id
+       and current_month.month = date_trunc('month', now() at time zone 'utc')::date
+      where s.id = any($1::uuid[])
+      group by s.id, current_month.count
+    `,
+    [uniqueServerIds]
+  );
+
+  return new Map(
+    result.rows.map((row) => [
+      row.serverId,
+      {
+        votes_this_month: row.votesThisMonth,
+        votes_all_time: row.votesAllTime,
+      },
+    ])
+  );
+};
+
+const enqueueVotifierDelivery = async (_voteId: string): Promise<void> => {
+  // Day 2: enqueue Votifier reward delivery when public/private config is complete.
 };
 
 export const registerServerRoutes = (fastify: FastifyInstance): void => {
@@ -1181,6 +1458,225 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
     }
   );
 
+  app.post(
+    "/api/v1/servers/:slug/vote",
+    {
+      schema: {
+        params: slugParamSchema,
+        body: voteBodySchema,
+        response: {
+          201: voteResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const clientIp = getClientIp(request.ip);
+      const rateLimitKey = `rl:vote:${clientIp ?? "unknown"}`;
+      const allowed = await checkRateLimit(app.redis, rateLimitKey, 20, 60);
+      if (!allowed) {
+        throw new ApiError({
+          statusCode: 429,
+          code: "RATE_LIMITED",
+          message: "Too many vote attempts. Please try again later.",
+        });
+      }
+
+      const usernameNormalized = normalizeMinecraftUsername(request.body.username);
+      await verifyTurnstile(request.body.turnstile_token, clientIp, app);
+
+      const votedOn = utcDateString();
+      const month = utcMonthStartString();
+      const ipHmac = dailyIpHmac(clientIp ?? "unknown", votedOn, app.config);
+      const userAgent = normalizeHeader(request.headers["user-agent"]);
+      const voteCountry = normalizeHeader(request.headers["cf-ipcountry"])?.toUpperCase() ?? null;
+      const voteAsn = normalizeHeader(request.headers["cf-asn"]);
+
+      const client = await app.db.pool.connect();
+      let voteId: string | null = null;
+      try {
+        await client.query("begin");
+
+        const serverResult = await client.query<{
+          id: string;
+          slug: string;
+          status: "active" | "suspended" | "archived";
+        }>(
+          `
+            select id, slug::text as slug, status
+            from servers
+            where slug = $1::citext
+              and game = 'mc_java'
+            limit 1
+          `,
+          [request.params.slug]
+        );
+        const server = serverResult.rows[0];
+        if (!server) {
+          throw new ApiError({
+            statusCode: 404,
+            code: "SERVER_NOT_FOUND",
+            message: "Server not found.",
+          });
+        }
+        if (server.status !== "active") {
+          throw new ApiError({
+            statusCode: 422,
+            code: "SERVER_NOT_VOTABLE",
+            message: "Server is not votable.",
+          });
+        }
+
+        const voteResult = await client.query<{ id: string }>(
+          `
+            insert into votes (
+              server_id,
+              username_normalized,
+              voted_on,
+              ip_hmac,
+              asn,
+              country_code,
+              user_agent
+            )
+            values ($1::uuid, $2::citext, $3::date, $4, $5, $6, $7)
+            returning id
+          `,
+          [
+            server.id,
+            usernameNormalized,
+            votedOn,
+            ipHmac,
+            voteAsn,
+            voteCountry && /^[A-Z]{2}$/.test(voteCountry) ? voteCountry : null,
+            userAgent,
+          ]
+        );
+        voteId = voteResult.rows[0]?.id ?? null;
+
+        await client.query(
+          `
+            insert into server_vote_counters (
+              server_id,
+              month,
+              count,
+              first_vote_at,
+              last_vote_at,
+              updated_at
+            )
+            values ($1::uuid, $2::date, 1, now(), now(), now())
+            on conflict (server_id, month)
+            do update set
+              count = server_vote_counters.count + 1,
+              first_vote_at = coalesce(server_vote_counters.first_vote_at, excluded.first_vote_at),
+              last_vote_at = excluded.last_vote_at,
+              updated_at = excluded.updated_at
+          `,
+          [server.id, month]
+        );
+
+        const countsResult = await client.query<{
+          votes_this_month: number;
+          votes_all_time: number;
+        }>(
+          `
+            select
+              coalesce(max(count) filter (where month = $2::date), 0)::integer as votes_this_month,
+              coalesce(sum(count), 0)::integer as votes_all_time
+            from server_vote_counters
+            where server_id = $1::uuid
+          `,
+          [server.id, month]
+        );
+        const counts = countsResult.rows[0] ?? { votes_this_month: 0, votes_all_time: 0 };
+
+        await client.query("commit");
+        if (voteId) {
+          await enqueueVotifierDelivery(voteId);
+        }
+
+        return reply.status(201).send(
+          successEnvelope(
+            {
+              vote: {
+                server_slug: server.slug,
+                username_normalized: usernameNormalized,
+                voted_on: votedOn,
+                votes_this_month: counts.votes_this_month,
+                votes_all_time: counts.votes_all_time,
+              },
+            },
+            request.id
+          )
+        );
+      } catch (error) {
+        await client.query("rollback").catch(() => {});
+        const pgError = getPgErrorMetadata(error);
+        if (pgError.code === "23505") {
+          throw new ApiError({
+            statusCode: 409,
+            code: "ALREADY_VOTED_TODAY",
+            message: "You already voted for this server today.",
+          });
+        }
+        throw error;
+      } finally {
+        client.release();
+      }
+    }
+  );
+
+  // Lets the vote form reflect "already voted today" + live counts on load, keyed on
+  // the same daily IP-HMAC as the uniqueness rule. Read-only; no Turnstile.
+  app.get(
+    "/api/v1/servers/:slug/vote-status",
+    {
+      schema: {
+        params: slugParamSchema,
+        response: {
+          200: voteStatusResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      const serverResult = await app.db.pool.query<{ id: string; status: string }>(
+        `select id, status from servers where slug = $1::citext and game = 'mc_java' limit 1`,
+        [request.params.slug]
+      );
+      const server = serverResult.rows[0];
+      if (!server || server.status !== "active") {
+        throw new ApiError({
+          statusCode: 404,
+          code: "SERVER_NOT_FOUND",
+          message: "Server not found.",
+        });
+      }
+
+      const today = utcDateString();
+      const ipHmac = dailyIpHmac(getClientIp(request.ip) ?? "unknown", today, app.config);
+      const votedResult = await app.db.pool.query<{ voted: boolean }>(
+        `
+          select exists(
+            select 1 from votes
+            where server_id = $1::uuid and voted_on = $2::date and ip_hmac = $3
+          ) as voted
+        `,
+        [server.id, today, ipHmac]
+      );
+      const counts = (await findVoteCounts(app, [server.id])).get(server.id) ?? {
+        votes_this_month: 0,
+        votes_all_time: 0,
+      };
+
+      return successEnvelope(
+        {
+          voted_today: votedResult.rows[0]?.voted ?? false,
+          votes_this_month: counts.votes_this_month,
+          votes_all_time: counts.votes_all_time,
+        },
+        request.id
+      );
+    }
+  );
+
   app.get(
     "/api/v1/servers",
     {
@@ -1234,9 +1730,17 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
           "(s.status = 'active' and (s.last_probe_attempt_at is null or s.probe_status = 'unknown'))"
         );
       }
+      if (query.sort === "most_voted") {
+        filters.push("s.probe_status <> 'offline'");
+      }
 
       const sortPlayersExpr = `coalesce(latest.online_players, ${PUBLIC_PLAYERS_NULL_SORT_VALUE})::integer`;
       const sortPingExpr = `coalesce(latest.ping_ms::integer, ${PUBLIC_PING_NULL_SORT_VALUE})`;
+      const sortVotesExpr = "coalesce(current_month.count, 0)::integer";
+      const sortVoteReachedExpr = `case
+        when coalesce(current_month.count, 0) > 0 then extract(epoch from current_month.first_vote_at)::integer
+        else abs(('x' || substr(md5((current_date::text || ':' || s.id::text)), 1, 8))::bit(32)::int)
+      end`;
       const tierPlayersExpr = "coalesce(latest.online_players, 0)";
       if (query.tier && query.tier.length > 0) {
         const tierFilters = query.tier.map((tier) => {
@@ -1253,12 +1757,12 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         });
         filters.push(`(${tierFilters.join(" or ")})`);
       }
-      const cursorFilter =
-        cursor && query.sort === "players"
-          ? (() => {
-              const primary = addQueryParam(queryParams, cursor.primary);
-              const secondary = addQueryParam(queryParams, cursor.secondary);
-              const id = addQueryParam(queryParams, cursor.id);
+      const cursorFilter = cursor
+        ? (() => {
+            const primary = addQueryParam(queryParams, cursor.primary);
+            const secondary = addQueryParam(queryParams, cursor.secondary);
+            const id = addQueryParam(queryParams, cursor.id);
+            if (query.sort === "players") {
               return `(
               ${sortPlayersExpr} < ${primary}
               or (${sortPlayersExpr} = ${primary} and ${sortPingExpr} > ${secondary})
@@ -1268,13 +1772,9 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
                 and s.id > ${id}::uuid
               )
             )`;
-            })()
-          : cursor && query.sort === "ping"
-            ? (() => {
-                const primary = addQueryParam(queryParams, cursor.primary);
-                const secondary = addQueryParam(queryParams, cursor.secondary);
-                const id = addQueryParam(queryParams, cursor.id);
-                return `(
+            }
+            if (query.sort === "ping") {
+              return `(
                 ${sortPingExpr} > ${primary}
                 or (${sortPingExpr} = ${primary} and ${sortPlayersExpr} < ${secondary})
                 or (
@@ -1283,18 +1783,40 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
                   and s.id > ${id}::uuid
                 )
               )`;
-              })()
-            : undefined;
+            }
+            return `(
+              ${sortVotesExpr} < ${primary}
+              or (${sortVotesExpr} = ${primary} and ${sortVoteReachedExpr} > ${secondary})
+              or (
+                ${sortVotesExpr} = ${primary}
+                and ${sortVoteReachedExpr} = ${secondary}
+                and s.id > ${id}::uuid
+              )
+            )`;
+          })()
+        : undefined;
       if (cursorFilter) {
         filters.push(cursorFilter);
       }
 
-      const sortPrimaryExpr = query.sort === "players" ? sortPlayersExpr : sortPingExpr;
-      const sortSecondaryExpr = query.sort === "players" ? sortPingExpr : sortPlayersExpr;
+      const sortPrimaryExpr =
+        query.sort === "players"
+          ? sortPlayersExpr
+          : query.sort === "ping"
+            ? sortPingExpr
+            : sortVotesExpr;
+      const sortSecondaryExpr =
+        query.sort === "players"
+          ? sortPingExpr
+          : query.sort === "ping"
+            ? sortPlayersExpr
+            : sortVoteReachedExpr;
       const orderClause =
         query.sort === "players"
           ? `${sortPlayersExpr} desc, ${sortPingExpr} asc, s.id asc`
-          : `${sortPingExpr} asc, ${sortPlayersExpr} desc, s.id asc`;
+          : query.sort === "ping"
+            ? `${sortPingExpr} asc, ${sortPlayersExpr} desc, s.id asc`
+            : `${sortVotesExpr} desc, ${sortVoteReachedExpr} asc, s.id asc`;
       const limit = addQueryParam(queryParams, query.limit + 1);
       const rowsResult = await app.db.pool.query<PublicServerListRow>(
         `
@@ -1318,6 +1840,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             latest.max_players as "maxPlayers",
             latest.minecraft_version as "minecraftVersion",
             latest.occurred_at as "occurredAt",
+            coalesce(current_month.count, 0)::integer as "votesThisMonth",
+            coalesce(all_votes.count, 0)::integer as "votesAllTime",
             ${sortPrimaryExpr} as "sortPrimary",
             ${sortSecondaryExpr} as "sortSecondary"
           from servers s
@@ -1335,6 +1859,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             order by hb.occurred_at desc, hb.created_at desc, hb.id desc
             limit 1
           ) latest on true
+          left join server_vote_counters current_month
+            on current_month.server_id = s.id
+           and current_month.month = date_trunc('month', now() at time zone 'utc')::date
+          left join lateral (
+            select coalesce(sum(vc.count), 0)::integer as count
+            from server_vote_counters vc
+            where vc.server_id = s.id
+          ) all_votes on true
           where ${filters.join("\n            and ")}
           order by ${orderClause}
           limit ${limit}
@@ -1369,12 +1901,68 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             logo_url: row.logoUrl,
             banner_url: row.bannerUrl,
             last_ping_at: row.lastPingAt ? row.lastPingAt.toISOString() : null,
+            votes_this_month: row.votesThisMonth,
+            votes_all_time: row.votesAllTime,
             latest_metrics: normalizeMetricsPayload(latestHeartbeatFromPublicRow(row)),
           })),
           pagination: {
             next_cursor: nextCursor,
             limit: query.limit,
           },
+        },
+        request.id
+      );
+    }
+  );
+
+  app.get(
+    "/api/v1/servers/:slug/leaderboard",
+    {
+      schema: {
+        params: slugParamSchema,
+        querystring: leaderboardQuerySchema,
+        response: {
+          200: leaderboardResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      const server = requireFound(
+        await app.db.db.query.servers.findFirst({
+          where: and(
+            eq(servers.slug, request.params.slug),
+            eq(servers.game, "mc_java"),
+            inArray(servers.status, ["active", "archived"])
+          ),
+          columns: { id: true },
+        })
+      );
+
+      const selectedMonth = leaderboardMonth(request.query.month);
+      const result = await app.db.pool.query<LeaderboardRow>(
+        `
+          select
+            username_normalized::text as username,
+            count(*)::integer as votes
+          from votes
+          where server_id = $1::uuid
+            and date_trunc('month', voted_on::timestamp)::date = $2::date
+          group by username_normalized
+          order by count(*) desc, username_normalized asc
+          limit 10
+        `,
+        [server.id, selectedMonth.start]
+      );
+
+      return successEnvelope(
+        {
+          month: selectedMonth.label,
+          finalized: request.query.month === "previous",
+          entries: result.rows.map((row, index) => ({
+            rank: index + 1,
+            username: row.username,
+            votes: row.votes,
+          })),
         },
         request.id
       );
@@ -1402,14 +1990,19 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         })
       );
 
-      const [latest, metadata] = await Promise.all([
+      const [latest, metadata, voteCounts] = await Promise.all([
         findLatestHeartbeat(app, server.id),
         findServerMetadata(app, server.id),
+        findVoteCounts(app, [server.id]),
       ]);
+      const counts = voteCounts.get(server.id) ?? { votes_this_month: 0, votes_all_time: 0 };
       return successEnvelope(
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
+            votes_this_month: counts.votes_this_month,
+            votes_all_time: counts.votes_all_time,
+            votifier_enabled: server.votifierEnabled,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },

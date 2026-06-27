@@ -65,6 +65,8 @@ export const createTestApp = async (): Promise<TestContext> => {
   process.env.API_DATABASE_URL = testUrl;
   process.env.API_ADMIN_EMAIL_ALLOWLIST = "admin@example.com";
   process.env.API_COLLECTOR_KEY = "test-collector-key";
+  process.env.TURNSTILE_SECRET_KEY = "test-turnstile-secret";
+  process.env.FRONTEND_URL = "https://firstspawn.test";
   resetConfigForTests();
 
   const db = createDatabase(testUrl);

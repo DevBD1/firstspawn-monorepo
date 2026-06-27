@@ -26,6 +26,7 @@ import {
   duplicateFieldFromError,
   findLatestHeartbeats,
   findServerMetadata,
+  findVoteCounts,
   getPgErrorMetadata,
   normalizeMetricsPayload,
   normalizeServerPayload,
@@ -216,6 +217,8 @@ const listingSummarySchema = z.object({
   verified_at: z.string().datetime().nullable(),
   verification_method: z.enum(["motd", "dns"]).nullable(),
   created_at: z.string().datetime(),
+  votes_this_month: z.number().int().nonnegative(),
+  votes_all_time: z.number().int().nonnegative(),
   tags: z.array(z.string()),
   latest_metrics: latestMetricsSchema,
 });
@@ -584,11 +587,12 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
         .orderBy(servers.createdAt);
 
       const serverIds = ownedRows.map((row) => row.id);
-      const [heartbeats, tagRows] = await Promise.all([
+      const [heartbeats, tagRows, voteCounts] = await Promise.all([
         findLatestHeartbeats(app, serverIds),
         serverIds.length > 0
           ? app.db.db.select().from(serverTags).where(inArray(serverTags.serverId, serverIds))
           : Promise.resolve([] as Array<{ serverId: string; tag: string }>),
+        findVoteCounts(app, serverIds),
       ]);
 
       const tagsByServer = new Map<string, string[]>();
@@ -617,6 +621,8 @@ export const registerListingRoutes = (fastify: FastifyInstance): void => {
           verified_at: row.verifiedAt ? row.verifiedAt.toISOString() : null,
           verification_method: (row.verificationMethod as "motd" | "dns" | null) ?? null,
           created_at: base.created_at,
+          votes_this_month: voteCounts.get(row.id)?.votes_this_month ?? 0,
+          votes_all_time: voteCounts.get(row.id)?.votes_all_time ?? 0,
           tags: tagsByServer.get(row.id) ?? [],
           latest_metrics: normalizeMetricsPayload(heartbeats.get(row.id) ?? null),
         };
