@@ -15,6 +15,7 @@
     "prettier --write",
     "pnpm exec eslint --fix --config packages/ui/eslint.config.mjs"
   ],
+  "packages/database/**/*.{ts,tsx,js,jsx,mjs,cjs,json}": ["prettier --write"],
   "*.json": ["prettier --write"],
   "*.md": ["prettier --write"],
   "*.yml": ["prettier --write"],
