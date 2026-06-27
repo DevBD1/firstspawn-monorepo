@@ -1484,8 +1484,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const usernameNormalized = normalizeMinecraftUsername(request.body.username);
       await verifyTurnstile(request.body.turnstile_token, clientIp, app);
 
-      const votedOn = utcDateString();
-      const month = utcMonthStartString();
+      // Single clock read so votedOn and month can't straddle a month boundary.
+      const now = new Date();
+      const votedOn = utcDateString(now);
+      const month = utcMonthStartString(now);
       const ipHmac = dailyIpHmac(clientIp ?? "unknown", votedOn, app.config);
       const userAgent = normalizeHeader(request.headers["user-agent"]);
       const voteCountry = normalizeHeader(request.headers["cf-ipcountry"])?.toUpperCase() ?? null;
@@ -1739,7 +1741,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const sortVotesExpr = "coalesce(current_month.count, 0)::integer";
       const sortVoteReachedExpr = `case
         when coalesce(current_month.count, 0) > 0 then extract(epoch from current_month.first_vote_at)::integer
-        else abs(('x' || substr(md5((current_date::text || ':' || s.id::text)), 1, 8))::bit(32)::int)
+        else abs(('x' || substr(md5(((now() at time zone 'utc')::date::text || ':' || s.id::text)), 1, 8))::bit(32)::int)
       end`;
       const tierPlayersExpr = "coalesce(latest.online_players, 0)";
       if (query.tier && query.tier.length > 0) {
@@ -1927,16 +1929,21 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      const server = requireFound(
-        await app.db.db.query.servers.findFirst({
-          where: and(
-            eq(servers.slug, request.params.slug),
-            eq(servers.game, "mc_java"),
-            inArray(servers.status, ["active", "archived"])
-          ),
-          columns: { id: true },
-        })
-      );
+      const server = await app.db.db.query.servers.findFirst({
+        where: and(
+          eq(servers.slug, request.params.slug),
+          eq(servers.game, "mc_java"),
+          inArray(servers.status, ["active", "archived"])
+        ),
+        columns: { id: true },
+      });
+      if (!server) {
+        throw new ApiError({
+          statusCode: 404,
+          code: "SERVER_NOT_FOUND",
+          message: "Server not found.",
+        });
+      }
 
       const selectedMonth = leaderboardMonth(request.query.month);
       const result = await app.db.pool.query<LeaderboardRow>(
@@ -1946,7 +1953,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             count(*)::integer as votes
           from votes
           where server_id = $1::uuid
-            and date_trunc('month', voted_on::timestamp)::date = $2::date
+            and voted_on >= $2::date
+            and voted_on < ($2::date + interval '1 month')::date
           group by username_normalized
           order by count(*) desc, username_normalized asc
           limit 10
