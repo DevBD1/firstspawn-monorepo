@@ -13,6 +13,7 @@ import {
   type VoteErrorCode,
   type VoteState,
 } from "@/features/server/lib/vote-state";
+import type { LeaderboardMonth, LeaderboardResponse } from "@/features/server/lib/leaderboard-api";
 
 export async function loadMoreServers(params: FetchServersParams) {
   return fetchServers(params, { cache: "no-store" });
@@ -185,4 +186,32 @@ export async function getVoteStatus(slug: string): Promise<VoteStatus | null> {
     console.error("[getVoteStatus] failed:", error);
     return null;
   }
+}
+
+/**
+ * Fetches the per-server voter leaderboard server-side (API base URL + basic auth
+ * are server-only), so the client leaderboard component never touches those.
+ */
+export async function getLeaderboard(
+  slug: string,
+  month: LeaderboardMonth
+): Promise<LeaderboardResponse | null> {
+  const outgoing = new Headers({ "Content-Type": "application/json" });
+  const basicAuth = getApiBasicAuthHeader();
+  if (basicAuth) outgoing.set("Authorization", basicAuth);
+
+  const url = new URL(`${getApiBaseUrl()}/servers/${encodeURIComponent(slug)}/leaderboard`);
+  url.searchParams.set("month", month);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: outgoing,
+    cache: "no-store",
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Failed to fetch leaderboard: ${response.status} ${response.statusText}`);
+  }
+  const json = (await response.json()) as { data: LeaderboardResponse | null };
+  return json.data;
 }

@@ -115,6 +115,13 @@ function getRankScore(sig: Signals) {
   return sig.activity * sig.trust * sig.freshness;
 }
 
+/** Maps the UI sort control to the API sort so vote ordering is global, not page-local. */
+function resolveApiSort(sortBy: "Rank" | "Players" | "Votes"): PublicServerSort {
+  if (sortBy === "Players") return "players";
+  if (sortBy === "Votes") return "most_voted";
+  return "ping";
+}
+
 function getRelativeTime(s: PublicServerListItem, rt: ServerRowCopy["relativeTime"]) {
   if (!s.last_ping_at) return rt.unknown;
   const elapsedMs = Date.now() - new Date(s.last_ping_at).getTime();
@@ -414,7 +421,7 @@ export default function DiscoverClient({
           if (intent.game === "Minecraft") apiGame = "mc_java";
         }
 
-        const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
+        const apiSort = resolveApiSort(sortBy);
 
         const [serversData, statsData] = await Promise.all([
           loadMoreServers({
@@ -448,10 +455,9 @@ export default function DiscoverClient({
           });
         }
 
-        // Sort by real current-month vote counts (the API's default "most_voted").
-        if (sortBy === "Votes") {
-          filteredServers.sort((a, b) => b.votes_this_month - a.votes_this_month);
-        } else if (sortBy === "Rank") {
+        // "Votes" and "Players" are ordered by the API (with matching cursor);
+        // "Rank" is a client-side heuristic over derived signals.
+        if (sortBy === "Rank") {
           filteredServers.sort((a, b) => {
             return getRankScore(getServerSignals(b)) - getRankScore(getServerSignals(a));
           });
@@ -488,7 +494,7 @@ export default function DiscoverClient({
     try {
       let apiGame: PublicServerGame | undefined = undefined;
       if (selectedGame === "Minecraft") apiGame = "mc_java";
-      const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
+      const apiSort = resolveApiSort(sortBy);
 
       const data = await loadMoreServers({
         q: debouncedQuery.trim() || undefined,

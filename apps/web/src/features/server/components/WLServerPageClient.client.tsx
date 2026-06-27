@@ -434,14 +434,17 @@ export default function WLServerPageClient({
             </div>
           </div>
 
-          {/* Real anonymous voting (v1-mvp §12) */}
-          <VoteForm
-            slug={s.slug}
-            votifierEnabled={s.votifier_enabled}
-            votesThisMonth={s.votes_this_month}
-            votesAllTime={s.votes_all_time}
-            labels={votingCopy}
-          />
+          {/* Real anonymous voting (v1-mvp §12) — only active listings are votable;
+              archived servers return 404/SERVER_NOT_VOTABLE, so no form there. */}
+          {s.catalog_status === "active" && (
+            <VoteForm
+              slug={s.slug}
+              votifierEnabled={s.votifier_enabled}
+              votesThisMonth={s.votes_this_month}
+              votesAllTime={s.votes_all_time}
+              labels={votingCopy}
+            />
+          )}
 
           {/* Stats blocks */}
           <div className="bg-bg-panel border border-border rounded-xl p-4 flex flex-col gap-2.5">

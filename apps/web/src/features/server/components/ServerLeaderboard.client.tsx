@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { WLButton } from "@firstspawn/ui";
-import {
-  fetchLeaderboard,
-  type LeaderboardEntry,
-  type LeaderboardMonth,
-  type LeaderboardResponse,
+import { getLeaderboard } from "@/app/actions/servers";
+import type {
+  LeaderboardEntry,
+  LeaderboardMonth,
+  LeaderboardResponse,
 } from "@/features/server/lib/leaderboard-api";
 
 export interface ServerLeaderboardLabels {
@@ -118,7 +118,7 @@ export default function ServerLeaderboard({
     /* eslint-disable-next-line react-hooks/set-state-in-effect -- reset to loading when slug/month changes before the fetch resolves */
     setState("loading");
 
-    fetchLeaderboard(slug, month)
+    getLeaderboard(slug, month)
       .then((response) => {
         if (cancelled) return;
         setData(response);

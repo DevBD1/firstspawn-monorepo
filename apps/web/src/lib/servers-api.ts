@@ -8,7 +8,7 @@ type FetchInit = RequestInit & {
   };
 };
 
-export type PublicServerSort = "players" | "ping";
+export type PublicServerSort = "most_voted" | "players" | "ping";
 export type PublicServerGame = "mc_java" | "mc_bedrock";
 export type PublicServerTier = "common" | "rare" | "epic" | "legendary";
 

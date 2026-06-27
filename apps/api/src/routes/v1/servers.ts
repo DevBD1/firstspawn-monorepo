@@ -819,20 +819,28 @@ const verifyTurnstile = async (
     });
   }
 
+  // Single-use replay guard. Cloudflare also rejects reused tokens at Siteverify,
+  // so if Redis is unavailable we fail open (like the rate limiter) rather than
+  // taking the whole vote flow down during a Redis blip.
   const tokenHash = hashToken(token, app.config);
   const singleUseKey = `turnstile:vote:${tokenHash}`;
-  const singleUseResult = await app.redis
-    .multi()
-    .incr(singleUseKey)
-    .expire(singleUseKey, 300, "NX")
-    .exec();
-  const useCount = singleUseResult?.[0]?.[1];
-  if (typeof useCount !== "number" || useCount > 1) {
-    throw new ApiError({
-      statusCode: 403,
-      code: "TURNSTILE_FAILED",
-      message: "Turnstile verification failed.",
-    });
+  try {
+    const singleUseResult = await app.redis
+      .multi()
+      .incr(singleUseKey)
+      .expire(singleUseKey, 300, "NX")
+      .exec();
+    const useCount = singleUseResult?.[0]?.[1];
+    if (typeof useCount === "number" && useCount > 1) {
+      throw new ApiError({
+        statusCode: 403,
+        code: "TURNSTILE_FAILED",
+        message: "Turnstile verification failed.",
+      });
+    }
+  } catch (error) {
+    if (error instanceof ApiError) throw error; // genuine replay rejection
+    app.log.warn({ err: error }, "turnstile single-use check skipped (redis unavailable)");
   }
 
   const form = new URLSearchParams({
@@ -1740,7 +1748,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       const sortPingExpr = `coalesce(latest.ping_ms::integer, ${PUBLIC_PING_NULL_SORT_VALUE})`;
       const sortVotesExpr = "coalesce(current_month.count, 0)::integer";
       const sortVoteReachedExpr = `case
-        when coalesce(current_month.count, 0) > 0 then extract(epoch from current_month.first_vote_at)::integer
+        when coalesce(current_month.count, 0) > 0 then extract(epoch from current_month.last_vote_at)::integer
         else abs(('x' || substr(md5(((now() at time zone 'utc')::date::text || ':' || s.id::text)), 1, 8))::bit(32)::int)
       end`;
       const tierPlayersExpr = "coalesce(latest.online_players, 0)";

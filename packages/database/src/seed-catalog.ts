@@ -18,7 +18,31 @@ loadEnv({ path: path.join(packageRoot, ".env"), override: false });
 const catalogSeedOwner = {
   email: "owner@firstspawn.local",
   username: "seed_owner",
-  password: "FirstSpawnSeed123!",
+};
+
+const LOCAL_DB_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+
+const isLocalDatabase = (url: string): boolean => {
+  try {
+    return LOCAL_DB_HOSTS.has(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * The seed owner is an active, email-confirmed, loginable account. Never bake a
+ * usable credential for a non-local database: require SEED_OWNER_PASSWORD there,
+ * and only fall back to a dev default when seeding a local DB.
+ */
+const resolveSeedOwnerPassword = (databaseUrl: string): string => {
+  const fromEnv = process.env.SEED_OWNER_PASSWORD?.trim();
+  if (fromEnv) return fromEnv;
+  if (isLocalDatabase(databaseUrl)) return "FirstSpawnSeed123!";
+  throw new Error(
+    "Refusing to seed a non-local database without SEED_OWNER_PASSWORD. " +
+      "Set SEED_OWNER_PASSWORD, or point the seed at a local database."
+  );
 };
 
 const catalogServers = [
@@ -100,7 +124,9 @@ const deterministicVerificationToken = (host: string): string => {
 };
 
 const main = async (): Promise<void> => {
-  const db = createDatabase(databaseUrl());
+  const url = databaseUrl();
+  const seedOwnerPassword = resolveSeedOwnerPassword(url);
+  const db = createDatabase(url);
   const now = new Date();
 
   try {
@@ -109,7 +135,7 @@ const main = async (): Promise<void> => {
       .values({
         email: catalogSeedOwner.email,
         username: catalogSeedOwner.username,
-        passwordHash: hashSeedPassword(catalogSeedOwner.password),
+        passwordHash: hashSeedPassword(seedOwnerPassword),
         status: "active",
         role: "user",
         emailConfirmedAt: now,
@@ -194,7 +220,9 @@ const main = async (): Promise<void> => {
           owner: {
             email: catalogSeedOwner.email,
             username: catalogSeedOwner.username,
-            password: catalogSeedOwner.password,
+            // Only echo the credential for local dev; never print it for a
+            // password supplied via SEED_OWNER_PASSWORD (shared/remote DB).
+            password: process.env.SEED_OWNER_PASSWORD ? "(from SEED_OWNER_PASSWORD)" : seedOwnerPassword,
           },
           created,
           updated,
