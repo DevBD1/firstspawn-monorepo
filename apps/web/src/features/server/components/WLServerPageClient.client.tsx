@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { WLButton } from "@firstspawn/ui";
 import type { PublicServerDetail, PublicServerListItem } from "@/lib/servers-api";
 import ServerCard from "./ServerCard";
+import { VoteForm } from "./VoteForm.client";
+import ServerLeaderboard from "./ServerLeaderboard.client";
 import type { ServerCardCopy } from "@/features/server/lib/server-copy";
 import type { AppDictionary } from "@/lib/dictionaries/schema";
 
@@ -114,12 +116,13 @@ export default function WLServerPageClient({
   dictionary,
 }: WLServerPageClientProps) {
   const profile = dictionary.serverDetail.profile;
+  const votingCopy = profile.voting;
+  const leaderboardCopy = profile.leaderboard;
   const rankCopy = dictionary.rankSignals;
   const catalog = dictionary.serverCatalog;
   const linkKinds = dictionary.common.linkKinds;
   const sidebarCopy = profile.sidebar;
   const joinAddress = s.port === 25565 ? s.host : `${s.host}:${s.port}`;
-  const voteKey = s.slug;
   const getLinkKind = (platform: PublicServerDetail["socials"][number]["platform"]) => {
     if (platform === "website" || platform === "discord" || platform === "youtube") {
       return linkKinds[platform];
@@ -129,35 +132,6 @@ export default function WLServerPageClient({
   };
 
   const [copied, setCopied] = useState(false);
-  const [voted, setVoted] = useState(false);
-
-  // Load vote state from localStorage on mount (SSR-safe: runs post-mount to
-  // avoid a hydration mismatch, so setState inside the effect is intentional).
-  useEffect(() => {
-    try {
-      const storedVotes = localStorage.getItem("fsproto.votes");
-      if (storedVotes) {
-        const votesObj = JSON.parse(storedVotes);
-        if (votesObj && typeof votesObj === "object") {
-          /* eslint-disable-next-line react-hooks/set-state-in-effect -- post-mount localStorage hydration */
-          setVoted(!!votesObj[voteKey]);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [voteKey]);
-
-  const handleVote = () => {
-    const nextVoted = !voted;
-    setVoted(nextVoted);
-    try {
-      const storedVotes = localStorage.getItem("fsproto.votes");
-      const votesObj = storedVotes ? JSON.parse(storedVotes) : {};
-      votesObj[voteKey] = nextVoted;
-      localStorage.setItem("fsproto.votes", JSON.stringify(votesObj));
-    } catch {}
-  };
 
   const copyAddress = () => {
     try {
@@ -171,8 +145,6 @@ export default function WLServerPageClient({
   const tags = getServerTags(s);
   const isVerified = s.name.length % 3 === 0;
   const uptime = (98.0 + (s.name.length % 20) / 10).toFixed(1);
-  const baseVotes = 1200 + s.name.charCodeAt(0) * 15;
-  const totalVotesCount = baseVotes + (voted ? 1 : 0);
   const canonical = `firstspawn.com/${lang}/server/${s.slug}`;
 
   const gameName = s.game === "mc_bedrock" ? profile.gameNames.mcBedrock : profile.gameNames.mcJava;
@@ -411,6 +383,11 @@ export default function WLServerPageClient({
               </div>
             </section>
 
+            {/* Server-specific voter leaderboard (v1-mvp §14) */}
+            <section className="pt-2">
+              <ServerLeaderboard slug={s.slug} labels={leaderboardCopy} />
+            </section>
+
             {/* Similar Servers */}
             {similarServers.length > 0 && (
               <section className="pt-2">
@@ -454,16 +431,17 @@ export default function WLServerPageClient({
               <WLButton variant="primary" onClick={copyAddress} fullWidth>
                 {sidebarCopy.copyAddressLabel}
               </WLButton>
-              <WLButton
-                variant="secondary"
-                onClick={handleVote}
-                fullWidth
-                className={voted ? "!border-success !text-success bg-transparent" : ""}
-              >
-                {voted ? sidebarCopy.votedLabel : sidebarCopy.voteLabel}
-              </WLButton>
             </div>
           </div>
+
+          {/* Real anonymous voting (v1-mvp §12) */}
+          <VoteForm
+            slug={s.slug}
+            votifierEnabled={s.votifier_enabled}
+            votesThisMonth={s.votes_this_month}
+            votesAllTime={s.votes_all_time}
+            labels={votingCopy}
+          />
 
           {/* Stats blocks */}
           <div className="bg-bg-panel border border-border rounded-xl p-4 flex flex-col gap-2.5">
@@ -473,7 +451,7 @@ export default function WLServerPageClient({
               "text-success"
             )}
             {stat(sidebarCopy.stats.uptime30d, `${uptime}%`)}
-            {stat(sidebarCopy.stats.votes, `${(totalVotesCount / 1000).toFixed(1)}k`)}
+            {stat(sidebarCopy.stats.votes, s.votes_this_month.toLocaleString())}
             {stat(
               sidebarCopy.stats.standing,
               `${sig.trust}`,

@@ -572,6 +572,35 @@
           "mcJavaDefault": "1.21.x · Java"
         },
         "factsFootnote": "bilgiler sahip beyanıdır · canlı ping'lerle karşılaştırılır"
+      },
+      "voting": {
+        "heading": "Bu sunucuya oy ver",
+        "usernameLabel": "Minecraft Java kullanıcı adı",
+        "usernamePlaceholder": "örn. Notch",
+        "submitLabel": "Oy ver",
+        "submitPendingLabel": "Gönderiliyor…",
+        "votesThisMonth": "Bu ayki oylar",
+        "votesAllTime": "Tüm zamanların oyları",
+        "successTitle": "Oyun için teşekkürler!",
+        "successBody": "Oyun bu sunucu için sayıldı.",
+        "alreadyVotedTitle": "Bugün zaten oy verdin",
+        "alreadyVotedBody": "UTC 00:00'dan sonra tekrar oy verebilirsin. Desteğin için teşekkürler!",
+        "rewardEnabledNote": "Bu sunucu oy verdiğinde oyun içi ödüller veriyor.",
+        "rewardNotEnabledNote": "Bu sunucu oyun içi oy ödüllerini etkinleştirmedi, ama oyun yine de sayılıyor.",
+        "turnstileMissingNote": "Oylama geçici olarak kullanılamıyor.",
+        "checkingStatus": "Oy durumun kontrol ediliyor…"
+      },
+      "leaderboard": {
+        "title": "En çok oy verenler",
+        "currentMonth": "Bu ay",
+        "previousMonth": "Geçen ay",
+        "unverifiedNameNote": "Doğrulanmamış Minecraft adları. FirstSpawn, gösterilen adın oy verene ait olduğunu doğrulamaz.",
+        "emptyState": "Bu dönemde henüz oy yok. İlk oy veren sen ol!",
+        "rankColumn": "#",
+        "playerColumn": "Oyuncu",
+        "votesColumn": "Oy",
+        "loading": "Liderlik tablosu yükleniyor…",
+        "errorState": "Liderlik tablosu yüklenemedi. Lütfen tekrar dene."
       }
     }
   },

@@ -31,6 +31,9 @@ export interface PublicServerListItem {
     minecraft_version: string | null;
     occurred_at: string | null;
   };
+  /** Valid votes in the current UTC month (v1-mvp §8.1). */
+  votes_this_month: number;
+  votes_all_time: number;
 }
 
 export interface PublicServerDetail {
@@ -55,6 +58,11 @@ export interface PublicServerDetail {
   host: string;
   port: number;
   id: string;
+  /** Valid votes in the current UTC month (v1-mvp §8.1). */
+  votes_this_month: number;
+  votes_all_time: number;
+  /** Whether the owner has Votifier configured; drives the vote-reward note. */
+  votifier_enabled: boolean;
   socials: Array<{
     platform: "website" | "discord" | "youtube" | "twitter" | "instagram" | "tiktok" | "facebook";
     url: string;
