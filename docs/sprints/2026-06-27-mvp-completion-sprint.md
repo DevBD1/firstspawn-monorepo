@@ -213,3 +213,17 @@ retention jobs beyond the 48h IP-HMAC (§17.3); GA4 (§16); backups/observabilit
 | Two agents collide on `schema.ts` / `servers.ts` | Codex owns DB+API, Claude owns web; sync at each checkpoint, not continuously |
 | Vote integrity subtle (UTC reset, HMAC, trusted proxy) | Write the uniqueness/Turnstile tests (task 8) as you build, not after |
 | Human review is the bottleneck, not agent output | ~25% slack/day; if behind, drop the leaderboard (task 6) before the vote loop or Votifier |
+
+## Follow-ups from Day-1 testing (post-MVP backlog)
+
+Ideas surfaced while testing the vote component (the only interactive surface on a
+server profile). Not built; longer-term home for product ideas is `PRODUCT.md`.
+
+- **Vote XP.** Award platform XP for each valid vote, whether or not Votifier is enabled.
+  Needs an account/XP model — anonymous votes have no user today (`v1-mvp.md` §12.1).
+- **Owner reward showcase.** Let owners declare in-game vote-reward details, shown inside
+  the vote component. Needs an owner-declared, moderated profile field (§5.5 / §9.1);
+  pairs with the existing Votifier status line.
+- **Promote / redesign the vote component.** Voting is the primary interactive element on
+  a profile; consider placement + a visual redesign to highlight it. Needs design
+  direction.

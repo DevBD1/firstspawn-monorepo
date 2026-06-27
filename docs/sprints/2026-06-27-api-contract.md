@@ -79,6 +79,20 @@ Extend `GET /api/v1/servers` (existing handler in `apps/api/src/routes/v1/server
   their detail page (§8.1/§8.2). (Day 1 uses existing `probe_status='offline'`; the full
   3-of-12 health state machine is deferred.)
 
+## 2b. Vote status (load-time UX)
+
+`GET /api/v1/servers/:slug/vote-status` — called from the browser via a Next Server
+Action (`getVoteStatus`) that forwards the client IP like the vote endpoint. Read-only,
+no Turnstile. Lets the vote form reflect "already voted today" + live counts on load.
+
+**Success `200`** — `data`:
+```json
+{ "voted_today": false, "votes_this_month": 1421, "votes_all_time": 33890 }
+```
+- `voted_today` is keyed on the same daily IP-HMAC as the uniqueness rule (anonymous;
+  shared-NAT caveat accepted).
+- `404 SERVER_NOT_FOUND` for unknown/non-active slug.
+
 ## 3. Per-server voter leaderboard
 
 `GET /api/v1/servers/:slug/leaderboard?month=current|previous` (default `current`).
