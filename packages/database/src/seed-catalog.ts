@@ -222,7 +222,9 @@ const main = async (): Promise<void> => {
             username: catalogSeedOwner.username,
             // Only echo the credential for local dev; never print it for a
             // password supplied via SEED_OWNER_PASSWORD (shared/remote DB).
-            password: process.env.SEED_OWNER_PASSWORD ? "(from SEED_OWNER_PASSWORD)" : seedOwnerPassword,
+            password: process.env.SEED_OWNER_PASSWORD
+              ? "(from SEED_OWNER_PASSWORD)"
+              : seedOwnerPassword,
           },
           created,
           updated,
