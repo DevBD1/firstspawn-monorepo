@@ -13,6 +13,7 @@ v1 is intentionally focused:
 - Email/password auth
 - Admin-populated server list
 - Server heartbeat freshness and retention rollups
+- Anonymous server votes with monthly counters
 - Soft-delete with delayed purge and restore flow
 
 ```mermaid
@@ -253,6 +254,28 @@ erDiagram
         timestamptz updated_at
     }
 
+    votes {
+        uuid id PK "uuidv4"
+        uuid server_id FK "indexed, cascade"
+        citext username_normalized
+        date voted_on "UTC date"
+        text ip_hmac "nullable after 48h retention"
+        varchar(32) asn "nullable"
+        varchar(2) country_code "nullable"
+        text user_agent "nullable"
+        timestamptz created_at
+    }
+
+    server_vote_counters {
+        uuid server_id PK,FK "cascade"
+        date month PK "UTC month start"
+        int count
+        timestamptz first_vote_at "nullable"
+        timestamptz last_vote_at "nullable"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
     server_moderation_logs {
         uuid id PK "uuidv4"
         uuid server_id FK "nullable, indexed"
@@ -277,6 +300,8 @@ erDiagram
     servers ||--o{ server_heartbeats : "receives pings"
     servers ||--o{ server_heartbeat_hourly : "rollup"
     servers ||--o{ server_heartbeat_daily : "rollup"
+    servers ||--o{ votes : "receives votes"
+    servers ||--o{ server_vote_counters : "vote counters"
     servers ||--o{ server_media : "has media"
     servers ||--o{ server_supported_clients : "supports clients"
     countries ||--o{ servers : "hosts"
@@ -294,6 +319,12 @@ erDiagram
 - `server_media.kind` is constrained to `build`, `banner`, `screenshot`, or `logo`.
 - `server_socials` primary key is `(server_id, platform)`.
 - `server_supported_clients` primary key is `(server_id, client_name, client_version)`.
+- `votes.username_normalized` is DB-constrained to lowercase Minecraft Java usernames:
+  `^[a-z0-9_]{3,16}$`.
+- `votes` has two independent UTC-day uniqueness rules:
+  `(server_id, voted_on, ip_hmac)` and `(server_id, voted_on, username_normalized)`.
+- `server_vote_counters` primary key is `(server_id, month)`; `month` must be the UTC
+  month-start date and `count` must be non-negative.
 - `user_moderation_logs.action` and `server_moderation_logs.action` are constrained to `suspended`, `unsuspended`, or `warned`.
 - `servers.status` is catalog/moderation state only: `active`, `suspended`, or `archived`.
 - Collectors target active `mc_java` rows regardless of heartbeat freshness or probe confidence.
@@ -303,6 +334,10 @@ erDiagram
 ## Retention And Lifecycle
 
 - Raw `server_heartbeats` retention: 14 days for all servers.
+- Vote IP HMAC retention: clear `votes.ip_hmac` after 48 hours with
+  `packages/database/jobs/purge_vote_ip_hmacs.sql`.
+- Vote passive fraud signals (`asn`, `country_code`, `user_agent`) are retained for 90
+  days by policy; the pruning job is a follow-up.
 - Server archive policy:
   - Archive only from explicit catalog/admin evidence.
   - Collector silence, stale `last_ping_at`, failed probes, DNS failures, or network reachability failures must not archive rows.

@@ -66,6 +66,9 @@ export interface MyListing {
   verification_method: VerificationMethod | null;
   created_at: string;
   tags: string[];
+  /** Valid votes in the current UTC month (v1-mvp §6). */
+  votes_this_month: number;
+  votes_all_time: number;
   latest_metrics: {
     ping_ms: number | null;
     online_players: number | null;

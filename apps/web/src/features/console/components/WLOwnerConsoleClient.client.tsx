@@ -32,6 +32,8 @@ interface ConsoleServer {
   reach_scope?: ServerReachScope | null;
   pending?: boolean;
   tags?: string[];
+  votes_this_month?: number;
+  votes_all_time?: number;
   latest_metrics?: { online_players?: number | null } | null;
   [key: string]: unknown;
 }
@@ -643,7 +645,6 @@ export default function WLOwnerConsoleClient({
   }
 
   const sig = getServerSignals(activeServer.name);
-  const baseVotes = 1200 + activeServer.name.charCodeAt(0) * 15;
   // Owner-side profile editing has no API yet, so the form stays read-only for now.
   const isCustomServer = false;
 
@@ -835,7 +836,7 @@ export default function WLOwnerConsoleClient({
 
                 <div className="bg-bg-panel border border-border rounded-xl p-3.5 shadow-sm">
                   <div className="font-mono text-lg font-bold text-foreground">
-                    {activeServer.pending ? "0" : `${(baseVotes / 1000).toFixed(1)}k`}
+                    {(activeServer.votes_this_month ?? 0).toLocaleString()}
                   </div>
                   <div className="font-body text-[11px] text-muted mt-0.5">
                     {consoleCopy.overview.votesLabel}

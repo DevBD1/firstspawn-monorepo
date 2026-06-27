@@ -572,6 +572,35 @@
           "mcJavaDefault": "1.21.x · Java"
         },
         "factsFootnote": "facts are owner-declared · checked against live pings"
+      },
+      "voting": {
+        "heading": "Vote for this server",
+        "usernameLabel": "Minecraft Java username",
+        "usernamePlaceholder": "e.g. Notch",
+        "submitLabel": "Vote",
+        "submitPendingLabel": "Submitting…",
+        "votesThisMonth": "Votes this month",
+        "votesAllTime": "All-time votes",
+        "successTitle": "Thanks for voting!",
+        "successBody": "Your vote has been counted for this server.",
+        "alreadyVotedTitle": "You already voted today",
+        "alreadyVotedBody": "You can vote again after 00:00 UTC. Thanks for the support!",
+        "rewardEnabledNote": "This server delivers in-game rewards when you vote.",
+        "rewardNotEnabledNote": "This server hasn't enabled in-game vote rewards, but your vote still counts.",
+        "turnstileMissingNote": "Voting is temporarily unavailable.",
+        "checkingStatus": "Checking your vote status…"
+      },
+      "leaderboard": {
+        "title": "Top voters",
+        "currentMonth": "This month",
+        "previousMonth": "Last month",
+        "unverifiedNameNote": "Unverified Minecraft names. FirstSpawn does not confirm that a voter owns the name shown.",
+        "emptyState": "No votes yet this period. Be the first to vote!",
+        "rankColumn": "#",
+        "playerColumn": "Player",
+        "votesColumn": "Votes",
+        "loading": "Loading leaderboard…",
+        "errorState": "Could not load the leaderboard. Please try again."
       }
     }
   },

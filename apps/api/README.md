@@ -39,6 +39,8 @@ and database schema/client primitives consumed from `@firstspawn/database`.
 - DB-backed integration and concurrency tests for auth flows
 - Admin server catalog endpoints (`mc_java`)
 - Public server list/detail endpoints (slug detail)
+- Anonymous server voting endpoint with Turnstile verification and UTC-day dedupe
+- Public vote ranking, per-server voter leaderboard, and owner vote totals
 - Catalog server metadata uses `auth_mode`, `country_code`, `logo_url`,
   `banner_url`, embedded `socials`, and embedded `supported_clients`
 - Collector target, heartbeat ingestion, and probe-failure ingestion endpoints
@@ -89,6 +91,7 @@ API_REFRESH_TOKEN_EXPIRE_DAYS=30
 API_TEST_DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}
 API_ADMIN_EMAIL_ALLOWLIST=admin@firstspawn.com
 API_COLLECTOR_KEY=change_me_collector_key
+TURNSTILE_SECRET_KEY=change_me_turnstile_secret
 MAIL_SERVER=mail.firstspawn.com
 MAIL_PORT=587
 MAIL_USERNAME=admin@firstspawn.com
@@ -177,7 +180,31 @@ Test isolation uses per-test PostgreSQL schemas via `search_path` (no create-dat
 - `PATCH /api/v1/admin/servers/:id/status`
 - `GET /api/v1/servers`
 - `GET /api/v1/servers/:slug`
+- `POST /api/v1/servers/:slug/vote`
+- `GET /api/v1/servers/:slug/leaderboard`
 - `GET /api/v1/collector/targets`
 - `POST /api/v1/collector/heartbeats`
 - `GET /docs`
 - `GET /openapi.json`
+
+## Vote Loop
+
+`POST /api/v1/servers/:slug/vote` accepts `{ "username", "turnstile_token" }`,
+verifies Turnstile server-side with `TURNSTILE_SECRET_KEY`, normalizes Minecraft
+Java usernames to lowercase, and writes a vote exactly once inside a database
+transaction. Duplicate UTC-day votes by either resolved client IP HMAC or
+normalized username return `409 ALREADY_VOTED_TODAY`.
+
+The public list defaults to `sort=most_voted` and returns
+`votes_this_month`/`votes_all_time` on list and detail responses. Vote totals are
+stored in `server_vote_counters` by UTC month so public list, detail, and owner
+dashboard reads do not aggregate the raw `votes` table on every request.
+
+Operational retention target:
+
+```bash
+psql "$API_DATABASE_URL" -f packages/database/jobs/purge_vote_ip_hmacs.sql
+```
+
+This clears `votes.ip_hmac` after 48 hours. Passive fraud-signal columns are
+retained for 90 days by policy; the pruning job for those columns is deferred.

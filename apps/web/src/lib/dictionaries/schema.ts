@@ -609,6 +609,35 @@ export interface ServerDetailDictionary {
       };
       factsFootnote: string;
     };
+    voting: {
+      heading: string;
+      usernameLabel: string;
+      usernamePlaceholder: string;
+      submitLabel: string;
+      submitPendingLabel: string;
+      votesThisMonth: string;
+      votesAllTime: string;
+      successTitle: string;
+      successBody: string;
+      alreadyVotedTitle: string;
+      alreadyVotedBody: string;
+      rewardEnabledNote: string;
+      rewardNotEnabledNote: string;
+      turnstileMissingNote: string;
+      checkingStatus: string;
+    };
+    leaderboard: {
+      title: string;
+      currentMonth: string;
+      previousMonth: string;
+      unverifiedNameNote: string;
+      emptyState: string;
+      rankColumn: string;
+      playerColumn: string;
+      votesColumn: string;
+      loading: string;
+      errorState: string;
+    };
   };
   relativeTime: {
     justNow: string;

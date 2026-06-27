@@ -476,6 +476,64 @@ export const serverHeartbeats = pgTable(
   ]
 );
 
+export const votes = pgTable(
+  "votes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serverId: uuid("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+    usernameNormalized: citext("username_normalized").notNull(),
+    votedOn: date("voted_on", { mode: "date" }).notNull(),
+    ipHmac: text("ip_hmac"),
+    asn: varchar("asn", { length: 32 }),
+    countryCode: varchar("country_code", { length: 2 }),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_votes_server_id").on(table.serverId),
+    index("idx_votes_voted_on").on(table.votedOn),
+    index("idx_votes_created_at").on(table.createdAt),
+    uniqueIndex("votes_server_day_ip_unique").on(table.serverId, table.votedOn, table.ipHmac),
+    uniqueIndex("votes_server_day_username_unique").on(
+      table.serverId,
+      table.votedOn,
+      table.usernameNormalized
+    ),
+    check(
+      "chk_votes_username_normalized",
+      sql`${table.usernameNormalized}::text ~ '^[a-z0-9_]{3,16}$'`
+    ),
+  ]
+);
+
+export const serverVoteCounters = pgTable(
+  "server_vote_counters",
+  {
+    serverId: uuid("server_id")
+      .notNull()
+      .references(() => servers.id, { onDelete: "cascade" }),
+    month: date("month", { mode: "date" }).notNull(),
+    count: integer("count").notNull().default(0),
+    firstVoteAt: timestamp("first_vote_at", { withTimezone: true, mode: "date" }),
+    lastVoteAt: timestamp("last_vote_at", { withTimezone: true, mode: "date" }),
+    ...timestamps,
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.serverId, table.month],
+      name: "pk_server_vote_counters",
+    }),
+    index("idx_server_vote_counters_month_count").on(table.month, table.count),
+    check("chk_server_vote_counters_count", sql`${table.count} >= 0`),
+    check(
+      "chk_server_vote_counters_month_start",
+      sql`${table.month} = date_trunc('month', ${table.month}::timestamp)::date`
+    ),
+  ]
+);
+
 export const serverHeartbeatHourly = pgTable(
   "server_heartbeat_hourly",
   {

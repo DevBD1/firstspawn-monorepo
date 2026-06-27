@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -183,7 +183,6 @@ function LandingServerCard({
 function LandingServerRow({
   s,
   rank,
-  voted,
   onVote,
   openRank,
   onToggleRank,
@@ -193,7 +192,7 @@ function LandingServerRow({
 }: {
   s: PublicServerListItem;
   rank: number;
-  voted: boolean;
+  /** Navigates to the server detail page, where the real vote form lives. */
   onVote: () => void;
   openRank: boolean;
   onToggleRank: () => void;
@@ -206,7 +205,6 @@ function LandingServerRow({
   const relativeTime = getRelativeTime(s, rowCopy.relativeTime);
   const uptime = (98.0 + (s.name.length % 20) / 10).toFixed(1);
   const online = s.latest_metrics.online_players ?? 0;
-  const baseVotes = 1200 + s.name.charCodeAt(0) * 15;
 
   return (
     <div className="grid grid-cols-[44px_minmax(0,1fr)_96px] sm:grid-cols-[44px_40px_minmax(0,1fr)_110px_96px] md:grid-cols-[44px_40px_minmax(0,1fr)_110px_88px_96px] items-center gap-4 py-3 px-2 border-b border-border transition-colors duration-120 hover:bg-secondary/40 relative">
@@ -270,13 +268,9 @@ function LandingServerRow({
       </div>
       <button
         onClick={onVote}
-        className={`font-ui font-bold text-xs rounded-lg px-3 py-1.5 min-h-[36px] w-full text-center transition-all cursor-pointer ${
-          voted
-            ? "bg-transparent border border-success text-success"
-            : "bg-primary border border-primary-hover text-on-primary"
-        }`}
+        className="font-ui font-bold text-xs rounded-lg px-3 py-1.5 min-h-[36px] w-full text-center transition-all cursor-pointer bg-primary border border-primary-hover text-on-primary"
       >
-        {voted ? rowCopy.votedLabel : `▲ ${((baseVotes + (voted ? 1 : 0)) / 1000).toFixed(1)}k`}
+        ▲ {s.votes_this_month.toLocaleString()}
       </button>
     </div>
   );
@@ -291,7 +285,6 @@ export default function WLLandingClient({
 }: WLLandingClientProps) {
   const router = useRouter();
   const [q, setQ] = useState("");
-  const [votes, setVotes] = useState<Record<string, boolean>>({});
   const [rankPop, setRankPop] = useState<string | null>(null);
   const [peekServer, setPeekServer] = useState<PublicServerListItem | null>(null);
 
@@ -302,29 +295,6 @@ export default function WLLandingClient({
 
   const getCountryName = (code: string | null) =>
     getLocalizedCountryName((code || "WW").toUpperCase(), lang, dictionary.common.countries);
-
-  // Load votes from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("fsproto.votes");
-      if (saved) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- SSR-safe localStorage hydration must run post-mount to avoid a hydration mismatch
-        setVotes(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
-
-  const handleVote = (id: string) => {
-    const nextVotes = { ...votes, [id]: !votes[id] };
-    setVotes(nextVotes);
-    try {
-      localStorage.setItem("fsproto.votes", JSON.stringify(nextVotes));
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -491,8 +461,7 @@ export default function WLLandingClient({
                 key={s.slug}
                 s={s}
                 rank={idx + 1}
-                voted={!!votes[s.slug]}
-                onVote={() => handleVote(s.slug)}
+                onVote={() => handleOpenFull(s)}
                 openRank={rankPop === s.slug}
                 onToggleRank={() => setRankPop(rankPop === s.slug ? null : s.slug)}
                 onOpen={() => handleOpenServer(s)}
@@ -540,8 +509,6 @@ export default function WLLandingClient({
         <ServerQuickPeekModal
           server={peekServer}
           lang={lang}
-          voted={!!votes[peekServer.slug]}
-          onVote={() => handleVote(peekServer.slug)}
           onClose={() => setPeekServer(null)}
           onOpenFull={() => {
             const target = peekServer;

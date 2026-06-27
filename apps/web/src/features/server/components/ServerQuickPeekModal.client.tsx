@@ -44,9 +44,8 @@ function getGameName(game: string, gameNames: ServerRowCopy["gameNames"]) {
 interface ServerQuickPeekModalProps {
   server: PublicServerListItem;
   lang: string;
-  voted: boolean;
-  onVote: () => void;
   onClose: () => void;
+  /** Opens the full server detail page, where the real vote form lives. */
   onOpenFull: () => void;
   rowCopy: ServerRowCopy;
   rankCopy: RankSignalsDictionary;
@@ -57,8 +56,6 @@ interface ServerQuickPeekModalProps {
 export default function ServerQuickPeekModal({
   server: s,
   lang,
-  voted,
-  onVote,
   onClose,
   onOpenFull,
   rowCopy,
@@ -72,7 +69,6 @@ export default function ServerQuickPeekModal({
   const isVerified = s.name.length % 3 === 0;
   const online = s.latest_metrics?.online_players ?? 0;
   const uptime = (98.0 + (s.name.length % 20) / 10).toFixed(1);
-  const votes = (1200 + s.name.charCodeAt(0) * 15 + (voted ? 1 : 0)) / 1000;
 
   // Close on Escape and lock background scroll while the modal is open.
   useEffect(() => {
@@ -192,7 +188,7 @@ export default function ServerQuickPeekModal({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3.5">
             {statTile(modalCopy.onlineNowLabel, online.toLocaleString(), "success")}
             {statTile(modalCopy.uptimeLabel, `${uptime}%`)}
-            {statTile(modalCopy.votesLabel, `${votes.toFixed(1)}k`)}
+            {statTile(modalCopy.votesLabel, s.votes_this_month.toLocaleString())}
             {statTile(
               modalCopy.standingLabel,
               isVerified ? modalCopy.verifiedStanding : String(sig.trust),
@@ -227,8 +223,8 @@ export default function ServerQuickPeekModal({
             <WLButton variant="primary" fullWidth onClick={handleCopyAddress}>
               {copied ? modalCopy.copiedLabel : modalCopy.copyAddressLabel}
             </WLButton>
-            <WLButton variant={voted ? "success" : "quiet"} fullWidth onClick={onVote}>
-              {voted ? modalCopy.votedLabel : modalCopy.voteLabel}
+            <WLButton variant="quiet" fullWidth onClick={onOpenFull}>
+              {modalCopy.voteLabel}
             </WLButton>
           </div>
 

@@ -79,6 +79,7 @@ services:
       MAIL_STARTTLS: ${MAIL_STARTTLS:-true}
       MAIL_SSL_TLS: ${MAIL_SSL_TLS:-false}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
     ports:
       - "${API_HOST_PORT:-8000}:8000"
     depends_on:

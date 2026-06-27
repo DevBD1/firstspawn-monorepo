@@ -53,6 +53,7 @@ const configSchema = z.object({
   API_REFRESH_TOKEN_EXPIRE_DAYS: z.coerce.number().int().positive().default(30),
   API_ADMIN_EMAIL_ALLOWLIST: z.string().default("").transform(parseCommaSeparatedList),
   API_COLLECTOR_KEY: z.string().min(1).default("dev-only-collector-key-change-me"),
+  TURNSTILE_SECRET_KEY: z.string().default(""),
   API_TEST_DATABASE_URL: z.string().optional(),
   MAIL_USERNAME: z.string().default("admin@firstspawn.com"),
   MAIL_PASSWORD: z.string().default(""),

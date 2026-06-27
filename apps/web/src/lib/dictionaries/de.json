@@ -542,6 +542,35 @@
           "mcJavaDefault": "1.21.x · Java"
         },
         "factsFootnote": "Fakten sind Inhaberangaben · gegen Live-Pings geprüft"
+      },
+      "voting": {
+        "heading": "Für diesen Server abstimmen",
+        "usernameLabel": "Minecraft-Java-Benutzername",
+        "usernamePlaceholder": "z. B. Notch",
+        "submitLabel": "Abstimmen",
+        "submitPendingLabel": "Wird gesendet…",
+        "votesThisMonth": "Stimmen diesen Monat",
+        "votesAllTime": "Stimmen insgesamt",
+        "successTitle": "Danke fürs Abstimmen!",
+        "successBody": "Deine Stimme wurde für diesen Server gezählt.",
+        "alreadyVotedTitle": "Du hast heute schon abgestimmt",
+        "alreadyVotedBody": "Du kannst nach 00:00 UTC erneut abstimmen. Danke für die Unterstützung!",
+        "rewardEnabledNote": "Dieser Server liefert In-Game-Belohnungen, wenn du abstimmst.",
+        "rewardNotEnabledNote": "Dieser Server hat keine In-Game-Belohnungen aktiviert, deine Stimme zählt aber trotzdem.",
+        "turnstileMissingNote": "Abstimmen ist vorübergehend nicht verfügbar.",
+        "checkingStatus": "Dein Abstimmungsstatus wird geprüft…"
+      },
+      "leaderboard": {
+        "title": "Top-Wähler",
+        "currentMonth": "Dieser Monat",
+        "previousMonth": "Letzter Monat",
+        "unverifiedNameNote": "Unbestätigte Minecraft-Namen. FirstSpawn bestätigt nicht, dass der angezeigte Name dem Wähler gehört.",
+        "emptyState": "In diesem Zeitraum noch keine Stimmen. Sei der Erste!",
+        "rankColumn": "#",
+        "playerColumn": "Spieler",
+        "votesColumn": "Stimmen",
+        "loading": "Bestenliste wird geladen…",
+        "errorState": "Bestenliste konnte nicht geladen werden. Bitte versuche es erneut."
       }
     }
   },

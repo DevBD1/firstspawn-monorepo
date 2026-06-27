@@ -115,6 +115,13 @@ function getRankScore(sig: Signals) {
   return sig.activity * sig.trust * sig.freshness;
 }
 
+/** Maps the UI sort control to the API sort so vote ordering is global, not page-local. */
+function resolveApiSort(sortBy: "Rank" | "Players" | "Votes"): PublicServerSort {
+  if (sortBy === "Players") return "players";
+  if (sortBy === "Votes") return "most_voted";
+  return "ping";
+}
+
 function getRelativeTime(s: PublicServerListItem, rt: ServerRowCopy["relativeTime"]) {
   if (!s.last_ping_at) return rt.unknown;
   const elapsedMs = Date.now() - new Date(s.last_ping_at).getTime();
@@ -179,7 +186,6 @@ function RankPopover({
 function DiscoverServerRow({
   s,
   rank,
-  voted,
   onVote,
   openRank,
   onToggleRank,
@@ -189,7 +195,7 @@ function DiscoverServerRow({
 }: {
   s: PublicServerListItem;
   rank: number;
-  voted: boolean;
+  /** Navigates to the server detail page, where the real vote form lives. */
   onVote: () => void;
   openRank: boolean;
   onToggleRank: () => void;
@@ -202,7 +208,6 @@ function DiscoverServerRow({
   const relativeTime = getRelativeTime(s, rowCopy.relativeTime);
   const uptime = (98.0 + (s.name.length % 20) / 10).toFixed(1);
   const online = s.latest_metrics?.online_players ?? 0;
-  const baseVotes = 1200 + s.name.charCodeAt(0) * 15;
 
   return (
     <div className="grid grid-cols-[44px_minmax(0,1fr)_96px] sm:grid-cols-[44px_40px_minmax(0,1fr)_110px_96px] md:grid-cols-[44px_40px_minmax(0,1fr)_110px_88px_96px] items-center gap-4 py-3 px-2 border-b border-border transition-colors duration-120 hover:bg-secondary/40 relative">
@@ -266,13 +271,9 @@ function DiscoverServerRow({
       </div>
       <button
         onClick={onVote}
-        className={`font-ui font-bold text-xs rounded-lg px-3 py-1.5 min-h-[36px] w-full text-center transition-all cursor-pointer ${
-          voted
-            ? "bg-transparent border border-success text-success"
-            : "bg-primary border border-primary-hover text-on-primary"
-        }`}
+        className="font-ui font-bold text-xs rounded-lg px-3 py-1.5 min-h-[36px] w-full text-center transition-all cursor-pointer bg-primary border border-primary-hover text-on-primary"
       >
-        {voted ? rowCopy.votedLabel : `▲ ${((baseVotes + (voted ? 1 : 0)) / 1000).toFixed(1)}k`}
+        ▲ {s.votes_this_month.toLocaleString()}
       </button>
     </div>
   );
@@ -344,7 +345,6 @@ export default function DiscoverClient({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [, startTransition] = useTransition();
 
-  const [votes, setVotes] = useState<Record<string, boolean>>({});
   const [rankPop, setRankPop] = useState<string | null>(null);
   const [peekServer, setPeekServer] = useState<PublicServerListItem | null>(null);
 
@@ -379,28 +379,6 @@ export default function DiscoverClient({
     Rank: copy.filters.sortOptions.rank,
     Players: copy.filters.sortOptions.players,
     Votes: copy.filters.sortOptions.votes,
-  };
-
-  // Load votes from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("fsproto.votes");
-      if (saved) {
-        setVotes(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
-
-  const handleVote = (id: string) => {
-    const nextVotes = { ...votes, [id]: !votes[id] };
-    setVotes(nextVotes);
-    try {
-      localStorage.setItem("fsproto.votes", JSON.stringify(nextVotes));
-    } catch (e) {
-      console.error(e);
-    }
   };
 
   useEffect(() => {
@@ -443,7 +421,7 @@ export default function DiscoverClient({
           if (intent.game === "Minecraft") apiGame = "mc_java";
         }
 
-        const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
+        const apiSort = resolveApiSort(sortBy);
 
         const [serversData, statsData] = await Promise.all([
           loadMoreServers({
@@ -477,14 +455,9 @@ export default function DiscoverClient({
           });
         }
 
-        // Apply client-side sorting if Votes selected (not handled by backend API yet)
-        if (sortBy === "Votes") {
-          filteredServers.sort((a, b) => {
-            const votesA = 1200 + a.name.charCodeAt(0) * 15;
-            const votesB = 1200 + b.name.charCodeAt(0) * 15;
-            return votesB - votesA;
-          });
-        } else if (sortBy === "Rank") {
+        // "Votes" and "Players" are ordered by the API (with matching cursor);
+        // "Rank" is a client-side heuristic over derived signals.
+        if (sortBy === "Rank") {
           filteredServers.sort((a, b) => {
             return getRankScore(getServerSignals(b)) - getRankScore(getServerSignals(a));
           });
@@ -521,7 +494,7 @@ export default function DiscoverClient({
     try {
       let apiGame: PublicServerGame | undefined = undefined;
       if (selectedGame === "Minecraft") apiGame = "mc_java";
-      const apiSort: PublicServerSort = sortBy === "Players" ? "players" : "ping";
+      const apiSort = resolveApiSort(sortBy);
 
       const data = await loadMoreServers({
         q: debouncedQuery.trim() || undefined,
@@ -769,8 +742,7 @@ export default function DiscoverClient({
                   key={s.slug}
                   s={s}
                   rank={idx + 1}
-                  voted={!!votes[s.slug]}
-                  onVote={() => handleVote(s.slug)}
+                  onVote={() => handleOpenFull(s)}
                   openRank={rankPop === s.slug}
                   onToggleRank={() => setRankPop(rankPop === s.slug ? null : s.slug)}
                   onOpen={() => handleOpenServer(s)}
@@ -804,8 +776,6 @@ export default function DiscoverClient({
         <ServerQuickPeekModal
           server={peekServer}
           lang={lang}
-          voted={!!votes[peekServer.slug]}
-          onVote={() => handleVote(peekServer.slug)}
           onClose={() => setPeekServer(null)}
           onOpenFull={() => {
             const target = peekServer;
