@@ -9,9 +9,10 @@ import { registerServerRoutes } from "./v1/servers.js";
 
 const HEALTH_CHECK_TIMEOUT_MS = 2_000;
 
-const checkDependency = async (probe: Promise<unknown>): Promise<boolean> => {
+const checkDependency = async (probeFn: () => Promise<unknown>): Promise<boolean> => {
   try {
-    await withTimeout(probe, HEALTH_CHECK_TIMEOUT_MS, "health check");
+    // Create the probe inside the try so a synchronous throw is caught too.
+    await withTimeout(probeFn(), HEALTH_CHECK_TIMEOUT_MS, "health check");
     return true;
   } catch {
     return false;
@@ -24,8 +25,8 @@ const handleHealthz = async (
 ): Promise<FastifyReply> => {
   const app = request.server;
   const [db, redis] = await Promise.all([
-    checkDependency(app.db.pool.query("SELECT 1")),
-    checkDependency(app.redis.ping()),
+    checkDependency(() => app.db.pool.query("SELECT 1")),
+    checkDependency(() => app.redis.ping()),
   ]);
 
   // Postgres is the core dependency; without it the API can't serve. Redis is

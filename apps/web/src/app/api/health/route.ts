@@ -16,7 +16,9 @@ const HEALTH_FETCH_TIMEOUT_MS = 3_000;
 //     paired with an old backend doesn't false-alarm as "unreachable".
 // Deduped when the API base has no version segment to strip.
 const getHealthUrls = (): string[] => {
-  const base = getApiBaseUrl();
+  // getApiBaseUrl() already strips a trailing slash; redo it here so the version
+  // regex below can't be defeated by an unexpected trailing slash in the base.
+  const base = getApiBaseUrl().replace(/\/$/, "");
   const versioned = `${base}/healthz`;
   const root = `${base.replace(/\/api\/v\d+$/, "")}/healthz`;
   return versioned === root ? [versioned] : [versioned, root];
