@@ -214,6 +214,26 @@ retention jobs beyond the 48h IP-HMAC (§17.3); GA4 (§16); backups/observabilit
 | Vote integrity subtle (UTC reset, HMAC, trusted proxy) | Write the uniqueness/Turnstile tests (task 8) as you build, not after |
 | Human review is the bottleneck, not agent output | ~25% slack/day; if behind, drop the leaderboard (task 6) before the vote loop or Votifier |
 
+## Added mid-sprint (unplanned)
+
+Work that was not in the 2-day plan but was built and verified this sprint. Logged
+here for traceability; it does not change the planned scope above.
+
+- **Live API health surfacing in the web UI.** The footer "Systems Normal" indicator was
+  hardcoded and API outages failed silently (e.g. the Discover feed swallowed fetch errors
+  to the console). Upgraded `/healthz` to real Postgres + Redis dependency checks
+  (`ok` / `degraded` / `down`, 503 when down), proxied it through a Next.js route handler
+  (`apps/web/src/app/api/health/route.ts`), and added an `ApiHealthProvider` that drives
+  both the footer indicator and a new app-wide connection banner (visible on `/discover`,
+  where the footer is hidden). Inline retry surfacing added to the two silently-failing
+  Discover catch blocks. i18n strings added for en/tr/de. Relates to §10.2 (health states).
+- **Fix: API no longer crashes when Postgres drops.** Found while exercising the `down`
+  flow — `createDatabase()` built a `pg.Pool` with no `'error'` listener, so an idle-client
+  error (Postgres restart / dropped connection) became an unhandled exception and killed the
+  API process, which would defeat the new `down` state. Added a pool error handler in
+  `packages/database/src/client.ts`, mirroring the existing Redis client handler. The API now
+  survives a DB outage and reports `down` (503) instead of crashing.
+
 ## Follow-ups from Day-1 testing (post-MVP backlog)
 
 Ideas surfaced while testing the vote component (the only interactive surface on a

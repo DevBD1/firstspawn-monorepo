@@ -343,6 +343,11 @@ export default function DiscoverClient({
   const [globalStats, setGlobalStats] = useState<PublicServerStats>(initialGlobalStats);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  // Which fetch failed, so the retry button knows whether to re-run the
+  // filter/refresh query or just load the next page.
+  const [errorSource, setErrorSource] = useState<"refresh" | "load" | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [, startTransition] = useTransition();
 
   const [rankPop, setRankPop] = useState<string | null>(null);
@@ -466,9 +471,13 @@ export default function DiscoverClient({
         setServers(filteredServers);
         setNextCursor(serversData.pagination.next_cursor);
         setGlobalStats(statsData);
+        setLoadError(false);
+        setErrorSource(null);
       } catch (err) {
         if (refreshRequestIdRef.current !== requestId) return;
         console.error("Failed to refresh discover servers", err);
+        setLoadError(true);
+        setErrorSource("refresh");
       } finally {
         if (refreshRequestIdRef.current === requestId) {
           setIsRefreshing(false);
@@ -485,6 +494,7 @@ export default function DiscoverClient({
     intent.game,
     intent.tags,
     intent.country,
+    retryCount,
   ]);
 
   // Load more trigger
@@ -514,8 +524,12 @@ export default function DiscoverClient({
 
       setServers((prev) => [...prev, ...nextServers]);
       setNextCursor(data.pagination.next_cursor);
+      setLoadError(false);
+      setErrorSource(null);
     } catch (err) {
       console.error("Failed to load more servers", err);
+      setLoadError(true);
+      setErrorSource("load");
     } finally {
       setIsLoadingMore(false);
     }
@@ -762,11 +776,34 @@ export default function DiscoverClient({
 
           {/* Observer Infinite Loading Spinner */}
           <div ref={observerTarget} className="mt-8 flex justify-center pb-12">
-            {nextCursor && !isLoadingMore && (
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="h-6 w-6 animate-spin rounded-full border border-primary border-t-transparent" />
-                <span className="font-ui text-xs text-muted">{copy.results.loadingMore}</span>
+            {loadError ? (
+              <div className="flex flex-col items-center gap-2">
+                <span className="font-ui text-xs text-danger">{copy.results.loadError}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoadError(false);
+                    // A refresh/filter failure has no cursor to "load more" from —
+                    // re-trigger the refresh effect instead; otherwise page forward.
+                    if (errorSource === "refresh") {
+                      setRetryCount((c) => c + 1);
+                    } else {
+                      void loadMore();
+                    }
+                  }}
+                  className="rounded-full border border-border px-3 py-1 font-ui text-xs text-muted transition-colors hover:text-primary"
+                >
+                  {copy.results.retry}
+                </button>
               </div>
+            ) : (
+              nextCursor &&
+              !isLoadingMore && (
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="h-6 w-6 animate-spin rounded-full border border-primary border-t-transparent" />
+                  <span className="font-ui text-xs text-muted">{copy.results.loadingMore}</span>
+                </div>
+              )
             )}
           </div>
         </div>

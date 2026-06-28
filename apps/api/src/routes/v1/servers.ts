@@ -15,6 +15,10 @@ import { successEnvelope } from "../../lib/envelope.js";
 import { checkRateLimit } from "../../lib/rate-limit.js";
 import { requireAdminUser } from "../../lib/request-auth.js";
 import { hashToken } from "../../lib/security.js";
+import { withTimeout } from "../../lib/timeout.js";
+
+// Same fail-open bound as the rate limiter: a stalled Redis must not block votes.
+const REDIS_OP_TIMEOUT_MS = 1_000;
 
 const ONLINE_WINDOW_MS = 15 * 60 * 1000;
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -825,11 +829,11 @@ const verifyTurnstile = async (
   const tokenHash = hashToken(token, app.config);
   const singleUseKey = `turnstile:vote:${tokenHash}`;
   try {
-    const singleUseResult = await app.redis
-      .multi()
-      .incr(singleUseKey)
-      .expire(singleUseKey, 300, "NX")
-      .exec();
+    const singleUseResult = await withTimeout(
+      app.redis.multi().incr(singleUseKey).expire(singleUseKey, 300, "NX").exec(),
+      REDIS_OP_TIMEOUT_MS,
+      "turnstile single-use redis"
+    );
     const useCount = singleUseResult?.[0]?.[1];
     if (typeof useCount === "number" && useCount > 1) {
       throw new ApiError({

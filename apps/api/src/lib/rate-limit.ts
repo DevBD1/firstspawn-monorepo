@@ -1,4 +1,9 @@
 import type { RedisClient } from "./redis.js";
+import { withTimeout } from "./timeout.js";
+
+// A stalled (vs. cleanly unreachable) Redis must not hold the request open —
+// cap the op so we fail open promptly rather than blocking auth/votes.
+const REDIS_OP_TIMEOUT_MS = 1_000;
 
 // Sliding window using Redis INCR + EXPIRE.
 // Returns true if the request is allowed, false if rate-limited.
@@ -9,7 +14,11 @@ export async function checkRateLimit(
   windowSeconds: number
 ): Promise<boolean> {
   try {
-    const result = await redis.multi().incr(key).expire(key, windowSeconds, "NX").exec();
+    const result = await withTimeout(
+      redis.multi().incr(key).expire(key, windowSeconds, "NX").exec(),
+      REDIS_OP_TIMEOUT_MS,
+      "rate-limit redis"
+    );
     const count = result?.[0]?.[1];
 
     if (typeof count !== "number") {

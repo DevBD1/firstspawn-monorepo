@@ -145,6 +145,13 @@ export async function proxy(request: NextRequest) {
   const forwardedFor = request.headers.get("x-forwarded-for");
   const ip = forwardedFor?.split(",")[0]?.trim() || "127.0.0.1";
 
+  // Automated health polling runs in every open tab every 30s. Counting it
+  // against the per-IP quota lets a few tabs (or several users behind one NAT)
+  // exhaust the limit and 429 real traffic, so skip the middleware for it.
+  if (pathname === "/api/health") {
+    return NextResponse.next();
+  }
+
   // 1. RATE LIMITING LOGIC
   // -------------------------------------------------------------------------
   const now = Date.now();

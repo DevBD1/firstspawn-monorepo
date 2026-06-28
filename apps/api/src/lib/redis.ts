@@ -10,6 +10,7 @@ export interface RedisMulti {
 
 export interface RedisClient {
   multi(): RedisMulti;
+  ping(): Promise<string>;
   quit(): Promise<unknown>;
 }
 
@@ -68,6 +69,10 @@ class InMemoryRedisClient implements RedisClient {
 
   multi(): RedisMulti {
     return new InMemoryRedisMulti(this.store);
+  }
+
+  async ping(): Promise<string> {
+    return "PONG";
   }
 
   async quit(): Promise<"OK"> {

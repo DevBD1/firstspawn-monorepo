@@ -208,9 +208,16 @@
     "bottom": {
       "copyright": "© {year} FirstSpawn. Nicht verbunden mit Hypixel Studios oder Mojang.",
       "systemsNormal": "Systeme Normal",
+      "systemsDegraded": "Eingeschränkter Dienst",
+      "systemsDown": "Systeme Ausgefallen",
       "version": "v0.1.0",
       "crafted": "Mit Sorgfalt erstellt."
     }
+  },
+  "connectionBanner": {
+    "down": "Wir haben Probleme, FirstSpawn zu erreichen. Einige Funktionen sind möglicherweise nicht verfügbar, bis die Verbindung wiederhergestellt ist.",
+    "degraded": "FirstSpawn läuft in einem eingeschränkten Zustand. Einige Funktionen sind möglicherweise langsam oder nicht verfügbar.",
+    "dismiss": "Schließen"
   },
   "landing": {
     "hero": {
@@ -298,7 +305,9 @@
         "neverSoldNote": "Platzierung wird niemals verkauft",
         "emptyTitle": "Hier draußen ist noch nichts…",
         "emptyDescription": "Entferne einige Filter-Chips oder versuche andere Suchbegriffe.",
-        "loadingMore": "Weitere Welten werden geladen..."
+        "loadingMore": "Weitere Welten werden geladen...",
+        "loadError": "Welten konnten nicht geladen werden. Überprüfe deine Verbindung und versuche es erneut.",
+        "retry": "Erneut versuchen"
       }
     }
   },
