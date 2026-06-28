@@ -16,6 +16,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { EXTERNAL_LINKS, SOCIAL_LINKS as SOCIAL_DATA } from "@/lib/links";
+import { useApiHealth } from "@/components/providers/ApiHealthProvider.client";
 import NewsletterCaptcha from "@/features/captcha/components/NewsletterCaptcha.client";
 import NewsletterSignup from "@/features/landing/components/NewsletterSignup.client";
 import { useNewsletterSignup } from "@/features/landing/hooks/useNewsletterSignup";
@@ -58,6 +59,7 @@ function FooterSection({ children, id, isOpen, onToggle, title }: FooterSectionP
 
 export default function Footer({ dictionary }: FooterProps) {
   const pathname = usePathname();
+  const { status: apiHealth } = useApiHealth();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const lang = pathname?.split("/").filter(Boolean)[0] ?? "en";
   const {
@@ -91,6 +93,15 @@ export default function Footer({ dictionary }: FooterProps) {
       [section]: !previous[section],
     }));
   };
+
+  // Bind the status indicator to live API health. "unknown" (before the first
+  // poll resolves) keeps the neutral "Systems Normal" look to avoid flicker.
+  const systemStatus =
+    apiHealth === "down"
+      ? { label: dictionary.footer.bottom.systemsDown, className: "text-danger" }
+      : apiHealth === "degraded"
+        ? { label: dictionary.footer.bottom.systemsDegraded, className: "text-amber-500" }
+        : { label: dictionary.footer.bottom.systemsNormal, className: "" };
 
   return (
     <footer className="relative overflow-hidden border-t border-border bg-background">
@@ -254,9 +265,9 @@ export default function Footer({ dictionary }: FooterProps) {
             )}
           </p>
           <div className="flex flex-wrap space-x-6 justify-center">
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 ${systemStatus.className}`}>
               <Activity size={14} />
-              <span>{dictionary.footer.bottom.systemsNormal}</span>
+              <span>{systemStatus.label}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Database size={14} />

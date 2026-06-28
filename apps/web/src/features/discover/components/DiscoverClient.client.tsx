@@ -343,6 +343,7 @@ export default function DiscoverClient({
   const [globalStats, setGlobalStats] = useState<PublicServerStats>(initialGlobalStats);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [, startTransition] = useTransition();
 
   const [rankPop, setRankPop] = useState<string | null>(null);
@@ -466,9 +467,11 @@ export default function DiscoverClient({
         setServers(filteredServers);
         setNextCursor(serversData.pagination.next_cursor);
         setGlobalStats(statsData);
+        setLoadError(false);
       } catch (err) {
         if (refreshRequestIdRef.current !== requestId) return;
         console.error("Failed to refresh discover servers", err);
+        setLoadError(true);
       } finally {
         if (refreshRequestIdRef.current === requestId) {
           setIsRefreshing(false);
@@ -514,8 +517,10 @@ export default function DiscoverClient({
 
       setServers((prev) => [...prev, ...nextServers]);
       setNextCursor(data.pagination.next_cursor);
+      setLoadError(false);
     } catch (err) {
       console.error("Failed to load more servers", err);
+      setLoadError(true);
     } finally {
       setIsLoadingMore(false);
     }
@@ -762,11 +767,28 @@ export default function DiscoverClient({
 
           {/* Observer Infinite Loading Spinner */}
           <div ref={observerTarget} className="mt-8 flex justify-center pb-12">
-            {nextCursor && !isLoadingMore && (
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="h-6 w-6 animate-spin rounded-full border border-primary border-t-transparent" />
-                <span className="font-ui text-xs text-muted">{copy.results.loadingMore}</span>
+            {loadError ? (
+              <div className="flex flex-col items-center gap-2">
+                <span className="font-ui text-xs text-danger">{copy.results.loadError}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoadError(false);
+                    void loadMore();
+                  }}
+                  className="rounded-full border border-border px-3 py-1 font-ui text-xs text-muted transition-colors hover:text-primary"
+                >
+                  {copy.results.retry}
+                </button>
               </div>
+            ) : (
+              nextCursor &&
+              !isLoadingMore && (
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="h-6 w-6 animate-spin rounded-full border border-primary border-t-transparent" />
+                  <span className="font-ui text-xs text-muted">{copy.results.loadingMore}</span>
+                </div>
+              )
             )}
           </div>
         </div>

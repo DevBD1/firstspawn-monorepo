@@ -208,9 +208,16 @@
     "bottom": {
       "copyright": "© {year} FirstSpawn. Hypixel Studios veya Mojang ile bağlantısı yoktur.",
       "systemsNormal": "Sistemler Normal",
+      "systemsDegraded": "Sınırlı Hizmet",
+      "systemsDown": "Sistemler Kapalı",
       "version": "v0.1.0",
       "crafted": "Özenle hazırlanmıştır."
     }
+  },
+  "connectionBanner": {
+    "down": "FirstSpawn'a ulaşmakta sorun yaşıyoruz. Bağlantı yeniden kurulana kadar bazı özellikler çalışmayabilir.",
+    "degraded": "FirstSpawn sınırlı bir durumda çalışıyor. Bazı özellikler yavaş veya kullanılamaz olabilir.",
+    "dismiss": "Kapat"
   },
   "cookieConsent": {
     "title": "ÇEREZ AYARLARI",
@@ -328,7 +335,9 @@
         "neverSoldNote": "sıralama asla satılmaz",
         "emptyTitle": "Burada henüz bir şey yok…",
         "emptyDescription": "Bazı filtreleri kaldırmayı veya farklı anahtar kelimeler aramayı deneyin.",
-        "loadingMore": "Daha fazla dünya yükleniyor..."
+        "loadingMore": "Daha fazla dünya yükleniyor...",
+        "loadError": "Dünyalar yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.",
+        "retry": "Tekrar dene"
       }
     }
   },

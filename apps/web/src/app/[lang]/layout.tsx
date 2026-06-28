@@ -34,6 +34,8 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider.client";
+import { ApiHealthProvider } from "@/components/providers/ApiHealthProvider.client";
+import ConnectionBanner from "@/components/layout/ConnectionBanner.client";
 
 export async function generateMetadata({
   params,
@@ -141,12 +143,15 @@ export default async function RootLayout({
         />
 
         <ThemeProvider>
-          <PostHogProvider>
-            {children}
-            <Suspense fallback={null}>
-              <PostHogPageView />
-            </Suspense>
-          </PostHogProvider>
+          <ApiHealthProvider>
+            <PostHogProvider>
+              <ConnectionBanner copy={dictionary.connectionBanner} />
+              {children}
+              <Suspense fallback={null}>
+                <PostHogPageView />
+              </Suspense>
+            </PostHogProvider>
+          </ApiHealthProvider>
         </ThemeProvider>
       </body>
     </html>

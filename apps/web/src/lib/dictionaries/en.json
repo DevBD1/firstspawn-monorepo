@@ -208,9 +208,16 @@
     "bottom": {
       "copyright": "© {year} FirstSpawn. Not affiliated with Hypixel Studios or Mojang.",
       "systemsNormal": "Systems Normal",
+      "systemsDegraded": "Degraded Service",
+      "systemsDown": "Systems Down",
       "version": "v0.1.0",
       "crafted": "Crafted with care."
     }
+  },
+  "connectionBanner": {
+    "down": "We're having trouble reaching FirstSpawn. Some features may not work until the connection is restored.",
+    "degraded": "FirstSpawn is running in a degraded state. Some features may be slow or unavailable.",
+    "dismiss": "Dismiss"
   },
   "cookieConsent": {
     "title": "COOKIE SETTINGS",
@@ -328,7 +335,9 @@
         "neverSoldNote": "placement is never sold",
         "emptyTitle": "Nothing out here… yet.",
         "emptyDescription": "Try removing some filter chips or look for different keywords.",
-        "loadingMore": "Loading more worlds..."
+        "loadingMore": "Loading more worlds...",
+        "loadError": "Couldn't load worlds. Check your connection and try again.",
+        "retry": "Retry"
       }
     }
   },

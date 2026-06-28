@@ -152,9 +152,17 @@ export interface FooterDictionary {
   bottom: {
     copyright: string;
     systemsNormal: string;
+    systemsDegraded: string;
+    systemsDown: string;
     version: string;
     crafted: string;
   };
+}
+
+export interface ConnectionBannerDictionary {
+  down: string;
+  degraded: string;
+  dismiss: string;
 }
 
 export interface AuthShellCopy {
@@ -332,6 +340,8 @@ export interface DiscoverDictionary {
       emptyTitle: string;
       emptyDescription: string;
       loadingMore: string;
+      loadError: string;
+      retry: string;
     };
   };
 }
@@ -817,6 +827,7 @@ export interface AppDictionary {
   auth: AuthDictionary;
   captcha: CaptchaDictionary;
   common: CommonDictionary;
+  connectionBanner: ConnectionBannerDictionary;
   consolePage: ConsolePageCopy;
   cookieConsent: CookieConsentDictionary;
   debugPages: DebugPageCopy;

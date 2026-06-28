@@ -13,6 +13,7 @@ import { registerApiRoutes } from "./routes/index.js";
 import { ApiError } from "./lib/api-error.js";
 import { errorEnvelope } from "./lib/envelope.js";
 import { getConfig } from "./lib/config.js";
+import { withTimeout } from "./lib/timeout.js";
 import { createDatabase, type DatabaseContext } from "@firstspawn/database/client";
 import type { Mailer } from "./services/mailer.js";
 import { createMailer } from "./services/mailer.js";
@@ -104,6 +105,14 @@ export const buildApp = async (options: BuildAppOptions = {}): Promise<FastifyIn
     return reply
       .status(500)
       .send(errorEnvelope("INTERNAL_ERROR", "An unexpected error occurred.", request.id));
+  });
+
+  app.addHook("onReady", async () => {
+    // Eagerly establish the Redis connection at boot. ioredis is lazyConnect, so
+    // without this the first /healthz poll after a (re)start would report a false
+    // "degraded" while the connection is still being set up. Fire-and-forget with
+    // a timeout so a slow Redis can't delay the server becoming ready.
+    void withTimeout(app.redis.ping(), 1_000, "redis warmup").catch(() => {});
   });
 
   app.addHook("onClose", async () => {
