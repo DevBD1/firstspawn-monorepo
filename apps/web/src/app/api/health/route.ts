@@ -58,9 +58,11 @@ const probe = async (
       const body = (await res.json().catch(() => null)) as HealthBody | null;
       const reported = body?.data?.status ?? body?.status;
       if (isHealthStatus(reported)) return reported;
-      // Reachable 2xx but unrecognized payload — the API is up, so don't cry
-      // "down". A 503 we can't parse is genuinely down.
-      return res.ok ? "ok" : "down";
+      // A 2xx without a recognized health contract isn't proof of health — it
+      // could be a gateway/SSO landing page answering on the wrong host. Treat a
+      // 503 as down; treat a 2xx as "not this candidate" so the next URL is tried
+      // (and if none answer the contract, GET defaults to "down").
+      return res.status === 503 ? "down" : null;
     }
     return null;
   } catch {

@@ -19,7 +19,22 @@ const checkDependency = async (probeFn: () => Promise<unknown>): Promise<boolean
   }
 };
 
-const handleHealthz = async (
+// Liveness: the process is up and serving. Deliberately does NOT touch
+// Postgres/Redis, so a dependency outage can never make a liveness probe or a
+// restart policy kill an otherwise-healthy process. Always 200.
+const handleLiveness = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<FastifyReply> => {
+  return reply
+    .header("Cache-Control", "no-store, max-age=0")
+    .send(successEnvelope({ status: "ok" }, request.id));
+};
+
+// Readiness: can the API actually serve requests right now? Checks Postgres +
+// Redis and reports ok/degraded/down (503 when down) — this is what the web
+// health indicator polls.
+const handleReadiness = async (
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<FastifyReply> => {
@@ -40,12 +55,12 @@ const handleHealthz = async (
 };
 
 export const registerApiRoutes = (app: FastifyInstance): void => {
-  // `/healthz` at the root is for infra/container liveness probes (unauthenticated,
-  // direct). The versioned `/api/v1/healthz` is the same check reachable through a
-  // gateway/nginx that only forwards `/api/*` — that's the path the web proxy uses,
-  // so the indicator works whether the web talks to the API directly or via a proxy.
-  app.get("/healthz", handleHealthz);
-  app.get("/api/v1/healthz", handleHealthz);
+  // Root `/healthz` is liveness only (infra/container probes, always 200 while
+  // the process is up). Dependency/readiness state lives on the versioned
+  // `/api/v1/healthz`, which is also the path that routes through a gateway/nginx
+  // forwarding only `/api/*` — that's what the web health indicator polls.
+  app.get("/healthz", handleLiveness);
+  app.get("/api/v1/healthz", handleReadiness);
   app.register(registerAuthRoutes, { prefix: "/api/v1/auth" });
   app.register(registerCollectorRoutes, { prefix: "/api/v1/collector" });
   app.register(registerServerRoutes);
