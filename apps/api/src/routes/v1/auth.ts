@@ -7,7 +7,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { ApiError } from "../../lib/api-error.js";
 import { successEnvelope } from "../../lib/envelope.js";
 import { checkRateLimit } from "../../lib/rate-limit.js";
-import { requireCurrentUser } from "../../lib/request-auth.js";
+import { isAdminEmail, requireCurrentUser } from "../../lib/request-auth.js";
 import {
   decodeRefreshToken,
   hashPassword,
@@ -84,6 +84,8 @@ const authUserSchema = z.object({
   username: z.string(),
   status: z.string(),
   locale: z.string(),
+  role: z.string(),
+  is_admin: z.boolean(),
 });
 
 const tokenPairSchema = z.object({
@@ -248,13 +250,18 @@ const daysUntil = (target: Date): number => {
   return Math.ceil(diff / (24 * 60 * 60 * 1000));
 };
 
-const userPayload = (user: UserRecord) => ({
+const userPayload = (user: UserRecord, isAdmin: boolean) => ({
   id: user.id,
   email: user.email,
   email_confirmed_at: user.emailConfirmedAt?.toISOString() ?? null,
   username: user.username,
   status: user.status,
   locale: user.locale ?? DEFAULT_LOCALE,
+  role: user.role,
+  // Admin gating is by the email allowlist (see isAdminEmail), kept distinct
+  // from the users.role column so the web flag matches what requireAdminUser
+  // actually enforces.
+  is_admin: isAdmin,
 });
 
 const duplicateFieldFromError = (error: { constraint?: string; detail?: string }): string => {
@@ -588,7 +595,10 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       const tokens = await createSessionAndTokens(app, user, request);
       void app.mailer.sendVerificationEmail(user.email, rawToken, user.locale ?? DEFAULT_LOCALE);
 
-      const response = successEnvelope({ user: userPayload(user), tokens }, request.id);
+      const response = successEnvelope(
+        { user: userPayload(user, isAdminEmail(app, user.email)), tokens },
+        request.id
+      );
       return reply.status(201).send(response);
     }
   );
@@ -655,7 +665,7 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
       };
       const tokens = await createSessionAndTokens(app, refreshedUser, request);
       return {
-        data: { user: userPayload(refreshedUser), tokens },
+        data: { user: userPayload(refreshedUser, isAdminEmail(app, refreshedUser.email)), tokens },
         meta: { request_id: request.id },
         error: null,
       };
@@ -844,7 +854,7 @@ export const registerAuthRoutes = (fastify: FastifyInstance): void => {
     async (request) => {
       const user = await requireCurrentUser(app, request.headers.authorization);
       return {
-        data: { user: userPayload(user) },
+        data: { user: userPayload(user, isAdminEmail(app, user.email)) },
         meta: { request_id: request.id },
         error: null,
       };
