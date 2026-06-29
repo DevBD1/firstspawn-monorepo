@@ -195,6 +195,47 @@ describe("servers integration", () => {
     expect(updateEntry!.after).toMatchObject({ name: "After Name" });
   });
 
+  it("captures embedded metadata changes in the update audit before/after", async () => {
+    const admin = await registerUser({ email: "admin@example.com", username: "admin_user" });
+    const server = await createServerAsAdmin(admin.accessToken, {
+      socials: [{ platform: "discord", url: "https://discord.gg/old", display_order: 0 }],
+    });
+
+    const response = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${server.id}`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+      payload: {
+        socials: [{ platform: "website", url: "https://example.com", display_order: 0 }],
+      },
+    });
+    expect(response.statusCode).toBe(200);
+
+    const logs = await readAuditLogs(server.id);
+    const updateEntry = logs.find((entry) => entry.action === "update");
+    expect(updateEntry).toBeDefined();
+    const before = updateEntry!.before as { socials: Array<{ platform: string }> };
+    const after = updateEntry!.after as { socials: Array<{ platform: string }> };
+    expect(before.socials.map((s) => s.platform)).toEqual(["discord"]);
+    expect(after.socials.map((s) => s.platform)).toEqual(["website"]);
+  });
+
+  it("reports admin-created servers as owner-null in the admin payload", async () => {
+    const admin = await registerUser({ email: "admin@example.com", username: "admin_user" });
+    await createServerAsAdmin(admin.accessToken, { name: "Ownerless Server" });
+
+    const response = await getContext().app.inject({
+      method: "GET",
+      url: "/api/v1/admin/servers?limit=100",
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+    });
+    expect(response.statusCode).toBe(200);
+    const created = (
+      response.json().data.servers as Array<{ name: string; owner_id: string | null }>
+    ).find((s) => s.name === "Ownerless Server");
+    expect(created?.owner_id).toBeNull();
+  });
+
   it("resolves a 'WW' origin to a real origin + global reach and places it on the globe", async () => {
     const admin = await registerUser({
       email: "admin@example.com",

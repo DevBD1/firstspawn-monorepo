@@ -197,6 +197,20 @@ export default function ServersManager({
                   <span className="truncate font-ui text-[13.5px] font-semibold text-foreground">
                     {s.name}
                   </span>
+                  <span
+                    className={`rounded-[6px] border px-1.5 font-mono text-[10px] ${
+                      s.owner_id === null
+                        ? "border-dashed border-border text-muted"
+                        : "border-border text-foreground/70"
+                    }`}
+                    title={
+                      s.owner_id === null
+                        ? "No owner yet — claimable editorial listing"
+                        : "Owner-managed listing"
+                    }
+                  >
+                    {s.owner_id === null ? "editorial" : "owned"}
+                  </span>
                   {s.auth_mode === "offline_allowed" && (
                     <span className="rounded-[6px] border border-border px-1.5 font-mono text-[10px] text-muted">
                       cracked

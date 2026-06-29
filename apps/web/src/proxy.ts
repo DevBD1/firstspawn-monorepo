@@ -56,6 +56,12 @@ function getLocale(request: NextRequest): string | undefined {
 }
 
 const shouldRefreshOnPath = (pathname: string): boolean => {
+  // The admin console lives outside the localized tree; refresh there too, or an
+  // admin with a valid refresh token but an expired access token gets bounced to
+  // login instead of being silently refreshed.
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return true;
+  }
   return i18n.locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   );

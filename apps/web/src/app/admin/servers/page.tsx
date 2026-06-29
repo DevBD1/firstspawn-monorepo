@@ -1,4 +1,4 @@
-import { adminListServersAction } from "@/app/actions/admin";
+import { adminFetchAllServersAction } from "@/app/actions/admin";
 import { getCountryOptions } from "@/lib/countries";
 import { PageTitle, Panel } from "../_components/ui";
 import { AdminIcon } from "../_components/icons";
@@ -7,7 +7,7 @@ import ServersManager from "./_components/ServersManager.client";
 export const dynamic = "force-dynamic";
 
 export default async function AdminServersPage() {
-  const result = await adminListServersAction({ limit: 100 });
+  const result = await adminFetchAllServersAction();
   // Real origin countries only — "WW" is a reach, not an origin (the API maps an
   // empty/global selection to a default origin with global reach).
   const countryOptions = getCountryOptions("en", undefined, { includeWorldwide: false });
@@ -16,7 +16,7 @@ export default async function AdminServersPage() {
     <div>
       <PageTitle
         title="Servers"
-        blurb="Editorial catalog listings — created here carry no owner until a claim is approved."
+        blurb="The full server catalog. Listings you create here have no owner until a verified claim is approved."
       />
 
       {!result.ok ? (

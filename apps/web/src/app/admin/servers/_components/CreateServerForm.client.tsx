@@ -307,7 +307,10 @@ export default function CreateServerForm({
         </div>
       </div>
 
-      {formError && !fieldError && (
+      {/* Show the general error box whenever there's no field-specific slot for it
+          (only name/host/port/slug render an inline FieldError) — otherwise an
+          error for description/logo_url/etc. would be silently swallowed. */}
+      {formError && (!fieldError || !["name", "host", "port", "slug"].includes(fieldError)) && (
         <div className="mt-4 flex items-center gap-2 rounded-[10px] border border-danger/40 bg-danger/10 px-3 py-2 font-ui text-[12.5px] text-danger">
           <AdminIcon name="alert" size={15} />
           {formError}

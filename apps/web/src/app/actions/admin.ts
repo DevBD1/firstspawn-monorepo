@@ -59,6 +59,8 @@ export interface AdminServer {
   last_ping_at: string | null;
   created_at: string;
   updated_at: string;
+  /** Null = editorial listing with no owner yet (claimable). */
+  owner_id: string | null;
 }
 
 export interface AdminServerDetail extends AdminServer {
@@ -175,6 +177,35 @@ export async function adminListServersAction(
   params: AdminListParams = {}
 ): Promise<AdminActionResult<AdminServerListResult>> {
   return requestApi<AdminServerListResult>("GET", `/admin/servers${buildListQuery(params)}`);
+}
+
+// Safety cap so a runaway catalog can't loop forever: 50 pages × 100 = 5,000.
+const MAX_ADMIN_PAGES = 50;
+
+/**
+ * Follows `next_cursor` to load the whole catalog, not just the first page —
+ * the admin panel manages every server, not the first 100.
+ */
+export async function adminFetchAllServersAction(
+  params: Omit<AdminListParams, "cursor" | "limit"> = {}
+): Promise<AdminActionResult<{ servers: AdminServer[]; truncated: boolean }>> {
+  const servers: AdminServer[] = [];
+  let cursor: string | undefined;
+
+  for (let page = 0; page < MAX_ADMIN_PAGES; page++) {
+    const result = await adminListServersAction({ ...params, limit: 100, cursor });
+    if (!result.ok) {
+      return result;
+    }
+    servers.push(...result.data.servers);
+    const next = result.data.pagination.next_cursor;
+    if (!next) {
+      return { ok: true, data: { servers, truncated: false } };
+    }
+    cursor = next;
+  }
+
+  return { ok: true, data: { servers, truncated: true } };
 }
 
 export async function adminGetServerAction(

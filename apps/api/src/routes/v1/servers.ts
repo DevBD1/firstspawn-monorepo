@@ -284,9 +284,16 @@ const leaderboardQuerySchema = z.object({
   month: z.enum(["current", "previous"]).default("current"),
 });
 
+// Admin views expose ownership (null = editorial listing with no owner yet) so
+// the panel can distinguish owner-managed servers from claimable editorial rows.
+// Kept off the public schemas, which must never leak owner identity.
+const adminServerSchema = serverBaseSchema.extend({
+  owner_id: z.string().uuid().nullable(),
+});
+
 const adminListResponseSchema = envelopeSchema(
   z.object({
-    servers: z.array(serverBaseSchema),
+    servers: z.array(adminServerSchema),
     pagination: z.object({
       next_cursor: z.string().nullable(),
       limit: z.number().int().positive(),
@@ -296,7 +303,7 @@ const adminListResponseSchema = envelopeSchema(
 
 const adminDetailResponseSchema = envelopeSchema(
   z.object({
-    server: serverBaseSchema.extend({
+    server: adminServerSchema.extend({
       latest_metrics: latestMetricsSchema,
       socials: z.array(serverSocialSchema),
       supported_clients: z.array(serverSupportedClientSchema),
@@ -1160,7 +1167,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
       const sliced = rows.slice(0, query.limit);
       const nowMs = Date.now();
-      const data = sliced.map((row) => normalizeServerPayload(row, nowMs));
+      const data = sliced.map((row) => ({
+        ...normalizeServerPayload(row, nowMs),
+        owner_id: row.ownerId,
+      }));
       const nextCursor = rows.length > query.limit ? (rows[query.limit]?.id ?? null) : null;
 
       return successEnvelope(
@@ -1241,7 +1251,8 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             );
           }
 
-          // Audit (v1-mvp §7.1): record the creation atomically with it.
+          // Audit (v1-mvp §7.1): record the creation atomically with it, including
+          // the embedded metadata so the entry fully explains what was created.
           await tx.insert(adminAuditLogs).values({
             actorId: admin.id,
             actorEmail: admin.email,
@@ -1250,7 +1261,11 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             action: "create",
             reason: toNullable(payload.reason),
             before: null,
-            after: serverAuditSnapshot(row),
+            after: {
+              ...serverAuditSnapshot(row),
+              socials: payload.socials ?? [],
+              supported_clients: payload.supported_clients ?? [],
+            },
           });
 
           return row;
@@ -1275,6 +1290,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
           {
             server: {
               ...serverPayload,
+              owner_id: created.ownerId,
               latest_metrics: normalizeMetricsPayload(null),
               ...metadata,
             },
@@ -1311,6 +1327,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
+            owner_id: server.ownerId,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
@@ -1333,70 +1350,89 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
     },
     async (request) => {
       const admin = await requireAdminUser(app, request.headers.authorization);
-
-      const existing = requireFound(
-        await app.db.db.query.servers.findFirst({
-          where: and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")),
-        })
-      );
-
       const now = new Date();
-      const patch: Partial<typeof servers.$inferInsert> = {
-        updatedAt: now,
-      };
-
-      if (request.body.slug !== undefined) {
-        patch.slug = request.body.slug;
-      }
-      if (request.body.name !== undefined) {
-        patch.name = request.body.name;
-      }
-      if (request.body.description !== undefined) {
-        patch.description = request.body.description;
-      }
-      if (request.body.host !== undefined) {
-        patch.host = request.body.host;
-      }
-      if (request.body.port !== undefined) {
-        patch.port = request.body.port;
-      }
-      if (request.body.auth_mode !== undefined) {
-        patch.authMode = request.body.auth_mode;
-      }
-      if (request.body.country_code !== undefined || request.body.reach_scope !== undefined) {
-        const nextCountry =
-          request.body.country_code !== undefined
-            ? request.body.country_code
-            : existing.countryCode;
-        // The new origin is "global-like" if the caller set country_code to "WW"/empty.
-        const switchedToGlobalOrigin =
-          request.body.country_code !== undefined &&
-          ((toNullable(request.body.country_code)?.toUpperCase() ?? null) === null ||
-            toNullable(request.body.country_code)?.toUpperCase() === "WW");
-        // When reach_scope isn't given, preserve the server's current reach — except
-        // when switching to a global-like origin, where the resolver should derive
-        // "global" (pass undefined). This prevents a country-only edit from silently
-        // resetting an existing "global"/"regional" reach back to "local".
-        const reachArg =
-          request.body.reach_scope !== undefined
-            ? request.body.reach_scope
-            : switchedToGlobalOrigin
-              ? undefined
-              : (existing.reachScope as ReachScope);
-        const origin = resolveOriginAndReach(nextCountry, reachArg);
-        patch.countryCode = origin.countryCode;
-        patch.reachScope = origin.reachScope;
-      }
-      if (request.body.logo_url !== undefined) {
-        patch.logoUrl = toNullable(request.body.logo_url);
-      }
-      if (request.body.banner_url !== undefined) {
-        patch.bannerUrl = toNullable(request.body.banner_url);
-      }
 
       let updated: ServerRecord;
       try {
         updated = await app.db.db.transaction(async (tx) => {
+          // Lock the row inside the transaction so the audit before/after can't
+          // race a concurrent edit (matches the status endpoint).
+          const existingRows = await tx
+            .select()
+            .from(servers)
+            .where(and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")))
+            .for("update");
+          const existing = requireFound(existingRows[0]);
+
+          // Pre-edit metadata, captured before any replace, for the audit before-value.
+          const beforeSocials = await tx
+            .select({
+              platform: serverSocials.platform,
+              url: serverSocials.url,
+              display_order: serverSocials.displayOrder,
+            })
+            .from(serverSocials)
+            .where(eq(serverSocials.serverId, existing.id))
+            .orderBy(asc(serverSocials.displayOrder));
+          const beforeClients = await tx
+            .select({
+              client_name: serverSupportedClients.clientName,
+              client_version: serverSupportedClients.clientVersion,
+            })
+            .from(serverSupportedClients)
+            .where(eq(serverSupportedClients.serverId, existing.id));
+
+          const patch: Partial<typeof servers.$inferInsert> = { updatedAt: now };
+
+          if (request.body.slug !== undefined) {
+            patch.slug = request.body.slug;
+          }
+          if (request.body.name !== undefined) {
+            patch.name = request.body.name;
+          }
+          if (request.body.description !== undefined) {
+            patch.description = request.body.description;
+          }
+          if (request.body.host !== undefined) {
+            patch.host = request.body.host;
+          }
+          if (request.body.port !== undefined) {
+            patch.port = request.body.port;
+          }
+          if (request.body.auth_mode !== undefined) {
+            patch.authMode = request.body.auth_mode;
+          }
+          if (request.body.country_code !== undefined || request.body.reach_scope !== undefined) {
+            const nextCountry =
+              request.body.country_code !== undefined
+                ? request.body.country_code
+                : existing.countryCode;
+            // The new origin is "global-like" if the caller set country_code to "WW"/empty.
+            const switchedToGlobalOrigin =
+              request.body.country_code !== undefined &&
+              ((toNullable(request.body.country_code)?.toUpperCase() ?? null) === null ||
+                toNullable(request.body.country_code)?.toUpperCase() === "WW");
+            // When reach_scope isn't given, preserve the server's current reach — except
+            // when switching to a global-like origin, where the resolver should derive
+            // "global" (pass undefined). This prevents a country-only edit from silently
+            // resetting an existing "global"/"regional" reach back to "local".
+            const reachArg =
+              request.body.reach_scope !== undefined
+                ? request.body.reach_scope
+                : switchedToGlobalOrigin
+                  ? undefined
+                  : (existing.reachScope as ReachScope);
+            const origin = resolveOriginAndReach(nextCountry, reachArg);
+            patch.countryCode = origin.countryCode;
+            patch.reachScope = origin.reachScope;
+          }
+          if (request.body.logo_url !== undefined) {
+            patch.logoUrl = toNullable(request.body.logo_url);
+          }
+          if (request.body.banner_url !== undefined) {
+            patch.bannerUrl = toNullable(request.body.banner_url);
+          }
+
           const rows = await tx
             .update(servers)
             .set(patch)
@@ -1404,6 +1440,9 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             .returning();
           const row = rows[0]!;
 
+          // Replaced metadata defaults to the before-value (unchanged) unless the
+          // request supplied a new set — so the audit after-value reflects reality.
+          let afterSocials = beforeSocials;
           if (request.body.socials !== undefined) {
             await tx.delete(serverSocials).where(eq(serverSocials.serverId, existing.id));
             if (request.body.socials.length > 0) {
@@ -1417,8 +1456,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
                 }))
               );
             }
+            afterSocials = request.body.socials.map((social) => ({
+              platform: social.platform,
+              url: social.url,
+              display_order: social.display_order,
+            }));
           }
 
+          let afterClients = beforeClients;
           if (request.body.supported_clients !== undefined) {
             await tx
               .delete(serverSupportedClients)
@@ -1433,9 +1478,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
                 }))
               );
             }
+            afterClients = request.body.supported_clients.map((client) => ({
+              client_name: client.client_name,
+              client_version: client.client_version,
+            }));
           }
 
-          // Audit (v1-mvp §7.1): before = pre-edit snapshot, after = post-edit.
+          // Audit (v1-mvp §7.1): full before/after including embedded metadata, so
+          // a socials- or version-only edit still shows what changed.
           await tx.insert(adminAuditLogs).values({
             actorId: admin.id,
             actorEmail: admin.email,
@@ -1443,8 +1493,16 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             entityId: existing.id,
             action: "update",
             reason: toNullable(request.body.reason),
-            before: serverAuditSnapshot(existing),
-            after: serverAuditSnapshot(row),
+            before: {
+              ...serverAuditSnapshot(existing),
+              socials: beforeSocials,
+              supported_clients: beforeClients,
+            },
+            after: {
+              ...serverAuditSnapshot(row),
+              socials: afterSocials,
+              supported_clients: afterClients,
+            },
           });
 
           return row;
@@ -1470,6 +1528,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
+            owner_id: updated.ownerId,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
@@ -1534,6 +1593,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
+            owner_id: updated.ownerId,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },

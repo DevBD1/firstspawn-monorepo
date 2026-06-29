@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { adminListServersAction, type AdminServer } from "@/app/actions/admin";
+import { adminFetchAllServersAction, type AdminServer } from "@/app/actions/admin";
 import { AdminIcon } from "./_components/icons";
 import { FreshnessDot, KpiCard, PageTitle, Panel, StatusPill } from "./_components/ui";
 
@@ -33,7 +33,7 @@ function ErrorState({ message }: { message: string }) {
 }
 
 export default async function AdminOverviewPage() {
-  const result = await adminListServersAction({ limit: 100 });
+  const result = await adminFetchAllServersAction();
 
   return (
     <div>
@@ -65,7 +65,9 @@ function OverviewBody({ servers }: { servers: AdminServer[] }) {
   const suspended = servers.filter((s) => s.catalog_status === "suspended").length;
   const archived = servers.filter((s) => s.catalog_status === "archived").length;
   const online = servers.filter((s) => s.freshness_status === "online").length;
-  const editorial = servers.length; // admin-created listings have no owner; shown as editorial catalog
+  // Editorial = no owner yet (claimable); the rest are owner-managed listings.
+  const editorial = servers.filter((s) => s.owner_id === null).length;
+  const owned = total - editorial;
 
   const recent = [...servers]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -74,7 +76,7 @@ function OverviewBody({ servers }: { servers: AdminServer[] }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard label="Listings" value={total} sub={`${editorial} in catalog`} />
+        <KpiCard label="Listings" value={total} sub={`${editorial} editorial · ${owned} owned`} />
         <KpiCard label="Active" value={active} accent="text-success" sub="published & public" />
         <KpiCard
           label="Online now"
