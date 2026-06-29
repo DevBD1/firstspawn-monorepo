@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import {
+  adminAuditLogs,
   serverHeartbeats,
   serverSocials,
   serverSupportedClients,
@@ -232,6 +233,9 @@ const adminCreateBodySchema = z.object({
   banner_url: z.string().url().max(2048).nullable().optional(),
   socials: serverSocialsBodySchema.optional(),
   supported_clients: serverSupportedClientsBodySchema.optional(),
+  // Optional audit reason (v1-mvp §7.1). Recorded on the audit entry, not stored
+  // on the server row.
+  reason: z.string().trim().max(1000).optional(),
 });
 
 const adminUpdateBodySchema = z
@@ -248,13 +252,19 @@ const adminUpdateBodySchema = z
     banner_url: z.string().url().max(2048).nullable().optional(),
     socials: serverSocialsBodySchema.optional(),
     supported_clients: serverSupportedClientsBodySchema.optional(),
+    // Required when the only intent is to record a moderation/data-quality
+    // correction reason (v1-mvp §7.2); otherwise optional metadata on the edit.
+    reason: z.string().trim().max(1000).optional(),
   })
-  .refine((payload) => Object.keys(payload).length > 0, {
+  .refine((payload) => Object.keys(payload).filter((key) => key !== "reason").length > 0, {
     message: "At least one field must be provided.",
   });
 
 const statusBodySchema = z.object({
   status: adminStatusSchema,
+  // Reason for the lifecycle change (e.g. why a server was suspended). Captured
+  // in the audit trail (v1-mvp §7.1).
+  reason: z.string().trim().max(1000).optional(),
 });
 
 const idParamSchema = z.object({
@@ -426,6 +436,23 @@ export const resolveOriginAndReach = (
     reachScope: reachScope ?? (isGlobalLike ? "global" : "local"),
   };
 };
+
+// The catalog-meaningful fields of a server, captured as the before/after value
+// in an admin audit entry (v1-mvp §7.1). Excludes probe/heartbeat state, which
+// admins don't set, and timestamps.
+export const serverAuditSnapshot = (row: ServerRecord) => ({
+  slug: row.slug,
+  name: row.name,
+  description: row.description,
+  host: row.host,
+  port: row.port,
+  status: row.status,
+  auth_mode: row.authMode,
+  country_code: row.countryCode,
+  reach_scope: row.reachScope,
+  logo_url: row.logoUrl,
+  banner_url: row.bannerUrl,
+});
 
 const slugify = (value: string): string =>
   value
@@ -1160,7 +1187,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request, reply) => {
-      await requireAdminUser(app, request.headers.authorization);
+      const admin = await requireAdminUser(app, request.headers.authorization);
       const payload = request.body;
       const now = new Date();
       const generatedSlug = payload.slug ?? buildTemporarySlug(payload.name);
@@ -1213,6 +1240,18 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
               }))
             );
           }
+
+          // Audit (v1-mvp §7.1): record the creation atomically with it.
+          await tx.insert(adminAuditLogs).values({
+            actorId: admin.id,
+            actorEmail: admin.email,
+            entityType: "server",
+            entityId: row.id,
+            action: "create",
+            reason: toNullable(payload.reason),
+            before: null,
+            after: serverAuditSnapshot(row),
+          });
 
           return row;
         });
@@ -1293,7 +1332,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      await requireAdminUser(app, request.headers.authorization);
+      const admin = await requireAdminUser(app, request.headers.authorization);
 
       const existing = requireFound(
         await app.db.db.query.servers.findFirst({
@@ -1396,6 +1435,18 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             }
           }
 
+          // Audit (v1-mvp §7.1): before = pre-edit snapshot, after = post-edit.
+          await tx.insert(adminAuditLogs).values({
+            actorId: admin.id,
+            actorEmail: admin.email,
+            entityType: "server",
+            entityId: existing.id,
+            action: "update",
+            reason: toNullable(request.body.reason),
+            before: serverAuditSnapshot(existing),
+            after: serverAuditSnapshot(row),
+          });
+
           return row;
         });
       } catch (error) {
@@ -1440,18 +1491,40 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      await requireAdminUser(app, request.headers.authorization);
+      const admin = await requireAdminUser(app, request.headers.authorization);
 
-      const rows = await app.db.db
-        .update(servers)
-        .set({
-          status: request.body.status,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")))
-        .returning();
+      // Read-then-write in one transaction so the audit entry's before/after
+      // statuses (v1-mvp §7.1) can't race another mutation.
+      const updated = await app.db.db.transaction(async (tx) => {
+        const existing = requireFound(
+          await tx.query.servers.findFirst({
+            where: and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")),
+          })
+        );
 
-      const updated = requireFound(rows[0]);
+        const rows = await tx
+          .update(servers)
+          .set({
+            status: request.body.status,
+            updatedAt: new Date(),
+          })
+          .where(eq(servers.id, existing.id))
+          .returning();
+        const row = rows[0]!;
+
+        await tx.insert(adminAuditLogs).values({
+          actorId: admin.id,
+          actorEmail: admin.email,
+          entityType: "server",
+          entityId: existing.id,
+          action: "status_change",
+          reason: toNullable(request.body.reason),
+          before: { status: existing.status },
+          after: { status: row.status },
+        });
+
+        return row;
+      });
 
       const [latest, metadata] = await Promise.all([
         findLatestHeartbeat(app, updated.id),

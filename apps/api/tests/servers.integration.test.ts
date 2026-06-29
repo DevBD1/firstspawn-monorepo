@@ -1,8 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
-import { serverHeartbeats, serverVoteCounters, servers, votes } from "@firstspawn/database/schema";
+import {
+  adminAuditLogs,
+  serverHeartbeats,
+  serverVoteCounters,
+  servers,
+  votes,
+} from "@firstspawn/database/schema";
 import { createTestApp, type TestContext } from "./helpers.js";
 
 describe("servers integration", () => {
@@ -127,6 +133,66 @@ describe("servers integration", () => {
     });
 
     expect(server.slug.startsWith("hypixel-network-")).toBe(true);
+  });
+
+  const readAuditLogs = async (entityId: string) =>
+    getContext()
+      .app.db.db.select()
+      .from(adminAuditLogs)
+      .where(eq(adminAuditLogs.entityId, entityId));
+
+  it("writes a create audit entry with actor and after-snapshot", async () => {
+    const admin = await registerUser({ email: "admin@example.com", username: "admin_user" });
+    const server = await createServerAsAdmin(admin.accessToken, { name: "Audited Create" });
+
+    const logs = await readAuditLogs(server.id);
+    expect(logs).toHaveLength(1);
+    const entry = logs[0]!;
+    expect(entry.action).toBe("create");
+    expect(entry.actorEmail).toBe("admin@example.com");
+    expect(entry.actorId).not.toBeNull();
+    expect(entry.before).toBeNull();
+    expect(entry.after).toMatchObject({ name: "Audited Create", status: "active" });
+  });
+
+  it("writes a status_change audit entry with before/after status and reason", async () => {
+    const admin = await registerUser({ email: "admin@example.com", username: "admin_user" });
+    const server = await createServerAsAdmin(admin.accessToken);
+
+    const response = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${server.id}/status`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+      payload: { status: "suspended", reason: "ToS violation" },
+    });
+    expect(response.statusCode).toBe(200);
+
+    const logs = await readAuditLogs(server.id);
+    const statusEntry = logs.find((entry) => entry.action === "status_change");
+    expect(statusEntry).toBeDefined();
+    expect(statusEntry!.reason).toBe("ToS violation");
+    expect(statusEntry!.before).toEqual({ status: "active" });
+    expect(statusEntry!.after).toEqual({ status: "suspended" });
+  });
+
+  it("writes an update audit entry capturing the before/after diff", async () => {
+    const admin = await registerUser({ email: "admin@example.com", username: "admin_user" });
+    const server = await createServerAsAdmin(admin.accessToken, { name: "Before Name" });
+
+    const response = await getContext().app.inject({
+      method: "PATCH",
+      url: `/api/v1/admin/servers/${server.id}`,
+      headers: { authorization: `Bearer ${admin.accessToken}` },
+      payload: { name: "After Name", reason: "data-quality fix" },
+    });
+    expect(response.statusCode).toBe(200);
+
+    const logs = await readAuditLogs(server.id);
+    const updateEntry = logs.find((entry) => entry.action === "update");
+    expect(updateEntry).toBeDefined();
+    expect(updateEntry!.reason).toBe("data-quality fix");
+    expect(updateEntry!.before).toMatchObject({ name: "Before Name" });
+    expect(updateEntry!.after).toMatchObject({ name: "After Name" });
   });
 
   it("resolves a 'WW' origin to a real origin + global reach and places it on the globe", async () => {
