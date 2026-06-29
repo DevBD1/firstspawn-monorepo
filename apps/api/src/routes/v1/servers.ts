@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import {
+  adminAuditLogs,
   serverHeartbeats,
   serverSocials,
   serverSupportedClients,
@@ -232,6 +233,9 @@ const adminCreateBodySchema = z.object({
   banner_url: z.string().url().max(2048).nullable().optional(),
   socials: serverSocialsBodySchema.optional(),
   supported_clients: serverSupportedClientsBodySchema.optional(),
+  // Optional audit reason (v1-mvp §7.1). Recorded on the audit entry, not stored
+  // on the server row.
+  reason: z.string().trim().max(1000).optional(),
 });
 
 const adminUpdateBodySchema = z
@@ -248,13 +252,19 @@ const adminUpdateBodySchema = z
     banner_url: z.string().url().max(2048).nullable().optional(),
     socials: serverSocialsBodySchema.optional(),
     supported_clients: serverSupportedClientsBodySchema.optional(),
+    // Required when the only intent is to record a moderation/data-quality
+    // correction reason (v1-mvp §7.2); otherwise optional metadata on the edit.
+    reason: z.string().trim().max(1000).optional(),
   })
-  .refine((payload) => Object.keys(payload).length > 0, {
+  .refine((payload) => Object.keys(payload).filter((key) => key !== "reason").length > 0, {
     message: "At least one field must be provided.",
   });
 
 const statusBodySchema = z.object({
   status: adminStatusSchema,
+  // Reason for the lifecycle change (e.g. why a server was suspended). Captured
+  // in the audit trail (v1-mvp §7.1).
+  reason: z.string().trim().max(1000).optional(),
 });
 
 const idParamSchema = z.object({
@@ -274,9 +284,16 @@ const leaderboardQuerySchema = z.object({
   month: z.enum(["current", "previous"]).default("current"),
 });
 
+// Admin views expose ownership (null = editorial listing with no owner yet) so
+// the panel can distinguish owner-managed servers from claimable editorial rows.
+// Kept off the public schemas, which must never leak owner identity.
+const adminServerSchema = serverBaseSchema.extend({
+  owner_id: z.string().uuid().nullable(),
+});
+
 const adminListResponseSchema = envelopeSchema(
   z.object({
-    servers: z.array(serverBaseSchema),
+    servers: z.array(adminServerSchema),
     pagination: z.object({
       next_cursor: z.string().nullable(),
       limit: z.number().int().positive(),
@@ -286,7 +303,7 @@ const adminListResponseSchema = envelopeSchema(
 
 const adminDetailResponseSchema = envelopeSchema(
   z.object({
-    server: serverBaseSchema.extend({
+    server: adminServerSchema.extend({
       latest_metrics: latestMetricsSchema,
       socials: z.array(serverSocialSchema),
       supported_clients: z.array(serverSupportedClientSchema),
@@ -426,6 +443,23 @@ export const resolveOriginAndReach = (
     reachScope: reachScope ?? (isGlobalLike ? "global" : "local"),
   };
 };
+
+// The catalog-meaningful fields of a server, captured as the before/after value
+// in an admin audit entry (v1-mvp §7.1). Excludes probe/heartbeat state, which
+// admins don't set, and timestamps.
+export const serverAuditSnapshot = (row: ServerRecord) => ({
+  slug: row.slug,
+  name: row.name,
+  description: row.description,
+  host: row.host,
+  port: row.port,
+  status: row.status,
+  auth_mode: row.authMode,
+  country_code: row.countryCode,
+  reach_scope: row.reachScope,
+  logo_url: row.logoUrl,
+  banner_url: row.bannerUrl,
+});
 
 const slugify = (value: string): string =>
   value
@@ -1133,7 +1167,10 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
 
       const sliced = rows.slice(0, query.limit);
       const nowMs = Date.now();
-      const data = sliced.map((row) => normalizeServerPayload(row, nowMs));
+      const data = sliced.map((row) => ({
+        ...normalizeServerPayload(row, nowMs),
+        owner_id: row.ownerId,
+      }));
       const nextCursor = rows.length > query.limit ? (rows[query.limit]?.id ?? null) : null;
 
       return successEnvelope(
@@ -1160,7 +1197,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request, reply) => {
-      await requireAdminUser(app, request.headers.authorization);
+      const admin = await requireAdminUser(app, request.headers.authorization);
       const payload = request.body;
       const now = new Date();
       const generatedSlug = payload.slug ?? buildTemporarySlug(payload.name);
@@ -1214,6 +1251,23 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             );
           }
 
+          // Audit (v1-mvp §7.1): record the creation atomically with it, including
+          // the embedded metadata so the entry fully explains what was created.
+          await tx.insert(adminAuditLogs).values({
+            actorId: admin.id,
+            actorEmail: admin.email,
+            entityType: "server",
+            entityId: row.id,
+            action: "create",
+            reason: toNullable(payload.reason),
+            before: null,
+            after: {
+              ...serverAuditSnapshot(row),
+              socials: payload.socials ?? [],
+              supported_clients: payload.supported_clients ?? [],
+            },
+          });
+
           return row;
         });
       } catch (error) {
@@ -1236,6 +1290,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
           {
             server: {
               ...serverPayload,
+              owner_id: created.ownerId,
               latest_metrics: normalizeMetricsPayload(null),
               ...metadata,
             },
@@ -1272,6 +1327,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         {
           server: {
             ...normalizeServerPayload(server, Date.now()),
+            owner_id: server.ownerId,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
@@ -1293,71 +1349,90 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      await requireAdminUser(app, request.headers.authorization);
-
-      const existing = requireFound(
-        await app.db.db.query.servers.findFirst({
-          where: and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")),
-        })
-      );
-
+      const admin = await requireAdminUser(app, request.headers.authorization);
       const now = new Date();
-      const patch: Partial<typeof servers.$inferInsert> = {
-        updatedAt: now,
-      };
-
-      if (request.body.slug !== undefined) {
-        patch.slug = request.body.slug;
-      }
-      if (request.body.name !== undefined) {
-        patch.name = request.body.name;
-      }
-      if (request.body.description !== undefined) {
-        patch.description = request.body.description;
-      }
-      if (request.body.host !== undefined) {
-        patch.host = request.body.host;
-      }
-      if (request.body.port !== undefined) {
-        patch.port = request.body.port;
-      }
-      if (request.body.auth_mode !== undefined) {
-        patch.authMode = request.body.auth_mode;
-      }
-      if (request.body.country_code !== undefined || request.body.reach_scope !== undefined) {
-        const nextCountry =
-          request.body.country_code !== undefined
-            ? request.body.country_code
-            : existing.countryCode;
-        // The new origin is "global-like" if the caller set country_code to "WW"/empty.
-        const switchedToGlobalOrigin =
-          request.body.country_code !== undefined &&
-          ((toNullable(request.body.country_code)?.toUpperCase() ?? null) === null ||
-            toNullable(request.body.country_code)?.toUpperCase() === "WW");
-        // When reach_scope isn't given, preserve the server's current reach — except
-        // when switching to a global-like origin, where the resolver should derive
-        // "global" (pass undefined). This prevents a country-only edit from silently
-        // resetting an existing "global"/"regional" reach back to "local".
-        const reachArg =
-          request.body.reach_scope !== undefined
-            ? request.body.reach_scope
-            : switchedToGlobalOrigin
-              ? undefined
-              : (existing.reachScope as ReachScope);
-        const origin = resolveOriginAndReach(nextCountry, reachArg);
-        patch.countryCode = origin.countryCode;
-        patch.reachScope = origin.reachScope;
-      }
-      if (request.body.logo_url !== undefined) {
-        patch.logoUrl = toNullable(request.body.logo_url);
-      }
-      if (request.body.banner_url !== undefined) {
-        patch.bannerUrl = toNullable(request.body.banner_url);
-      }
 
       let updated: ServerRecord;
       try {
         updated = await app.db.db.transaction(async (tx) => {
+          // Lock the row inside the transaction so the audit before/after can't
+          // race a concurrent edit (matches the status endpoint).
+          const existingRows = await tx
+            .select()
+            .from(servers)
+            .where(and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")))
+            .for("update");
+          const existing = requireFound(existingRows[0]);
+
+          // Pre-edit metadata, captured before any replace, for the audit before-value.
+          const beforeSocials = await tx
+            .select({
+              platform: serverSocials.platform,
+              url: serverSocials.url,
+              display_order: serverSocials.displayOrder,
+            })
+            .from(serverSocials)
+            .where(eq(serverSocials.serverId, existing.id))
+            .orderBy(asc(serverSocials.displayOrder));
+          const beforeClients = await tx
+            .select({
+              client_name: serverSupportedClients.clientName,
+              client_version: serverSupportedClients.clientVersion,
+            })
+            .from(serverSupportedClients)
+            .where(eq(serverSupportedClients.serverId, existing.id));
+
+          const patch: Partial<typeof servers.$inferInsert> = { updatedAt: now };
+
+          if (request.body.slug !== undefined) {
+            patch.slug = request.body.slug;
+          }
+          if (request.body.name !== undefined) {
+            patch.name = request.body.name;
+          }
+          if (request.body.description !== undefined) {
+            patch.description = request.body.description;
+          }
+          if (request.body.host !== undefined) {
+            patch.host = request.body.host;
+          }
+          if (request.body.port !== undefined) {
+            patch.port = request.body.port;
+          }
+          if (request.body.auth_mode !== undefined) {
+            patch.authMode = request.body.auth_mode;
+          }
+          if (request.body.country_code !== undefined || request.body.reach_scope !== undefined) {
+            const nextCountry =
+              request.body.country_code !== undefined
+                ? request.body.country_code
+                : existing.countryCode;
+            // The new origin is "global-like" if the caller set country_code to "WW"/empty.
+            const switchedToGlobalOrigin =
+              request.body.country_code !== undefined &&
+              ((toNullable(request.body.country_code)?.toUpperCase() ?? null) === null ||
+                toNullable(request.body.country_code)?.toUpperCase() === "WW");
+            // When reach_scope isn't given, preserve the server's current reach — except
+            // when switching to a global-like origin, where the resolver should derive
+            // "global" (pass undefined). This prevents a country-only edit from silently
+            // resetting an existing "global"/"regional" reach back to "local".
+            const reachArg =
+              request.body.reach_scope !== undefined
+                ? request.body.reach_scope
+                : switchedToGlobalOrigin
+                  ? undefined
+                  : (existing.reachScope as ReachScope);
+            const origin = resolveOriginAndReach(nextCountry, reachArg);
+            patch.countryCode = origin.countryCode;
+            patch.reachScope = origin.reachScope;
+          }
+          if (request.body.logo_url !== undefined) {
+            patch.logoUrl = toNullable(request.body.logo_url);
+          }
+          if (request.body.banner_url !== undefined) {
+            patch.bannerUrl = toNullable(request.body.banner_url);
+          }
+
           const rows = await tx
             .update(servers)
             .set(patch)
@@ -1365,6 +1440,9 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
             .returning();
           const row = rows[0]!;
 
+          // Replaced metadata defaults to the before-value (unchanged) unless the
+          // request supplied a new set — so the audit after-value reflects reality.
+          let afterSocials = beforeSocials;
           if (request.body.socials !== undefined) {
             await tx.delete(serverSocials).where(eq(serverSocials.serverId, existing.id));
             if (request.body.socials.length > 0) {
@@ -1378,8 +1456,14 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
                 }))
               );
             }
+            afterSocials = request.body.socials.map((social) => ({
+              platform: social.platform,
+              url: social.url,
+              display_order: social.display_order,
+            }));
           }
 
+          let afterClients = beforeClients;
           if (request.body.supported_clients !== undefined) {
             await tx
               .delete(serverSupportedClients)
@@ -1394,7 +1478,32 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
                 }))
               );
             }
+            afterClients = request.body.supported_clients.map((client) => ({
+              client_name: client.client_name,
+              client_version: client.client_version,
+            }));
           }
+
+          // Audit (v1-mvp §7.1): full before/after including embedded metadata, so
+          // a socials- or version-only edit still shows what changed.
+          await tx.insert(adminAuditLogs).values({
+            actorId: admin.id,
+            actorEmail: admin.email,
+            entityType: "server",
+            entityId: existing.id,
+            action: "update",
+            reason: toNullable(request.body.reason),
+            before: {
+              ...serverAuditSnapshot(existing),
+              socials: beforeSocials,
+              supported_clients: beforeClients,
+            },
+            after: {
+              ...serverAuditSnapshot(row),
+              socials: afterSocials,
+              supported_clients: afterClients,
+            },
+          });
 
           return row;
         });
@@ -1419,6 +1528,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
+            owner_id: updated.ownerId,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },
@@ -1440,18 +1550,40 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
       },
     },
     async (request) => {
-      await requireAdminUser(app, request.headers.authorization);
+      const admin = await requireAdminUser(app, request.headers.authorization);
 
-      const rows = await app.db.db
-        .update(servers)
-        .set({
-          status: request.body.status,
-          updatedAt: new Date(),
-        })
-        .where(and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")))
-        .returning();
+      // Read-then-write in one transaction so the audit entry's before/after
+      // statuses (v1-mvp §7.1) can't race another mutation.
+      const updated = await app.db.db.transaction(async (tx) => {
+        const existing = requireFound(
+          await tx.query.servers.findFirst({
+            where: and(eq(servers.id, request.params.id), eq(servers.game, "mc_java")),
+          })
+        );
 
-      const updated = requireFound(rows[0]);
+        const rows = await tx
+          .update(servers)
+          .set({
+            status: request.body.status,
+            updatedAt: new Date(),
+          })
+          .where(eq(servers.id, existing.id))
+          .returning();
+        const row = rows[0]!;
+
+        await tx.insert(adminAuditLogs).values({
+          actorId: admin.id,
+          actorEmail: admin.email,
+          entityType: "server",
+          entityId: existing.id,
+          action: "status_change",
+          reason: toNullable(request.body.reason),
+          before: { status: existing.status },
+          after: { status: row.status },
+        });
+
+        return row;
+      });
 
       const [latest, metadata] = await Promise.all([
         findLatestHeartbeat(app, updated.id),
@@ -1461,6 +1593,7 @@ export const registerServerRoutes = (fastify: FastifyInstance): void => {
         {
           server: {
             ...normalizeServerPayload(updated, Date.now()),
+            owner_id: updated.ownerId,
             latest_metrics: normalizeMetricsPayload(latest),
             ...metadata,
           },

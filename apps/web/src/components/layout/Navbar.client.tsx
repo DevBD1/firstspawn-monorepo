@@ -127,6 +127,14 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
           </button>
           <LocaleSwitcher currentLocale={lang} />
           <div className="h-6 w-px bg-border mx-1" />
+          {/* Admin console entry — only rendered when the API marks this user as
+              an admin (email allowlist). The /admin routes are independently
+              gated server-side, so this is just a shortcut, not the guard. */}
+          {user?.is_admin && (
+            <WLButton href="/admin" variant="gold" size="sm">
+              Admin
+            </WLButton>
+          )}
           {isAuthenticated ? (
             <form action={logoutAction}>
               <input type="hidden" name="lang" value={lang} />
@@ -197,6 +205,11 @@ export default function Navbar({ lang, dictionary, isAuthenticated, user }: Navb
         </div>
 
         <div className="flex-shrink-0 border-t border-border bg-bg-panel p-6 flex flex-col gap-4">
+          {user?.is_admin && (
+            <WLButton href="/admin" variant="gold" fullWidth onClick={closeMobileIfOpen}>
+              Admin console
+            </WLButton>
+          )}
           {isAuthenticated ? (
             <form action={logoutAction} className="w-full">
               <input type="hidden" name="lang" value={lang} />

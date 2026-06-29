@@ -12,6 +12,8 @@ export interface AuthCookieUser {
   email_confirmed_at: string | null;
   username: string;
   locale: string;
+  /** True when the API's admin email allowlist includes this user. */
+  is_admin: boolean;
 }
 
 export interface AuthState {
@@ -59,6 +61,7 @@ const parseApiUser = (value: unknown): AuthCookieUser | null => {
         : null,
     username: record.username,
     locale: record.locale,
+    is_admin: record.is_admin === true,
   };
 };
 

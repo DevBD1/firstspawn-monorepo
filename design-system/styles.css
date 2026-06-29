@@ -1,0 +1,9 @@
+/* FirstSpawn — Worldlight design system entry point.
+ * Consumers link THIS one file. Keep it as @import lines only.
+ * Order: fonts → tokens → primitives. */
+
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/primitives.css";

@@ -1,0 +1,49 @@
+/* FirstSpawn — Worldlight spacing, radii, elevation, motion.
+ * Base unit 4px. Soft but disciplined: 1px borders everywhere,
+ * a fixed five-stop radius scale, hairline/lift elevation only. */
+
+:root {
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px; /* content gutter */
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-11: 44px; /* section rhythm max / min control height */
+
+  /* ---- Layout ---- */
+  --content-max: 1200px;
+  --gutter: 28px;
+  --sticky-offset: 76px; /* nav + filter rails offset */
+  --nav-height: 64px;
+
+  /* ---- Radius scale (use these stops ONLY) ---- */
+  --radius-tag: 6px; /* tiny metadata tags */
+  --radius-badge: 8px; /* provenance chips, step badges */
+  --radius-control: 10px; /* buttons, inputs, selects */
+  --radius-card: 12px; /* cards, rows, popovers */
+  --radius-panel: 14px; /* large panels */
+  --radius-modal: 16px; /* modal shells */
+  --radius-pill: 999px; /* chips, filter pills, toggles */
+
+  /* ---- Elevation (no offset/mechanical shadows, no glow) ---- */
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.4); /* resting hairline */
+  --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.45);
+
+  /* ---- Motion: calm, quick, honest ---- */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur-slow: 200ms; /* @kind other */
+
+  /* ---- Borders ---- */
+  --border-width: 1px;
+}
+
+:root[data-theme="day"] {
+  --shadow-card: 0 1px 0 rgba(60, 50, 30, 0.08);
+}

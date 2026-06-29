@@ -54,3 +54,7 @@ archive/
 
 # SQL files (database migrations and jobs)
 *.sql
+
+# Imported design kit (vendored verbatim from the claude.ai/design project so it
+# round-trips on re-sync — not subject to our source formatting).
+design-system/

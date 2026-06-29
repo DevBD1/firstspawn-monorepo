@@ -610,4 +610,49 @@ export const serverModerationLogs = pgTable(
   ]
 );
 
+// Immutable audit trail for critical admin actions (docs/releases/v1-mvp.md §7.1:
+// "All critical admin actions produce immutable audit entries with actor, time,
+// reason, and before/after values"). Distinct from server_moderation_logs, which
+// models user-facing moderation actions (with expiry); this is an append-only
+// catalog/operations audit with structured before/after snapshots. The API
+// exposes no update or delete path, so entries are effectively immutable.
+export const adminAuditLogs = pgTable(
+  "admin_audit_logs",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+
+    // The admin who acted. FK is set-null on user delete so a removed account can
+    // never break the audit chain; actor_email preserves attribution regardless.
+    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    actorEmail: varchar("actor_email", { length: 255 }).notNull(),
+
+    entityType: varchar("entity_type", { length: 20 }).notNull(),
+    entityId: uuid("entity_id"),
+
+    action: varchar("action", { length: 40 }).notNull(),
+    reason: text("reason"),
+
+    // Structured before/after values of the affected entity. Null `before` means
+    // creation; null `after` would mean hard deletion.
+    before: jsonb("before"),
+    after: jsonb("after"),
+
+    // Append-only: no updated_at. Audit rows are never edited.
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_admin_audit_logs_entity").on(table.entityType, table.entityId),
+    index("idx_admin_audit_logs_actor_id").on(table.actorId),
+    index("idx_admin_audit_logs_created_at").on(table.createdAt),
+    check("chk_admin_audit_logs_entity_type", sql`${table.entityType} in ('server')`),
+    check(
+      "chk_admin_audit_logs_action",
+      sql`${table.action} in ('create', 'update', 'status_change')`
+    ),
+  ]
+);
+
 export type UserRecord = typeof users.$inferSelect;
+export type AdminAuditLogRecord = typeof adminAuditLogs.$inferSelect;

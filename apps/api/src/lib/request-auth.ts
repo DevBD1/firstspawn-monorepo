@@ -53,13 +53,21 @@ export const requireCurrentUser = async (
   return user;
 };
 
+/**
+ * Single source of truth for "is this user an admin?". Gating is by the
+ * configured email allowlist (API_ADMIN_EMAIL_ALLOWLIST), not the users.role
+ * column, so the web "is_admin" flag and requireAdminUser stay in lockstep.
+ */
+export const isAdminEmail = (app: FastifyInstance, email: string): boolean =>
+  app.config.API_ADMIN_EMAIL_ALLOWLIST.includes(email.toLowerCase());
+
 export const requireAdminUser = async (
   app: FastifyInstance,
   authorization: string | undefined
 ): Promise<UserRecord> => {
   const user = await requireCurrentUser(app, authorization);
 
-  if (!app.config.API_ADMIN_EMAIL_ALLOWLIST.includes(user.email.toLowerCase())) {
+  if (!isAdminEmail(app, user.email)) {
     throw forbidden("Admin access is required.");
   }
 

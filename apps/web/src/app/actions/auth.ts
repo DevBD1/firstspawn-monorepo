@@ -144,6 +144,12 @@ const normalizeRedirectPath = (
     return nextPath;
   }
 
+  // The admin console is a real top-level route outside the localized tree, so
+  // honor it as a return target (e.g. login redirect from the /admin gate).
+  if (nextPath === "/admin" || nextPath.startsWith("/admin/")) {
+    return nextPath;
+  }
+
   return `/${lang}${fallback}`;
 };
 
