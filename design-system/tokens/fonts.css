@@ -1,0 +1,16 @@
+/* FirstSpawn — Worldlight webfonts.
+ * Display: Unbounded · UI/Body: Onest · Data: JetBrains Mono.
+ * The product loads these via next/font/google; the design system links
+ * the same families from the Google Fonts CDN so cards/kits render offline-ish.
+ * A self-hosted Unbounded-Bold.ttf is bundled in assets/fonts/ for handoff. */
+
+@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
+/* Self-hosted Unbounded Bold (the display identity font) for offline handoff. */
+@font-face {
+  font-family: "Unbounded";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/Unbounded-Bold.ttf") format("truetype");
+}

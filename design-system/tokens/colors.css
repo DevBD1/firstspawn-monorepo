@@ -1,0 +1,97 @@
+/* FirstSpawn — Worldlight color system.
+ * Two modes share one identity: Dusk (default, deep blue-grey night) and
+ * Day (warm paper light). Accent is Dawn Gold. Values mirror
+ * packages/ui/src/branding/tokens.ts — edit there in the product, here in the DS.
+ * Use the SEMANTIC roles; the raw mode values are references, not call sites. */
+
+:root {
+  /* ---- Surfaces (Dusk defaults) ---- */
+  --canvas: #12151e; /* page background */
+  --panel: #1a1f2b; /* cards, modals, nav */
+  --raised: #222838; /* hover rows, wells, quiet buttons */
+  --raised-hover: #2a3144;
+
+  /* ---- Text ---- */
+  --text: #edeff4; /* primary text */
+  --muted: #8b92a6; /* labels, metadata, helper text */
+
+  /* ---- Lines ---- */
+  --line: #2a3040; /* 1px borders + dividers */
+
+  /* ---- Dawn Gold accent ---- */
+  --accent: #e5a04c; /* primary actions, active states, brand */
+  --accent-deep: #c7822f; /* primary borders, hover/pressed */
+  --on-accent: #1c1304; /* text/icons on accent fills */
+
+  /* ---- Signal colors ---- */
+  --success: #62c887; /* online, verified-ok, voted */
+  --success-hover: #55b97a;
+  --danger: #e0635c; /* offline, errors, destructive, reports */
+  --danger-hover: #cf544d;
+  --gold: #e7c56a; /* verified ✓, premium, #1 rank — earned, not interactive */
+  --link: #9fb4e8; /* inline links */
+
+  /* ---- Media / placeholder tones ---- */
+  --art: #7d8bb0;
+  --art-dim: #6e7a9c;
+
+  /* ---- Inputs ---- */
+  --input-bg: rgba(26, 31, 43, 0.92);
+
+  /* ---- Atmosphere (hero/media only, behind content) ---- */
+  --hero-gradient: linear-gradient(
+    180deg,
+    #12151e 0%,
+    #1a1c2e 52%,
+    #3a2e33 84%,
+    #6b4a33 100%
+  ); /* @kind other */
+
+  /* ---- Aliases used by some component code ---- */
+  --background: var(--canvas);
+  --foreground: var(--text);
+  --bg-panel: var(--panel);
+  --secondary: var(--raised);
+  --secondary-hover: var(--raised-hover);
+  --border: var(--line);
+  --primary: var(--accent);
+  --primary-hover: var(--accent-deep);
+  --on-primary: var(--on-accent);
+  --fs-gold: var(--gold);
+}
+
+/* ---- Day mode: warm paper light. Accents darkened for AA on light canvas.
+ * Never use dusk accent values on day surfaces. ---- */
+:root[data-theme="day"] {
+  --canvas: #f2efe7;
+  --panel: #fbf9f4;
+  --raised: #ffffff;
+  --raised-hover: #f2efe7;
+
+  --text: #23272f;
+  --muted: #6e7280;
+  --line: #e2ddd0;
+
+  --accent: #b26f1f;
+  --accent-deep: #8f5717;
+  --on-accent: #fff6e8;
+
+  --success: #2e7d4f;
+  --success-hover: #24633e;
+  --danger: #b6453e;
+  --danger-hover: #963933;
+  --gold: #9a7b2e;
+  --link: #3d5fa8;
+
+  --art: #a89a78;
+  --art-dim: #9a8c6c;
+
+  --input-bg: #ffffff;
+  --hero-gradient: linear-gradient(
+    180deg,
+    #f2efe7 0%,
+    #f4ecda 55%,
+    #f0dfc0 85%,
+    #e8c9a0 100%
+  ); /* @kind other */
+}

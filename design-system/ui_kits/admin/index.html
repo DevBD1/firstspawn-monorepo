@@ -1,0 +1,151 @@
+<!-- @dsCard group="FirstSpawn Admin" viewport="1320x860" name="FirstSpawn — admin console" subtitle="Overview · Verification · Trust & abuse · Servers · Collector · Audit (interactive)" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FirstSpawn — Admin console</title>
+<link rel="icon" href="../../assets/firstspawn-icon.svg">
+<link rel="stylesheet" href="../../styles.css">
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  html, body { margin: 0; background: var(--canvas); color: var(--text); font-family: var(--font-body); }
+  * { box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; border: 2px solid var(--canvas); }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  /* Shared data grid. Rows share a collapsed 1px border grid; tint on hover. */
+  .fs-trow { transition: background var(--dur-fast); }
+  .fs-trow:hover { background: color-mix(in srgb, var(--raised) 55%, transparent); }
+
+  /* Compact density trims vertical padding on data rows + cards. */
+  [data-density="compact"] .fs-pad-y { padding-top: 9px; padding-bottom: 9px; }
+  [data-density="compact"] .fs-kpi { padding: 14px 15px; }
+
+  @keyframes fs-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fs-toast { animation: fs-toast-in 160ms var(--ease); }
+  @media (prefers-reduced-motion: reduce) { .fs-toast { animation: none; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="admin-data.js"></script>
+<script type="text/babel" src="parts.jsx"></script>
+<script type="text/babel" src="Overview.jsx"></script>
+<script type="text/babel" src="Verification.jsx"></script>
+<script type="text/babel" src="Trust.jsx"></script>
+<script type="text/babel" src="Servers.jsx"></script>
+<script type="text/babel" src="Collector.jsx"></script>
+<script type="text/babel" src="Audit.jsx"></script>
+<script type="text/babel" data-presets="react">
+  // Reference screens via window.* — do NOT redeclare (Babel hoists each file's
+  // top-level functions into shared global scope).
+  const SidebarC = window.Sidebar, TopbarC = window.Topbar, PageHeadC = window.PageHead, IconC = window.Icon;
+
+  function Toasts({ list, onDismiss }) {
+    return (
+      <div style={{ position: "fixed", right: 22, bottom: 22, zIndex: 200, display: "flex", flexDirection: "column", gap: 10, width: 320 }}>
+        {list.map((t) => (
+          <div key={t.id} className="fs-toast" style={{
+            display: "flex", alignItems: "flex-start", gap: 10, padding: "12px 13px",
+            background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 12, boxShadow: "var(--shadow-popover)",
+          }}>
+            <span style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 7, display: "inline-flex", alignItems: "center", justifyContent: "center",
+              color: t.tone === "danger" ? "var(--danger)" : t.tone === "success" ? "var(--success)" : "var(--accent)",
+              border: "1px solid var(--line)", background: "var(--canvas)" }}>
+              <IconC name={t.icon || "check"} size={13} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: "var(--font-ui)", fontSize: 12.5, fontWeight: 600, color: "var(--text)" }}>{t.title}</div>
+              {t.body && <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{t.body}</div>}
+            </div>
+            <button onClick={() => onDismiss(t.id)} style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", padding: 2 }}><IconC name="x" size={13} /></button>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function App() {
+    const D = window.FS_ADMIN;
+    const [route, setRoute] = React.useState("overview");
+    const [theme, setTheme] = React.useState(document.documentElement.getAttribute("data-theme") || "dusk");
+    const [density, setDensity] = React.useState("comfortable");
+    const [resolved, setResolved] = React.useState({});   // queue id -> "approved"|"rejected"|"escalated"
+    const [flagState, setFlagState] = React.useState({});  // flag id -> "dismissed"|"actioned"
+    const [toasts, setToasts] = React.useState([]);
+
+    React.useEffect(() => {
+      try {
+        const t = localStorage.getItem("fsadmin.theme"); if (t) { setTheme(t); document.documentElement.setAttribute("data-theme", t); }
+        const d = localStorage.getItem("fsadmin.density"); if (d) { setDensity(d); document.documentElement.setAttribute("data-density", d); }
+        const r = localStorage.getItem("fsadmin.route"); if (r) setRoute(r);
+      } catch (e) {}
+    }, []);
+
+    const go = (r) => { setRoute(r); try { localStorage.setItem("fsadmin.route", r); } catch (e) {} const m = document.getElementById("fs-main"); if (m) m.scrollTo(0, 0); };
+    const toggleTheme = () => { const n = theme === "day" ? "dusk" : "day"; setTheme(n); document.documentElement.setAttribute("data-theme", n); try { localStorage.setItem("fsadmin.theme", n); } catch (e) {} };
+    const toggleDensity = () => { const n = density === "compact" ? "comfortable" : "compact"; setDensity(n); document.documentElement.setAttribute("data-density", n); try { localStorage.setItem("fsadmin.density", n); } catch (e) {} };
+
+    const pushToast = (t) => {
+      const id = Math.random().toString(36).slice(2);
+      setToasts((p) => [...p, { ...t, id }]);
+      setTimeout(() => setToasts((p) => p.filter((x) => x.id !== id)), 4200);
+    };
+    const dismissToast = (id) => setToasts((p) => p.filter((x) => x.id !== id));
+
+    const resolveQueue = (id, decision, label) => {
+      setResolved((p) => ({ ...p, [id]: decision }));
+      const tone = decision === "approved" ? "success" : decision === "rejected" ? "danger" : "primary";
+      const icon = decision === "approved" ? "check" : decision === "rejected" ? "x" : "arrow-up-right";
+      pushToast({ title: label, body: id + " · logged to audit", tone, icon });
+    };
+    const resolveFlag = (id, decision, label) => {
+      setFlagState((p) => ({ ...p, [id]: decision }));
+      const tone = decision === "actioned" ? "danger" : "success";
+      pushToast({ title: label, body: id + " · logged to audit", tone, icon: decision === "actioned" ? "ban" : "check" });
+    };
+
+    const openQueue = D.queue.filter((q) => !resolved[q.id]).length;
+    const openFlags = D.flags.filter((f) => !flagState[f.id]).length;
+    const counts = { verification: openQueue, trust: openFlags };
+
+    const ctx = { D, go, resolved, resolveQueue, flagState, resolveFlag, density, pushToast };
+
+    let screen;
+    if (route === "overview") screen = <window.Overview {...ctx} />;
+    else if (route === "verification") screen = <window.Verification {...ctx} />;
+    else if (route === "trust") screen = <window.Trust {...ctx} />;
+    else if (route === "servers") screen = <window.Servers {...ctx} />;
+    else if (route === "collector") screen = <window.Collector {...ctx} />;
+    else if (route === "audit") screen = <window.Audit {...ctx} />;
+    else screen = <window.Overview {...ctx} />;
+
+    return (
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "stretch" }}>
+        <SidebarC route={route} onNavigate={go} counts={counts} />
+        <main id="fs-main" style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", maxHeight: "100vh", overflowY: "auto" }}>
+          <TopbarC route={route} theme={theme} onToggleTheme={toggleTheme} density={density} onToggleDensity={toggleDensity} onNavigate={go} updated="42s ago" />
+          <div style={{ padding: "26px 28px 64px", maxWidth: 1280, width: "100%", margin: "0 auto" }}>
+            {screen}
+          </div>
+        </main>
+        <Toasts list={toasts} onDismiss={dismissToast} />
+      </div>
+    );
+  }
+
+  function mount() {
+    if (!window.FirstSpawnWorldlightDesignSystem_20af72 || !window.Sidebar || !window.Overview || !window.Verification || !window.Trust || !window.Servers || !window.Collector || !window.Audit) {
+      return setTimeout(mount, 40);
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  }
+  mount();
+</script>
+</body>
+</html>

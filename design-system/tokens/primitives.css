@@ -1,0 +1,76 @@
+/* FirstSpawn — Worldlight global behavior primitives.
+ * Reusable interaction classes mirrored from the product's globals.css:
+ * button states, card lift, row tint, links, the live-process blink cursor. */
+
+.wl-btn {
+  transition:
+    filter var(--dur-fast),
+    background var(--dur-fast);
+}
+.wl-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.wl-btn:active:not(:disabled) {
+  filter: brightness(0.95);
+}
+.wl-btn:focus-visible,
+.wl-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Card: hairline at rest, 2px lift + accent border on hover when clickable. */
+.wl-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--dur-fast),
+    border-color var(--dur-fast);
+}
+.wl-card--clickable:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* List rows share borders; raised tint on hover. */
+.wl-row {
+  transition: background var(--dur-fast);
+}
+.wl-row:hover {
+  background: var(--raised);
+}
+
+.wl-link {
+  color: var(--link);
+  text-decoration: none;
+}
+.wl-link:hover {
+  text-decoration: underline;
+}
+
+/* Dashed = pending / empty / coming-soon. */
+.wl-dashed {
+  border: 1px dashed var(--line);
+}
+
+/* Blinking cursor — live processes only; honor reduced motion. */
+@keyframes wl-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.wl-blink {
+  animation: wl-blink 900ms step-start infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wl-blink {
+    animation: none;
+  }
+}
